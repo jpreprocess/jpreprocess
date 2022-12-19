@@ -9,9 +9,7 @@ mod njd_set;
 fn main() {
     let dictionary = DictionaryConfig {
         kind: None, //Some(DictionaryKind::IPADIC),
-        path: Some(PathBuf::from(
-            "dict/lindera-ipadic",
-        )),
+        path: Some(PathBuf::from("dict/lindera-ipadic")),
     };
     // let user_dictionary = UserDictionaryConfig {
     //     kind: Some(DictionaryKind::IPADIC),

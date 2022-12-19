@@ -19,6 +19,5 @@
   Rule 18 「*,接尾」は前にくっつける
 */
 
-
-pub const TE:&str="て";
-pub const DE:&str="で";
+pub const TE: &str = "て";
+pub const DE: &str = "で";

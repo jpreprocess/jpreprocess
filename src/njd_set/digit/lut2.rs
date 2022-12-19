@@ -1,5 +1,5 @@
-use phf::{phf_map, phf_set};
 use crate::njd_set::digit::lut_conversion::*;
+use phf::{phf_map, phf_set};
 
 pub const conversion_table: [(Keys, NumerativeLUT); 5] = [
     (numerative_class2b, conv_table2b),

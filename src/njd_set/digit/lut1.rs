@@ -1,21 +1,19 @@
-use phf::{phf_map, phf_set};
 use crate::njd_set::digit::lut_conversion::*;
+use phf::{phf_map, phf_set};
 
-pub const conversion_table:[(Keys,DigitLUT); 11]=[
-  (numerative_class1b,conv_table1b),
-  (numerative_class1c1,conv_table1c1),
-  (numerative_class1c2,conv_table1c2),
-  (numerative_class1d,conv_table1d),
-  (numerative_class1e,conv_table1e),
-  (numerative_class1f,conv_table1f),
-  (numerative_class1g,conv_table1g),
-  (numerative_class1h,conv_table1h),
-  (numerative_class1i,conv_table1i),
-  (numerative_class1j,conv_table1j),
-  (numerative_class1k,conv_table1k)
+pub const conversion_table: [(Keys, DigitLUT); 11] = [
+    (numerative_class1b, conv_table1b),
+    (numerative_class1c1, conv_table1c1),
+    (numerative_class1c2, conv_table1c2),
+    (numerative_class1d, conv_table1d),
+    (numerative_class1e, conv_table1e),
+    (numerative_class1f, conv_table1f),
+    (numerative_class1g, conv_table1g),
+    (numerative_class1h, conv_table1h),
+    (numerative_class1i, conv_table1i),
+    (numerative_class1j, conv_table1j),
+    (numerative_class1k, conv_table1k),
 ];
-
-
 
 const numerative_class1b: Keys = phf_set! {
    /* from paper */
@@ -103,8 +101,6 @@ const numerative_class1k: Keys = phf_set! {
    "振り", "針", "袋", "張り", "平米", "平方キロ", "平方キロメートル", "平方センチメートル",
    "平方メートル", "品目",
 };
-
-
 
 const conv_table1b: DigitLUT = phf_map! {
    "四"=> ("ヨ", 0, 1),

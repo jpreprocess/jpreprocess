@@ -1,8 +1,6 @@
 use phf::{phf_map, Map};
 
-
-
-pub const list: Map<&'static str, (&'static str,i32)> = phf_map! {
+pub const list: Map<&'static str, (&'static str, i32)> = phf_map! {
   "ヴョ"=>("ヴョ",1),
   "ヴュ"=>("ヴュ",1),
   "ヴャ"=>("ヴャ",1),
@@ -374,22 +372,21 @@ pub const list: Map<&'static str, (&'static str,i32)> = phf_map! {
   "ー"=>("ー",1),
 };
 
-pub const KIGOU:&str="記号";
+pub const KIGOU: &str = "記号";
 
 pub const symbol_list: Map<&'static str, &'static str> = phf_map! {
    "？"=> "？",
 };
 
-pub const FILLER:&str="フィラー";
+pub const FILLER: &str = "フィラー";
 
-pub const U:&str=       "ウ";
-pub const CHOUON:&str=  "ー";
+pub const U: &str = "ウ";
+pub const CHOUON: &str = "ー";
 
-pub const QUESTION:&str= "？";
-pub const DESU_STR:&str= "です";
-pub const MASU_STR:&str= "ます";
-pub const DESU_PRON:&str="デス";
-pub const MASU_PRON:&str="マス";
+pub const QUESTION: &str = "？";
+pub const DESU_STR: &str = "です";
+pub const MASU_STR: &str = "ます";
+pub const DESU_PRON: &str = "デス";
+pub const MASU_PRON: &str = "マス";
 
-pub const TOUTEN:&str="、";
-
+pub const TOUTEN: &str = "、";

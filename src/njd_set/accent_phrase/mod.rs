@@ -17,7 +17,7 @@ pub fn njd_set_accent_phrase(njd: &mut NJD) {
     }
 }
 
-fn chain_flag(prev: &NJDNode, node: &NJDNode)->bool {
+fn chain_flag(prev: &NJDNode, node: &NJDNode) -> bool {
     let prev_pos = prev.get_pos();
     let curr_pos = node.get_pos();
     match (
