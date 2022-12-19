@@ -11,11 +11,6 @@
 
 use phf::{phf_set, Set};
 
-pub const FILLER:&str="フィラー";
-pub const DOUSHI:&str="動詞";
-pub const JODOUSHI:&str="助動詞";
-pub const JOSHI:&str="助詞";
-pub const KANDOUSHI:&str="感動詞";
 pub const TOUTEN:&str="、";
 pub const QUESTION:&str="？";
 pub const QUOTATION:&str="’";

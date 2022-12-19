@@ -1,4 +1,3 @@
-pub const KAZU:&str="数";
 pub const ICHI:&str="一";
 pub const NI:&str="二";
 pub const SAN:&str="三";
@@ -14,6 +13,5 @@ pub const SEN:&str="千";
 pub const MAN:&str="万";
 pub const OKU:&str="億";
 pub const CHOU:&str="兆";
-pub const SUU:&str="数";
 pub const NAN:&str="何";
 pub const IKU:&str="幾";

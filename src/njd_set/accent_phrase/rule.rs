@@ -19,27 +19,6 @@
   Rule 18 「*,接尾」は前にくっつける
 */
 
-pub const MEISHI:&str="名詞";
-pub const KEIYOUSHI:&str="形容詞";
-pub const DOUSHI:&str="動詞";
-pub const FUKUSHI:&str="副詞";
-pub const SETSUZOKUSHI:&str="接続詞";
-pub const RENTAISHI:&str="連体詞";
-pub const JODOUSHI:&str="助動詞";
-pub const JOSHI:&str="助詞";
-pub const KIGOU:&str="記号";
-
-pub const KEIYOUDOUSHI_GOKAN:&str="形容動詞語幹";
-pub const FUKUSHI_KANOU:&str="副詞可能";
-pub const SETSUBI:&str="接尾";
-pub const HIJIRITSU:&str="非自立";
-pub const RENYOU:&str="連用";
-pub const SETSUZOKUJOSHI:&str="接続助詞";
-pub const SAHEN_SETSUZOKU:&str="サ変接続";
 
 pub const TE:&str="て";
 pub const DE:&str="で";
-pub const SETTOUSHI:&str="接頭詞";
-
-pub const SEI:&str="姓";
-pub const MEI:&str="名";

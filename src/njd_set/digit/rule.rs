@@ -1,11 +1,5 @@
 use phf::{phf_map, Map};
 
-pub const KIGOU: &str = "記号";
-pub const MEISHI: &str = "名詞";
-pub const KAZU: &str = "数";
-pub const SUUSETSUZOKU: &str = "数接続";
-pub const JOSUUSHI: &str = "助数詞";
-pub const FUKUSHIKANOU: &str = "副詞可能";
 pub const HAIHUN1:&str="―"     /* horizontal bar */;
 pub const HAIHUN2:&str="−"     /* minus sign */;
 pub const HAIHUN3:&str="‐"     /* hyphen */;

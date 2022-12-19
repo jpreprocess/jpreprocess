@@ -41,10 +41,6 @@ impl Debug for NJDNode {
     }
 }
 
-const nodata: &str = "*";
-
-const MAXBUFLEN: usize = 1024;
-
 impl NJDNode {
     pub fn new_single(s: &str) -> Self {
         let nodes = Self::load_str(s);

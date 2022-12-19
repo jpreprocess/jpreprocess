@@ -3,7 +3,6 @@ use crate::njd::NJD;
 mod rule;
 
 use crate::njd::pos::*;
-use crate::njd::*;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
