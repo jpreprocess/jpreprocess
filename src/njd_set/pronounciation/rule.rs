@@ -377,10 +377,9 @@ pub const list: Map<&'static str, (&'static str,i32)> = phf_map! {
 pub const KIGOU:&str="記号";
 pub const KAZU:&str="数";
 
-pub const symbol_list:&[&str] = &[
-   "？", "？",
-   "\0", "\0"
-];
+pub const symbol_list: Map<&'static str, &'static str> = phf_map! {
+   "？"=> "？",
+};
 
 pub const FILLER:&str="フィラー";
 

@@ -52,6 +52,13 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 }
                 node.ensure_orig();
             }
+            /* if known symbol, set the pronunciation */
+            if node.get_pron().is_none() {
+                if let Some(conv) = rule::symbol_list.get(node.get_string()) {
+                    node.set_read(conv);
+                    node.set_pron(conv);
+                }
+            }
             /* if the word is not kana, set pause symbol */
             if node.get_pron().is_none() {
                 node.set_read(rule::TOUTEN);
