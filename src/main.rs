@@ -69,8 +69,13 @@ fn main() {
     let stdout = String::from_utf8(output.stdout).unwrap();
     // println!("{}", stdout);
     for (node, ans) in njd.nodes.iter().zip(stdout.split("\n")) {
-        if format!("{:?}", node).as_str() != ans {
-            println!("Failed: {:?}--{}", node, ans);
+        let node_dbg = format!("{:?}", node).replace("*", "");
+        if node_dbg.as_str() != ans.replace("*", "") {
+            println!(
+                "Failed: {}--{}",
+                node_dbg,
+                ans.replace("*", "")
+            );
         }
     }
 }
