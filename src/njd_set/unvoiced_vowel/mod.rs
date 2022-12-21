@@ -104,39 +104,32 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             }
 
             /* rule 2: look-ahead for 'shi' */
-            match (mora_curr.flag, mora_next.flag, mora_nextnext.flag) {
-                (
-                    MoraFlag::Unknown | MoraFlag::Voice,
-                    MoraFlag::Unvoiced,
-                    MoraFlag::Unknown | MoraFlag::Voice,
-                ) => {
-                    if let Some(nlink_next) = mora_next.get_nlink(njd) {
-                        match (nlink_next.get_pos().get_group0(), nlink_next.get_pron()) {
-                            (
-                                Group0::Doushi | Group0::Jodoushi | Group0::Joshi,
-                                Some(rule::SHI),
-                            ) => {
-                                mora_next.flag = if mora_next.atype == mora_next.midx + 1 {
-                                    /* rule 4 */
-                                    MoraFlag::Voice
-                                } else {
-                                    /* rule 5 */
-                                    apply_unvoice_rule(&mora_next, &mora_nextnext)
-                                };
-                                if matches!(mora_next.flag, MoraFlag::Unvoiced) {
-                                    if matches!(mora_curr.flag, MoraFlag::Unknown) {
-                                        mora_curr.flag = MoraFlag::Voice;
-                                    }
-                                    if matches!(mora_nextnext.flag, MoraFlag::Unknown) {
-                                        mora_nextnext.flag = MoraFlag::Voice;
-                                    }
+            if matches!(mora_curr.flag, MoraFlag::Unknown | MoraFlag::Voice)
+                && matches!(mora_next.flag, MoraFlag::Unknown)
+                && matches!(mora_nextnext.flag, MoraFlag::Unknown | MoraFlag::Voice)
+            {
+                if let Some(nlink_next) = mora_next.get_nlink(njd) {
+                    match (nlink_next.get_pos().get_group0(), nlink_next.get_pron()) {
+                        (Group0::Doushi | Group0::Jodoushi | Group0::Joshi, Some(rule::SHI)) => {
+                            mora_next.flag = if mora_next.atype == mora_next.midx + 1 {
+                                /* rule 4 */
+                                MoraFlag::Voice
+                            } else {
+                                /* rule 5 */
+                                apply_unvoice_rule(&mora_next, &mora_nextnext)
+                            };
+                            if matches!(mora_next.flag, MoraFlag::Unvoiced) {
+                                if matches!(mora_curr.flag, MoraFlag::Unknown) {
+                                    mora_curr.flag = MoraFlag::Voice;
+                                }
+                                if matches!(mora_nextnext.flag, MoraFlag::Unknown) {
+                                    mora_nextnext.flag = MoraFlag::Voice;
                                 }
                             }
-                            _ => (),
                         }
+                        _ => (),
                     }
                 }
-                _ => (),
             }
 
             /* estimate unvoice */
@@ -161,7 +154,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 }
             }
             match (mora_curr.flag, mora_next.flag) {
-                (MoraFlag::Unvoiced, MoraFlag::Voice | MoraFlag::Unvoiced) => {
+                (MoraFlag::Unvoiced, MoraFlag::Unknown) => {
                     mora_next.flag = MoraFlag::Voice;
                 }
                 _ => (),
