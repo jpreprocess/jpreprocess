@@ -56,7 +56,6 @@ impl NJDNode {
             splited.resize(13, "");
             splited
         };
-        dbg!(&splited[1..splited.len()]);
         Self::load(splited[0], &splited[1..splited.len()])
     }
     pub fn load(string: &str, details: &[&str]) -> Vec<Self> {
@@ -97,24 +96,34 @@ impl NJDNode {
             return vec![node];
         }
 
-        orig.split(":")
+        let orig_splited: Vec<(&str, usize, usize)> = orig
+            .split(":")
             .scan(0, |len, orig| {
                 *len += orig.len();
                 Some((*len, orig))
             })
+            .enumerate()
+            .map(|(i, (len, orig))| (orig, i, len))
+            .collect();
+        let splited_len = orig_splited.len();
+
+        orig_splited
+            .into_iter()
             .zip(acc.split(":"))
             .zip(read.split(":"))
             .zip(pron.split(":"))
-            .enumerate()
-            .map(|(i, ((((len, orig), acc_morasize), read), pron))| {
+            .map(|((((orig, i, len), acc_morasize), read), pron)| {
                 let mut new_node = node.clone();
 
                 if i > 0 {
                     new_node.chain_flag = Some(false);
                 }
-
-                new_node.string = string[len - orig.len()..len].to_string();
                 new_node.orig = orig.to_string();
+                new_node.string = if i + 1 < splited_len {
+                    orig.to_string()
+                } else {
+                    string[len - orig.len()..string.len()].to_string()
+                };
                 new_node.read = match read {
                     "*" => None,
                     _ => Some(read.to_string()),
