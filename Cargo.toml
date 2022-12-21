@@ -10,3 +10,4 @@ license = "BSD-3-Clause"
 [dependencies]
 phf = { version = "0.11", features = ["macros"] }
 lindera = { version = "0.18", features = ["ipadic"] }
+aho-corasick = "0.7"

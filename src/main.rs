@@ -9,9 +9,13 @@ use njd::NJD;
 
 mod njd;
 mod njd_set;
+mod text_normalizer;
 
 fn main() {
-    let input_text = "あーあ、東京スカイツリーの最寄り駅はとうきょうスカイツリー駅です";
+    let input_text = "BOP試薬（ぼっぷしやく、BOP reagent）とは、ホスホニウムを共通構造に持つ、ペプチド合成などに用いられる試薬である。";
+
+    let normalizer = text_normalizer::TextNormalizer::new();
+    let normalized_input_text = normalizer.process(input_text);
 
     let dictionary = DictionaryConfig {
         kind: None,
@@ -25,7 +29,16 @@ fn main() {
     };
     let tokenizer = Tokenizer::with_config(config).unwrap();
 
-    let tokens = tokenizer.tokenize_with_details(input_text).unwrap();
+    let tokens = tokenizer
+        .tokenize_with_details(normalized_input_text.as_str())
+        .unwrap();
+    for token in &tokens {
+        println!(
+            "{},{}",
+            token.text,
+            token.details.as_ref().unwrap().join(",")
+        );
+    }
 
     let mut njd = NJD::from_tokens(tokens);
     njd_set::pronounciation::njd_set_pronunciation(&mut njd);
