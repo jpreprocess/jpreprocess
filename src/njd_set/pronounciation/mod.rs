@@ -43,9 +43,13 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                     }
                 }
 
-                node.add_read(read_add.as_str());
+                if !read_add.is_empty() {
+                    node.set_read(read_add.as_str());
+                    node.set_pron(read_add.as_str());
+                }
                 node.add_mora_size(mora_size_delta);
 
+                /* if filler, overwrite pos */
                 if node.get_mora_size() != 0 {
                     *node.get_pos_mut() = PartOfSpeech::new([rule::FILLER, "", "", ""]);
                 }
