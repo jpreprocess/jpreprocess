@@ -1,5 +1,6 @@
 pub mod node;
 pub mod pos;
+mod unk;
 
 use lindera::Token;
 pub use node::*;
@@ -17,6 +18,9 @@ impl NJD {
         let mut nodes = Vec::new();
         for token in tokens {
             let mut details = token.details.unwrap();
+            if details.len() == 1 && details[0] == "UNK" {
+                details = unk::resolve_unk(&token.text);
+            }
             details.resize(13, "".to_string());
             let details_str: Vec<&str> = details.iter().map(|detail| detail.as_str()).collect();
             nodes.extend(NJDNode::load(&token.text, &details_str[..]));
