@@ -181,12 +181,20 @@ pub fn njd_set_digit(njd: &mut NJD) {
     }
 
     for i in 0..njd.nodes.len() {
-        let (prev, node, next) = if let [prev, node, next] = &mut njd.nodes[i - 1..i + 2] {
-            (Some(prev), node, next)
-        } else if let [node, next] = &mut njd.nodes[i..i + 2] {
-            (None, node, next)
-        } else {
+        let (prev, node, next) = if i + 2 >= njd.nodes.len() {
             continue;
+        } else if i == 0 {
+            if let [node, next] = &mut njd.nodes[i..i + 2] {
+                (None, node, next)
+            } else {
+                continue;
+            }
+        } else {
+            if let [prev, node, next] = &mut njd.nodes[i - 1..i + 2] {
+                (Some(prev), node, next)
+            } else {
+                continue;
+            }
         };
         if next.get_string().is_empty() {
             continue;
@@ -245,7 +253,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
     }
 
     for i in 0..njd.nodes.len() - 2 {
-        if matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu) {
+        if i > 0 && matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu) {
             continue;
         }
         let (node, nx1, nx2, nx3_t) = if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
@@ -333,11 +341,11 @@ fn convert_digit_sequence(njd: &mut NJD, s: usize, e: usize) {
             .position(|node| is_period(node.get_string()))
             .map(|postion| s + postion)
             .unwrap_or(e);
-        njd.nodes[s..period]
+        njd.nodes[s..period + 1]
             .iter()
             .rev()
-            .position(|node| is_comma(node.get_string()))
-            .map(|postion| period - 1 - postion)
+            .position(|node| !is_comma(node.get_string()))
+            .map(|postion| period - postion)
             .unwrap_or(s)
     };
 
@@ -420,6 +428,7 @@ fn convert_digit_sequence(njd: &mut NJD, s: usize, e: usize) {
                     0
                 }
             };
+
             if final_digit + offset < e {
                 convert_digit_sequence(njd, final_digit + offset + 1, e);
             }
@@ -442,7 +451,8 @@ fn get_digit_sequence_score(njd: &NJD, start: usize, end: usize) -> i32 {
             _ => 0,
         };
         if is_period(string) {
-            if matches!(njd.nodes.get(start-2),Some(node) if node.get_pos().get_group1()==Group1::Kazu)
+            if start > 1
+                && matches!(njd.nodes.get(start-2),Some(node) if node.get_pos().get_group1()==Group1::Kazu)
             {
                 score -= 5;
             }
@@ -462,7 +472,9 @@ fn get_digit_sequence_score(njd: &NJD, start: usize, end: usize) -> i32 {
                 _ => 0,
             };
         }
-        if matches!(njd.nodes.get(start-2),Some(node) if node.get_string()==rule::BANGOU) {
+        if start > 1
+            && matches!(njd.nodes.get(start-2),Some(node) if node.get_string()==rule::BANGOU)
+        {
             score -= 2;
         }
     }
@@ -568,7 +580,9 @@ fn convert_digit_sequence_for_numerical_reading(njd: &mut NJD, start: usize, end
                 }
                 have = false;
             }
-            place -= 1;
+            if place > 0 {
+                place -= 1;
+            }
         } else {
             match digit {
                 None | Some(0) => {
@@ -592,7 +606,7 @@ fn convert_digit_sequence_for_numerical_reading(njd: &mut NJD, start: usize, end
 
     let mut offset = 0;
     for (index, node) in insertion_reserve {
-        njd.nodes.insert(start + index + offset, node);
+        njd.nodes.insert(start + index + offset + 1, node);
         offset += 1;
     }
 
@@ -611,7 +625,7 @@ fn get_digit(node: &NJDNode) -> Option<i32> {
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
         if let Some((_, replace)) = rule::numeral_list1.get(node.get_string()) {
-            node.replace_string(replace.to_string());
+            node.replace_string(replace);
             return true;
         }
     }

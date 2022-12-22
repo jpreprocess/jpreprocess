@@ -193,9 +193,9 @@ impl NJDNode {
     pub fn get_string(&self) -> &str {
         self.string.as_str()
     }
-    pub fn replace_string(&mut self, new_string: String) {
-        self.orig = self.string.clone();
-        self.string = new_string;
+    pub fn replace_string(&mut self, new_string: &str) {
+        self.orig = new_string.to_string();
+        self.string = new_string.to_string();
     }
     pub fn ensure_orig(&mut self) {
         if self.orig == "*" {
