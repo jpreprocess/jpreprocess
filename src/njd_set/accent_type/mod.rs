@@ -39,11 +39,11 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
                 ));
             }
 
-            if matches!(current.get_chain_flag(), Some(d) if d)
+            if matches!(current.get_chain_flag(), Some(true))
                 && matches!(prev.map(|n| n.get_pos().get_group1()), Some(Group1::Kazu))
                 && matches!(current.get_pos().get_group1(), Group1::Kazu)
             {
-                prev_acc = calc_digit_acc(prev.unwrap(), current, next.unwrap());
+                prev_acc = calc_digit_acc(prev.unwrap(), current, next);
             }
 
             if current.get_string() == rule::JYUU
@@ -150,23 +150,25 @@ fn get_rule(input_rule_option: Option<&str>, prev_pos: &PartOfSpeech) -> (i32, S
     (0, "*".to_string())
 }
 
-fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: &NJDNode) -> Option<i32> {
+fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> Option<i32> {
     let prev_str = prev.get_string();
     let current_str = current.get_string();
-    let next_str = next.get_string();
+    let next_str = next.map(|node| node.get_string());
     match (prev_str, current_str, next_str) {
         (
             rule::GO | rule::ROKU | rule::HACHI,
             rule::JYUU,
-            rule::ICHI
-            | rule::NI
-            | rule::SAN
-            | rule::YON
-            | rule::GO
-            | rule::ROKU
-            | rule::NANA
-            | rule::HACHI
-            | rule::KYUU,
+            Some(
+                rule::ICHI
+                | rule::NI
+                | rule::SAN
+                | rule::YON
+                | rule::GO
+                | rule::ROKU
+                | rule::NANA
+                | rule::HACHI
+                | rule::KYUU,
+            ),
         ) => Some(0),
         // (rule::SAN | rule::YON | rule::KYUU | rule::NAN | rule::SUU, rule::JYUU, _) => Some(1),
         (_, rule::JYUU, _) => Some(1),
