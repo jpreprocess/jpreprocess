@@ -16,9 +16,14 @@ pub fn njd_set_digit(njd: &mut NJD) {
     {
         let mut s: Option<usize> = None;
         let mut e: Option<usize> = None;
-        let nodes_len = njd.nodes.len();
-        for i in 0..njd.nodes.len() {
+
+        //convert_digit_sequence inserts nodes, so we can't use for loop.
+        //-- instead of ++ ensures that
+        //the insersion does not affect this loop
+        let mut count = njd.nodes.len();
+        while count > 0 {
             {
+                let i = njd.nodes.len() - count;
                 let node = &mut njd.nodes[i];
                 if matches!(node.get_pos().get_group1(), Group1::Kazu) {
                     find = true;
@@ -30,7 +35,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                     if s.is_none() {
                         s = Some(i);
                     }
-                    if i == nodes_len - 1 {
+                    if count == 1 {
                         e = Some(i);
                     }
                 } else {
@@ -44,6 +49,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 s = None;
                 e = None;
             }
+            count -= 1;
         }
     }
     if !find {
@@ -256,13 +262,21 @@ pub fn njd_set_digit(njd: &mut NJD) {
         if i > 0 && matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu) {
             continue;
         }
-        let (node, nx1, nx2, nx3_t) = if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
-            (node, nx1, nx2, Some(nx3))
-        } else if let [node, nx1, nx2] = &mut njd.nodes[i..i + 3] {
-            (node, nx1, nx2, None)
+
+        let (node, nx1, nx2, nx3_t) = if i + 3 < njd.nodes.len() {
+            if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
+                (node, nx1, nx2, Some(nx3))
+            } else {
+                unreachable!()
+            }
         } else {
-            continue;
+            if let [node, nx1, nx2] = &mut njd.nodes[i..i + 3] {
+                (node, nx1, nx2, None)
+            } else {
+                unreachable!()
+            }
         };
+
         let mut nx3 = nx3_t;
 
         enum UnsetPattern {
