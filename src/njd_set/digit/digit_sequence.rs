@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::njd::{
     node::NJDNode,
     pos::{Group1, Group2},
@@ -8,10 +6,11 @@ use crate::njd::{
 
 use super::rule;
 
+#[derive(Debug)]
 pub struct DigitSequence {
     start: usize,
     end: usize,
-    insertion_table: HashMap<usize, NJDNode>,
+    insertion_table: Vec<(usize, NJDNode)>,
 }
 
 impl DigitSequence {
@@ -37,8 +36,10 @@ impl DigitSequence {
                 result.push(Self {
                     start,
                     end,
-                    insertion_table: HashMap::new(),
-                })
+                    insertion_table: Vec::new(),
+                });
+                s = None;
+                e = None;
             }
         }
         result
@@ -329,8 +330,8 @@ impl DigitSequence {
         njd: &mut NJD,
         start: usize,
         end: usize,
-    ) -> HashMap<usize, NJDNode> {
-        let mut insertion_table: HashMap<usize, NJDNode> = HashMap::new();
+    ) -> Vec<(usize, NJDNode)> {
+        let mut insertion_table: Vec<(usize, NJDNode)> = Vec::new();
 
         let mut have = false;
 
@@ -359,7 +360,7 @@ impl DigitSequence {
                 if have {
                     if place > 0 {
                         let new_node = NJDNode::new_single(rule::numeral_list3[place]);
-                        insertion_table.insert(start + i, new_node);
+                        insertion_table.push((start + i, new_node));
                     }
                     have = false;
                 }
@@ -379,7 +380,7 @@ impl DigitSequence {
                     }
                     _ => {
                         let new_node = NJDNode::new_single(rule::numeral_list2[index]);
-                        insertion_table.insert(i, new_node);
+                        insertion_table.push((start + i, new_node));
                         have = true;
                     }
                 }
