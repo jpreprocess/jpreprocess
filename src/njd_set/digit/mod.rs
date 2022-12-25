@@ -4,54 +4,36 @@ mod lut3;
 mod lut_conversion;
 mod rule;
 
-use std::collections::HashMap;
+mod digit_sequence;
 
 use crate::njd::pos::*;
 use crate::njd::*;
 
-use self::lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv};
+use self::{
+    digit_sequence::DigitSequence,
+    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv},
+};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
-    {
-        let mut s: Option<usize> = None;
-        let mut e: Option<usize> = None;
 
-        //convert_digit_sequence inserts nodes, so we can't use for loop.
-        //-- instead of ++ ensures that
-        //the insersion does not affect this loop
-        let mut count = njd.nodes.len();
-        while count > 0 {
-            {
-                let i = njd.nodes.len() - count;
-                let node = &mut njd.nodes[i];
-                if matches!(node.get_pos().get_group1(), Group1::Kazu) {
-                    find = true;
-                }
-                if normalize_digit(node)
-                    || (matches!(node.get_pos().get_group1(), Group1::Kazu)
-                        && (is_period(node.get_string()) || is_comma(node.get_string())))
-                {
-                    if s.is_none() {
-                        s = Some(i);
-                    }
-                    if count == 1 {
-                        e = Some(i);
-                    }
-                } else {
-                    if s.is_some() {
-                        e = Some(i - 1);
-                    }
-                }
+    {
+        let mut sequences = DigitSequence::from_njd(njd);
+
+        for node in &mut njd.nodes {
+            if matches!(node.get_pos().get_group1(), Group1::Kazu) {
+                find = true;
             }
-            if let (Some(start), Some(end)) = (s, e) {
-                convert_digit_sequence(njd, start, end);
-                s = None;
-                e = None;
-            }
-            count -= 1;
+            normalize_digit(node);
         }
+
+        for seq in &mut sequences {
+            seq.convert_digit_sequence(njd);
+        }
+
+        DigitSequence::to_njd(njd, sequences);
     }
+
     if !find {
         return;
     }
@@ -333,310 +315,6 @@ pub fn njd_set_digit(njd: &mut NJD) {
     njd.remove_silent_node();
 }
 
-fn convert_digit_sequence(njd: &mut NJD, s: usize, e: usize) {
-    enum NumericalReading {
-        Numerical,
-        Unknown,
-        NonNumerical,
-    }
-    let mut numerical_reading = NumericalReading::Numerical;
-
-    if is_comma(njd.nodes[s].get_string()) || is_period(njd.nodes[s].get_string()) {
-        if s != e && s + 1 < njd.nodes.len() {
-            convert_digit_sequence(njd, s + 1, e);
-        }
-        return;
-    }
-
-    /* find final digit before period */
-    let final_digit_before_period = {
-        let before_period = njd.nodes[s..e]
-            .iter()
-            .position(|node| is_period(node.get_string()))
-            .map(|postion| s + postion - 1)
-            .unwrap_or(e);
-        njd.nodes[s..before_period + 1]
-            .iter()
-            .rev()
-            .position(|node| !is_comma(node.get_string()))
-            .map(|postion| before_period - postion)
-            .unwrap_or(s)
-    };
-
-    /* check commas */
-    let (first_comma_before_period, num_comma) = {
-        let mut first_comma_before_period: Option<usize> = None;
-        let mut num_comma = 0;
-        for (i, node) in njd.nodes[s..final_digit_before_period + 1]
-            .iter()
-            .rev()
-            .enumerate()
-        {
-            if is_comma(node.get_string()) {
-                first_comma_before_period = Some(i);
-                num_comma += 1;
-                if matches!(numerical_reading, NumericalReading::Numerical) && i % 4 != 3 {
-                    numerical_reading = NumericalReading::Unknown;
-                }
-            } else if matches!(numerical_reading, NumericalReading::Numerical) && i % 4 == 3 {
-                numerical_reading = NumericalReading::Unknown;
-            }
-        }
-        (
-            first_comma_before_period.map(|p| final_digit_before_period - p),
-            num_comma,
-        )
-    };
-
-    /* check zero-start */
-    if s != final_digit_before_period && matches!(get_digit(&njd.nodes[s]), Some(0)) {
-        numerical_reading = NumericalReading::NonNumerical;
-    }
-
-    /* if no info, set unknown flag */
-    if matches!(numerical_reading, NumericalReading::Numerical) && num_comma == 0 {
-        numerical_reading = NumericalReading::Unknown;
-    }
-
-    match numerical_reading {
-        NumericalReading::Numerical => {
-            /* numerical reading until period */
-            if num_comma > 0 {
-                /* remove all commas before period */
-                let mut i = 0;
-                njd.nodes.retain(|node| {
-                    let b = i < s || final_digit_before_period <= i || is_comma(node.get_string());
-                    i += 1;
-                    b
-                });
-            }
-            let offset =
-                convert_digit_sequence_for_numerical_reading(njd, s, final_digit_before_period);
-            if final_digit_before_period + offset < e {
-                convert_digit_sequence(njd, final_digit_before_period + offset + 1, e + offset);
-            }
-        }
-        _ => {
-            let final_digit = if let Some(p) = first_comma_before_period {
-                p - 1
-            } else {
-                final_digit_before_period
-            };
-
-            if matches!(numerical_reading, NumericalReading::Unknown) {
-                numerical_reading = if get_digit_sequence_score(njd, s, final_digit) >= 0 {
-                    NumericalReading::Numerical
-                } else {
-                    NumericalReading::NonNumerical
-                }
-            }
-
-            let offset = match numerical_reading {
-                NumericalReading::Numerical => {
-                    /* numerical reading until comma */
-                    convert_digit_sequence_for_numerical_reading(njd, s, final_digit)
-                }
-                _ => {
-                    /* non-numerical reading */
-                    convert_digit_sequence_for_non_numerical_reading(njd, s, final_digit);
-                    0
-                }
-            };
-
-            if final_digit + offset < e {
-                convert_digit_sequence(njd, final_digit + offset + 1, e + offset);
-            }
-        }
-    }
-}
-
-fn get_digit_sequence_score(njd: &NJD, start: usize, end: usize) -> i32 {
-    let mut score = 0;
-    if start > 0 {
-        let (pos, string) = {
-            let node = &njd.nodes[start - 1];
-            (node.get_pos(), node.get_string())
-        };
-        score += match (pos.get_group1(), pos.get_group2()) {
-            (Group1::Suusetsuzoku, Group2::Josuushi) => 3,
-            (Group1::Suusetsuzoku, _) => 2,
-            (Group1::FukushiKanou, _) => 1,
-            (_, Group2::Josuushi) => 1,
-            _ => 0,
-        };
-        if is_period(string) {
-            if start > 1
-                && matches!(njd.nodes.get(start-2),Some(node) if node.get_pos().get_group1()==Group1::Kazu)
-            {
-                score -= 5;
-            }
-        } else {
-            score += match string {
-                rule::HAIHUN1 => -2,
-                rule::HAIHUN2 => -2,
-                rule::HAIHUN3 => -2,
-                rule::HAIHUN4 => -2,
-                rule::HAIHUN5 => -2,
-                rule::KAKKO1 => match njd.nodes.get(start - 2) {
-                    Some(node) if node.get_pos().get_group1() == Group1::Kazu => -2,
-                    _ => 0,
-                },
-                rule::KAKKO2 => -2,
-                rule::BANGOU => -2,
-                _ => 0,
-            };
-        }
-        if start > 1
-            && matches!(njd.nodes.get(start-2),Some(node) if node.get_string()==rule::BANGOU)
-        {
-            score -= 2;
-        }
-    }
-    if end + 1 < njd.nodes.len() {
-        let (pos, string) = {
-            let node = &njd.nodes[end + 1];
-            (node.get_pos(), node.get_string())
-        };
-        score += match (pos.get_group1(), pos.get_group2()) {
-            (Group1::FukushiKanou, _) => 2,
-            (_, Group2::Josuushi) => 2,
-            _ => match string {
-                rule::HAIHUN1 => -2,
-                rule::HAIHUN2 => -2,
-                rule::HAIHUN3 => -2,
-                rule::HAIHUN4 => -2,
-                rule::HAIHUN5 => -2,
-                rule::KAKKO1 => -2,
-                rule::KAKKO2 => match njd.nodes.get(end + 2) {
-                    Some(node) if node.get_pos().get_group1() == Group1::Kazu => -2,
-                    _ => 0,
-                },
-                rule::BANGOU => -2,
-                _ => 0,
-            },
-        }
-    }
-    score
-}
-
-fn convert_digit_sequence_for_non_numerical_reading(njd: &mut NJD, start: usize, end: usize) {
-    if end - start == 0 {
-        return;
-    }
-
-    let mut size = 0;
-    for i in start..end + 1 {
-        let (prev, node) = if i > 0 {
-            if let [prev, node] = &mut njd.nodes[i - 1..i + 1] {
-                (Some(prev), node)
-            } else {
-                unreachable!();
-            }
-        } else {
-            (None, &mut njd.nodes[i])
-        };
-
-        match node.get_string() {
-            rule::ZERO1 | rule::ZERO2 => {
-                node.set_pron(rule::ZERO_AFTER_DP);
-                node.set_mora_size(2);
-            }
-            rule::TWO => {
-                node.set_pron(rule::TWO_AFTER_DP);
-                node.set_mora_size(2);
-            }
-            rule::FIVE => {
-                node.set_pron(rule::FIVE_AFTER_DP);
-                node.set_mora_size(2);
-            }
-            _ => (),
-        }
-        node.unset_chain_rule();
-        if size % 2 == 0 {
-            node.set_chain_flag(false);
-        } else {
-            node.set_chain_flag(true);
-            prev.unwrap().set_acc(3);
-        }
-        size += 1;
-    }
-}
-
-fn convert_digit_sequence_for_numerical_reading(njd: &mut NJD, start: usize, end: usize) -> usize {
-    let mut have = false;
-
-    let size = end - start + 1;
-    let mut index = match size % 4 {
-        0 => 4,
-        i => i,
-    };
-    let mut place = if size > index { (size - index) / 4 } else { 0 };
-    if size <= 1 || place > 17 {
-        return 0;
-    }
-
-    index -= 1;
-
-    let mut insertion_reserve: HashMap<usize, NJDNode> = HashMap::new();
-
-    for (i, node) in njd.nodes[start..end + 1].iter_mut().enumerate() {
-        let digit = get_digit(node);
-        if index == 0 {
-            if matches!(digit, Some(0)) {
-                node.unset_pron();
-                node.set_acc(0);
-                node.set_mora_size(0);
-            } else {
-                have = true;
-            }
-            if have {
-                if place > 0 {
-                    let new_node = NJDNode::new_single(rule::numeral_list3[place]);
-                    insertion_reserve.insert(i, new_node);
-                }
-                have = false;
-            }
-            if place > 0 {
-                place -= 1;
-            }
-        } else {
-            match digit {
-                None | Some(0) => {
-                    node.unset_pron();
-                    node.set_acc(0);
-                    node.set_mora_size(0);
-                }
-                Some(1) => {
-                    *node = NJDNode::new_single(rule::numeral_list2[index]);
-                    have = true;
-                }
-                _ => {
-                    let new_node = NJDNode::new_single(rule::numeral_list2[index]);
-                    insertion_reserve.insert(i, new_node);
-                    have = true;
-                }
-            }
-        }
-        index = if index == 0 { 3 } else { index - 1 };
-    }
-
-    let mut offset = 0;
-    for (index, node) in insertion_reserve {
-        njd.nodes.insert(start + index + offset + 1, node);
-        offset += 1;
-    }
-
-    offset
-}
-
-fn get_digit(node: &NJDNode) -> Option<i32> {
-    if !node.get_string().is_empty() && matches!(node.get_pos().get_group1(), Group1::Kazu) {
-        if let Some((digit, _)) = rule::numeral_list1.get(node.get_string()) {
-            return Some(*digit);
-        }
-    }
-    None
-}
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
@@ -650,18 +328,4 @@ fn normalize_digit(node: &mut NJDNode) -> bool {
 
 fn is_period(s: &str) -> bool {
     matches!(s, rule::TEN1 | rule::TEN2)
-}
-fn is_comma(s: &str) -> bool {
-    matches!(s, rule::COMMA)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{get_digit, NJDNode};
-
-    #[test]
-    fn get_digit_1() {
-        let node = NJDNode::new_single("１,名詞,数,*,*,*,*,１,イチ,イチ");
-        assert_eq!(get_digit(&node).unwrap(), 1);
-    }
 }
