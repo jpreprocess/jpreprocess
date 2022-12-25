@@ -4,12 +4,13 @@ use crate::njd::{pos::Group0, NJDNode, NJD};
 
 pub mod rule;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 enum MoraFlag {
     Unknown,  //-1
     Voice,    // 0
     Unvoiced, // 1
 }
+#[derive(Debug)]
 struct MoraState {
     pub mora: Option<&'static str>,
     pub nlink: Option<usize>,
@@ -284,9 +285,7 @@ fn search_list(set: &'static Set<&'static str>, key: &str) -> Option<&'static &'
     match (l1, l2) {
         (Some(l1u), Some(l2u)) => {
             let s2: String = [l1u, l2u].iter().collect();
-            rule::mora_list
-                .get_key(&s2)
-                .or_else(|| set.get_key(&l1u.to_string()))
+            set.get_key(&s2).or_else(|| set.get_key(&l1u.to_string()))
         }
         (Some(l1u), None) => set.get_key(&l1u.to_string()),
         _ => None,
