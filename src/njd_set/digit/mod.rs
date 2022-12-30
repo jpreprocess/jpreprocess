@@ -112,9 +112,9 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.get_string(),
                 prev.get_string(),
             ) {
-                node.set_pron(lut1_conversion.0);
-                node.set_acc(lut1_conversion.1);
-                node.set_mora_size(lut1_conversion.2);
+                prev.set_pron(lut1_conversion.0);
+                prev.set_acc(lut1_conversion.1);
+                prev.set_mora_size(lut1_conversion.2);
             }
             /* convert numerative pron */
             if let Some(lut2_new_pron) = find_numerative_pron_conv(
@@ -196,8 +196,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
         ) {
             (None, None) => (),
             (Some(Group0::Kigou), _) => (),
-            (_, Some(Group1::Kazu)) => (),
-            _ => continue,
+            (_, Some(Group1::Kazu)) => continue,
+            _ => (),
         };
         match (next.get_pos().get_group1(), next.get_pos().get_group2()) {
             (Group1::FukushiKanou, _) => (),
@@ -240,81 +240,84 @@ pub fn njd_set_digit(njd: &mut NJD) {
         }
     }
 
-    for i in 0..njd.nodes.len() - 2 {
-        if i > 0 && matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu) {
-            continue;
-        }
+    if njd.nodes.len() > 2 {
+        for i in 0..njd.nodes.len() - 2 {
+            if i > 0
+                && matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu)
+            {
+                continue;
+            }
 
-        let (node, nx1, nx2, nx3_t) = if i + 3 < njd.nodes.len() {
-            if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
-                (node, nx1, nx2, Some(nx3))
+            let (node, nx1, nx2, nx3_t) = if i + 3 < njd.nodes.len() {
+                if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
+                    (node, nx1, nx2, Some(nx3))
+                } else {
+                    unreachable!()
+                }
             } else {
-                unreachable!()
-            }
-        } else {
-            if let [node, nx1, nx2] = &mut njd.nodes[i..i + 3] {
-                (node, nx1, nx2, None)
-            } else {
-                unreachable!()
-            }
-        };
+                if let [node, nx1, nx2] = &mut njd.nodes[i..i + 3] {
+                    (node, nx1, nx2, None)
+                } else {
+                    unreachable!()
+                }
+            };
 
-        let mut nx3 = nx3_t;
+            let mut nx3 = nx3_t;
 
-        enum UnsetPattern {
-            None,
-            Nx1Nx2,
-            Nx2Nx3,
-        }
+            enum UnsetPattern {
+                None,
+                Nx1Nx2,
+                Nx2Nx3,
+            }
 
-        let (node_s, nx1_s, unset) = match (
-            node.get_string(),
-            nx1.get_string(),
-            nx2.get_string(),
-            nx3.as_ref().map(|n| n.get_string()),
-        ) {
-            (rule::TEN, rule::FOUR, rule::NICHI, _) => {
-                (Some(rule::JUYOKKA), None, UnsetPattern::Nx1Nx2)
+            let (node_s, nx1_s, unset) = match (
+                node.get_string(),
+                nx1.get_string(),
+                nx2.get_string(),
+                nx3.as_ref().map(|n| n.get_string()),
+            ) {
+                (rule::TEN, rule::FOUR, rule::NICHI, _) => {
+                    (Some(rule::JUYOKKA), None, UnsetPattern::Nx1Nx2)
+                }
+                (rule::TEN, rule::FOUR, rule::NICHIKAN, _) => {
+                    (Some(rule::JUYOKKAKAN), None, UnsetPattern::Nx1Nx2)
+                }
+                (rule::TWO, rule::TEN, rule::NICHI, _) => {
+                    (Some(rule::HATSUKA), None, UnsetPattern::Nx1Nx2)
+                }
+                (rule::TWO, rule::TEN, rule::NICHIKAN, _) => {
+                    (Some(rule::HATSUKAKAN), None, UnsetPattern::Nx1Nx2)
+                }
+                (rule::TWO, rule::TEN, rule::FOUR, Some(rule::NICHI)) => {
+                    (Some(rule::NIJU), Some(rule::YOKKA), UnsetPattern::Nx2Nx3)
+                }
+                (rule::TWO, rule::TEN, rule::FOUR, Some(rule::NICHIKAN)) => {
+                    (Some(rule::NIJU), Some(rule::YOKKAKAN), UnsetPattern::Nx2Nx3)
+                }
+                _ => (None, None, UnsetPattern::None),
+            };
+            if let Some(new_node_s) = node_s {
+                *node = NJDNode::new_single(new_node_s);
             }
-            (rule::TEN, rule::FOUR, rule::NICHIKAN, _) => {
-                (Some(rule::JUYOKKAKAN), None, UnsetPattern::Nx1Nx2)
+            if let Some(new_node_s) = nx1_s {
+                *nx1 = NJDNode::new_single(new_node_s);
             }
-            (rule::TWO, rule::TEN, rule::NICHI, _) => {
-                (Some(rule::HATSUKA), None, UnsetPattern::Nx1Nx2)
-            }
-            (rule::TWO, rule::TEN, rule::NICHIKAN, _) => {
-                (Some(rule::HATSUKAKAN), None, UnsetPattern::Nx1Nx2)
-            }
-            (rule::TWO, rule::TEN, rule::FOUR, Some(rule::NICHI)) => {
-                (Some(rule::NIJU), Some(rule::YOKKA), UnsetPattern::Nx2Nx3)
-            }
-            (rule::TWO, rule::TEN, rule::FOUR, Some(rule::NICHIKAN)) => {
-                (Some(rule::NIJU), Some(rule::YOKKAKAN), UnsetPattern::Nx2Nx3)
-            }
-            _ => (None, None, UnsetPattern::None),
-        };
-        if let Some(new_node_s) = node_s {
-            *node = NJDNode::new_single(new_node_s);
-        }
-        if let Some(new_node_s) = nx1_s {
-            *nx1 = NJDNode::new_single(new_node_s);
-        }
-        match unset {
-            UnsetPattern::None => (),
-            UnsetPattern::Nx1Nx2 => {
-                nx1.unset_pron();
-                nx2.unset_pron();
-            }
-            UnsetPattern::Nx2Nx3 => {
-                nx2.unset_pron();
-                nx3.as_mut().unwrap().unset_pron();
+            match unset {
+                UnsetPattern::None => (),
+                UnsetPattern::Nx1Nx2 => {
+                    nx1.unset_pron();
+                    nx2.unset_pron();
+                }
+                UnsetPattern::Nx2Nx3 => {
+                    nx2.unset_pron();
+                    nx3.as_mut().unwrap().unset_pron();
+                }
             }
         }
     }
 
     njd.remove_silent_node();
 }
-
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
