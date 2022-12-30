@@ -10,7 +10,7 @@ use super::rule;
 pub struct DigitSequence {
     start: usize,
     end: usize,
-    insertion_table: Vec<(usize, NJDNode)>,
+    insertion_list: Vec<(usize, Option<NJDNode>)>,
 }
 
 impl DigitSequence {
@@ -36,7 +36,7 @@ impl DigitSequence {
                 result.push(Self {
                     start,
                     end,
-                    insertion_table: Vec::new(),
+                    insertion_list: Vec::new(),
                 });
                 s = None;
                 e = None;
@@ -45,11 +45,19 @@ impl DigitSequence {
         result
     }
     pub fn to_njd(njd: &mut NJD, sequences: Vec<Self>) {
-        let mut offset = 0;
-        for seq in sequences {
-            for (index, node) in seq.insertion_table {
-                njd.nodes.insert(index + offset + 1, node);
-                offset += 1;
+        let mut offset: i64 = 0;
+        for mut seq in sequences {
+            seq.insertion_list
+                .sort_unstable_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+            for (index, node) in seq.insertion_list {
+                let tmp_index: usize = ((index as i64) + offset) as usize;
+                if let Some(node) = node {
+                    njd.nodes.insert(tmp_index + 1, node);
+                    offset += 1;
+                } else {
+                    njd.nodes.remove(tmp_index);
+                    offset -= 1;
+                }
             }
         }
     }
@@ -148,23 +156,12 @@ impl DigitSequence {
         match numerical_reading {
             NumericalReading::Numerical => {
                 /* numerical reading until period */
-                if num_comma > 0 {
-                    /* remove all commas before period */
-                    let mut i = 0;
-                    njd.nodes.retain(|node| {
-                        let b = i < self.start
-                            || final_digit_before_period <= i
-                            || Self::is_comma(node.get_string());
-                        i += 1;
-                        b
-                    });
-                }
                 let added = Self::convert_digit_sequence_for_numerical_reading(
                     njd,
                     self.start,
                     final_digit_before_period,
                 );
-                self.insertion_table.extend(added);
+                self.insertion_list.extend(added);
                 if final_digit_before_period < self.end {
                     self.start = final_digit_before_period + 1;
                     self.convert_digit_sequence(njd);
@@ -194,7 +191,7 @@ impl DigitSequence {
                             self.start,
                             final_digit,
                         );
-                        self.insertion_table.extend(added);
+                        self.insertion_list.extend(added);
                     }
                     _ => {
                         /* non-numerical reading */
@@ -330,12 +327,18 @@ impl DigitSequence {
         njd: &mut NJD,
         start: usize,
         end: usize,
-    ) -> Vec<(usize, NJDNode)> {
-        let mut insertion_table: Vec<(usize, NJDNode)> = Vec::new();
+    ) -> Vec<(usize, Option<NJDNode>)> {
+        let mut insertion_table: Vec<(usize, Option<NJDNode>)> = Vec::new();
 
         let mut have = false;
 
-        let size = end - start + 1;
+        let size = end - start + 1
+            - njd
+                .nodes
+                .iter()
+                .filter(|node| Self::is_comma(node.get_string()))
+                .count();
+
         let mut index = match size % 4 {
             0 => 4,
             i => i,
@@ -348,6 +351,12 @@ impl DigitSequence {
         index -= 1;
 
         for (i, node) in njd.nodes[start..end + 1].iter_mut().enumerate() {
+            if Self::is_comma(node.get_string()) {
+                /* remove all commas before period */
+                insertion_table.push((i, None));
+                continue;
+            }
+
             let digit = Self::get_digit(node);
             if index == 0 {
                 if matches!(digit, Some(0)) {
@@ -360,7 +369,7 @@ impl DigitSequence {
                 if have {
                     if place > 0 {
                         let new_node = NJDNode::new_single(rule::numeral_list3[place]);
-                        insertion_table.push((start + i, new_node));
+                        insertion_table.push((start + i, Some(new_node)));
                     }
                     have = false;
                 }
@@ -380,7 +389,7 @@ impl DigitSequence {
                     }
                     _ => {
                         let new_node = NJDNode::new_single(rule::numeral_list2[index]);
-                        insertion_table.push((start + i, new_node));
+                        insertion_table.push((start + i, Some(new_node)));
                         have = true;
                     }
                 }
