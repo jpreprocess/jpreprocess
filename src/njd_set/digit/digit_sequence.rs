@@ -84,6 +84,7 @@ impl DigitSequence {
     }
 
     pub fn convert_digit_sequence(&mut self, njd: &mut NJD) {
+        #[derive(Debug)]
         enum NumericalReading {
             Numerical,
             Unknown,
@@ -244,6 +245,15 @@ impl DigitSequence {
                     },
                     rule::KAKKO2 => -2,
                     rule::BANGOU => -2,
+                    s if Self::is_period(s) => {
+                        if start > 1
+                            && matches!(njd.nodes.get(start-2),Some(node) if node.get_pos().get_group1()==Group1::Kazu)
+                        {
+                            -5
+                        } else {
+                            0
+                        }
+                    }
                     _ => 0,
                 };
             }
@@ -261,21 +271,23 @@ impl DigitSequence {
             score += match (pos.get_group1(), pos.get_group2()) {
                 (Group1::FukushiKanou, _) => 2,
                 (_, Group2::Josuushi) => 2,
-                _ => match string {
-                    rule::HAIHUN1 => -2,
-                    rule::HAIHUN2 => -2,
-                    rule::HAIHUN3 => -2,
-                    rule::HAIHUN4 => -2,
-                    rule::HAIHUN5 => -2,
-                    rule::KAKKO1 => -2,
-                    rule::KAKKO2 => match njd.nodes.get(end + 2) {
-                        Some(node) if node.get_pos().get_group1() == Group1::Kazu => -2,
-                        _ => 0,
-                    },
-                    rule::BANGOU => -2,
+                _ => 0,
+            };
+            score += match string {
+                rule::HAIHUN1 => -2,
+                rule::HAIHUN2 => -2,
+                rule::HAIHUN3 => -2,
+                rule::HAIHUN4 => -2,
+                rule::HAIHUN5 => -2,
+                rule::KAKKO1 => -2,
+                rule::KAKKO2 => match njd.nodes.get(end + 2) {
+                    Some(node) if node.get_pos().get_group1() == Group1::Kazu => -2,
                     _ => 0,
                 },
-            }
+                rule::BANGOU => -2,
+                s if Self::is_period(s) => 4,
+                _ => 0,
+            };
         }
         score
     }
