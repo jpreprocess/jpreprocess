@@ -64,7 +64,7 @@ impl DigitSequence {
 
     fn is_digit(node: &NJDNode) -> bool {
         matches!(node.get_pos().get_group1(), Group1::Kazu)
-            && (rule::numeral_list1.contains_key(node.get_string())
+            && (rule::NUMERAL_LIST1.contains_key(node.get_string())
                 || Self::is_period(node.get_string())
                 || Self::is_comma(node.get_string()))
     }
@@ -76,7 +76,7 @@ impl DigitSequence {
     }
     fn get_digit(node: &NJDNode) -> Option<i32> {
         if !node.get_string().is_empty() && matches!(node.get_pos().get_group1(), Group1::Kazu) {
-            if let Some((digit, _)) = rule::numeral_list1.get(node.get_string()) {
+            if let Some((digit, _)) = rule::NUMERAL_LIST1.get(node.get_string()) {
                 return Some(*digit);
             }
         }
@@ -380,7 +380,7 @@ impl DigitSequence {
                 }
                 if have {
                     if place > 0 {
-                        let new_node = NJDNode::new_single(rule::numeral_list3[place]);
+                        let new_node = NJDNode::new_single(rule::NUMERAL_LIST3[place]);
                         insertion_table.push((start + i, Some(new_node)));
                     }
                     have = false;
@@ -396,11 +396,11 @@ impl DigitSequence {
                         node.set_mora_size(0);
                     }
                     Some(1) => {
-                        *node = NJDNode::new_single(rule::numeral_list2[index]);
+                        *node = NJDNode::new_single(rule::NUMERAL_LIST2[index]);
                         have = true;
                     }
                     _ => {
-                        let new_node = NJDNode::new_single(rule::numeral_list2[index]);
+                        let new_node = NJDNode::new_single(rule::NUMERAL_LIST2[index]);
                         insertion_table.push((start + i, Some(new_node)));
                         have = true;
                     }

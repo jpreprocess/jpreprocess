@@ -108,7 +108,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
             }
             /* convert digit pron */
             if let Some(lut1_conversion) = find_digit_pron_conv(
-                &lut1::conversion_table,
+                &lut1::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -118,7 +118,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
             }
             /* convert numerative pron */
             if let Some(lut2_new_pron) = find_numerative_pron_conv(
-                &lut2::conversion_table,
+                &lut2::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
                 node.get_pron().unwrap(),
@@ -137,19 +137,19 @@ pub fn njd_set_digit(njd: &mut NJD) {
             }
             if matches!(node.get_pos().get_group1(), Group1::Kazu) && !node.get_string().is_empty()
             {
-                if lut3::numeral_list4.contains(prev.get_string())
-                    && lut3::numeral_list5.contains(node.get_string())
+                if lut3::NUMERAL_LIST4.contains(prev.get_string())
+                    && lut3::NUMERAL_LIST5.contains(node.get_string())
                 {
                     prev.set_chain_flag(false);
                     node.set_chain_flag(true);
-                } else if lut3::numeral_list5.contains(prev.get_string())
-                    && lut3::numeral_list4.contains(node.get_string())
+                } else if lut3::NUMERAL_LIST5.contains(prev.get_string())
+                    && lut3::NUMERAL_LIST4.contains(node.get_string())
                 {
                     node.set_chain_flag(false);
                 }
             }
             if let Some(lut3_conversion) = find_digit_pron_conv(
-                &lut3::digit_conversion_table,
+                &lut3::DIGIT_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -158,7 +158,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_mora_size(lut3_conversion.2);
             }
             if let Some(lut3_new_pron) = find_numerative_pron_conv(
-                &lut3::numerative_conversion_table,
+                &lut3::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
                 node.get_pron().unwrap(),
@@ -205,8 +205,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
             _ => continue,
         };
         /* convert class3 */
-        if rule::numerative_class3.contains(&(next.get_string(), next.get_read().unwrap_or("*"))) {
-            if let Some(conversion) = rule::conv_table3.get(node.get_string()) {
+        if rule::NUMERATIVE_CLASS3.contains(&(next.get_string(), next.get_read().unwrap_or("*"))) {
+            if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
                 node.set_read(conversion.0);
                 node.set_pron(conversion.0);
                 node.set_acc(conversion.1);
@@ -215,7 +215,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
         }
         /* person */
         if next.get_string() == rule::NIN {
-            if let Some(new_node_s) = rule::conv_table4.get(node.get_string()) {
+            if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
                 *node = NJDNode::new_single(new_node_s);
                 next.unset_pron();
             }
@@ -228,13 +228,13 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 *node = NJDNode::new_single(rule::TSUITACHI);
                 next.unset_pron();
             } else {
-                if let Some(new_node_s) = rule::conv_table5.get(node.get_string()) {
+                if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);
                     next.unset_pron();
                 }
             }
         } else if next.get_string() == rule::NICHIKAN {
-            if let Some(new_node_s) = rule::conv_table6.get(node.get_string()) {
+            if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
                 *node = NJDNode::new_single(new_node_s);
                 next.unset_pron();
             }
@@ -322,7 +322,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
-        if let Some((_, replace)) = rule::numeral_list1.get(node.get_string()) {
+        if let Some((_, replace)) = rule::NUMERAL_LIST1.get(node.get_string()) {
             node.replace_string(replace);
             return true;
         }

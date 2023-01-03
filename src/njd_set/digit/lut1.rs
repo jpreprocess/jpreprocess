@@ -1,50 +1,50 @@
 use crate::njd_set::digit::lut_conversion::*;
 use phf::{phf_map, phf_set};
 
-pub const conversion_table: [(Keys, DigitLUT); 11] = [
-    (numerative_class1b, conv_table1b),
-    (numerative_class1c1, conv_table1c1),
-    (numerative_class1c2, conv_table1c2),
-    (numerative_class1d, conv_table1d),
-    (numerative_class1e, conv_table1e),
-    (numerative_class1f, conv_table1f),
-    (numerative_class1g, conv_table1g),
-    (numerative_class1h, conv_table1h),
-    (numerative_class1i, conv_table1i),
-    (numerative_class1j, conv_table1j),
-    (numerative_class1k, conv_table1k),
+pub const CONVERSION_TABLE: [(Keys, DigitLUT); 11] = [
+    (NUMERATIVE_CLASS1B, CONV_TABLE1B),
+    (NUMERATIVE_CLASS1C1, CONV_TABLE1C1),
+    (NUMERATIVE_CLASS1C2, CONV_TABLE1C2),
+    (NUMERATIVE_CLASS1D, CONV_TABLE1D),
+    (NUMERATIVE_CLASS1E, CONV_TABLE1E),
+    (NUMERATIVE_CLASS1F, CONV_TABLE1F),
+    (NUMERATIVE_CLASS1G, CONV_TABLE1G),
+    (NUMERATIVE_CLASS1H, CONV_TABLE1H),
+    (NUMERATIVE_CLASS1I, CONV_TABLE1I),
+    (NUMERATIVE_CLASS1J, CONV_TABLE1J),
+    (NUMERATIVE_CLASS1K, CONV_TABLE1K),
 ];
 
-const numerative_class1b: Keys = phf_set! {
+const NUMERATIVE_CLASS1B: Keys = phf_set! {
    /* from paper */
    "年" /* ねん */ , "円",
    /* from dictionary */
    "年間", "年生", "年代", "年度", "年版", "年余", "年来", "えん",
 };
-const numerative_class1c1: Keys = phf_set! {
+const NUMERATIVE_CLASS1C1: Keys = phf_set! {
    /* from paper */
    "人",
    /* from dictionary */
    "人月", "人前", "人組",
 };
-const numerative_class1c2: Keys = phf_set! {
+const NUMERATIVE_CLASS1C2: Keys = phf_set! {
    /* from paper */
    "時", "時間",
    /* from dictionary */
    "時限", "時半",
 };
-const numerative_class1d: Keys = phf_set! {
+const NUMERATIVE_CLASS1D: Keys = phf_set! {
     /* from paper */
     "日", /* にち */
     /* from dictionary */
     "日間",
 };
-const numerative_class1e: Keys = phf_set! {/* from paper */ "月" /* がつ */};
-const numerative_class1f: Keys = phf_set! {
+const NUMERATIVE_CLASS1E: Keys = phf_set! {/* from paper */ "月" /* がつ */};
+const NUMERATIVE_CLASS1F: Keys = phf_set! {
    /* from paper */
    /* "羽", "把", *//* modified */
 };
-const numerative_class1g: Keys = phf_set! {
+const NUMERATIVE_CLASS1G: Keys = phf_set! {
    /* from paper */
    "個", "階", "分" /* ふん */ , "発", "本", "鉢", "口", "切れ", "箱",
    /* from dictionary */
@@ -60,7 +60,7 @@ const numerative_class1g: Keys = phf_set! {
    "票", "品", "分間", "分目", "片", "篇", "編", "辺", "遍", "歩", "報", "方",
    "法", "本立て", "頭身",
 };
-const numerative_class1h: Keys = phf_set! {
+const NUMERATIVE_CLASS1H: Keys = phf_set! {
    /* from paper */
    "．", "・", "才", "頭", "着", "足", "尺", "坪", "通り", "センチ", "シーシー",
    /* from dictionary */
@@ -76,7 +76,7 @@ const numerative_class1h: Keys = phf_set! {
    "盗", "灯", "等", "等席", "等地", "等分", "答", "得", "噸", "粒", "種類", "歳馬", "世紀",
    "車種",
 };
-const numerative_class1i: Keys = phf_set! {
+const NUMERATIVE_CLASS1I: Keys = phf_set! {
    /* from paper */
    "キロ", "カロリー",
    /* from dictionary */
@@ -86,13 +86,13 @@ const numerative_class1i: Keys = phf_set! {
    "キロリットル", "キロワット", "キロワット時", "クラス", "クローナ", "クローネ", "グァラニ",
    "ケース", "コース", "粁",
 };
-const numerative_class1j: Keys = phf_set! {
+const NUMERATIVE_CLASS1J: Keys = phf_set! {
    /* from paper */
    "トン",
    /* from dictionary */
    "ｔ", "タル", "テラ", "トライ",
 };
-const numerative_class1k: Keys = phf_set! {
+const NUMERATIVE_CLASS1K: Keys = phf_set! {
    /* from paper */
    "房" /* ふさ */ , "柱", "％", "ポンド",
    /* from dictionary */
@@ -102,58 +102,58 @@ const numerative_class1k: Keys = phf_set! {
    "平方メートル", "品目",
 };
 
-const conv_table1b: DigitLUT = phf_map! {
+const CONV_TABLE1B: DigitLUT = phf_map! {
    "四"=> ("ヨ", 0, 1),
 };
-const conv_table1c1: DigitLUT = phf_map! {
+const CONV_TABLE1C1: DigitLUT = phf_map! {
    "四"=> ("ヨ", 0, 1),
    "七"=>("シチ", 1, 2),
 };
-const conv_table1c2: DigitLUT = phf_map! {
+const CONV_TABLE1C2: DigitLUT = phf_map! {
    "四"=>("ヨ", 0, 1),
    "七"=> ("シチ", 1, 2),
    "九"=> ("ク", 0, 1),
 };
-const conv_table1d: DigitLUT = phf_map! {
+const CONV_TABLE1D: DigitLUT = phf_map! {
    /* "四", "ヨッ", "1", "2", *//* modified */
    "七"=> ("シチ", 1, 2),
    "九"=> ("ク", 0, 1),
 };
 
-const conv_table1e: DigitLUT = phf_map! {
+const CONV_TABLE1E: DigitLUT = phf_map! {
    "四"=>("シ", 0, 1),
    "七"=>("シチ", 1, 2),
    "九"=>("ク", 0, 1),
 };
-const conv_table1f: DigitLUT = phf_map! {
+const CONV_TABLE1F: DigitLUT = phf_map! {
    "六"=> ("ロッ", 1, 2),
    "八"=> ("ハッ", 1, 2),
    "十"=> ("ジュッ", 1, 2),
    "百"=> ("ヒャッ", 1, 2),
 };
-const conv_table1g: DigitLUT = phf_map! {
+const CONV_TABLE1G: DigitLUT = phf_map! {
    "一"=> ("イッ", 1, 2),
    "六"=> ("ロッ", 1, 2),
    "八"=> ("ハッ", 1, 2),
    "十"=> ("ジュッ", 1, 2),
    "百"=> ("ヒャッ", 1, 2),
 };
-const conv_table1h: DigitLUT = phf_map! {
+const CONV_TABLE1H: DigitLUT = phf_map! {
    "一"=> ("イッ", 1, 2),
    "八"=>("ハッ", 1, 2),
    "十"=> ("ジュッ", 1, 2),
 };
 
-const conv_table1i: DigitLUT = phf_map! {
+const CONV_TABLE1I: DigitLUT = phf_map! {
    "六"=> ("ロッ", 1, 2),
    "十"=> ("ジュッ", 1, 2),
    "百"=> ("ヒャッ", 1, 2),
 };
 
-const conv_table1j: DigitLUT = phf_map! {
+const CONV_TABLE1J: DigitLUT = phf_map! {
    "一"=> ("イッ", 1, 2),
    "十"=> ("ジュッ", 1, 2),
 };
-const conv_table1k: DigitLUT = phf_map! {
+const CONV_TABLE1K: DigitLUT = phf_map! {
    "十"=>("ジュッ", 1, 2),
 };

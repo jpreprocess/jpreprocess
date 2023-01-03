@@ -20,12 +20,12 @@ pub const DE: &str = "デ";
 pub const CHOUON: &str = "ー";
 pub const SU: &str = "ス";
 
-pub const candidate_list1: Set<&'static str> = phf_set! {
+pub const CANDIDATE_LIST1: Set<&'static str> = phf_set! {
    "スィ",                    /* s i */
    "ス",                       /* s u */
 };
 
-pub const next_mora_list1: Set<&'static str> = phf_set! {
+pub const NEXT_MORA_LIST1: Set<&'static str> = phf_set! {
    "カ",                       /* k ky */
    "キ",
    "ク",
@@ -48,13 +48,13 @@ pub const next_mora_list1: Set<&'static str> = phf_set! {
    "ポ",
 };
 
-pub const candidate_list2: Set<&'static str> = phf_set! {
+pub const CANDIDATE_LIST2: Set<&'static str> = phf_set! {
    "フィ",                    /* f i */
    "ヒ",                       /* h i */
    "フ",                       /* f u */
 };
 
-pub const next_mora_list2: Set<&'static str> = phf_set! {
+pub const NEXT_MORA_LIST2: Set<&'static str> = phf_set! {
    "カ",                       /* k ky */
    "キ",
    "ク",
@@ -77,7 +77,7 @@ pub const next_mora_list2: Set<&'static str> = phf_set! {
    "ポ",
 };
 
-pub const candidate_list3: Set<&'static str> = phf_set! {
+pub const CANDIDATE_LIST3: Set<&'static str> = phf_set! {
    "キュ",                    /* ky u */
    "シュ",                    /* sh u */
    "チュ",                    /* ch u */
@@ -96,7 +96,7 @@ pub const candidate_list3: Set<&'static str> = phf_set! {
    "プ",                       /* p u */
 };
 
-pub const next_mora_list3: Set<&'static str> = phf_set! {
+pub const NEXT_MORA_LIST3: Set<&'static str> = phf_set! {
    "カ",                       /* k ky */
    "キ",
    "ク",
@@ -124,7 +124,7 @@ pub const next_mora_list3: Set<&'static str> = phf_set! {
    "ポ",
 };
 
-pub const mora_list: Set<&'static str> = phf_set! {
+pub const MORA_LIST: Set<&'static str> = phf_set! {
    "ヴョ",
    "ヴュ",
    "ヴャ",

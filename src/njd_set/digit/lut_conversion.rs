@@ -33,14 +33,14 @@ pub fn find_numerative_pron_conv(
     let mut pron_chars = pron.chars();
     let pron_first_char = pron_chars.next().map(|c| c.to_string());
     let found = match (digit_type, pron_first_char) {
-        (1, Some(c)) => voiced_sound_symbol_list.get(c.as_str()),
-        (2, Some(c)) => semivoiced_sound_symbol_list.get(c.as_str()),
+        (1, Some(c)) => VOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
+        (2, Some(c)) => SEMIVOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
         _ => None,
     }?;
     Some(format!("{}{}", found, pron_chars.as_str()))
 }
 
-const voiced_sound_symbol_list: SoundSymbolList = phf_map! {
+const VOICED_SOUND_SYMBOL_LIST: SoundSymbolList = phf_map! {
   "カ"=> "ガ",
   "キ"=> "ギ",
   "ク"=> "グ",
@@ -63,7 +63,7 @@ const voiced_sound_symbol_list: SoundSymbolList = phf_map! {
   "ホ"=> "ボ",
 };
 
-const semivoiced_sound_symbol_list: SoundSymbolList = phf_map! {
+const SEMIVOICED_SOUND_SYMBOL_LIST: SoundSymbolList = phf_map! {
   "ハ"=> "パ",
   "ヒ"=> "ピ",
   "フ"=> "プ",

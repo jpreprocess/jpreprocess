@@ -30,12 +30,12 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                                 break;
                             }
                         };
-                        if let Some((read, mora_size)) = rule::list.get(&l2) {
+                        if let Some((read, mora_size)) = rule::LIST.get(&l2) {
                             chars.next();
                             read_add.push_str(read);
                             mora_size_delta += mora_size;
                         }
-                        if let Some((read, mora_size)) = rule::list.get(&l1) {
+                        if let Some((read, mora_size)) = rule::LIST.get(&l1) {
                             read_add.push_str(read);
                             mora_size_delta += mora_size;
                         }
@@ -57,7 +57,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             }
             /* if known symbol, set the pronunciation */
             if node.get_pron().is_none() {
-                if let Some(conv) = rule::symbol_list.get(node.get_string()) {
+                if let Some(conv) = rule::SYMBOL_LIST.get(node.get_string()) {
                     node.set_read(conv);
                     node.set_pron(conv);
                 }
@@ -85,7 +85,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 (head_of_kana_filler_sequence, node)
             };
             if matches!(node.get_pos().get_group0(), Group0::Filler) {
-                if rule::list.get(node.get_string()).is_some() {
+                if rule::LIST.get(node.get_string()).is_some() {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
                     } else {

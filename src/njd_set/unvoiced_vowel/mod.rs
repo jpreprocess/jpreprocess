@@ -229,7 +229,7 @@ fn get_mora_information(njd: &NJD, node_index: usize, index: usize, state: &mut 
     state.size = 0;
 
     /* get mora */
-    if let Some(mora) = search_list(&rule::mora_list, &pron[index..pron.len()]) {
+    if let Some(mora) = search_list(&rule::MORA_LIST, &pron[index..pron.len()]) {
         state.mora = Some(mora.to_owned());
         state.size = mora.len();
     }
@@ -251,24 +251,24 @@ fn apply_unvoice_rule(state_curr: &MoraState, state_next: &MoraState) -> MoraFla
     let curr_mora = state_curr.mora.unwrap();
     let next_mora = next_mora_opt.unwrap();
 
-    if rule::candidate_list1.contains(curr_mora) {
-        if search_list(&rule::next_mora_list1, next_mora).is_some() {
+    if rule::CANDIDATE_LIST1.contains(curr_mora) {
+        if search_list(&rule::NEXT_MORA_LIST1, next_mora).is_some() {
             return MoraFlag::Unvoiced;
         } else {
             return MoraFlag::Voice;
         }
     }
 
-    if rule::candidate_list2.contains(curr_mora) {
-        if search_list(&rule::next_mora_list2, next_mora).is_some() {
+    if rule::CANDIDATE_LIST2.contains(curr_mora) {
+        if search_list(&rule::NEXT_MORA_LIST2, next_mora).is_some() {
             return MoraFlag::Unvoiced;
         } else {
             return MoraFlag::Voice;
         }
     }
 
-    if rule::candidate_list3.contains(curr_mora) {
-        if search_list(&rule::next_mora_list3, next_mora).is_some() {
+    if rule::CANDIDATE_LIST3.contains(curr_mora) {
+        if search_list(&rule::NEXT_MORA_LIST3, next_mora).is_some() {
             return MoraFlag::Unvoiced;
         } else {
             return MoraFlag::Voice;

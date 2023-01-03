@@ -81,7 +81,7 @@ fn chain_flag(prev: &NJDNode, node: &NJDNode) -> bool {
         //                }
         //             }
         (Group0::Doushi, _, Group0::Doushi, Group1::Hijiritsu) if prev.is_renyou() => true,
-        (Group0::Meishi, Group1::SahenSetsuzoku, Group0::Doushi, Group1::Hijiritsu) => true,
+        //(Group0::Meishi, Group1::SahenSetsuzoku, Group0::Doushi, Group1::Hijiritsu) => true,
 
         //          /* Rule 11 */
         //          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)

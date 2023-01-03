@@ -40,7 +40,7 @@ pub const YOKKAKAN: &str = "四日間,名詞,副詞可能,*,*,*,*,四日間,ヨ�
 pub const HATSUKA: &str = "二十日,名詞,副詞可能,*,*,*,*,二十日,ハツカ,ハツカ,0/3,*";
 pub const HATSUKAKAN: &str = "二十日間,名詞,副詞可能,*,*,*,*,二十日間,ハツカカン,ハツカカン,3/5,*";
 
-pub const numeral_list1: Map<&'static str, (i32, &'static str)> = phf_map! {
+pub const NUMERAL_LIST1: Map<&'static str, (i32, &'static str)> = phf_map! {
    "○"=>(0, "〇"),
    "１"=>(1, "一"),
    "２"=>(2, "二"),
@@ -81,14 +81,14 @@ pub const numeral_list1: Map<&'static str, (i32, &'static str)> = phf_map! {
    "く"=>(9, "九")
 };
 
-pub const numeral_list2: &[&str] = &[
+pub const NUMERAL_LIST2: &[&str] = &[
     "",
     "十,名詞,数,*,*,*,*,十,ジュウ,ジュー,1/2,*",
     "百,名詞,数,*,*,*,*,百,ヒャク,ヒャク,2/2,*",
     "千,名詞,数,*,*,*,*,千,セン,セン,1/2,*",
 ];
 
-pub const numeral_list3: &[&str] = &[
+pub const NUMERAL_LIST3: &[&str] = &[
     "",
     "万,名詞,数,*,*,*,*,万,マン,マン,1/2,*",
     "億,名詞,数,*,*,*,*,億,オク,オク,1/2,*",
@@ -109,7 +109,7 @@ pub const numeral_list3: &[&str] = &[
     "無量大数,名詞,数,*,*,*,*,無量大数,ムリョウタイスウ,ムリョータイスー,6/7,*",
 ];
 
-pub const numerative_class3: &[(&str, &str)] = &[
+pub const NUMERATIVE_CLASS3: &[(&str, &str)] = &[
     /* from paper */
     ("棟", "ムネ"),
     /* from dictionary */
@@ -176,18 +176,18 @@ pub const numerative_class3: &[(&str, &str)] = &[
     ("重ね", "ガサネ"),
 ];
 
-pub const conv_table3: Map<&'static str, (&'static str, i32, i32)> = phf_map! {
+pub const CONV_TABLE3: Map<&'static str, (&'static str, i32, i32)> = phf_map! {
    "一"=>("ヒト", 0, 2),
    "二"=> ("フタ", 0, 2),
    /* "三", "ミ", "1", "1", *//* modified */
 };
 
-pub const conv_table4: Map<&'static str, &'static str> = phf_map! {
+pub const CONV_TABLE4: Map<&'static str, &'static str> = phf_map! {
    "一"=> "一人,名詞,副詞可能,*,*,*,*,一人,ヒトリ,ヒトリ,2/3,*",
    "二"=> "二人,名詞,副詞可能,*,*,*,*,二人,フタリ,フタリ,3/3,*",
 };
 
-pub const conv_table5: Map<&'static str, &'static str> = phf_map! {
+pub const CONV_TABLE5: Map<&'static str, &'static str> = phf_map! {
    "一"=> "一日,名詞,副詞可能,*,*,*,*,一日,イチニチ,イチニチ,4/4,*",
    "二"=> "二日,名詞,副詞可能,*,*,*,*,二日,フツカ,フツカ,0/3,*",
    "三"=> "三日,名詞,副詞可能,*,*,*,*,三日,ミッカ,ミッカ,0/3,*",
@@ -200,7 +200,7 @@ pub const conv_table5: Map<&'static str, &'static str> = phf_map! {
    "十"=> "十日,名詞,副詞可能,*,*,*,*,十日,トウカ,トーカ,0/3,*",
 };
 
-pub const conv_table6: Map<&'static str, &'static str> = phf_map! {
+pub const CONV_TABLE6: Map<&'static str, &'static str> = phf_map! {
    "一"=> "一日間,名詞,副詞可能,*,*,*,*,一日間,イチニチカン,イチニチカン,4/6,*",
    "二"=> "二日間,名詞,副詞可能,*,*,*,*,二日,フツカカン,フツカカン,3/5,*",
    "三"=> "三日間,名詞,副詞可能,*,*,*,*,三日,ミッカカン,ミッカカン,3/5,*",

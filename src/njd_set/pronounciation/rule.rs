@@ -1,6 +1,6 @@
 use phf::{phf_map, Map};
 
-pub const list: Map<&'static str, (&'static str, i32)> = phf_map! {
+pub const LIST: Map<&'static str, (&'static str, i32)> = phf_map! {
   "ヴョ"=>("ヴョ",1),
   "ヴュ"=>("ヴュ",1),
   "ヴャ"=>("ヴャ",1),
@@ -374,7 +374,7 @@ pub const list: Map<&'static str, (&'static str, i32)> = phf_map! {
 
 pub const KIGOU: &str = "記号";
 
-pub const symbol_list: Map<&'static str, &'static str> = phf_map! {
+pub const SYMBOL_LIST: Map<&'static str, &'static str> = phf_map! {
    "？"=> "？",
 };
 
