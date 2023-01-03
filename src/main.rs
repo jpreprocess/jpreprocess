@@ -5,7 +5,7 @@ use std::{
 };
 
 use lindera::{mode::Mode, tokenizer::*};
-use njd::NJD;
+use njd::{NJDNode, NJD};
 
 mod njd;
 mod njd_set;
@@ -69,13 +69,9 @@ fn main() {
     let stdout = String::from_utf8(output.stdout).unwrap();
     // println!("{}", stdout);
     for (node, ans) in njd.nodes.iter().zip(stdout.split("\n")) {
-        let node_dbg = format!("{:?}", node).replace("*", "");
-        if node_dbg.as_str() != ans.replace("*", "") {
-            println!(
-                "Failed: {}--{}",
-                node_dbg,
-                ans.replace("*", "")
-            );
+        let node_ans = NJDNode::new_single(ans);
+        if node != &node_ans {
+            println!("Failed: {:?}--{:?}", node, node_ans);
         }
     }
 }

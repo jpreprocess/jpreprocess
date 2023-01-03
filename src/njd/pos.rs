@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct PartOfSpeech {
     group0: String,
     group1: String,

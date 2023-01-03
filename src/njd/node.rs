@@ -4,7 +4,7 @@ use crate::njd::pos::*;
 
 use super::accent_rule::ChainRules;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct NJDNode {
     string: String, //*は空文字列として扱う
     pos: PartOfSpeech,
