@@ -9,8 +9,14 @@ pub struct TextNormalizer {
 
 impl TextNormalizer {
     pub fn new() -> Self {
-        let from: Vec<&&str> = rule::CONVERSION_TABLE.iter().map(|(from, _to)| from).collect();
-        let to: Vec<&'static &'static str> = rule::CONVERSION_TABLE.iter().map(|(_from, to)| to).collect();
+        let from: Vec<&&str> = rule::CONVERSION_TABLE
+            .iter()
+            .map(|(from, _to)| from)
+            .collect();
+        let to: Vec<&'static &'static str> = rule::CONVERSION_TABLE
+            .iter()
+            .map(|(_from, to)| to)
+            .collect();
         Self {
             aho_corasick: AhoCorasickBuilder::new().build(from),
             replace_with: to,
