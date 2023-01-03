@@ -169,7 +169,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
     }
 
     for i in 0..njd.nodes.len() {
-        let (prev, node, next) = if i + 2 >= njd.nodes.len() {
+        let (prev, node, next) = if i + 1 >= njd.nodes.len() {
             continue;
         } else if i == 0 {
             if let [node, next] = &mut njd.nodes[i..i + 2] {
@@ -226,6 +226,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 && node.get_string() == rule::ONE
             {
                 *node = NJDNode::new_single(rule::TSUITACHI);
+                next.unset_pron();
             } else {
                 if let Some(new_node_s) = rule::conv_table5.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);

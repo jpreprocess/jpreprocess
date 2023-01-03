@@ -42,7 +42,7 @@ impl FromStr for AccentType {
             "P2" => Ok(Self::P2),
             "P6" => Ok(Self::P6),
             "P14" => Ok(Self::P14),
-            "*" => Ok(Self::None),
+            "" | "*" => Ok(Self::None),
             _ => Err(()),
         }
     }
