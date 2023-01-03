@@ -43,7 +43,7 @@ fn chain_flag(prev: &NJDNode, node: &NJDNode) -> bool {
         //          if (strcmp(NJDNode_get_pos_group3(node->prev), NJD_SET_ACCENT_PHRASE_SEI) == 0
         //              && strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
         //             NJDNode_set_chain_flag(node, 0);
-        (Group0::Meishi, _, _, _) if Group3::Sei == curr_pos.get_group3() => false,
+        (_, _, Group0::Meishi, _) if Group3::Sei == prev_pos.get_group3() => false,
 
         //          /* Rule 15 */
         //          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_SETTOUSHI) == 0)
