@@ -148,22 +148,22 @@ pub fn njd_set_digit(njd: &mut NJD) {
                     node.set_chain_flag(false);
                 }
             }
-            if let Some(lut1_conversion) = find_digit_pron_conv(
+            if let Some(lut3_conversion) = find_digit_pron_conv(
                 &lut3::digit_conversion_table,
                 node.get_string(),
                 prev.get_string(),
             ) {
-                node.set_pron(lut1_conversion.0);
-                node.set_acc(lut1_conversion.1);
-                node.set_mora_size(lut1_conversion.2);
+                prev.set_pron(lut3_conversion.0);
+                prev.set_acc(lut3_conversion.1);
+                prev.set_mora_size(lut3_conversion.2);
             }
-            if let Some(lut2_new_pron) = find_numerative_pron_conv(
+            if let Some(lut3_new_pron) = find_numerative_pron_conv(
                 &lut3::numerative_conversion_table,
                 node.get_string(),
                 prev.get_string(),
                 node.get_pron().unwrap(),
             ) {
-                node.set_pron(lut2_new_pron.as_str());
+                node.set_pron(lut3_new_pron.as_str());
             }
         }
     }
