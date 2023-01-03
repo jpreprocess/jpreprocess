@@ -10,13 +10,21 @@ pub struct PartOfSpeech {
 
 impl PartOfSpeech {
     pub fn new(groups: [&str; 4]) -> Self {
+        let normalize = |s: &str| {
+            if s == "*" {
+                "".to_string()
+            } else {
+                s.to_string()
+            }
+        };
         Self {
-            group0: groups[0].to_string(),
-            group1: groups[1].to_string(),
-            group2: groups[2].to_string(),
-            group3: groups[3].to_string(),
+            group0: normalize(groups[0]),
+            group1: normalize(groups[1]),
+            group2: normalize(groups[2]),
+            group3: normalize(groups[3]),
         }
     }
+
     pub fn get_group0(&self) -> Group0 {
         self.group0.as_str().into()
     }
