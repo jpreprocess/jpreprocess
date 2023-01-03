@@ -1,6 +1,7 @@
 pub mod node;
 pub mod pos;
 mod unk;
+pub mod accent_rule;
 
 use lindera::Token;
 pub use node::*;

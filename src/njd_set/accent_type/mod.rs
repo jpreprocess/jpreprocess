@@ -1,5 +1,6 @@
 mod rule;
 
+use crate::njd::accent_rule::AccentType;
 use crate::njd::pos::*;
 use crate::njd::*;
 
@@ -69,85 +70,33 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
 }
 
 fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_size: i32) -> i32 {
-    let (add_type, rule) = get_rule(node.get_chain_rule(), prev.get_pos());
     let node_acc = node.get_acc();
     let top_node_acc = top_node.get_acc();
-    match rule.as_str() {
-        "F1" => top_node_acc,
-        "F2" if top_node_acc == 0 => mora_size + add_type,
-        "F3" if top_node_acc != 0 => mora_size + add_type,
-        "F4" => mora_size + add_type,
-        "F5" => 0,
-        "C1" => mora_size + node_acc,
-        "C2" => mora_size + 1,
-        "C3" => mora_size,
-        "C4" => 0,
-        "C5" => top_node_acc,
-        "P1" => {
-            if top_node_acc == 0 {
-                0
-            } else {
-                mora_size + node_acc
-            }
-        }
-        "P2" => {
-            if top_node_acc == 0 {
-                mora_size + 1
-            } else {
-                mora_size + node_acc
-            }
-        }
-        "P6" => 0,
-        "P14" if top_node_acc != 0 => mora_size + node_acc,
+
+    let Some(rule) = node
+        .get_chain_rule()
+        .and_then(|rule| rule.get_rule(prev.get_pos()))
+        else {return top_node_acc};
+
+    match rule.sandhi_type {
+        AccentType::F1 => top_node_acc,
+        AccentType::F2 if top_node_acc == 0 => mora_size + rule.add_type,
+        AccentType::F3 if top_node_acc != 0 => mora_size + rule.add_type,
+        AccentType::F4 => mora_size + rule.add_type,
+        AccentType::F5 => 0,
+        AccentType::C1 => mora_size + node_acc,
+        AccentType::C2 => mora_size + 1,
+        AccentType::C3 => mora_size,
+        AccentType::C4 => 0,
+        AccentType::C5 => top_node_acc,
+        AccentType::P1 if top_node_acc == 0 => 0,
+        AccentType::P1 => mora_size + node_acc,
+        AccentType::P2 if top_node_acc == 0 => 0,
+        AccentType::P2 => mora_size + node_acc,
+        AccentType::P6 => 0,
+        AccentType::P14 if top_node_acc != 0 => mora_size + node_acc,
         _ => top_node_acc,
     }
-}
-
-fn get_rule(input_rule_option: Option<&str>, prev_pos: &PartOfSpeech) -> (i32, String) {
-    if let Some(input_rule) = input_rule_option {
-        'segs: for seg in input_rule.split("/") {
-            enum BufferContent {
-                Rule,
-                AddType,
-            }
-
-            let mut buf = String::new();
-            let mut buf_content: BufferContent = BufferContent::Rule;
-
-            let mut rule = String::new();
-            let mut add_type = 0;
-
-            for c in seg.chars() {
-                match c {
-                    '%' => {
-                        if !prev_pos.group0_contains(buf.as_str()) {
-                            continue 'segs;
-                        }
-                        buf = String::new();
-                        buf_content = BufferContent::Rule;
-                    }
-                    '@' => {
-                        if matches!(buf_content, BufferContent::Rule) {
-                            rule = buf;
-                        }
-                        buf = String::new();
-                        buf_content = BufferContent::AddType;
-                    }
-                    _ => buf.push(c),
-                }
-            }
-            match buf_content {
-                BufferContent::Rule => {
-                    rule = buf;
-                }
-                BufferContent::AddType => {
-                    add_type = buf.parse().unwrap();
-                }
-            }
-            return (add_type, rule);
-        }
-    }
-    (0, "*".to_string())
 }
 
 fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> Option<i32> {

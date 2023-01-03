@@ -2,6 +2,8 @@ use std::fmt::Debug;
 
 use crate::njd::pos::*;
 
+use super::accent_rule::ChainRules;
+
 #[derive(Clone)]
 pub struct NJDNode {
     string: String, //*は空文字列として扱う
@@ -13,7 +15,7 @@ pub struct NJDNode {
     pron: Option<String>,
     acc: i32,
     mora_size: i32,
-    chain_rule: Option<String>,
+    chain_rule: Option<ChainRules>,
     chain_flag: Option<bool>,
 }
 
@@ -31,7 +33,10 @@ impl Debug for NJDNode {
             self.pron.as_ref().unwrap_or(&"*".to_string()),
             self.acc,
             self.mora_size,
-            self.chain_rule.as_ref().unwrap_or(&"*".to_string()),
+            self.chain_rule
+                .as_ref()
+                .map(|r| format!("{:?}", r))
+                .unwrap_or("*".to_string()),
             match self.chain_flag {
                 Some(true) => 1,
                 Some(false) => 0,
@@ -72,7 +77,7 @@ impl NJDNode {
             cform: details[5].to_string(),
             chain_rule: match chain_rule {
                 "*" => None,
-                _ => Some(chain_rule.to_string()),
+                _ => Some(ChainRules::new(chain_rule)),
             },
             chain_flag: match details[11] {
                 "1" => Some(true),
@@ -170,10 +175,8 @@ impl NJDNode {
         self.chain_flag = Some(chain_flag);
     }
 
-    pub fn get_chain_rule(&self) -> Option<&str> {
-        self.chain_rule
-            .as_ref()
-            .map(|chain_rule| chain_rule.as_str())
+    pub fn get_chain_rule(&self) -> Option<&ChainRules> {
+        self.chain_rule.as_ref()
     }
     pub fn unset_chain_rule(&mut self) {
         self.chain_rule = None;
