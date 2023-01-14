@@ -11,8 +11,10 @@ mod njd;
 mod njd_set;
 mod text_normalizer;
 
+mod test;
+
 fn main() {
-    let input_text = "BOP試薬（ぼっぷしやく、BOP reagent）とは、ホスホニウムを共通構造に持つ、ペプチド合成などに用いられる試薬である。";
+    let input_text = "リャリョ。クーバネティス";
 
     let normalizer = text_normalizer::TextNormalizer::new();
     let normalized_input_text = normalizer.process(input_text);
