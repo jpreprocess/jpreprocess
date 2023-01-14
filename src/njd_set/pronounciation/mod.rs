@@ -31,9 +31,10 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                             }
                         };
                         if let Some((read, mora_size)) = rule::LIST.get(&l2) {
-                            chars.next();
                             read_add.push_str(read);
                             mora_size_delta += mora_size;
+                            lprev = chars.next();
+                            continue;
                         }
                         if let Some((read, mora_size)) = rule::LIST.get(&l1) {
                             read_add.push_str(read);
