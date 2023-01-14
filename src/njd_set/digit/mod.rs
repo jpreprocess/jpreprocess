@@ -18,14 +18,15 @@ pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
 
     {
-        let mut sequences = DigitSequence::from_njd(njd);
-
         for node in &mut njd.nodes {
             if matches!(node.get_pos().get_group1(), Group1::Kazu) {
                 find = true;
             }
             normalize_digit(node);
         }
+
+        let mut sequences = DigitSequence::from_njd(njd);
+
 
         for seq in &mut sequences {
             seq.convert_digit_sequence(njd);
@@ -322,7 +323,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
-        if let Some((_, replace)) = rule::NUMERAL_LIST1.get(node.get_string()) {
+        if let Some(replace) = rule::NUMERAL_LIST1.get(node.get_string()) {
             node.replace_string(replace);
             return true;
         }

@@ -64,7 +64,7 @@ impl DigitSequence {
 
     fn is_digit(node: &NJDNode) -> bool {
         matches!(node.get_pos().get_group1(), Group1::Kazu)
-            && (rule::NUMERAL_LIST1.contains_key(node.get_string())
+            && (rule::DIGITS.contains_key(node.get_string())
                 || Self::is_period(node.get_string())
                 || Self::is_comma(node.get_string()))
     }
@@ -74,9 +74,9 @@ impl DigitSequence {
     fn is_comma(s: &str) -> bool {
         matches!(s, rule::COMMA)
     }
-    fn get_digit(node: &NJDNode) -> Option<i32> {
+    fn get_digit(node: &NJDNode) -> Option<u8> {
         if !node.get_string().is_empty() && matches!(node.get_pos().get_group1(), Group1::Kazu) {
-            if let Some((digit, _)) = rule::NUMERAL_LIST1.get(node.get_string()) {
+            if let Some(digit) = rule::DIGITS.get(node.get_string()) {
                 return Some(*digit);
             }
         }
