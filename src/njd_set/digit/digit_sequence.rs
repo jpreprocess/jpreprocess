@@ -345,8 +345,7 @@ impl DigitSequence {
         let mut have = false;
 
         let size = end - start + 1
-            - njd
-                .nodes
+            - njd.nodes[start..end + 1]
                 .iter()
                 .filter(|node| Self::is_comma(node.get_string()))
                 .count();
@@ -365,7 +364,7 @@ impl DigitSequence {
         for (i, node) in njd.nodes[start..end + 1].iter_mut().enumerate() {
             if Self::is_comma(node.get_string()) {
                 /* remove all commas before period */
-                insertion_table.push((i, None));
+                insertion_table.push((start + i, None));
                 continue;
             }
 
