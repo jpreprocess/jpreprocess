@@ -2,12 +2,12 @@ pub mod data;
 pub use data::*;
 
 pub struct IterQuintMut<'a, T> {
-    vec: &'a mut Vec<T>,
+    vec: &'a mut [T],
     target: usize,
 }
 
 impl<'a, T> IterQuintMut<'a, T> {
-    pub fn new(vec: &'a mut Vec<T>) -> Self {
+    pub fn new(vec: &'a mut [T]) -> Self {
         Self { vec, target: 0 }
     }
 

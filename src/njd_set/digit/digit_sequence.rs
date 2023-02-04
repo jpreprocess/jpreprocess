@@ -298,7 +298,7 @@ impl DigitSequence {
         }
 
         let mut size = 0;
-        let mut iter = njd.iter_quint_mut();
+        let mut iter = njd.iter_quint_mut_range(start, end + 1);
         while let Some(quint) = iter.next() {
             let (prev, node) = match Double::from(quint) {
                 Double::First(c) => (None, c),
