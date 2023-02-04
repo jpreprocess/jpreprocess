@@ -3,6 +3,7 @@ use crate::njd::NJD;
 mod rule;
 
 use crate::njd::pos::*;
+use crate::njd::Triple;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
@@ -103,28 +104,32 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
 
     njd.remove_silent_node();
 
-    for i in 0..njd.nodes.len() - 1 {
-        let (node, next) = {
-            let (a, b) = njd.nodes.split_at_mut(i + 1);
-            (&mut a[i], &mut b[0])
-        };
-        if matches!(next.get_pron(),Some(pron) if pron==rule::U)
-            && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
-            && matches!(
-                node.get_pos().get_group0(),
-                Group0::Doushi | Group0::Jodoushi
-            )
-            && node.get_mora_size() > 0
-        {
-            next.set_pron(rule::CHOUON);
-        }
-        if matches!(node.get_pos().get_group0(), Group0::Jodoushi)
-            && next.get_string() == rule::QUESTION
-        {
-            match node.get_string() {
-                rule::DESU_STR => node.set_pron(rule::DESU_PRON),
-                rule::MASU_STR => node.set_pron(rule::MASU_PRON),
-                _ => (),
+    {
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (node, next) = match Triple::from(quint) {
+                Triple::First(node, next) => (node, next),
+                Triple::Full(_, node, next) => (node, next),
+                _ => continue,
+            };
+            if matches!(next.get_pron(),Some(pron) if pron==rule::U)
+                && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
+                && matches!(
+                    node.get_pos().get_group0(),
+                    Group0::Doushi | Group0::Jodoushi
+                )
+                && node.get_mora_size() > 0
+            {
+                next.set_pron(rule::CHOUON);
+            }
+            if matches!(node.get_pos().get_group0(), Group0::Jodoushi)
+                && next.get_string() == rule::QUESTION
+            {
+                match node.get_string() {
+                    rule::DESU_STR => node.set_pron(rule::DESU_PRON),
+                    rule::MASU_STR => node.set_pron(rule::MASU_PRON),
+                    _ => (),
+                }
             }
         }
     }

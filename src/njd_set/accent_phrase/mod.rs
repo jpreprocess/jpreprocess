@@ -7,12 +7,15 @@ pub fn njd_set_accent_phrase(njd: &mut NJD) {
     if njd.nodes.len() == 0 {
         return;
     }
-    for i in 1..njd.nodes.len() {
-        if let [prev, node] = &mut njd.nodes[i - 1..i + 1] {
-            if node.get_chain_flag() == None {
-                let chain: bool = chain_flag(prev, node);
-                node.set_chain_flag(chain);
-            }
+    let mut iter = njd.iter_quint_mut();
+    while let Some(quint) = iter.next() {
+        let (prev, node) = match Double::from(quint) {
+            Double::Full(p, c) => (p, c),
+            _ => continue,
+        };
+        if node.get_chain_flag() == None {
+            let chain: bool = chain_flag(prev, node);
+            node.set_chain_flag(chain);
         }
     }
 }

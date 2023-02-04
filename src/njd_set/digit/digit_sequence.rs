@@ -1,7 +1,7 @@
 use crate::njd::{
     node::NJDNode,
     pos::{Group1, Group2},
-    NJD,
+    Double, NJD,
 };
 
 use super::rule;
@@ -298,15 +298,11 @@ impl DigitSequence {
         }
 
         let mut size = 0;
-        for i in start..end + 1 {
-            let (prev, node) = if i > 0 {
-                if let [prev, node] = &mut njd.nodes[i - 1..i + 1] {
-                    (Some(prev), node)
-                } else {
-                    unreachable!();
-                }
-            } else {
-                (None, &mut njd.nodes[i])
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (prev, node) = match Double::from(quint) {
+                Double::First(c) => (None, c),
+                Double::Full(p, c) => (Some(p), c),
             };
 
             match node.get_string() {

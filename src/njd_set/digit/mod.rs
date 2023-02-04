@@ -27,7 +27,6 @@ pub fn njd_set_digit(njd: &mut NJD) {
 
         let mut sequences = DigitSequence::from_njd(njd);
 
-
         for seq in &mut sequences {
             seq.convert_digit_sequence(njd);
         }
@@ -48,56 +47,64 @@ pub fn njd_set_digit(njd: &mut NJD) {
             Skipping,
         }
         let mut skip_state = SkipState::Disabled;
-        for i in 1..njd.nodes.len() - 1 {
-            if let [prev, node, next] = &mut njd.nodes[i - 1..i + 2] {
-                match (&skip_state, node.get_pos().get_group0()) {
-                    (SkipState::IfMeishi, _) => {
-                        skip_state = SkipState::Skipping;
-                        continue;
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (prev, node, next) = match Triple::from(quint) {
+                Triple::Full(prev, node, next) => (prev, node, next),
+                _ => continue,
+            };
+            match (&skip_state, node.get_pos().get_group0()) {
+                (SkipState::IfMeishi, _) => {
+                    skip_state = SkipState::Skipping;
+                    continue;
+                }
+                (SkipState::Skipping, Group0::Meishi) => {
+                    continue;
+                }
+                (SkipState::Skipping, _) => {
+                    skip_state = SkipState::Disabled;
+                    continue;
+                }
+                _ => (),
+            }
+            if !node.get_string().is_empty()
+                && !prev.get_string().is_empty()
+                && is_period(node.get_string())
+                && matches!(prev.get_pos().get_group1(), Group1::Kazu)
+                && matches!(next.get_pos().get_group1(), Group1::Kazu)
+            {
+                *node = NJDNode::new_single(rule::TEN_FEATURE);
+                node.set_chain_flag(true);
+                match prev.get_string() {
+                    rule::ZERO1 | rule::ZERO2 => {
+                        prev.set_pron(rule::ZERO_BEFORE_DP);
+                        prev.set_mora_size(2);
                     }
-                    (SkipState::Skipping, Group0::Meishi) => {
-                        continue;
+                    rule::TWO => {
+                        prev.set_pron(rule::TWO_BEFORE_DP);
+                        prev.set_mora_size(2);
                     }
-                    (SkipState::Skipping, _) => {
-                        skip_state = SkipState::Disabled;
-                        continue;
+                    rule::FIVE => {
+                        prev.set_pron(rule::FIVE_BEFORE_DP);
+                        prev.set_mora_size(2);
+                    }
+                    rule::SIX => {
+                        prev.set_acc(1);
                     }
                     _ => (),
                 }
-                if !node.get_string().is_empty()
-                    && !prev.get_string().is_empty()
-                    && is_period(node.get_string())
-                    && matches!(prev.get_pos().get_group1(), Group1::Kazu)
-                    && matches!(next.get_pos().get_group1(), Group1::Kazu)
-                {
-                    *node = NJDNode::new_single(rule::TEN_FEATURE);
-                    node.set_chain_flag(true);
-                    match prev.get_string() {
-                        rule::ZERO1 | rule::ZERO2 => {
-                            prev.set_pron(rule::ZERO_BEFORE_DP);
-                            prev.set_mora_size(2);
-                        }
-                        rule::TWO => {
-                            prev.set_pron(rule::TWO_BEFORE_DP);
-                            prev.set_mora_size(2);
-                        }
-                        rule::FIVE => {
-                            prev.set_pron(rule::FIVE_BEFORE_DP);
-                            prev.set_mora_size(2);
-                        }
-                        rule::SIX => {
-                            prev.set_acc(1);
-                        }
-                        _ => (),
-                    }
-                    skip_state = SkipState::IfMeishi;
-                }
+                skip_state = SkipState::IfMeishi;
             }
         }
     }
 
-    for i in 1..njd.nodes.len() {
-        if let [prev, node] = &mut njd.nodes[i - 1..i + 1] {
+    {
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (prev, node) = match Double::from(quint) {
+                Double::Full(prev, node) => (prev, node),
+                _ => continue,
+            };
             match (
                 prev.get_pos().get_group1(),
                 node.get_pos().get_group1(),
@@ -131,8 +138,13 @@ pub fn njd_set_digit(njd: &mut NJD) {
         }
     }
 
-    for i in 1..njd.nodes.len() {
-        if let [prev, node] = &mut njd.nodes[i - 1..i + 1] {
+    {
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (prev, node) = match Double::from(quint) {
+                Double::Full(prev, node) => (prev, node),
+                _ => continue,
+            };
             if !matches!(prev.get_pos().get_group1(), Group1::Kazu) {
                 continue;
             }
@@ -169,99 +181,91 @@ pub fn njd_set_digit(njd: &mut NJD) {
         }
     }
 
-    for i in 0..njd.nodes.len() {
-        let (prev, node, next) = if i + 1 >= njd.nodes.len() {
-            continue;
-        } else if i == 0 {
-            if let [node, next] = &mut njd.nodes[i..i + 2] {
-                (None, node, next)
-            } else {
+    {
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (prev, node, next) = match Triple::from(quint) {
+                Triple::First(node, next) => (None, node, next),
+                Triple::Full(prev, node, next) => (Some(prev), node, next),
+                _ => continue,
+            };
+            if next.get_string().is_empty() {
                 continue;
             }
-        } else {
-            if let [prev, node, next] = &mut njd.nodes[i - 1..i + 2] {
-                (Some(prev), node, next)
-            } else {
+            if !matches!(node.get_pos().get_group1(), Group1::Kazu) {
                 continue;
             }
-        };
-        if next.get_string().is_empty() {
-            continue;
-        }
-        if !matches!(node.get_pos().get_group1(), Group1::Kazu) {
-            continue;
-        }
-        match (
-            prev.as_ref().map(|p| p.get_pos().get_group0()),
-            prev.as_ref().map(|p| p.get_pos().get_group1()),
-        ) {
-            (None, None) => (),
-            (Some(Group0::Kigou), _) => (),
-            (_, Some(Group1::Kazu)) => continue,
-            _ => (),
-        };
-        match (next.get_pos().get_group1(), next.get_pos().get_group2()) {
-            (Group1::FukushiKanou, _) => (),
-            (_, Group2::Josuushi) => (),
-            _ => continue,
-        };
-        /* convert class3 */
-        if rule::NUMERATIVE_CLASS3.contains(&(next.get_string(), next.get_read().unwrap_or("*"))) {
-            if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
-                node.set_read(conversion.0);
-                node.set_pron(conversion.0);
-                node.set_acc(conversion.1);
-                node.set_mora_size(conversion.2);
-            }
-        }
-        /* person */
-        if next.get_string() == rule::NIN {
-            if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
-                *node = NJDNode::new_single(new_node_s);
-                next.unset_pron();
-            }
-        }
-        /* the day of month */
-        if next.get_string() == rule::NICHI && !node.get_string().is_empty() {
-            if matches!(prev,Some(p) if p.get_string().contains(rule::GATSU))
-                && node.get_string() == rule::ONE
+            match (
+                prev.as_ref().map(|p| p.get_pos().get_group0()),
+                prev.as_ref().map(|p| p.get_pos().get_group1()),
+            ) {
+                (None, None) => (),
+                (Some(Group0::Kigou), _) => (),
+                (_, Some(Group1::Kazu)) => continue,
+                _ => (),
+            };
+            match (next.get_pos().get_group1(), next.get_pos().get_group2()) {
+                (Group1::FukushiKanou, _) => (),
+                (_, Group2::Josuushi) => (),
+                _ => continue,
+            };
+            /* convert class3 */
+            if rule::NUMERATIVE_CLASS3
+                .contains(&(next.get_string(), next.get_read().unwrap_or("*")))
             {
-                *node = NJDNode::new_single(rule::TSUITACHI);
-                next.unset_pron();
-            } else {
-                if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
+                if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
+                    node.set_read(conversion.0);
+                    node.set_pron(conversion.0);
+                    node.set_acc(conversion.1);
+                    node.set_mora_size(conversion.2);
+                }
+            }
+            /* person */
+            if next.get_string() == rule::NIN {
+                if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);
                     next.unset_pron();
                 }
             }
-        } else if next.get_string() == rule::NICHIKAN {
-            if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
-                *node = NJDNode::new_single(new_node_s);
-                next.unset_pron();
+            /* the day of month */
+            if next.get_string() == rule::NICHI && !node.get_string().is_empty() {
+                if matches!(prev,Some(p) if p.get_string().contains(rule::GATSU))
+                    && node.get_string() == rule::ONE
+                {
+                    *node = NJDNode::new_single(rule::TSUITACHI);
+                    next.unset_pron();
+                } else {
+                    if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
+                        *node = NJDNode::new_single(new_node_s);
+                        next.unset_pron();
+                    }
+                }
+            } else if next.get_string() == rule::NICHIKAN {
+                if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
+                    *node = NJDNode::new_single(new_node_s);
+                    next.unset_pron();
+                }
             }
         }
     }
 
     if njd.nodes.len() > 2 {
-        for i in 0..njd.nodes.len() - 2 {
-            if i > 0
-                && matches!(njd.nodes.get(i-1),Some(p) if p.get_pos().get_group1()==Group1::Kazu)
-            {
-                continue;
-            }
-
-            let (node, nx1, nx2, nx3_t) = if i + 3 < njd.nodes.len() {
-                if let [node, nx1, nx2, nx3] = &mut njd.nodes[i..i + 4] {
+        let mut iter = njd.iter_quint_mut();
+        while let Some(quint) = iter.next() {
+            let (node, nx1, nx2, nx3_t) = match quint {
+                Quintuple::Triple(node, nx1, nx2) => (node, nx1, nx2, None),
+                Quintuple::First(node, nx1, nx2, nx3) => (node, nx1, nx2, Some(nx3)),
+                Quintuple::Full(prev, node, nx1, nx2, nx3)
+                    if prev.get_pos().get_group1() != Group1::Kazu =>
+                {
                     (node, nx1, nx2, Some(nx3))
-                } else {
-                    unreachable!()
                 }
-            } else {
-                if let [node, nx1, nx2] = &mut njd.nodes[i..i + 3] {
+                Quintuple::ThreeLeft(prev, node, nx1, nx2)
+                    if prev.get_pos().get_group1() != Group1::Kazu =>
+                {
                     (node, nx1, nx2, None)
-                } else {
-                    unreachable!()
                 }
+                _ => continue,
             };
 
             let mut nx3 = nx3_t;

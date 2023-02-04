@@ -1,10 +1,13 @@
 pub mod accent_rule;
+pub mod window;
 pub mod node;
 pub mod pos;
 mod unk;
 
 use lindera::Token;
 pub use node::*;
+
+pub use window::*;
 
 #[derive(Debug)]
 pub struct NJD {
@@ -27,5 +30,8 @@ impl NJD {
             nodes.extend(NJDNode::load(&token.text, &details_str[..]));
         }
         Self { nodes }
+    }
+    pub fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode> {
+        IterQuintMut::new(&mut self.nodes)
     }
 }
