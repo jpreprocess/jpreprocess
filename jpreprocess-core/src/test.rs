@@ -27,7 +27,7 @@ mod test {
 
         let dictionary = DictionaryConfig {
             kind: None,
-            path: Some(PathBuf::from("dict")),
+            path: Some(PathBuf::from("../dict")),
         };
 
         let config = TokenizerConfig {
@@ -49,11 +49,11 @@ mod test {
         njd_set::unvoiced_vowel::njd_set_unvoiced_vowel(&mut njd);
         njd_set::long_vowel::njd_set_long_vowel(&mut njd);
 
-        let mut child = Command::new("tester/open_jtalk")
+        let mut child = Command::new("../tester/open_jtalk")
             .arg("-x")
-            .arg("tester/mecab-naist-jdic")
+            .arg("../tester/mecab-naist-jdic")
             .arg("-m")
-            .arg("tester/nitech_jp_atr503_m001.htsvoice")
+            .arg("../tester/nitech_jp_atr503_m001.htsvoice")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
