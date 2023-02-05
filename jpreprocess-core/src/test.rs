@@ -35,10 +35,10 @@ mod test {
             user_dictionary: None,
             mode: Mode::Normal,
         };
-        let tokenizer = Tokenizer::with_config(config).unwrap();
+        let tokenizer = Tokenizer::from_config(config).unwrap();
 
         let tokens = tokenizer
-            .tokenize_with_details(normalized_input_text.as_str())
+            .tokenize(normalized_input_text.as_str())
             .unwrap();
 
         let mut njd = NJD::from_tokens(tokens);

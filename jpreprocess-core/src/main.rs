@@ -30,16 +30,16 @@ fn main() {
         user_dictionary: None,
         mode: Mode::Normal,
     };
-    let tokenizer = Tokenizer::with_config(config).unwrap();
+    let tokenizer = Tokenizer::from_config(config).unwrap();
 
-    let tokens = tokenizer
-        .tokenize_with_details(normalized_input_text.as_str())
+    let mut tokens = tokenizer
+        .tokenize(normalized_input_text.as_str())
         .unwrap();
-    for token in &tokens {
+    for token in &mut tokens {
         println!(
             "{},{}",
-            token.text,
-            token.details.as_ref().unwrap().join(",")
+            token.get_text().to_string(),
+            token.get_details().as_ref().unwrap().join(",")
         );
     }
 
