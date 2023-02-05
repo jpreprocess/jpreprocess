@@ -1,13 +1,5 @@
-[package]
-name = "jpreprocess"
-version = "0.1.0"
-edition = "2021"
-
-license = "BSD-3-Clause"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-phf = { version = "0.11", features = ["macros"] }
-lindera = { version = "0.18" }
-aho-corasick = "0.7"
+[workspace]
+members = [
+  "jpreprocess-core",
+  "jpreprocess-njd"
+]

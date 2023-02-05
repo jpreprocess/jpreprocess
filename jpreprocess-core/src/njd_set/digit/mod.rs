@@ -6,8 +6,10 @@ mod rule;
 
 mod digit_sequence;
 
-use crate::njd::pos::*;
-use crate::njd::*;
+use jpreprocess_njd::pos::*;
+use jpreprocess_njd::*;
+
+use crate::window::*;
 
 use self::{
     digit_sequence::DigitSequence,

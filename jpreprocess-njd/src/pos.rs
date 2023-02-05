@@ -37,7 +37,7 @@ impl PartOfSpeech {
     pub fn get_group3(&self) -> Group3 {
         self.group3.as_str().into()
     }
-    pub(in crate::njd) fn group0_contains(&self, s: &str) -> bool {
+    pub(crate) fn group0_contains(&self, s: &str) -> bool {
         self.group0.contains(s)
     }
 

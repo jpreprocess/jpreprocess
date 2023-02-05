@@ -5,11 +5,12 @@ use std::{
 };
 
 use lindera::{mode::Mode, tokenizer::*};
-use njd::{NJDNode, NJD};
+use jpreprocess_njd::{NJDNode, NJD};
 
-mod njd;
 mod njd_set;
 mod text_normalizer;
+
+mod window;
 
 mod test;
 

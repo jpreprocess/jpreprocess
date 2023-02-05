@@ -155,7 +155,7 @@ impl Debug for ChainRules {
 
 #[cfg(test)]
 mod tests {
-    use crate::njd::accent_rule::AccentType;
+    use crate::accent_rule::AccentType;
 
     use super::ChainRules;
 

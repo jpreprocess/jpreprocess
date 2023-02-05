@@ -1,4 +1,4 @@
-use crate::njd::NJD;
+use jpreprocess_njd::NJD;
 
 pub mod rule;
 

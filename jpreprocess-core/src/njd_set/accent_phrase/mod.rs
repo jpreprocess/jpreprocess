@@ -1,7 +1,9 @@
 mod rule;
 
-use crate::njd::pos::*;
-use crate::njd::*;
+use jpreprocess_njd::pos::*;
+use jpreprocess_njd::*;
+
+use crate::window::*;
 
 pub fn njd_set_accent_phrase(njd: &mut NJD) {
     if njd.nodes.len() == 0 {

@@ -1,5 +1,28 @@
 pub mod data;
 pub use data::*;
+use jpreprocess_njd::{NJDNode, NJD};
+
+pub trait IterQuintMutTrait {
+    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode>;
+    fn iter_quint_mut_range<'a>(
+        &'a mut self,
+        start: usize,
+        end: usize,
+    ) -> IterQuintMut<'a, NJDNode>;
+}
+
+impl IterQuintMutTrait for NJD {
+    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode> {
+        IterQuintMut::new(&mut self.nodes)
+    }
+    fn iter_quint_mut_range<'a>(
+        &'a mut self,
+        start: usize,
+        end: usize,
+    ) -> IterQuintMut<'a, NJDNode> {
+        IterQuintMut::new(&mut self.nodes[start..end])
+    }
+}
 
 pub struct IterQuintMut<'a, T> {
     vec: &'a mut [T],

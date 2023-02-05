@@ -1,9 +1,10 @@
-use crate::njd::NJD;
+use jpreprocess_njd::NJD;
 
 mod rule;
 
-use crate::njd::pos::*;
-use crate::njd::Triple;
+use jpreprocess_njd::pos::*;
+
+use crate::window::*;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {

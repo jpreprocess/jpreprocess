@@ -1,8 +1,10 @@
-use crate::njd::{
+use jpreprocess_njd::{
     node::NJDNode,
     pos::{Group1, Group2},
-    Double, NJD,
+    NJD,
 };
+
+use crate::window::*;
 
 use super::rule;
 

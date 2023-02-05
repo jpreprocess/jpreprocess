@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use crate::njd::pos::*;
+use crate::pos::*;
 
 use super::accent_rule::ChainRules;
 
@@ -263,7 +263,7 @@ impl NJDNode {
 
 #[cfg(test)]
 mod tests {
-    use crate::njd::pos::*;
+    use crate::pos::*;
 
     use super::NJDNode;
 

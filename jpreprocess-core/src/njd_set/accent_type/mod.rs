@@ -1,8 +1,8 @@
 mod rule;
 
-use crate::njd::accent_rule::AccentType;
-use crate::njd::pos::*;
-use crate::njd::*;
+use jpreprocess_njd::accent_rule::AccentType;
+use jpreprocess_njd::pos::*;
+use jpreprocess_njd::*;
 
 pub fn njd_set_accent_type(njd: &mut NJD) {
     if njd.nodes.len() == 0 {
