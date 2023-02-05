@@ -1,62 +1,57 @@
 use std::fmt::Debug;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct PartOfSpeech {
-    group0: String,
-    group1: String,
-    group2: String,
-    group3: String,
+    group0: Group0,
+    group0_contains: Group0Contains,
+    group1: Group1,
+    group2: Group2,
+    group3: Group3,
 }
 
 impl PartOfSpeech {
     pub fn new(groups: [&str; 4]) -> Self {
-        let normalize = |s: &str| {
-            if s == "*" {
-                "".to_string()
-            } else {
-                s.to_string()
-            }
-        };
         Self {
-            group0: normalize(groups[0]),
-            group1: normalize(groups[1]),
-            group2: normalize(groups[2]),
-            group3: normalize(groups[3]),
+            group0: groups[0].into(),
+            group0_contains: Group0Contains::from_str_contains(groups[0]),
+            group1: groups[1].into(),
+            group2: groups[2].into(),
+            group3: groups[3].into(),
         }
     }
 
     pub fn get_group0(&self) -> Group0 {
-        self.group0.as_str().into()
+        self.group0
     }
     pub fn get_group1(&self) -> Group1 {
-        self.group1.as_str().into()
+        self.group1
     }
     pub fn get_group2(&self) -> Group2 {
-        self.group2.as_str().into()
+        self.group2
     }
     pub fn get_group3(&self) -> Group3 {
-        self.group3.as_str().into()
+        self.group3
     }
-    pub(crate) fn group0_contains(&self, s: &str) -> bool {
-        self.group0.contains(s)
+    pub(crate) fn get_group0_contains(&self) -> Group0Contains {
+        self.group0_contains
     }
 
     pub fn set_group0(&mut self, group0: &str) {
-        self.group0 = group0.to_string();
+        self.group0 = group0.into();
     }
 }
 
-impl Debug for PartOfSpeech {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{},{},{},{}",
-            self.group0, self.group1, self.group2, self.group3
-        )
-    }
-}
+// impl Debug for PartOfSpeech {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(
+//             f,
+//             "{},{},{},{}",
+//             self.group0, self.group1, self.group2, self.group3
+//         )
+//     }
+// }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Group0 {
     Meishi,
     Keiyoushi,
@@ -93,7 +88,40 @@ impl From<&str> for Group0 {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
+pub enum Group0Contains {
+    Meishi,
+    Keiyoushi,
+    Doushi,
+    None,
+}
+
+impl Group0Contains {
+    fn from_str_contains(s: &str) -> Self {
+        if s.contains("名詞") {
+            Self::Meishi
+        } else if s.contains("形容詞") {
+            Self::Keiyoushi
+        } else if s.contains("動詞") {
+            Self::Doushi
+        } else {
+            Self::None
+        }
+    }
+}
+
+impl From<&str> for Group0Contains {
+    fn from(s: &str) -> Self {
+        match s {
+            "名詞" => Self::Meishi,
+            "形容詞" => Self::Keiyoushi,
+            "動詞" => Self::Doushi,
+            _ => Self::None,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Group1 {
     KeiyoudoushiGokan,
     FukushiKanou,
@@ -122,7 +150,7 @@ impl From<&str> for Group1 {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Group2 {
     Josuushi,
     Others,
@@ -136,7 +164,7 @@ impl From<&str> for Group2 {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Group3 {
     Sei,
     Mei,

@@ -14,11 +14,11 @@ impl Debug for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},{},{},{},{},{},{}/{},{},{}",
+            "{},{:?},*,*,{},{},{},{}/{},{},{}",
             self.string,
             self.details.pos,
-            self.details.ctype,
-            self.details.cform,
+            // self.details.ctype,
+            // self.details.cform,
             self.details.orig,
             self.details.read.as_ref().unwrap_or(&"*".to_string()),
             self.details.pron.as_ref().unwrap_or(&"*".to_string()),
@@ -119,7 +119,7 @@ impl NJDNode {
     }
 
     pub fn is_renyou(&self) -> bool {
-        self.details.cform.starts_with("連用")
+        self.details.is_renyou
     }
 
     pub fn get_string(&self) -> &str {
@@ -189,8 +189,9 @@ mod tests {
         assert_eq!(node.get_pos().get_group0(), Group0::Meishi);
         assert_eq!(node.get_pos().get_group1(), Group1::Setsubi);
         assert_eq!(node.get_pos().get_group3(), Group3::Others);
-        assert_eq!(node.details.ctype, "*");
-        assert_eq!(node.details.cform, "*");
+        // assert_eq!(node.details.ctype, "*");
+        // assert_eq!(node.details.cform, "*");
+        assert_eq!(node.details.is_renyou, false);
         assert_eq!(node.details.orig, "．");
         assert_eq!(node.details.read.unwrap(), "テン");
         assert_eq!(node.details.pron.unwrap(), "テン");
