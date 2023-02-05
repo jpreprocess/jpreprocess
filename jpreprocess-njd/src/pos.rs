@@ -38,6 +38,7 @@ impl PartOfSpeech {
 
     pub fn set_group0(&mut self, group0: &str) {
         self.group0 = group0.into();
+        self.group0_contains = Group0Contains::from_str_contains(group0);
     }
 }
 
@@ -93,6 +94,8 @@ pub enum Group0Contains {
     Meishi,
     Keiyoushi,
     Doushi,
+    Joshi,
+    TokushuJodoushi,
     None,
 }
 
@@ -102,6 +105,10 @@ impl Group0Contains {
             Self::Meishi
         } else if s.contains("形容詞") {
             Self::Keiyoushi
+        } else if s.contains("助詞") {
+            Self::Joshi
+        } else if s.contains("特殊助動詞") {
+            Self::TokushuJodoushi
         } else if s.contains("動詞") {
             Self::Doushi
         } else {
@@ -116,6 +123,8 @@ impl From<&str> for Group0Contains {
             "名詞" => Self::Meishi,
             "形容詞" => Self::Keiyoushi,
             "動詞" => Self::Doushi,
+            "助詞" => Self::Joshi,
+            "特殊助動詞" => Self::TokushuJodoushi,
             _ => Self::None,
         }
     }

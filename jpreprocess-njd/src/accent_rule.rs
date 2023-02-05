@@ -198,6 +198,6 @@ mod tests {
     #[test]
     #[should_panic]
     fn reject_invalid_pos(){
-        ChainRules::new("特殊助動詞%F2@0/動詞%F5");
+        ChainRules::new("特殊助詞%F2@0/動詞%F5");
     }
 }
