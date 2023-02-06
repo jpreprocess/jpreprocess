@@ -1,6 +1,6 @@
 pub mod accent_rule;
 pub mod node;
-mod node_details;
+pub mod node_details;
 pub mod pos;
 mod unk;
 

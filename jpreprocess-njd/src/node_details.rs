@@ -18,7 +18,7 @@ pub struct NodeDetails {
 }
 
 impl NodeDetails {
-    pub(crate) fn load(details: &[&str]) -> Vec<Self> {
+    pub fn load(details: &[&str]) -> Vec<Self> {
         let orig = details[6];
         let read = details[7];
         let pron = details[8];

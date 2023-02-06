@@ -93,6 +93,7 @@ impl ChainRules {
     pub fn new(rules: &str) -> Self {
         Self {
             rules: rules
+                .replace("-1動詞", "-1/動詞")
                 .split("/")
                 .map(|rule| {
                     let mut pos: Option<String> = None;
