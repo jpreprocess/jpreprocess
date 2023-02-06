@@ -1,10 +1,12 @@
 use std::{fmt::Debug, str::FromStr};
 
+use serde::{Serialize, Deserialize};
+
 use crate::pos::Group0Contains;
 
 use super::pos::PartOfSpeech;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AccentType {
     F1,
     F2,
@@ -51,7 +53,7 @@ impl FromStr for AccentType {
 }
 
 // Accent sandhi rule
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChainRule {
     pos: Option<Group0Contains>,
     pub sandhi_type: AccentType,
@@ -82,7 +84,7 @@ impl Debug for ChainRule {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChainRules {
     rules: Vec<ChainRule>,
 }

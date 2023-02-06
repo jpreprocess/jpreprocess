@@ -291,9 +291,9 @@ dependencies = [
 name = "jpreprocess-njd"
 version = "0.1.0"
 dependencies = [
- "aho-corasick",
+ "bincode",
  "lindera",
- "phf",
+ "serde",
 ]
 
 [[package]]

@@ -1,6 +1,8 @@
+use serde::{Serialize, Deserialize};
+
 use crate::{accent_rule::ChainRules, pos::PartOfSpeech};
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct NodeDetails {
     pub(crate) pos: PartOfSpeech,
     //pub(crate) ctype: String,

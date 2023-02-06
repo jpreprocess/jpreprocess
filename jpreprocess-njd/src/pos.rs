@@ -1,6 +1,8 @@
 use std::fmt::Debug;
 
-#[derive(Clone, PartialEq, Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct PartOfSpeech {
     group0: Group0,
     group0_contains: Group0Contains,
@@ -52,7 +54,7 @@ impl PartOfSpeech {
 //     }
 // }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Group0 {
     Meishi,
     Keiyoushi,
@@ -89,7 +91,7 @@ impl From<&str> for Group0 {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Group0Contains {
     Meishi,
     Keiyoushi,
@@ -130,7 +132,7 @@ impl From<&str> for Group0Contains {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Group1 {
     KeiyoudoushiGokan,
     FukushiKanou,
@@ -159,7 +161,7 @@ impl From<&str> for Group1 {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Group2 {
     Josuushi,
     Others,
@@ -173,7 +175,7 @@ impl From<&str> for Group2 {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Group3 {
     Sei,
     Mei,
