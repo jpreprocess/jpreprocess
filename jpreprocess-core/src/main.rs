@@ -4,8 +4,8 @@ use std::{
     process::{Command, Stdio},
 };
 
-use lindera::{mode::Mode, tokenizer::*};
 use jpreprocess_njd::{NJDNode, NJD};
+use lindera::{mode::Mode, tokenizer::*};
 
 mod njd_set;
 mod text_normalizer;
@@ -32,9 +32,7 @@ fn main() {
     };
     let tokenizer = Tokenizer::from_config(config).unwrap();
 
-    let mut tokens = tokenizer
-        .tokenize(normalized_input_text.as_str())
-        .unwrap();
+    let mut tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
     for token in &mut tokens {
         println!(
             "{},{}",

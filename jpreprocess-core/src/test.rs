@@ -37,9 +37,7 @@ mod test {
         };
         let tokenizer = Tokenizer::from_config(config).unwrap();
 
-        let tokens = tokenizer
-            .tokenize(normalized_input_text.as_str())
-            .unwrap();
+        let tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
 
         let mut njd = NJD::from_tokens(tokens);
         njd_set::pronounciation::njd_set_pronunciation(&mut njd);

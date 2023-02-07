@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::{accent_rule::ChainRules, pos::PartOfSpeech};
 
