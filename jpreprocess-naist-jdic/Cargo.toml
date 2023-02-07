@@ -21,4 +21,4 @@ lindera-decompress = { version = "0.21.0", optional = true }
 [build-dependencies]
 lindera-core = { version = "0.21.0" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
-lindera-ipadic-builder = { version = "0.21.0" }
+lindera-ipadic-builder = { version = "0.21.0", path="../lindera-ipadic-builder" }

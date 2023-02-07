@@ -296,7 +296,7 @@ dependencies = [
  "jpreprocess-njd",
  "lindera-core",
  "lindera-decompress",
- "lindera-ipadic-builder",
+ "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
 ]
 
@@ -309,7 +309,7 @@ dependencies = [
  "jpreprocess-dictionary",
  "lindera-core",
  "lindera-decompress",
- "lindera-ipadic-builder",
+ "lindera-ipadic-builder 0.21.0",
  "once_cell",
 ]
 
@@ -358,7 +358,7 @@ dependencies = [
  "lindera-core",
  "lindera-dictionary",
  "lindera-ipadic",
- "lindera-ipadic-builder",
+ "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lindera-ko-dic-builder",
  "lindera-unidic-builder",
  "regex",
@@ -387,6 +387,17 @@ dependencies = [
  "lindera-decompress",
  "log",
  "yada",
+]
+
+[[package]]
+name = "lindera-compress"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a8d0ea3de5625e2381cac94e518d3b56103fde56bc0dce840fe875c1e871b125"
+dependencies = [
+ "anyhow",
+ "flate2",
+ "lindera-decompress",
 ]
 
 [[package]]
@@ -438,8 +449,28 @@ dependencies = [
  "bincode",
  "byteorder",
  "lindera-core",
- "lindera-ipadic-builder",
+ "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
+]
+
+[[package]]
+name = "lindera-ipadic-builder"
+version = "0.21.0"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "byteorder",
+ "csv",
+ "encoding_rs",
+ "encoding_rs_io",
+ "env_logger",
+ "glob",
+ "lindera-compress",
+ "lindera-core",
+ "lindera-decompress",
+ "log",
+ "serde",
+ "yada",
 ]
 
 [[package]]
