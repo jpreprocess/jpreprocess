@@ -1,6 +1,6 @@
 use std::{fmt::Debug, str::FromStr};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::pos::Group0Contains;
 
@@ -56,15 +56,15 @@ impl FromStr for AccentType {
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct ChainRule {
     pos: Option<Group0Contains>,
-    pub sandhi_type: AccentType,
+    pub accent_type: AccentType,
     pub add_type: i32,
 }
 
 impl ChainRule {
-    pub fn new(pos: Option<Group0Contains>, sandhi_type: &str, add_type: i32) -> Self {
+    pub fn new(pos: Option<Group0Contains>, accent_type: AccentType, add_type: i32) -> Self {
         Self {
             pos,
-            sandhi_type: AccentType::from_str(sandhi_type).unwrap(),
+            accent_type,
             add_type,
         }
     }
@@ -73,12 +73,12 @@ impl ChainRule {
 impl Debug for ChainRule {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(pos) = &self.pos {
-            write!(f, "{:?}%{:?}@{}", pos, self.sandhi_type, self.add_type)
+            write!(f, "{:?}%{:?}@{}", pos, self.accent_type, self.add_type)
         } else {
             if self.add_type == 0 {
-                write!(f, "{:?}", self.sandhi_type)
+                write!(f, "{:?}", self.accent_type)
             } else {
-                write!(f, "{:?}@{}", self.sandhi_type, self.add_type)
+                write!(f, "{:?}@{}", self.accent_type, self.add_type)
             }
         }
     }
@@ -93,11 +93,10 @@ impl ChainRules {
     pub fn new(rules: &str) -> Self {
         Self {
             rules: rules
-                .replace("-1動詞", "-1/動詞")
                 .split("/")
                 .map(|rule| {
                     let mut pos: Option<String> = None;
-                    let mut sandhi_type = "*".to_string();
+                    let mut accent_type = AccentType::None;
                     let mut add_type = 0;
                     let mut is_type = false;
 
@@ -109,11 +108,15 @@ impl ChainRules {
                             pos = Some(rule.to_string());
                         }
                         Some(b'@') => {
-                            sandhi_type = rule.to_string();
+                            if let Ok(parsed) = AccentType::from_str(rule) {
+                                accent_type = parsed;
+                            }
                             is_type = true;
                         }
                         None => {
-                            sandhi_type = rule.to_string();
+                            if let Ok(parsed) = AccentType::from_str(rule) {
+                                accent_type = parsed;
+                            }
                         }
                         _ => unreachable!(),
                     };
@@ -130,11 +133,14 @@ impl ChainRules {
                     process_rule(None, &rule[segment_start..rule.len()]);
 
                     let pos_parsed = pos.map(|pos| match pos.as_str().into() {
-                        Group0Contains::None => panic!("Invalid AccentRule POS!"),
+                        Group0Contains::None => {
+                            dbg!(rules);
+                            panic!("Invalid AccentRule POS!")
+                        }
                         p => p,
                     });
 
-                    ChainRule::new(pos_parsed, sandhi_type.as_str(), add_type)
+                    ChainRule::new(pos_parsed, accent_type, add_type)
                 })
                 .collect(),
         }
@@ -173,7 +179,7 @@ mod tests {
     fn load_simple_rule() {
         let rule = &ChainRules::new("C3").rules[0];
         assert_eq!(rule.pos, None);
-        assert_eq!(rule.sandhi_type, AccentType::C3);
+        assert_eq!(rule.accent_type, AccentType::C3);
         assert_eq!(rule.add_type, 0);
     }
 
@@ -181,7 +187,7 @@ mod tests {
     fn load_single_complex_rule() {
         let rule = &ChainRules::new("形容詞%F2@-1").rules[0];
         assert_eq!(rule.pos, Some(Group0Contains::Keiyoushi));
-        assert_eq!(rule.sandhi_type, AccentType::F2);
+        assert_eq!(rule.accent_type, AccentType::F2);
         assert_eq!(rule.add_type, -1);
     }
 
@@ -190,17 +196,22 @@ mod tests {
         let rules = &ChainRules::new("形容詞%F2@0/動詞%F5");
         let rule1 = &rules.rules[0];
         assert_eq!(rule1.pos, Some(Group0Contains::Keiyoushi));
-        assert_eq!(rule1.sandhi_type, AccentType::F2);
+        assert_eq!(rule1.accent_type, AccentType::F2);
         assert_eq!(rule1.add_type, 0);
         let rule2 = &rules.rules[1];
         assert_eq!(rule2.pos, Some(Group0Contains::Doushi));
-        assert_eq!(rule2.sandhi_type, AccentType::F5);
+        assert_eq!(rule2.accent_type, AccentType::F5);
         assert_eq!(rule2.add_type, 0);
     }
 
     #[test]
     #[should_panic]
-    fn reject_invalid_pos(){
+    fn reject_invalid_pos() {
         ChainRules::new("特殊助詞%F2@0/動詞%F5");
+    }
+
+    #[test]
+    fn add_type_only() {
+        ChainRules::new("-1");
     }
 }

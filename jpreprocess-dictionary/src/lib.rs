@@ -42,7 +42,6 @@ impl JPreproessBuilder {
                 prev_position = idx;
             }
         }
-        dbg!(details_vec.len());
         {
             use std::io::Write;
             let mut result_idx =

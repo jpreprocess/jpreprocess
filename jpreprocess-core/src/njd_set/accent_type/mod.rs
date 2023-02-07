@@ -78,7 +78,7 @@ fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_si
         .and_then(|rule| rule.get_rule(prev.get_pos()))
         else {return top_node_acc};
 
-    match rule.sandhi_type {
+    match rule.accent_type {
         AccentType::F1 => top_node_acc,
         AccentType::F2 if top_node_acc == 0 => mora_size + rule.add_type,
         AccentType::F3 if top_node_acc != 0 => mora_size + rule.add_type,
