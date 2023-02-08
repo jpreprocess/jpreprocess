@@ -301,12 +301,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "jpreprocess-dictionary-builder"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "byteorder",
+ "jpreprocess-njd",
+ "lindera-core",
+ "lindera-decompress",
+ "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "once_cell",
+]
+
+[[package]]
 name = "jpreprocess-naist-jdic"
 version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
- "jpreprocess-dictionary",
+ "jpreprocess-dictionary-builder",
  "lindera-core",
  "lindera-decompress",
  "lindera-ipadic-builder 0.21.0",

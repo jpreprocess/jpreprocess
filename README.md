@@ -18,7 +18,7 @@
 
 単語を保持するデータ構造と，それに関連する関数群です．
 
-### jpreprocess-dictionary
+### jpreprocess-dictionary-builder
 
 元となる辞書は文字列で単語の情報をもっているので，事前にパースして直接処理できる辞書(`jpreprocess.words`，`jpreprocess.wordsidx`)を生成します．
 jpreprocess-njdの文字列からデータを生成する関数を使います．

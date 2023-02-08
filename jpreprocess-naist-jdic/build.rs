@@ -2,7 +2,7 @@ use std::error::Error;
 
 #[cfg(feature = "naist-jdic")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use jpreprocess_dictionary::JPreproessBuilder;
+    use jpreprocess_dictionary_builder::JPreproessBuilder;
     use lindera_core::dictionary_builder::DictionaryBuilder;
     use lindera_ipadic_builder::ipadic_builder::IpadicBuilder;
     use std::{env, path::Path};

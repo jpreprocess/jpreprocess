@@ -2,6 +2,7 @@
 members = [
   "jpreprocess-core",
   "jpreprocess-dictionary",
+  "jpreprocess-dictionary-builder",
   "jpreprocess-naist-jdic",
   "jpreprocess-njd",
   "lindera-ipadic-builder",
