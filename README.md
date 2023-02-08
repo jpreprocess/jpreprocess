@@ -9,7 +9,7 @@
 
 ## Crates
 
-### jpreprocess-core
+### jpreprocess
 
 中核部分です．日本語文を解析し，そのデータを音声合成エンジンに渡せる形に変換します．
 解析結果の単語は，jpreprocess-njdで規定されるデータ構造で保持します．
