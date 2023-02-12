@@ -306,6 +306,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
+ "jpreprocess-dictionary",
  "jpreprocess-njd",
  "lindera-core",
  "lindera-decompress",

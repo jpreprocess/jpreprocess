@@ -17,3 +17,4 @@ lindera-decompress = { version = "0.21.0", optional = true }
 lindera-ipadic-builder = { version = "0.21.0" }
 
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
+jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }

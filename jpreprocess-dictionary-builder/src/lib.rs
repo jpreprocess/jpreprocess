@@ -1,45 +1,34 @@
 use std::{
     error::Error,
     fs::File,
-    io::{self, Read},
+    io,
     path::Path,
 };
 
-use byteorder::{ByteOrder, LittleEndian, WriteBytesExt};
+use byteorder::{LittleEndian, WriteBytesExt};
+use jpreprocess_dictionary::Dictionary;
 use jpreprocess_njd::node_details::NodeDetails;
 
 pub struct JPreproessBuilder;
 
 impl JPreproessBuilder {
     pub fn generate_dictionary(output_dir: &Path) -> Result<(), Box<dyn Error>> {
+        let lindera_dict = Dictionary::load_lindera(output_dir.to_path_buf())?;
+
         let mut idx_vec: Vec<u8> = Vec::new();
         let mut details_vec: Vec<u8> = Vec::new();
 
         {
-            let mut idxs = Self::idx(output_dir)?;
-            let mut prev_position = 0;
+            for raw_data in lindera_dict.iter() {
+                let mut data: Vec<String> = bincode::deserialize_from(raw_data)?;
 
-            let words_path = output_dir.join("dict.words");
-            let mut words = File::open(words_path)?;
+                data.resize(13, "".to_string());
 
-            idxs.push(words.metadata()?.len().try_into()?);
+                let details =
+                    NodeDetails::load(&data.iter().map(|d| &d[..]).collect::<Vec<&str>>()[..]);
 
-            for idx in idxs {
-                let chunk_size = idx - prev_position;
-                if chunk_size > 0 {
-                    let mut data: Vec<String> =
-                        bincode::deserialize_from(words.by_ref().take(chunk_size.into()))?;
-
-                    data.resize(13, "".to_string());
-
-                    let details =
-                        NodeDetails::load(&data.iter().map(|d| &d[..]).collect::<Vec<&str>>()[..]);
-
-                    idx_vec.write_u32::<LittleEndian>(details_vec.len().try_into()?)?;
-                    bincode::serialize_into(&mut details_vec, &details)?;
-                }
-
-                prev_position = idx;
+                idx_vec.write_u32::<LittleEndian>(details_vec.len().try_into()?)?;
+                bincode::serialize_into(&mut details_vec, &details)?;
             }
         }
         {
@@ -54,19 +43,5 @@ impl JPreproessBuilder {
             result_words.flush()?;
         }
         Ok(())
-    }
-    fn idx(output_dir: &Path) -> Result<Vec<u32>, Box<dyn Error>> {
-        let idx_path = output_dir.join("dict.wordsidx");
-        let mut idx_file = File::open(idx_path)?;
-        let mut idxs = Vec::new();
-        loop {
-            let mut chunk = Vec::with_capacity(4);
-            let n = idx_file.by_ref().take(4).read_to_end(&mut chunk)?;
-            if n != 4 {
-                break;
-            }
-            idxs.push(LittleEndian::read_u32(&chunk));
-        }
-        Ok(idxs)
     }
 }
