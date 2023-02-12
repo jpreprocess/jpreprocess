@@ -288,11 +288,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "jpreprocess-core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "thiserror",
+]
+
+[[package]]
 name = "jpreprocess-dictionary"
 version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
+ "jpreprocess-core",
  "jpreprocess-njd",
  "lindera-core",
  "lindera-decompress",

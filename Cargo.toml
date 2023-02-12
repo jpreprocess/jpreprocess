@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "jpreprocess",
+  "jpreprocess-core",
   "jpreprocess-dictionary",
   "jpreprocess-dictionary-builder",
   "jpreprocess-naist-jdic",
