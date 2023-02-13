@@ -1,9 +1,4 @@
-use std::{
-    error::Error,
-    fs::{self, File},
-    io::Read,
-    path::PathBuf,
-};
+use std::{fs, path::PathBuf};
 
 use byteorder::{ByteOrder, LittleEndian};
 
