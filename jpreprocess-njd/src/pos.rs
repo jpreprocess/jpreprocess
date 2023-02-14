@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -119,15 +119,16 @@ impl Group0Contains {
     }
 }
 
-impl From<&str> for Group0Contains {
-    fn from(s: &str) -> Self {
+impl FromStr for Group0Contains {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "名詞" => Self::Meishi,
-            "形容詞" => Self::Keiyoushi,
-            "動詞" => Self::Doushi,
-            "助詞" => Self::Joshi,
-            "特殊助動詞" => Self::TokushuJodoushi,
-            _ => Self::None,
+            "名詞" => Ok(Self::Meishi),
+            "形容詞" => Ok(Self::Keiyoushi),
+            "動詞" => Ok(Self::Doushi),
+            "助詞" => Ok(Self::Joshi),
+            "特殊助動詞" => Ok(Self::TokushuJodoushi),
+            _ => Err(()),
         }
     }
 }

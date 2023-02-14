@@ -342,6 +342,8 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "lindera",
+ "once_cell",
+ "regex",
  "serde",
 ]
 
