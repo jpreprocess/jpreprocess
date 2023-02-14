@@ -1,11 +1,8 @@
-use std::{
-    error::Error,
-    fs::{self, File},
-    io::Read,
-    path::PathBuf,
-};
+use std::{fs, path::PathBuf};
 
 use byteorder::{ByteOrder, LittleEndian};
+
+use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
 pub struct Dictionary {
     words_data: Vec<u8>,
@@ -13,13 +10,13 @@ pub struct Dictionary {
 }
 
 impl Dictionary {
-    pub fn load_lindera(dir: PathBuf) -> Result<Dictionary, Box<dyn Error>> {
+    pub fn load_lindera(dir: PathBuf) -> JPreprocessResult<Dictionary> {
         Self::load(dir, "dict")
     }
-    pub fn load_jpreprocess(dir: PathBuf) -> Result<Dictionary, Box<dyn Error>> {
+    pub fn load_jpreprocess(dir: PathBuf) -> JPreprocessResult<Dictionary> {
         Self::load(dir, "jpreprocess")
     }
-    fn load(dir: PathBuf, name: &str) -> Result<Dictionary, Box<dyn Error>> {
+    fn load(dir: PathBuf, name: &str) -> JPreprocessResult<Dictionary> {
         Ok(Self {
             words_data: Self::read_file(dir.join(format!("{}.words", name)))?,
             words_idx_data: Self::idx(dir.join(format!("{}.wordsidx", name)))?,
@@ -35,22 +32,12 @@ impl Dictionary {
         Some(&self.words_data[curr..next])
     }
 
-    fn read_file(path: PathBuf) -> Result<Vec<u8>, Box<dyn Error>> {
-        Ok(fs::read(path)?)
+    fn read_file(path: PathBuf) -> JPreprocessResult<Vec<u8>> {
+        fs::read(path).map_err(|e| JPreprocessErrorKind::Io.with_error(e))
     }
 
-    fn idx(path: PathBuf) -> Result<Vec<u32>, Box<dyn Error>> {
-        let mut idx_file = File::open(path)?;
-        let mut idxs = Vec::new();
-        loop {
-            let mut chunk = Vec::with_capacity(4);
-            let n = idx_file.by_ref().take(4).read_to_end(&mut chunk)?;
-            if n != 4 {
-                break;
-            }
-            idxs.push(LittleEndian::read_u32(&chunk));
-        }
-        Ok(idxs)
+    fn idx(path: PathBuf) -> JPreprocessResult<Vec<u32>> {
+        Self::read_file(path).map(|idx| idx.chunks(4).map(LittleEndian::read_u32).collect())
     }
 
     pub fn iter(&self) -> DictionaryIter {

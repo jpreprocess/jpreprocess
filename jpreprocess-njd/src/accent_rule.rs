@@ -1,10 +1,17 @@
 use std::{fmt::Debug, str::FromStr};
 
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::pos::Group0Contains;
 
 use super::pos::PartOfSpeech;
+
+static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
+    Regex::new("^((?P<pos>名詞|形容詞|助詞|特殊助動詞|動詞)%)?(?P<accent>[FC][1-5]|P1|P2|P6|P14)?(@(?P<add>[-0-9]+))?$")
+        .expect("Failed to compile accent rule regex")
+});
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AccentType {
@@ -53,7 +60,7 @@ impl FromStr for AccentType {
 }
 
 // Accent sandhi rule
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRule {
     pos: Option<Group0Contains>,
     pub accent_type: AccentType,
@@ -70,21 +77,7 @@ impl ChainRule {
     }
 }
 
-impl Debug for ChainRule {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(pos) = &self.pos {
-            write!(f, "{:?}%{:?}@{}", pos, self.accent_type, self.add_type)
-        } else {
-            if self.add_type == 0 {
-                write!(f, "{:?}", self.accent_type)
-            } else {
-                write!(f, "{:?}@{}", self.accent_type, self.add_type)
-            }
-        }
-    }
-}
-
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRules {
     rules: Vec<ChainRule>,
 }
@@ -94,56 +87,39 @@ impl ChainRules {
         Self {
             rules: rules
                 .split("/")
-                .map(|rule| {
-                    let mut pos: Option<String> = None;
-                    let mut accent_type = AccentType::None;
-                    let mut add_type = 0;
-                    let mut is_type = false;
-
-                    let mut process_rule = |control: Option<u8>, rule: &str| match control {
-                        _ if is_type => {
-                            add_type = rule.parse().unwrap();
-                        }
-                        Some(b'%') => {
-                            pos = Some(rule.to_string());
-                        }
-                        Some(b'@') => {
-                            if let Ok(parsed) = AccentType::from_str(rule) {
-                                accent_type = parsed;
-                            }
-                            is_type = true;
-                        }
-                        None => {
-                            if let Ok(parsed) = AccentType::from_str(rule) {
-                                accent_type = parsed;
-                            }
-                        }
-                        _ => unreachable!(),
-                    };
-
-                    let mut segment_start = 0;
-                    while let Some(control_pos) = rule[segment_start..rule.len()].find(&['%', '@'])
-                    {
-                        process_rule(
-                            Some(rule.as_bytes()[segment_start + control_pos]),
-                            &rule[segment_start..segment_start + control_pos],
-                        );
-                        segment_start += control_pos + 1;
+                .filter_map(|rule| {
+                    let result = Self::parse_rule(rule);
+                    if result.is_none() {
+                        eprintln!("WARN: accent rule parsing has failed in {}. Skipped.", rule);
                     }
-                    process_rule(None, &rule[segment_start..rule.len()]);
-
-                    let pos_parsed = pos.map(|pos| match pos.as_str().into() {
-                        Group0Contains::None => {
-                            dbg!(rules);
-                            panic!("Invalid AccentRule POS!")
-                        }
-                        p => p,
-                    });
-
-                    ChainRule::new(pos_parsed, accent_type, add_type)
+                    result
                 })
                 .collect(),
         }
+    }
+
+    fn parse_rule(rule: &str) -> Option<ChainRule> {
+        let capture = PARSE_REGEX.captures(rule)?;
+
+        let pos = if let Some(matched) = capture.name("pos") {
+            Group0Contains::from_str(matched.as_str()).ok()
+        } else {
+            None
+        };
+
+        let accent_type = if let Some(matched) = capture.name("accent") {
+            // This is guaranteed to success by regex
+            AccentType::from_str(matched.as_str()).unwrap()
+        } else {
+            AccentType::None
+        };
+
+        let add_type = capture
+            .name("add")
+            .and_then(|matched| matched.as_str().parse().ok())
+            .unwrap_or(0);
+
+        Some(ChainRule::new(pos, accent_type, add_type))
     }
 
     pub fn get_rule(&self, pos: &PartOfSpeech) -> Option<&ChainRule> {
@@ -152,20 +128,6 @@ impl ChainRules {
                 .as_ref()
                 .map_or(true, |search_pos| pos.get_group0_contains() == *search_pos)
         })
-    }
-}
-
-impl Debug for ChainRules {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            self.rules
-                .iter()
-                .map(|rule| format!("{:?}", rule))
-                .collect::<Vec<String>>()
-                .join("/")
-        )
     }
 }
 
@@ -205,9 +167,8 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn reject_invalid_pos() {
-        ChainRules::new("特殊助詞%F2@0/動詞%F5");
+        assert_eq!(ChainRules::parse_rule("特殊助詞%F2@0"), None);
     }
 
     #[test]
