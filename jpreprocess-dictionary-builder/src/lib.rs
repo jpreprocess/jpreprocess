@@ -6,7 +6,7 @@ use std::{
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
-use jpreprocess_dictionary::{Dictionary, LinderaDict};
+use jpreprocess_dictionary::{DictionaryTrait, LinderaDict};
 use jpreprocess_njd::node_details::NodeDetails;
 
 pub struct JPreproessBuilder;
@@ -19,9 +19,7 @@ impl JPreproessBuilder {
         let mut details_vec: Vec<u8> = Vec::new();
 
         {
-            for raw_data in lindera_dict.iter() {
-                let mut data: Vec<String> = bincode::deserialize_from(raw_data)?;
-
+            for mut data in lindera_dict.iter() {
                 data.resize(13, "".to_string());
 
                 let details =

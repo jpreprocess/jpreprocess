@@ -33,22 +33,34 @@ impl Dictionary {
     fn idx(path: PathBuf) -> JPreprocessResult<Vec<u32>> {
         Self::read_file(path).map(|idx| idx.chunks(4).map(LittleEndian::read_u32).collect())
     }
-
-    pub fn iter(&self) -> DictionaryIter {
-        DictionaryIter {
-            dict: &self,
-            index: 0,
-        }
-    }
 }
 
-pub struct DictionaryIter<'a> {
-    dict: &'a Dictionary,
+pub trait DictionaryTrait {
+    type StoredType;
+
+    fn load(dir: PathBuf) -> JPreprocessResult<Self>
+    where
+        Self: Sized;
+    fn get(&self, index: usize) -> Option<Self::StoredType>;
+    fn iter(&self) -> DictionaryIter<Self::StoredType>;
+}
+
+pub struct DictionaryIter<'a, T> {
+    dict: &'a dyn DictionaryTrait<StoredType = T>,
     index: usize,
 }
 
-impl<'a> Iterator for DictionaryIter<'a> {
-    type Item = &'a [u8];
+impl<'a, T> DictionaryIter<'a, T> {
+    pub fn new<K>(dict: &'a K)->Self
+    where
+        K: DictionaryTrait<StoredType = T>,
+    {
+        Self { dict, index: 0 }
+    }
+}
+
+impl<'a, T> Iterator for DictionaryIter<'a, T> {
+    type Item = T;
 
     fn next(&mut self) -> Option<Self::Item> {
         self.index += 1;

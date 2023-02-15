@@ -8,30 +8,40 @@ use std::path::PathBuf;
 use jpreprocess_core::JPreprocessResult;
 
 pub struct LinderaDict(Dictionary);
+impl DictionaryTrait for LinderaDict {
+    type StoredType = Vec<String>;
 
-impl LinderaDict {
-    pub fn load(dir: PathBuf) -> JPreprocessResult<Dictionary> {
-        Dictionary::load(dir.join("dict.words"), dir.join("dict.wordsidx"))
+    fn load(dir: PathBuf) -> JPreprocessResult<Self> {
+        let dict = Dictionary::load(dir.join("dict.words"), dir.join("dict.wordsidx"))?;
+        Ok(Self(dict))
     }
-    pub fn get(&self, index: usize) -> Option<Vec<String>> {
+    fn get(&self, index: usize) -> Option<Self::StoredType> {
         self.0
             .get(index)
             .and_then(|data| bincode::deserialize(data).ok())
+    }
+    fn iter(&self) -> DictionaryIter<Self::StoredType> {
+        DictionaryIter::new(self)
     }
 }
 
 pub struct JPreprocessDict(Dictionary);
+impl DictionaryTrait for JPreprocessDict {
+    type StoredType = Vec<NodeDetails>;
 
-impl JPreprocessDict {
-    pub fn load(dir: PathBuf) -> JPreprocessResult<Dictionary> {
-        Dictionary::load(
+    fn load(dir: PathBuf) -> JPreprocessResult<Self> {
+        let dict = Dictionary::load(
             dir.join("jpreprocess.words"),
             dir.join("jpreprocess.wordsidx"),
-        )
+        )?;
+        Ok(Self(dict))
     }
-    pub fn get(&self, index: usize) -> Option<Vec<NodeDetails>> {
+    fn get(&self, index: usize) -> Option<Self::StoredType> {
         self.0
             .get(index)
             .and_then(|data| bincode::deserialize(data).ok())
+    }
+    fn iter(&self) -> DictionaryIter<Self::StoredType> {
+        DictionaryIter::new(self)
     }
 }
