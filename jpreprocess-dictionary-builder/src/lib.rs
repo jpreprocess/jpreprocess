@@ -6,14 +6,14 @@ use std::{
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
-use jpreprocess_dictionary::Dictionary;
+use jpreprocess_dictionary::{Dictionary, LinderaDict};
 use jpreprocess_njd::node_details::NodeDetails;
 
 pub struct JPreproessBuilder;
 
 impl JPreproessBuilder {
     pub fn generate_dictionary(output_dir: &Path) -> Result<(), Box<dyn Error>> {
-        let lindera_dict = Dictionary::load_lindera(output_dir.to_path_buf())?;
+        let lindera_dict = LinderaDict::load(output_dir.to_path_buf())?;
 
         let mut idx_vec: Vec<u8> = Vec::new();
         let mut details_vec: Vec<u8> = Vec::new();

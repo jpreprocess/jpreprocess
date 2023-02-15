@@ -307,6 +307,7 @@ dependencies = [
  "lindera-decompress",
  "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
+ "serde",
 ]
 
 [[package]]
