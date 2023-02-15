@@ -13,3 +13,6 @@ bincode = "1.3.3"
 serde = { version = "1.0.152", features = ["derive"] }
 regex = "1.7.1"
 once_cell = "1.17.0"
+
+jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }

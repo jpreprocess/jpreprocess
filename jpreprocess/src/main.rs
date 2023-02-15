@@ -4,6 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
+use jpreprocess_dictionary::DictionaryTrait;
 use jpreprocess_njd::{NJDNode, NJD};
 use lindera::{mode::Mode, tokenizer::*};
 
@@ -41,7 +42,10 @@ fn main() {
         );
     }
 
-    let mut njd = NJD::from_tokens(tokens);
+    let jpreprocess_dict =
+        jpreprocess_njd::dictionary::JPreprocessDict::load(PathBuf::from("dict")).unwrap();
+
+    let mut njd = NJD::from_tokens_dict(tokens, jpreprocess_dict).unwrap();
     njd_set::pronounciation::njd_set_pronunciation(&mut njd);
     njd_set::digit::njd_set_digit(&mut njd);
     njd_set::accent_phrase::njd_set_accent_phrase(&mut njd);

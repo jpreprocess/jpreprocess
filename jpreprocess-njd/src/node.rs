@@ -40,23 +40,26 @@ impl Debug for NJDNode {
 
 impl NJDNode {
     pub fn new_single(s: &str) -> Self {
-        let nodes = Self::load_str(s);
+        let nodes = Self::load_csv(s);
         if nodes.len() == 1 {
             nodes.into_iter().next().unwrap()
         } else {
             panic!("input string must contain exactly one node.");
         }
     }
-    pub fn load_str(s: &str) -> Vec<Self> {
+    pub fn load_csv(s: &str) -> Vec<Self> {
         let splited = {
             let mut splited: Vec<&str> = s.split(",").collect();
             splited.resize(13, "");
             splited
         };
-        Self::load(splited[0], &splited[1..splited.len()])
+        Self::load_str(splited[0], &splited[1..splited.len()])
     }
-    pub fn load(string: &str, details: &[&str]) -> Vec<Self> {
+    pub fn load_str(string: &str, details: &[&str]) -> Vec<Self> {
         let details_vec = NodeDetails::load(details);
+        Self::load(string, details_vec)
+    }
+    pub fn load(string: &str, details_vec: Vec<NodeDetails>) -> Vec<Self> {
         let details_len = details_vec.len();
         details_vec
             .into_iter()
@@ -203,7 +206,7 @@ mod tests {
 
     #[test]
     fn load_multiple_nodes() {
-        let nodes = NJDNode::load_str("あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1");
+        let nodes = NJDNode::load_csv("あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1");
         assert_eq!(nodes.len(), 2);
         assert_eq!(nodes[0].string, "あー");
         assert_eq!(nodes[1].string, "あ");
