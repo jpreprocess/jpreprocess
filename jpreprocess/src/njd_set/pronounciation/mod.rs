@@ -2,7 +2,7 @@ use jpreprocess_njd::NJD;
 
 mod rule;
 
-use jpreprocess_njd::pos::*;
+use jpreprocess_core::pos::*;
 
 use crate::window::*;
 

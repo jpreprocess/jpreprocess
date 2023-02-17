@@ -282,6 +282,7 @@ name = "jpreprocess"
 version = "0.1.0"
 dependencies = [
  "aho-corasick",
+ "jpreprocess-core",
  "jpreprocess-dictionary",
  "jpreprocess-njd",
  "lindera",
@@ -293,6 +294,11 @@ name = "jpreprocess-core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
+ "lindera",
+ "once_cell",
+ "regex",
+ "serde",
  "thiserror",
 ]
 
@@ -316,8 +322,8 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
+ "jpreprocess-core",
  "jpreprocess-dictionary",
- "jpreprocess-njd",
  "lindera-core",
  "lindera-decompress",
  "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",

@@ -1,6 +1,8 @@
 use phf::Set;
 
-use jpreprocess_njd::{pos::Group0, NJDNode, NJD};
+use jpreprocess_core::*;
+use jpreprocess_core::pos::*;
+use jpreprocess_njd::NJD;
 
 pub mod rule;
 

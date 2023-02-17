@@ -11,3 +11,9 @@ license = "BSD-3-Clause"
 
 thiserror = "1.0.38"
 anyhow = "1.0.69"
+
+lindera = { version = "0.21" }
+bincode = "1.3.3"
+serde = { version = "1.0.152", features = ["derive"] }
+regex = "1.7.1"
+once_cell = "1.17.0"

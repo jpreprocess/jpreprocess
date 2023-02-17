@@ -6,8 +6,8 @@ use std::{
 };
 
 use byteorder::{LittleEndian, WriteBytesExt};
+use jpreprocess_core::node_details::NodeDetails;
 use jpreprocess_dictionary::{DictionaryTrait, LinderaDict};
-use jpreprocess_njd::node_details::NodeDetails;
 
 pub struct JPreproessBuilder;
 

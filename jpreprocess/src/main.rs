@@ -4,8 +4,9 @@ use std::{
     process::{Command, Stdio},
 };
 
+use jpreprocess_core::NJDNode;
 use jpreprocess_dictionary::DictionaryTrait;
-use jpreprocess_njd::{NJDNode, NJD};
+use jpreprocess_njd::NJD;
 use lindera::{mode::Mode, tokenizer::*};
 
 mod njd_set;
