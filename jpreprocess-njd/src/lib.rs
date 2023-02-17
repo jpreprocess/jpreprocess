@@ -1,8 +1,6 @@
-pub mod dictionary;
 
-use dictionary::JPreprocessDict;
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult, NJDNode, unk::UNK, node_details::NodeDetails};
-use jpreprocess_dictionary::DictionaryTrait;
+use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDict};
 use lindera::Token;
 
 #[derive(Debug)]

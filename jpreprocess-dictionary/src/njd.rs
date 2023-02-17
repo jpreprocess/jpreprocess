@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::{JPreprocessResult, node_details::NodeDetails};
-use jpreprocess_dictionary::*;
+
+use crate::{Dictionary, DictionaryTrait, DictionaryIter};
 
 
 pub struct JPreprocessDict(Dictionary);
