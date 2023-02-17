@@ -12,3 +12,4 @@ phf = { version = "0.11", features = ["macros"] }
 lindera = { version = "0.21" }
 aho-corasick = "0.7"
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
+jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
