@@ -1,7 +1,7 @@
 mod dictionary;
-mod njd;
-mod lindera;
+mod jpreprocess_dictionary;
+mod lindera_dictionary;
 
 pub use dictionary::*;
-pub use njd::JPreprocessDict;
-pub use lindera::LinderaDict;
+pub use jpreprocess_dictionary::JPreprocessDictionary;
+pub use lindera_dictionary::LinderaDictionary;

@@ -5,8 +5,8 @@ use jpreprocess_core::{JPreprocessResult, node_details::NodeDetails};
 use crate::{Dictionary, DictionaryTrait, DictionaryIter};
 
 
-pub struct JPreprocessDict(Dictionary);
-impl DictionaryTrait for JPreprocessDict {
+pub struct JPreprocessDictionary(Dictionary);
+impl DictionaryTrait for JPreprocessDictionary {
     type StoredType = Vec<NodeDetails>;
 
     fn load(dir: PathBuf) -> JPreprocessResult<Self> {

@@ -44,7 +44,7 @@ fn main() {
     }
 
     let jpreprocess_dict =
-        jpreprocess_dictionary::JPreprocessDict::load(PathBuf::from("dict")).unwrap();
+        jpreprocess_dictionary::JPreprocessDictionary::load(PathBuf::from("dict")).unwrap();
 
     let mut njd = NJD::from_tokens_dict(tokens, jpreprocess_dict).unwrap();
     njd_set::pronounciation::njd_set_pronunciation(&mut njd);
