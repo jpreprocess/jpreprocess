@@ -17,7 +17,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let input_dir = Path::new("./mecab-naist-jdic");
 
     // Lindera IPADIC directory
-    let output_dir = Path::new(&build_dir).join("lindera-ipadic");
+    let output_dir = Path::new(&build_dir).join("naist-jdic");
 
     // Build a dictionary
     let builder = IpadicBuilder::new();
