@@ -7,10 +7,15 @@ license = "BSD-3-Clause"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+naist-jdic=["jpreprocess-naist-jdic/naist-jdic"]
+
 [dependencies]
 phf = { version = "0.11", features = ["macros"] }
-lindera = { version = "0.21" }
+lindera = { version = "0.22" }
 aho-corasick = "0.7"
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
+
+jpreprocess-naist-jdic = { version = "0.1.0", path="../jpreprocess-naist-jdic", optional = true }

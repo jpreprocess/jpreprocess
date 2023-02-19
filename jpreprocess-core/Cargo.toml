@@ -12,7 +12,7 @@ license = "BSD-3-Clause"
 thiserror = "1.0.38"
 anyhow = "1.0.69"
 
-lindera = { version = "0.21" }
+lindera = { version = "0.22" }
 bincode = "1.3.3"
 serde = { version = "1.0.152", features = ["derive"] }
 regex = "1.7.1"

@@ -5,7 +5,6 @@ use std::{
 };
 
 use jpreprocess_core::NJDNode;
-use jpreprocess_dictionary::DictionaryTrait;
 use jpreprocess_njd::NJD;
 use lindera::{mode::Mode, tokenizer::*};
 
@@ -22,31 +21,40 @@ fn main() {
     let normalizer = text_normalizer::TextNormalizer::new();
     let normalized_input_text = normalizer.process(input_text);
 
-    let dictionary = DictionaryConfig {
-        kind: None,
-        path: Some(PathBuf::from("dict")),
+    #[cfg(feature = "naist-jdic")]
+    let tokenizer = Tokenizer::new(
+        jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
+        None,
+        Mode::Normal,
+    );
+
+    #[cfg(not(feature = "naist-jdic"))]
+    let tokenizer = {
+        let dictionary = DictionaryConfig {
+            kind: None,
+            path: Some(PathBuf::from("dict")),
+        };
+
+        let config = TokenizerConfig {
+            dictionary,
+            user_dictionary: None,
+            mode: Mode::Normal,
+        };
+        Tokenizer::from_config(config).unwrap()
     };
 
-    let config = TokenizerConfig {
-        dictionary,
-        user_dictionary: None,
-        mode: Mode::Normal,
-    };
-    let tokenizer = Tokenizer::from_config(config).unwrap();
+    let tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
 
-    let mut tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
-    for token in &mut tokens {
-        println!(
-            "{},{}",
-            token.get_text().to_string(),
-            token.get_details().as_ref().unwrap().join(",")
-        );
-    }
+    #[cfg(feature = "naist-jdic")]
+    let mut njd = NJD::from_tokens_dict(
+        tokens,
+        jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
+    )
+    .unwrap();
 
-    let jpreprocess_dict =
-        jpreprocess_dictionary::JPreprocessDictionary::load(PathBuf::from("dict")).unwrap();
+    #[cfg(not(feature = "naist-jdic"))]
+    let mut njd = NJD::from_tokens_string(tokens);
 
-    let mut njd = NJD::from_tokens_dict(tokens, jpreprocess_dict).unwrap();
     njd_set::pronounciation::njd_set_pronunciation(&mut njd);
     njd_set::digit::njd_set_digit(&mut njd);
     njd_set::accent_phrase::njd_set_accent_phrase(&mut njd);

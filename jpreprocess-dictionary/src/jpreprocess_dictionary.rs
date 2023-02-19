@@ -25,3 +25,8 @@ impl DictionaryTrait for JPreprocessDictionary {
         DictionaryIter::new(self)
     }
 }
+impl From<Dictionary> for JPreprocessDictionary{
+    fn from(dict: Dictionary) -> Self {
+        Self(dict)
+    }
+}
