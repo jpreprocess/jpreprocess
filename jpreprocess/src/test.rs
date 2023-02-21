@@ -40,12 +40,7 @@ mod test {
         let tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
 
         let mut njd = NJD::from_tokens_string(tokens);
-        njd_set::pronounciation::njd_set_pronunciation(&mut njd);
-        njd_set::digit::njd_set_digit(&mut njd);
-        njd_set::accent_phrase::njd_set_accent_phrase(&mut njd);
-        njd_set::accent_type::njd_set_accent_type(&mut njd);
-        njd_set::unvoiced_vowel::njd_set_unvoiced_vowel(&mut njd);
-        njd_set::long_vowel::njd_set_long_vowel(&mut njd);
+        njd_set::proprocess_njd(&mut njd);
 
         let mut child = Command::new("../tester/open_jtalk")
             .arg("-x")
