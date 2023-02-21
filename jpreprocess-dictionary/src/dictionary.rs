@@ -10,11 +10,20 @@ pub struct Dictionary {
 }
 
 impl Dictionary {
-    pub fn load(words_path: PathBuf, idx_path: PathBuf) -> JPreprocessResult<Dictionary> {
-        Ok(Self {
-            words_data: Self::read_file(words_path)?,
-            words_idx_data: Self::idx(idx_path)?,
-        })
+    pub fn load(words_path: PathBuf, words_idx_path: PathBuf) -> JPreprocessResult<Dictionary> {
+        Ok(Self::load_bin(
+            Self::read_file(words_path)?,
+            Self::read_file(words_idx_path)?,
+        ))
+    }
+    pub fn load_bin(words_data: Vec<u8>, words_idx_data: Vec<u8>) -> Self {
+        Self {
+            words_data,
+            words_idx_data: words_idx_data
+                .chunks(4)
+                .map(LittleEndian::read_u32)
+                .collect(),
+        }
     }
 
     pub fn get(&self, index: usize) -> Option<&[u8]> {
@@ -28,10 +37,6 @@ impl Dictionary {
 
     fn read_file(path: PathBuf) -> JPreprocessResult<Vec<u8>> {
         fs::read(path).map_err(|e| JPreprocessErrorKind::Io.with_error(e))
-    }
-
-    fn idx(path: PathBuf) -> JPreprocessResult<Vec<u32>> {
-        Self::read_file(path).map(|idx| idx.chunks(4).map(LittleEndian::read_u32).collect())
     }
 }
 
@@ -51,7 +56,7 @@ pub struct DictionaryIter<'a, T> {
 }
 
 impl<'a, T> DictionaryIter<'a, T> {
-    pub fn new<K>(dict: &'a K)->Self
+    pub fn new<K>(dict: &'a K) -> Self
     where
         K: DictionaryTrait<StoredType = T>,
     {

@@ -282,7 +282,9 @@ name = "jpreprocess"
 version = "0.1.0"
 dependencies = [
  "aho-corasick",
+ "jpreprocess-core",
  "jpreprocess-dictionary",
+ "jpreprocess-naist-jdic",
  "jpreprocess-njd",
  "lindera",
  "phf",
@@ -293,6 +295,11 @@ name = "jpreprocess-core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bincode",
+ "lindera",
+ "once_cell",
+ "regex",
+ "serde",
  "thiserror",
 ]
 
@@ -304,8 +311,7 @@ dependencies = [
  "byteorder",
  "jpreprocess-core",
  "lindera-core",
- "lindera-decompress",
- "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lindera-ipadic-builder 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "serde",
 ]
@@ -316,11 +322,10 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
+ "jpreprocess-core",
  "jpreprocess-dictionary",
- "jpreprocess-njd",
  "lindera-core",
- "lindera-decompress",
- "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lindera-ipadic-builder 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
 ]
 
@@ -330,10 +335,11 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "byteorder",
+ "jpreprocess-core",
+ "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
  "lindera-core",
- "lindera-decompress",
- "lindera-ipadic-builder 0.21.0",
+ "lindera-ipadic-builder 0.22.0",
  "once_cell",
 ]
 
@@ -373,9 +379,9 @@ checksum = "db6d7e329c562c5dfab7a46a2afabc8b987ab9a4834c9d1ca04dc54c1546cef8"
 
 [[package]]
 name = "lindera"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f3a45eb12c687c983ef76f07556db62f23f3e2174c28d4a71ea027959f1a5635"
+checksum = "439747b7023e79fcd68c00ade201af0c06c2617ac182affa7cb362d8e4f711d7"
 dependencies = [
  "anyhow",
  "bincode",
@@ -385,8 +391,8 @@ dependencies = [
  "lindera-cc-cedict-builder",
  "lindera-core",
  "lindera-dictionary",
- "lindera-ipadic",
- "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lindera-filter",
+ "lindera-ipadic-builder 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lindera-ko-dic-builder",
  "lindera-unidic-builder",
  "regex",
@@ -400,9 +406,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-cc-cedict-builder"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "60c3b379251edadbac7a5fdb31e482274e11dae6ab6cc789d0d86cf34369cf49"
+checksum = "8a6401ac2c8e84a4882ba3b12949f9cdb55f326a15fbf08b4b03cc902c40d77e"
 dependencies = [
  "anyhow",
  "bincode",
@@ -419,9 +425,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-compress"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a8d0ea3de5625e2381cac94e518d3b56103fde56bc0dce840fe875c1e871b125"
+checksum = "17ebf5aa91677d0b467afafd205b927cef1b531600ff849c89df45aed64f1e8d"
 dependencies = [
  "anyhow",
  "flate2",
@@ -430,9 +436,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-core"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2281747b98fdd46bcc54ce7fdb6870dad9f67ddb3dc086c47b6704f3e1178cd5"
+checksum = "2747d000d7f8a7345af5548b428c46757b7f926dc2bcc6e31b4faecb0d87d618"
 dependencies = [
  "anyhow",
  "bincode",
@@ -447,9 +453,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-decompress"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "52101bd454754c506305ab897af5ac2ae41fe91e3272c1ff5c6a02a089dfaefd"
+checksum = "3351ba5b7d975c29e3d67917c75e18364be487df7e1103574084c3caccdebba6"
 dependencies = [
  "anyhow",
  "flate2",
@@ -458,32 +464,41 @@ dependencies = [
 
 [[package]]
 name = "lindera-dictionary"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af1c6668848f1d30d216c99093a3ed3fe125c105fa12a4aeed5a1861dc01dd52"
+checksum = "c15274705f781924658c838e8d93c60fee2c20c4b2b88d585d69bb518cedf73f"
 dependencies = [
  "anyhow",
  "bincode",
  "byteorder",
  "lindera-core",
+ "serde",
 ]
 
 [[package]]
-name = "lindera-ipadic"
-version = "0.21.0"
+name = "lindera-filter"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "693098007200fa43fd5cdc9ca8740f371327369672ce812cd87a1f6344971e31"
+checksum = "35463821c6f477d0db4b3128735e9f429b7f0a2566c83037dcf2f6d6d4d2bd53"
 dependencies = [
+ "anyhow",
  "bincode",
  "byteorder",
+ "kanaria",
  "lindera-core",
- "lindera-ipadic-builder 0.21.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lindera-dictionary",
  "once_cell",
+ "regex",
+ "serde",
+ "serde_json",
+ "unicode-blocks",
+ "unicode-normalization",
+ "yada",
 ]
 
 [[package]]
 name = "lindera-ipadic-builder"
-version = "0.21.0"
+version = "0.22.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -503,9 +518,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-ipadic-builder"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b6b7240d097a8fc37ee8f90ebff02c4db0ba5325ecb0dacb6da3724596798c9"
+checksum = "01bc59f41aaf66918d248074cef93af65ea97881fd8a4b82155f6aabfc041764"
 dependencies = [
  "anyhow",
  "bincode",
@@ -524,9 +539,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-ko-dic-builder"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "512bb1393a9281e0b13704319d1343b7931416865852d9d7b7c0178431518326"
+checksum = "da9fcd38625004445b01b699520d088267e9c1235bd4c9e1bb35b0da944e36c4"
 dependencies = [
  "anyhow",
  "bincode",
@@ -543,9 +558,9 @@ dependencies = [
 
 [[package]]
 name = "lindera-unidic-builder"
-version = "0.21.0"
+version = "0.22.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f575a27f8ba67c15fe16ebf7d277a0ac04e8c8a0f72670ebc2443da9d41c450"
+checksum = "edbf1f3d1929b7d307e2a9870a648ed500feb1650901efa966fc61dcf1488afd"
 dependencies = [
  "anyhow",
  "bincode",

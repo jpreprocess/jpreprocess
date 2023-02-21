@@ -1,6 +1,7 @@
 pub mod data;
 pub use data::*;
-use jpreprocess_njd::{NJDNode, NJD};
+use jpreprocess_core::NJDNode;
+use jpreprocess_njd::NJD;
 
 pub trait IterQuintMutTrait {
     fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode>;

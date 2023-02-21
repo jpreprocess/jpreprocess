@@ -6,8 +6,9 @@ mod rule;
 
 mod digit_sequence;
 
-use jpreprocess_njd::pos::*;
-use jpreprocess_njd::*;
+use jpreprocess_core::*;
+use jpreprocess_core::pos::*;
+use jpreprocess_njd::NJD;
 
 use crate::window::*;
 

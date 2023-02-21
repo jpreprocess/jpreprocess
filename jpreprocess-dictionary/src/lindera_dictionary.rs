@@ -1,20 +1,16 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::JPreprocessResult;
-use jpreprocess_dictionary::*;
+use jpreprocess_core::{JPreprocessResult};
 
-use crate::node_details::NodeDetails;
+use crate::{Dictionary, DictionaryTrait, DictionaryIter};
 
 
-pub struct JPreprocessDict(Dictionary);
-impl DictionaryTrait for JPreprocessDict {
-    type StoredType = Vec<NodeDetails>;
+pub struct LinderaDictionary(Dictionary);
+impl DictionaryTrait for LinderaDictionary {
+    type StoredType = Vec<String>;
 
     fn load(dir: PathBuf) -> JPreprocessResult<Self> {
-        let dict = Dictionary::load(
-            dir.join("jpreprocess.words"),
-            dir.join("jpreprocess.wordsidx"),
-        )?;
+        let dict = Dictionary::load(dir.join("dict.words"), dir.join("dict.wordsidx"))?;
         Ok(Self(dict))
     }
     fn get(&self, index: usize) -> Option<Self::StoredType> {

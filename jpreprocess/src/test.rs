@@ -39,10 +39,7 @@ mod test {
 
         let tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
 
-        let jpreprocess_dict =
-            jpreprocess_njd::dictionary::JPreprocessDict::load(PathBuf::from("../dict")).unwrap();
-
-        let mut njd = NJD::from_tokens_dict(tokens, jpreprocess_dict).unwrap();
+        let mut njd = NJD::from_tokens_string(tokens);
         njd_set::pronounciation::njd_set_pronunciation(&mut njd);
         njd_set::digit::njd_set_digit(&mut njd);
         njd_set::accent_phrase::njd_set_accent_phrase(&mut njd);

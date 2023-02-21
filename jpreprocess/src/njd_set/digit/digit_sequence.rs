@@ -1,8 +1,7 @@
-use jpreprocess_njd::{
-    node::NJDNode,
-    pos::{Group1, Group2},
-    NJD,
-};
+
+use jpreprocess_core::*;
+use jpreprocess_core::pos::*;
+use jpreprocess_njd::NJD;
 
 use crate::window::*;
 
