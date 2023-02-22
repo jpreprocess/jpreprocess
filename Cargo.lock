@@ -287,6 +287,7 @@ dependencies = [
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
  "lindera",
+ "once_cell",
  "phf",
 ]
 

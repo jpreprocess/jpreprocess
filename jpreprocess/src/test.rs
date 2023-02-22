@@ -22,8 +22,7 @@ mod test {
     }
 
     fn test_one(input_text: &'static str) {
-        let normalizer = text_normalizer::TextNormalizer::new();
-        let normalized_input_text = normalizer.process(input_text);
+        let normalized_input_text = text_normalizer::normalize(input_text);
 
         let dictionary = DictionaryConfig {
             kind: None,

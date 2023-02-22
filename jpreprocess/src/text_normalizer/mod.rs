@@ -1,29 +1,23 @@
 use aho_corasick::{AhoCorasick, AhoCorasickBuilder};
+use once_cell::sync::Lazy;
 
 mod rule;
 
-pub struct TextNormalizer {
-    aho_corasick: AhoCorasick,
-    replace_with: Vec<&'static &'static str>,
-}
+const AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
+    let from: Vec<&&str> = rule::CONVERSION_TABLE
+        .iter()
+        .map(|(from, _to)| from)
+        .collect();
+    AhoCorasickBuilder::new().build(from)
+});
 
-impl TextNormalizer {
-    pub fn new() -> Self {
-        let from: Vec<&&str> = rule::CONVERSION_TABLE
-            .iter()
-            .map(|(from, _to)| from)
-            .collect();
-        let to: Vec<&'static &'static str> = rule::CONVERSION_TABLE
-            .iter()
-            .map(|(_from, to)| to)
-            .collect();
-        Self {
-            aho_corasick: AhoCorasickBuilder::new().build(from),
-            replace_with: to,
-        }
-    }
-    pub fn process(&self, input: &str) -> String {
-        self.aho_corasick
-            .replace_all(input, self.replace_with.as_slice())
-    }
+const REPLACE_TO: Lazy<Vec<&'static &'static str>> = Lazy::new(|| {
+    rule::CONVERSION_TABLE
+        .iter()
+        .map(|(_from, to)| to)
+        .collect()
+});
+
+pub fn normalize(input: &str) -> String {
+    AHO_CORASICK.replace_all(input, REPLACE_TO.as_slice())
 }

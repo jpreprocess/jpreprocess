@@ -10,7 +10,6 @@ use lindera::{mode::Mode, tokenizer::*};
 
 mod njd_set;
 mod text_normalizer;
-
 mod window;
 
 mod test;
@@ -18,8 +17,7 @@ mod test;
 fn main() {
     let input_text = "リャリョ。クーバネティス";
 
-    let normalizer = text_normalizer::TextNormalizer::new();
-    let normalized_input_text = normalizer.process(input_text);
+    let normalized_input_text = text_normalizer::normalize(input_text);
 
     #[cfg(feature = "naist-jdic")]
     let tokenizer = Tokenizer::new(
