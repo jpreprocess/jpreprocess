@@ -13,37 +13,13 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             node.unset_pron();
             /* if the word is kana, set them as filler */
             {
-                let mut read_add = "".to_string();
+                let mut read_add = String::new();
                 let mut mora_size_delta = 0;
 
-                {
-                    let mut chars = node.get_string().chars();
-                    let mut lprev = chars.next();
-                    loop {
-                        let lcurr = chars.next();
-                        let (l1, l2) = {
-                            if let Some(lp) = lprev {
-                                if let Some(lc) = lcurr {
-                                    (lp.to_string(), [lp, lc].iter().collect::<String>())
-                                } else {
-                                    (lp.to_string(), "".to_string())
-                                }
-                            } else {
-                                break;
-                            }
-                        };
-                        if let Some((read, mora_size)) = rule::LIST.get(&l2) {
-                            read_add.push_str(read);
-                            mora_size_delta += mora_size;
-                            lprev = chars.next();
-                            continue;
-                        }
-                        if let Some((read, mora_size)) = rule::LIST.get(&l1) {
-                            read_add.push_str(read);
-                            mora_size_delta += mora_size;
-                        }
-                        lprev = lcurr;
-                    }
+                for matched in rule::LIST_AHO_CORASICK.find_iter(node.get_string()) {
+                    let (_, replacement, mora_size) = rule::LIST[matched.pattern()];
+                    read_add.push_str(replacement);
+                    mora_size_delta += mora_size;
                 }
 
                 if !read_add.is_empty() {
@@ -88,7 +64,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 (head_of_kana_filler_sequence, node)
             };
             if matches!(node.get_pos().get_group0(), Group0::Filler) {
-                if rule::LIST.get(node.get_string()).is_some() {
+                if rule::LIST_FROM.contains(&node.get_string()) {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
                     } else {
