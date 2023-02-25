@@ -27,7 +27,7 @@ impl NodeDetails {
         let acc = details[9];
         let chain_rule = details[10];
 
-        let mut node = Self {
+        let node = Self {
             pos: PartOfSpeech::new([details[0], details[1], details[2], details[3]]),
             //ctype: details[4].to_string(),
             //cform: details[5].to_string(),
@@ -41,23 +41,12 @@ impl NodeDetails {
                 "0" => Some(false),
                 _ => None,
             },
-            orig: orig.to_string(),
-            read: match read {
-                "*" => None,
-                _ => Some(read.to_string()),
-            },
+            orig: "".to_string(),
+            read: None,
             pron: None,
             acc: 0,
             mora_size: 0,
         };
-
-        if acc.contains("*") || !acc.contains("/") {
-            node.pron = match pron {
-                "*" => None,
-                _ => Some(Pronounciation::from_str(pron).unwrap()),
-            };
-            return vec![node];
-        }
 
         let orig_splited: Vec<(&str, usize)> = orig
             .split(":")
