@@ -1,8 +1,14 @@
 use phf::{phf_map, Map, Set};
 
+pub enum DigitType {
+    None,
+    Voiced,
+    SemiVoiced,
+}
+
 pub type Keys = Set<&'static str>;
 pub type DigitLUT = Map<&'static str, (&'static str, i32, i32)>;
-pub type NumerativeLUT = Map<&'static str, i32>;
+pub type NumerativeLUT = Map<&'static str, DigitType>;
 type SoundSymbolList = Map<&'static str, &'static str>;
 
 pub fn find_digit_pron_conv(
@@ -24,17 +30,17 @@ pub fn find_numerative_pron_conv(
     key2: &str,
     pron: &str,
 ) -> Option<String> {
-    let mut digit_type: i32 = 0;
+    let mut digit_type = &DigitType::None;
     for (set, table) in conversion_table {
         if set.contains(key1) {
-            digit_type = *table.get(key2)?;
+            digit_type = table.get(key2)?;
         }
     }
     let mut pron_chars = pron.chars();
     let pron_first_char = pron_chars.next().map(|c| c.to_string());
     let found = match (digit_type, pron_first_char) {
-        (1, Some(c)) => VOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
-        (2, Some(c)) => SEMIVOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
+        (DigitType::Voiced, Some(c)) => VOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
+        (DigitType::SemiVoiced, Some(c)) => SEMIVOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
         _ => None,
     }?;
     Some(format!("{}{}", found, pron_chars.as_str()))
