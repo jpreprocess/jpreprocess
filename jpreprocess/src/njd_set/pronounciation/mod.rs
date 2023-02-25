@@ -24,7 +24,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
 
                 if !read_add.is_empty() {
                     node.set_read(read_add.as_str());
-                    node.set_pron(read_add.as_str());
+                    node.set_pron_by_str(read_add.as_str());
                 }
                 node.add_mora_size(mora_size_delta);
 
@@ -35,16 +35,16 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 node.ensure_orig();
             }
             /* if known symbol, set the pronunciation */
-            if node.get_pron().is_none() {
+            if node.get_pron_as_string().is_none() {
                 if let Some(conv) = rule::SYMBOL_LIST.get(node.get_string()) {
                     node.set_read(conv);
-                    node.set_pron(conv);
+                    node.set_pron_by_str(conv);
                 }
             }
             /* if the word is not kana, set pause symbol */
-            if node.get_pron().is_none() {
+            if node.get_pron_as_string().is_none() {
                 node.set_read(rule::TOUTEN);
-                node.set_pron(rule::TOUTEN);
+                node.set_pron_by_str(rule::TOUTEN);
                 node.get_pos_mut().set_group0(rule::KIGOU);
             }
         }
@@ -89,7 +89,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 Triple::Full(_, node, next) => (node, next),
                 _ => continue,
             };
-            if matches!(next.get_pron(),Some(pron) if pron==rule::U)
+            if matches!(next.get_pron_as_string(),Some(pron) if pron==rule::U)
                 && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
                 && matches!(
                     node.get_pos().get_group0(),
@@ -97,14 +97,14 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 )
                 && node.get_mora_size() > 0
             {
-                next.set_pron(rule::CHOUON);
+                next.set_pron_by_str(rule::CHOUON);
             }
             if matches!(node.get_pos().get_group0(), Group0::Jodoushi)
                 && next.get_string() == rule::QUESTION
             {
                 match node.get_string() {
-                    rule::DESU_STR => node.set_pron(rule::DESU_PRON),
-                    rule::MASU_STR => node.set_pron(rule::MASU_PRON),
+                    rule::DESU_STR => node.set_pron_by_str(rule::DESU_PRON),
+                    rule::MASU_STR => node.set_pron_by_str(rule::MASU_PRON),
                     _ => (),
                 }
             }

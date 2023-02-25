@@ -1,6 +1,8 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 
-use crate::{accent_rule::ChainRules, pos::PartOfSpeech};
+use crate::{accent_rule::ChainRules, pos::PartOfSpeech, pronounciation::Pronounciation};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct NodeDetails {
@@ -10,7 +12,7 @@ pub struct NodeDetails {
     pub(crate) is_renyou: bool,
     pub(crate) orig: String,
     pub(crate) read: Option<String>,
-    pub(crate) pron: Option<String>,
+    pub(crate) pron: Option<Pronounciation>,
     pub(crate) acc: i32,
     pub(crate) mora_size: i32,
     pub(crate) chain_rule: Option<ChainRules>,
@@ -25,7 +27,7 @@ impl NodeDetails {
         let acc = details[9];
         let chain_rule = details[10];
 
-        let node = Self {
+        let mut node = Self {
             pos: PartOfSpeech::new([details[0], details[1], details[2], details[3]]),
             //ctype: details[4].to_string(),
             //cform: details[5].to_string(),
@@ -44,15 +46,16 @@ impl NodeDetails {
                 "*" => None,
                 _ => Some(read.to_string()),
             },
-            pron: match pron {
-                "*" => None,
-                _ => Some(pron.to_string()),
-            },
+            pron: None,
             acc: 0,
             mora_size: 0,
         };
 
         if acc.contains("*") || !acc.contains("/") {
+            node.pron = match pron {
+                "*" => None,
+                _ => Some(Pronounciation::from_str(pron).unwrap()),
+            };
             return vec![node];
         }
 
@@ -80,7 +83,7 @@ impl NodeDetails {
                 };
                 new_node.pron = match pron {
                     "*" => None,
-                    _ => Some(pron.to_string()),
+                    _ => Some(Pronounciation::from_str(pron).unwrap()),
                 };
 
                 match acc_morasize.split_once("/") {

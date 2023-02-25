@@ -1,6 +1,6 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, str::FromStr};
 
-use crate::{node_details::NodeDetails, pos::*};
+use crate::{node_details::NodeDetails, pos::*, pronounciation::Pronounciation};
 
 use super::accent_rule::ChainRules;
 
@@ -14,14 +14,14 @@ impl Debug for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},*,*,{},{},{},{}/{},{},{}",
+            "{},{:?},*,*,{},{},{:?},{}/{},{},{}",
             self.string,
             self.details.pos,
             // self.details.ctype,
             // self.details.cform,
             self.details.orig,
             self.details.read.as_ref().unwrap_or(&"*".to_string()),
-            self.details.pron.as_ref().unwrap_or(&"*".to_string()),
+            self.details.pron,
             self.details.acc,
             self.details.mora_size,
             self.details
@@ -92,9 +92,9 @@ impl NJDNode {
         }
         if let Some(add) = &node.details.pron {
             if let Some(pron) = &mut self.details.pron {
-                pron.push_str(add);
+                pron.transfer_from(add);
             } else {
-                self.details.pron = Some(add.to_string());
+                self.details.pron = Some(add.to_owned());
             }
         }
         node.unset_pron();
@@ -168,11 +168,15 @@ impl NJDNode {
         }
     }
 
-    pub fn get_pron(&self) -> Option<&str> {
-        self.details.pron.as_ref().map(|pron| pron.as_str())
+    pub fn get_pron_as_string(&self) -> Option<String> {
+        self.details.pron.as_ref()
+        .map(|pron| pron.to_string())
     }
-    pub fn set_pron(&mut self, pron: &str) {
-        self.details.pron = Some(pron.to_string());
+    pub fn get_pron_mut(&mut self) -> Option<&mut Pronounciation> {
+        self.details.pron.as_mut()
+    }
+    pub fn set_pron_by_str(&mut self, pron: &str) {
+        self.details.pron = Some(Pronounciation::from_str(pron).unwrap());
     }
     pub fn unset_pron(&mut self) {
         self.details.pron = None;
@@ -181,7 +185,9 @@ impl NJDNode {
 
 #[cfg(test)]
 mod tests {
-    use crate::pos::*;
+    use std::str::FromStr;
+
+    use crate::{pos::*, pronounciation::Pronounciation};
 
     use super::NJDNode;
 
@@ -197,7 +203,7 @@ mod tests {
         assert_eq!(node.details.is_renyou, false);
         assert_eq!(node.details.orig, "．");
         assert_eq!(node.details.read.unwrap(), "テン");
-        assert_eq!(node.details.pron.unwrap(), "テン");
+        assert_eq!(node.details.pron.unwrap(), Pronounciation::from_str("テン").unwrap());
         assert_eq!(node.details.acc, 0);
         assert_eq!(node.details.mora_size, 2);
         assert_eq!(node.details.chain_rule.is_none(), true);

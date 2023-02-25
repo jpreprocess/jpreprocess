@@ -1,7 +1,7 @@
 use phf::Set;
 
-use jpreprocess_core::*;
 use jpreprocess_core::pos::*;
+use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 pub mod rule;
@@ -48,7 +48,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 
     for i in 0..njd.nodes.len() {
         buff.clear();
-        let pron_len = match njd.nodes[i].get_pron() {
+        let pron_len = match njd.nodes[i].get_pron_as_string() {
             Some(s) => s.len(),
             None => 0,
         };
@@ -96,8 +96,8 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     ) => {
                         let nnpron = mora_nextnext
                             .get_nlink(njd)
-                            .and_then(|node| node.get_pron());
-                        mora_next.flag = match nnpron {
+                            .and_then(|node| node.get_pron_as_string());
+                        mora_next.flag = match nnpron.as_ref().map(|s| s.as_str()) {
                             Some(rule::QUESTION | rule::CHOUON) => MoraFlag::Voice,
                             _ => MoraFlag::Unvoiced,
                         }
@@ -112,7 +112,11 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 && matches!(mora_nextnext.flag, MoraFlag::Unknown | MoraFlag::Voice)
             {
                 if let Some(nlink_next) = mora_next.get_nlink(njd) {
-                    match (nlink_next.get_pos().get_group0(), nlink_next.get_pron()) {
+                    let pron_text = nlink_next.get_pron_as_string();
+                    match (
+                        nlink_next.get_pos().get_group0(),
+                        pron_text.as_ref().map(|s| s.as_str()),
+                    ) {
                         (Group0::Doushi | Group0::Jodoushi | Group0::Joshi, Some(rule::SHI)) => {
                             mora_next.flag = if mora_next.atype == mora_next.midx + 1 {
                                 /* rule 4 */
@@ -178,12 +182,12 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             mora_next = mora_nextnext;
             mora_nextnext = MoraState::default();
         }
-        njd.nodes[i].set_pron(buff.as_str());
+        njd.nodes[i].set_pron_by_str(buff.as_str());
     }
 }
 
 fn get_mora_information(njd: &NJD, node_index: usize, index: usize, state: &mut MoraState) {
-    let pron_len = match njd.nodes[node_index].get_pron() {
+    let pron_len = match njd.nodes[node_index].get_pron_as_string() {
         Some(s) => s.len(),
         None => 0,
     };
@@ -206,10 +210,10 @@ fn get_mora_information(njd: &NJD, node_index: usize, index: usize, state: &mut 
         state.atype = node.get_acc();
     }
 
-    let pron = node.get_pron().unwrap();
+    let pron = node.get_pron_as_string().unwrap();
 
     /* special symbol */
-    match pron {
+    match pron.as_str() {
         rule::TOUTEN => {
             state.mora = Some(rule::TOUTEN);
             state.flag = MoraFlag::Voice;

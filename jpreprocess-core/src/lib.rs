@@ -4,6 +4,7 @@ pub mod node;
 pub mod node_details;
 pub mod pos;
 pub mod unk;
+pub mod pronounciation;
 
 pub use node::*;
 

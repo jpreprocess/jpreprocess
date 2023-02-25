@@ -10,7 +10,7 @@ pub struct NJD {
 
 impl NJD {
     pub fn remove_silent_node(&mut self) {
-        self.nodes.retain(|node| node.get_pron().is_some())
+        self.nodes.retain(|node| node.get_pron_as_string().is_some())
     }
     pub fn from_tokens_string(tokens: Vec<Token>) -> Self {
         let mut nodes = Vec::new();
