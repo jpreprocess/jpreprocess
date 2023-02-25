@@ -6,15 +6,15 @@ mod rule;
 
 mod digit_sequence;
 
-use jpreprocess_core::*;
 use jpreprocess_core::pos::*;
+use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 use crate::window::*;
 
 use self::{
     digit_sequence::DigitSequence,
-    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv},
+    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType},
 };
 
 pub fn njd_set_digit(njd: &mut NJD) {
@@ -128,14 +128,21 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_mora_size(lut1_conversion.2);
             }
             /* convert numerative pron */
-            if let Some(lut2_new_pron) = find_numerative_pron_conv(
+            match find_numerative_pron_conv(
                 &lut2::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
-                node.get_pron_as_string().unwrap().as_str(),
             ) {
-                node.set_pron_by_str(lut2_new_pron.as_str());
-            }
+                Some(DigitType::Voiced) => node
+                    .get_pron_mut()
+                    .and_then(|pron| pron.first_mut())
+                    .map(|mora| mora.convert_to_voiced_sound()),
+                Some(DigitType::SemiVoiced) => node
+                    .get_pron_mut()
+                    .and_then(|pron| pron.first_mut())
+                    .map(|mora| mora.convert_to_semivoiced_sound()),
+                _ => None,
+            };
             prev.set_chain_flag(false);
             node.set_chain_flag(true);
         }
@@ -173,14 +180,21 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_acc(lut3_conversion.1);
                 prev.set_mora_size(lut3_conversion.2);
             }
-            if let Some(lut3_new_pron) = find_numerative_pron_conv(
+            match find_numerative_pron_conv(
                 &lut3::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
-                node.get_pron_as_string().unwrap().as_str(),
             ) {
-                node.set_pron_by_str(lut3_new_pron.as_str());
-            }
+                Some(DigitType::Voiced) => node
+                    .get_pron_mut()
+                    .and_then(|pron| pron.first_mut())
+                    .map(|mora| mora.convert_to_voiced_sound()),
+                Some(DigitType::SemiVoiced) => node
+                    .get_pron_mut()
+                    .and_then(|pron| pron.first_mut())
+                    .map(|mora| mora.convert_to_semivoiced_sound()),
+                _ => None,
+            };
         }
     }
 
