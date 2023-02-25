@@ -21,6 +21,9 @@ impl Pronounciation {
     pub fn transfer_from(&mut self, from: &Self) {
         self.0.extend_from_slice(&from.0);
     }
+    pub fn mora_enums(&self) -> Vec<MoraEnum> {
+        self.0.iter().map(|mora| mora.mora_enum).collect()
+    }
     pub fn first_mut(&mut self) -> Option<&mut Mora> {
         self.0.first_mut()
     }

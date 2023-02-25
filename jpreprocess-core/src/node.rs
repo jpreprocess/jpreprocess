@@ -172,6 +172,9 @@ impl NJDNode {
         self.details.pron.as_ref()
         .map(|pron| pron.to_string())
     }
+    pub fn get_pron(&self) -> Option<&Pronounciation> {
+        self.details.pron.as_ref()
+    }
     pub fn get_pron_mut(&mut self) -> Option<&mut Pronounciation> {
         self.details.pron.as_mut()
     }

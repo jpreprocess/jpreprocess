@@ -2,7 +2,7 @@ use jpreprocess_njd::NJD;
 
 mod rule;
 
-use jpreprocess_core::pos::*;
+use jpreprocess_core::{pos::*, pronounciation::MoraEnum};
 
 use crate::window::*;
 
@@ -89,8 +89,10 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 Triple::Full(_, node, next) => (node, next),
                 _ => continue,
             };
-            if matches!(next.get_pron_as_string(),Some(pron) if pron==rule::U)
-                && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
+            if matches!(
+                next.get_pron().map(|pron| pron.mora_enums()).as_deref(),
+                Some([MoraEnum::U])
+            ) && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
                 && matches!(
                     node.get_pos().get_group0(),
                     Group0::Doushi | Group0::Jodoushi
