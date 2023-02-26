@@ -11,6 +11,7 @@ pub const MORA_STR_LIST: Lazy<Vec<&str>> = Lazy::new(|| {
     result.extend(MORA_KATAKANA.iter().map(|(from, _to)| from));
     result.extend(MORA_HIRAGANA.iter().map(|(from, _to)| from));
     result.extend(MORA_ALPHABET.iter().map(|(from, _to)| from));
+    result.extend(MORA_IRREGULAR_KATAKANA.iter().map(|(from, _to)| from));
     result
 });
 
@@ -26,6 +27,7 @@ pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {
         1..=158 => vec![MORA_KATAKANA[position - 1].1],
         159..=316 => vec![MORA_HIRAGANA[position - 159].1],
         317..=368 => MORA_ALPHABET[position - 317].1.to_vec(),
+        369..=369 => vec![MORA_IRREGULAR_KATAKANA[position - 369].1],
         _ => unreachable!(),
     }
 }
@@ -33,6 +35,11 @@ pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {
 pub const INTO_STR: Lazy<HashMap<MoraEnum, &'static str>> = Lazy::new(|| {
     let mut map = HashMap::from_iter(
         MORA_KATAKANA
+            .iter()
+            .map(|(katakana, mora_enum)| (*mora_enum, *katakana)),
+    );
+    map.extend(
+        MORA_IRREGULAR_KATAKANA
             .iter()
             .map(|(katakana, mora_enum)| (*mora_enum, *katakana)),
     );
@@ -430,3 +437,5 @@ const MORA_ALPHABET: [(&str, &[MoraEnum]); 52] = [
     ("Ｂ", &[MoraEnum::Bi, MoraEnum::Long]),  // ビー 2
     ("Ａ", &[MoraEnum::E, MoraEnum::Long]),   // エー 2
 ];
+
+const MORA_IRREGULAR_KATAKANA: [(&str, MoraEnum); 1] = [("ヮ", MoraEnum::Xwa)];

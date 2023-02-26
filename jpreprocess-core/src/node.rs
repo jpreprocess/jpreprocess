@@ -162,9 +162,6 @@ impl NJDNode {
         }
     }
 
-    pub fn get_pron_as_string(&self) -> String {
-        self.details.pron.to_string()
-    }
     pub fn set_pron_by_str(&mut self, pron: &str) {
         self.details.pron = Pronounciation::from_str(pron).unwrap();
     }
