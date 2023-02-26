@@ -19,9 +19,9 @@ pub const MORA_DICT_AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
 pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {
     match position {
         0 => vec![MoraEnum::Long],
-        1..=159 => vec![MORA_KATAKANA[position - 1].1],
-        160..=317 => vec![MORA_HIRAGANA[position - 160].1],
-        318..=369 => MORA_ALPHABET[position - 318].1.to_vec(),
+        1..=158 => vec![MORA_KATAKANA[position - 1].1],
+        159..=316 => vec![MORA_HIRAGANA[position - 159].1],
+        317..=368 => MORA_ALPHABET[position - 317].1.to_vec(),
         _ => unreachable!(),
     }
 }
