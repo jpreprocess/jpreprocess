@@ -165,14 +165,17 @@ impl NJDNode {
     pub fn get_pron_as_string(&self) -> String {
         self.details.pron.to_string()
     }
+    pub fn set_pron_by_str(&mut self, pron: &str) {
+        self.details.pron = Pronounciation::from_str(pron).unwrap();
+    }
     pub fn get_pron(&self) -> &Pronounciation {
         &self.details.pron
     }
     pub fn get_pron_mut(&mut self) -> &mut Pronounciation {
         &mut self.details.pron
     }
-    pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron = Pronounciation::from_str(pron).unwrap();
+    pub fn set_pron(&mut self, pron: Pronounciation) {
+        self.details.pron = pron;
     }
     pub fn unset_pron(&mut self) {
         self.details.pron = Pronounciation::default();

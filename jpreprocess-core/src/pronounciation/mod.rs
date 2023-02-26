@@ -15,9 +15,13 @@ pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Pronounciation(Vec<Mora>);
+pub struct Pronounciation(pub Vec<Mora>);
 
 impl Pronounciation {
+    pub fn new(moras: Vec<Mora>) -> Self {
+        Self(moras)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
