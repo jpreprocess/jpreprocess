@@ -67,7 +67,7 @@ impl FromStr for Pronounciation {
                     .into_iter()
                     .map(|mora_enum| Mora {
                         mora_enum,
-                        is_unvoiced: if quotation { Some(true) } else { None },
+                        is_voiced: if quotation { Some(false) } else { None },
                     }),
             );
 
@@ -81,12 +81,12 @@ impl FromStr for Pronounciation {
             if s == QUESTION {
                 result.0.push(Mora {
                     mora_enum: MoraEnum::Question,
-                    is_unvoiced: Some(false),
+                    is_voiced: Some(true),
                 });
             } else if s != "*" {
                 result.0.push(Mora {
                     mora_enum: MoraEnum::Touten,
-                    is_unvoiced: Some(false),
+                    is_voiced: Some(true),
                 });
             }
         }
@@ -108,39 +108,39 @@ mod test {
             vec![
                 Mora {
                     mora_enum: MoraEnum::O,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Tsu,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Ka,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Re,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Sa,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Ma,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::De,
-                    is_unvoiced: None
+                    is_voiced: None
                 },
                 Mora {
                     mora_enum: MoraEnum::Shi,
-                    is_unvoiced: Some(true)
+                    is_voiced: Some(false)
                 },
                 Mora {
                     mora_enum: MoraEnum::Ta,
-                    is_unvoiced: None
+                    is_voiced: None
                 }
             ]
         )
@@ -152,7 +152,7 @@ mod test {
             Pronounciation::from_str("；").unwrap().0,
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
-                is_unvoiced: Some(false)
+                is_voiced: Some(true)
             }]
         )
     }
