@@ -2,7 +2,6 @@ use jpreprocess_core::pronounciation::{Mora, MoraEnum};
 use phf::Set;
 
 use jpreprocess_core::pos::*;
-use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 use crate::window::{IterQuintMut, QuadForward};
@@ -17,33 +16,32 @@ struct MoraState<'a> {
     pub midx: i32,
     pub atype: i32,
 }
-impl<'a> MoraState<'a> {
-    pub fn from_node(node_index: usize, node: &'a mut NJDNode) -> Vec<Self> {
+
+pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
+    let mut states: Vec<MoraState> = Vec::new();
+
+    let mut midx = 0;
+    for (node_index, node) in njd.nodes.iter_mut().enumerate() {
+        /* reset mora index for new word */
+        if matches!(node.get_chain_flag(), None | Some(false)) {
+            midx = 0;
+        }
+
         let acc = node.get_acc();
         let pos_group0 = node.get_pos().get_group0();
         let pron = node.get_pron_mut();
-        pron.0
-            .iter_mut()
-            .enumerate()
-            .map(|(i, mora)| Self {
+
+        for mora in &mut pron.0 {
+            states.push(MoraState {
                 mora,
                 node_index,
                 pos_group0,
-                midx: i.try_into().unwrap(),
+                midx,
                 atype: acc,
-            })
-            .collect()
+            });
+            midx += 1;
+        }
     }
-}
-
-pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
-    let mut states: Vec<_> = njd
-        .nodes
-        .iter_mut()
-        .enumerate()
-        .map(|(i, node)| MoraState::from_node(i, node))
-        .flatten()
-        .collect();
 
     let mut iter = IterQuintMut::new(&mut states);
     while let Some(quint) = iter.next() {
@@ -99,7 +97,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 };
                 if matches!(state_next.mora.is_voiced, Some(false)) {
                     state_curr.mora.is_voiced.get_or_insert(true);
-                    state_nextnext.map(|nn| nn.mora.is_voiced.get_or_insert(true));
+                    state_nextnext.as_mut().map(|nn| nn.mora.is_voiced.get_or_insert(true));
                 }
             }
         }
