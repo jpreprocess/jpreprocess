@@ -4,23 +4,25 @@ use jpreprocess_core::NJDNode;
 use jpreprocess_njd::NJD;
 
 pub trait IterQuintMutTrait {
-    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode>;
+    type Item;
+    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item>;
     fn iter_quint_mut_range<'a>(
         &'a mut self,
         start: usize,
         end: usize,
-    ) -> IterQuintMut<'a, NJDNode>;
+    ) -> IterQuintMut<'a, Self::Item>;
 }
 
 impl IterQuintMutTrait for NJD {
-    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, NJDNode> {
+    type Item = NJDNode;
+    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item> {
         IterQuintMut::new(&mut self.nodes)
     }
     fn iter_quint_mut_range<'a>(
         &'a mut self,
         start: usize,
         end: usize,
-    ) -> IterQuintMut<'a, NJDNode> {
+    ) -> IterQuintMut<'a, Self::Item> {
         IterQuintMut::new(&mut self.nodes[start..end])
     }
 }
