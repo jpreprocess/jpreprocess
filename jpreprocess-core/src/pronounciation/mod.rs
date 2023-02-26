@@ -18,6 +18,9 @@ pub const QUOTATION: &str = "’";
 pub struct Pronounciation(Vec<Mora>);
 
 impl Pronounciation {
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
     pub fn transfer_from(&mut self, from: &Self) {
         self.0.extend_from_slice(&from.0);
     }
@@ -32,6 +35,12 @@ impl Pronounciation {
             .iter()
             .map(|mora| mora.to_string())
             .fold(String::new(), |a, b| a + &b)
+    }
+}
+
+impl Default for Pronounciation {
+    fn default() -> Self {
+        Self(Vec::new())
     }
 }
 
@@ -74,7 +83,7 @@ impl FromStr for Pronounciation {
                     mora_enum: MoraEnum::Question,
                     is_unvoiced: Some(false),
                 });
-            } else {
+            } else if s != "*" {
                 result.0.push(Mora {
                     mora_enum: MoraEnum::Touten,
                     is_unvoiced: Some(false),

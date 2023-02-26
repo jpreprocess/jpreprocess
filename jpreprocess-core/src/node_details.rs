@@ -12,7 +12,7 @@ pub struct NodeDetails {
     pub(crate) is_renyou: bool,
     pub(crate) orig: String,
     pub(crate) read: Option<String>,
-    pub(crate) pron: Option<Pronounciation>,
+    pub(crate) pron: Pronounciation,
     pub(crate) acc: i32,
     pub(crate) mora_size: i32,
     pub(crate) chain_rule: Option<ChainRules>,
@@ -43,7 +43,7 @@ impl NodeDetails {
             },
             orig: "".to_string(),
             read: None,
-            pron: None,
+            pron: Pronounciation::default(),
             acc: 0,
             mora_size: 0,
         };
@@ -70,10 +70,7 @@ impl NodeDetails {
                     "*" => None,
                     _ => Some(read.to_string()),
                 };
-                new_node.pron = match pron {
-                    "*" => None,
-                    _ => Some(Pronounciation::from_str(pron).unwrap()),
-                };
+                new_node.pron = Pronounciation::from_str(pron).unwrap();
 
                 match acc_morasize.split_once("/") {
                     Some((acc_s, mora_size_s)) => {

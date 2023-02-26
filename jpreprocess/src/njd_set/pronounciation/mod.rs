@@ -35,14 +35,14 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 node.ensure_orig();
             }
             /* if known symbol, set the pronunciation */
-            if node.get_pron_as_string().is_none() {
+            if node.get_pron().is_empty() {
                 if let Some(conv) = rule::SYMBOL_LIST.get(node.get_string()) {
                     node.set_read(conv);
                     node.set_pron_by_str(conv);
                 }
             }
             /* if the word is not kana, set pause symbol */
-            if node.get_pron_as_string().is_none() {
+            if node.get_pron().is_empty() {
                 node.set_read(rule::TOUTEN);
                 node.set_pron_by_str(rule::TOUTEN);
                 node.get_pos_mut().set_group0(rule::KIGOU);
@@ -90,8 +90,8 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 _ => continue,
             };
             if matches!(
-                next.get_pron().map(|pron| pron.mora_enums()).as_deref(),
-                Some([MoraEnum::U])
+                next.get_pron().mora_enums().as_slice(),
+                [MoraEnum::U]
             ) && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
                 && matches!(
                     node.get_pos().get_group0(),

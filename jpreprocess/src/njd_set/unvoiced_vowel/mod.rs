@@ -48,10 +48,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 
     for i in 0..njd.nodes.len() {
         buff.clear();
-        let pron_len = match njd.nodes[i].get_pron_as_string() {
-            Some(s) => s.len(),
-            None => 0,
-        };
+        let pron_len = njd.nodes[i].get_pron_as_string().len();
         /* parse pronunciation */
         let mut index = 0;
         while index < pron_len {
@@ -96,7 +93,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     ) => {
                         let nnpron = mora_nextnext
                             .get_nlink(njd)
-                            .and_then(|node| node.get_pron_as_string());
+                            .map(|node| node.get_pron_as_string());
                         mora_next.flag = match nnpron.as_ref().map(|s| s.as_str()) {
                             Some(rule::QUESTION | rule::CHOUON) => MoraFlag::Voice,
                             _ => MoraFlag::Unvoiced,
@@ -115,9 +112,9 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     let pron_text = nlink_next.get_pron_as_string();
                     match (
                         nlink_next.get_pos().get_group0(),
-                        pron_text.as_ref().map(|s| s.as_str()),
+                        pron_text.as_str(),
                     ) {
-                        (Group0::Doushi | Group0::Jodoushi | Group0::Joshi, Some(rule::SHI)) => {
+                        (Group0::Doushi | Group0::Jodoushi | Group0::Joshi, rule::SHI) => {
                             mora_next.flag = if mora_next.atype == mora_next.midx + 1 {
                                 /* rule 4 */
                                 MoraFlag::Voice
@@ -187,10 +184,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 }
 
 fn get_mora_information(njd: &NJD, node_index: usize, index: usize, state: &mut MoraState) {
-    let pron_len = match njd.nodes[node_index].get_pron_as_string() {
-        Some(s) => s.len(),
-        None => 0,
-    };
+    let pron_len = njd.nodes[node_index].get_pron_as_string().len();
     if index >= pron_len {
         if node_index < njd.nodes.len() - 1 {
             get_mora_information(njd, node_index + 1, index - pron_len, state);
@@ -210,7 +204,7 @@ fn get_mora_information(njd: &NJD, node_index: usize, index: usize, state: &mut 
         state.atype = node.get_acc();
     }
 
-    let pron = node.get_pron_as_string().unwrap();
+    let pron = node.get_pron_as_string();
 
     /* special symbol */
     match pron.as_str() {

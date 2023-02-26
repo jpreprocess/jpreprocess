@@ -90,13 +90,7 @@ impl NJDNode {
                 self.details.read = Some(add.to_string());
             }
         }
-        if let Some(add) = &node.details.pron {
-            if let Some(pron) = &mut self.details.pron {
-                pron.transfer_from(add);
-            } else {
-                self.details.pron = Some(add.to_owned());
-            }
-        }
+        self.get_pron_mut().transfer_from(&node.details.pron);
         node.unset_pron();
     }
 
@@ -168,21 +162,20 @@ impl NJDNode {
         }
     }
 
-    pub fn get_pron_as_string(&self) -> Option<String> {
-        self.details.pron.as_ref()
-        .map(|pron| pron.to_string())
+    pub fn get_pron_as_string(&self) -> String {
+        self.details.pron.to_string()
     }
-    pub fn get_pron(&self) -> Option<&Pronounciation> {
-        self.details.pron.as_ref()
+    pub fn get_pron(&self) -> &Pronounciation {
+        &self.details.pron
     }
-    pub fn get_pron_mut(&mut self) -> Option<&mut Pronounciation> {
-        self.details.pron.as_mut()
+    pub fn get_pron_mut(&mut self) -> &mut Pronounciation {
+        &mut self.details.pron
     }
     pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron = Some(Pronounciation::from_str(pron).unwrap());
+        self.details.pron = Pronounciation::from_str(pron).unwrap();
     }
     pub fn unset_pron(&mut self) {
-        self.details.pron = None;
+        self.details.pron = Pronounciation::default();
     }
 }
 
@@ -206,7 +199,7 @@ mod tests {
         assert_eq!(node.details.is_renyou, false);
         assert_eq!(node.details.orig, "．");
         assert_eq!(node.details.read.unwrap(), "テン");
-        assert_eq!(node.details.pron.unwrap(), Pronounciation::from_str("テン").unwrap());
+        assert_eq!(node.details.pron, Pronounciation::from_str("テン").unwrap());
         assert_eq!(node.details.acc, 0);
         assert_eq!(node.details.mora_size, 2);
         assert_eq!(node.details.chain_rule.is_none(), true);
