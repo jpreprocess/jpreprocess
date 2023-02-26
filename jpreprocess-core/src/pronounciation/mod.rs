@@ -22,9 +22,27 @@ impl Pronounciation {
         Self(moras)
     }
 
+    pub fn mora_size(&self) -> usize {
+        self.0
+            .iter()
+            .filter(|mora| !matches!(mora.mora_enum, MoraEnum::Question | MoraEnum::Touten))
+            .count()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+    pub fn is_question(&self) -> bool {
+        matches!(self.mora_enums().as_slice(), [MoraEnum::Question])
+    }
+    pub fn is_touten(&self) -> bool {
+        matches!(self.mora_enums().as_slice(), [MoraEnum::Touten])
+    }
+
+    pub fn is_mora_convertable(s:&str)->bool{
+        mora_dict::MORA_STR_LIST.contains(&s)
+    }
+
     pub fn transfer_from(&mut self, from: &Self) {
         self.0.extend_from_slice(&from.0);
     }

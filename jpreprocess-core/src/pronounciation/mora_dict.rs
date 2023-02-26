@@ -5,15 +5,19 @@ use once_cell::sync::Lazy;
 
 use super::mora_enum::MoraEnum;
 
+pub const MORA_STR_LIST: Lazy<Vec<&str>> = Lazy::new(|| {
+    let mut result = Vec::with_capacity(1 + 158 + 158 + 52);
+    result.push("ー");
+    result.extend(MORA_KATAKANA.iter().map(|(from, _to)| from));
+    result.extend(MORA_HIRAGANA.iter().map(|(from, _to)| from));
+    result.extend(MORA_ALPHABET.iter().map(|(from, _to)| from));
+    result
+});
+
 pub const MORA_DICT_AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
-    let mut from = Vec::with_capacity(1 + 158 + 158 + 52);
-    from.push("ー");
-    from.extend(MORA_KATAKANA.iter().map(|(from, _to)| from));
-    from.extend(MORA_HIRAGANA.iter().map(|(from, _to)| from));
-    from.extend(MORA_ALPHABET.iter().map(|(from, _to)| from));
     AhoCorasickBuilder::new()
         .match_kind(MatchKind::LeftmostLongest)
-        .build(from)
+        .build(MORA_STR_LIST.as_slice())
 });
 
 pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {

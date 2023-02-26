@@ -1,52 +1,42 @@
+use std::str::FromStr;
+
 use jpreprocess_njd::NJD;
 
 mod rule;
 
-use jpreprocess_core::{pos::*, pronounciation::MoraEnum};
+use jpreprocess_core::{
+    pos::*,
+    pronounciation::{MoraEnum, Pronounciation},
+};
 
 use crate::window::*;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
         if node.get_mora_size() == 0 {
-            node.unset_read();
-            node.unset_pron();
-            /* if the word is kana, set them as filler */
-            {
-                let mut read_add = String::new();
-                let mut mora_size_delta = 0;
+            let pron =
+                Pronounciation::from_str(node.get_string()).unwrap_or(Pronounciation::default());
+            let mora_size = pron.mora_size();
 
-                for matched in rule::LIST_AHO_CORASICK.find_iter(node.get_string()) {
-                    let (_, replacement, mora_size) = rule::LIST[matched.pattern()];
-                    read_add.push_str(replacement);
-                    mora_size_delta += mora_size;
-                }
-
-                if !read_add.is_empty() {
-                    node.set_read(read_add.as_str());
-                    node.set_pron_by_str(read_add.as_str());
-                }
-                node.add_mora_size(mora_size_delta);
-
-                /* if filler, overwrite pos */
-                if node.get_mora_size() != 0 {
-                    *node.get_pos_mut() = PartOfSpeech::new([rule::FILLER, "", "", ""]);
-                }
-                node.ensure_orig();
+            /* if filler, overwrite pos */
+            if mora_size != 0 {
+                *node.get_pos_mut() = PartOfSpeech::new([rule::FILLER, "", "", ""]);
+                node.set_mora_size(mora_size.try_into().unwrap());
             }
-            /* if known symbol, set the pronunciation */
-            if node.get_pron().is_empty() {
-                if let Some(conv) = rule::SYMBOL_LIST.get(node.get_string()) {
-                    node.set_read(conv);
-                    node.set_pron_by_str(conv);
-                }
-            }
-            /* if the word is not kana, set pause symbol */
-            if node.get_pron().is_empty() {
-                node.set_read(rule::TOUTEN);
-                node.set_pron_by_str(rule::TOUTEN);
+
+            if pron.is_touten() {
                 node.get_pos_mut().set_group0(rule::KIGOU);
             }
+
+            if pron.is_empty() {
+                node.unset_pron();
+                node.unset_read();
+            } else {
+                let read_string = pron.to_string();
+                node.set_pron(pron);
+                node.set_read(&read_string);
+            }
+            node.ensure_orig();
         }
     }
 
@@ -64,7 +54,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 (head_of_kana_filler_sequence, node)
             };
             if matches!(node.get_pos().get_group0(), Group0::Filler) {
-                if rule::LIST_FROM.contains(&node.get_string()) {
+                if Pronounciation::is_mora_convertable(&node.get_string()) {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
                     } else {
@@ -89,10 +79,8 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 Triple::Full(_, node, next) => (node, next),
                 _ => continue,
             };
-            if matches!(
-                next.get_pron().mora_enums().as_slice(),
-                [MoraEnum::U]
-            ) && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
+            if matches!(next.get_pron().mora_enums().as_slice(), [MoraEnum::U])
+                && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
                 && matches!(
                     node.get_pos().get_group0(),
                     Group0::Doushi | Group0::Jodoushi
