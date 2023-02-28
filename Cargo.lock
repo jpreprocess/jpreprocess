@@ -295,6 +295,7 @@ dependencies = [
 name = "jpreprocess-core"
 version = "0.1.0"
 dependencies = [
+ "aho-corasick",
  "anyhow",
  "bincode",
  "lindera",

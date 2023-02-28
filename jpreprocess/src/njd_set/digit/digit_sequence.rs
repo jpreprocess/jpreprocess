@@ -308,15 +308,15 @@ impl DigitSequence {
 
             match node.get_string() {
                 rule::ZERO1 | rule::ZERO2 => {
-                    node.set_pron(rule::ZERO_AFTER_DP);
+                    node.set_pron_by_str(rule::ZERO_AFTER_DP);
                     node.set_mora_size(2);
                 }
                 rule::TWO => {
-                    node.set_pron(rule::TWO_AFTER_DP);
+                    node.set_pron_by_str(rule::TWO_AFTER_DP);
                     node.set_mora_size(2);
                 }
                 rule::FIVE => {
-                    node.set_pron(rule::FIVE_AFTER_DP);
+                    node.set_pron_by_str(rule::FIVE_AFTER_DP);
                     node.set_mora_size(2);
                 }
                 _ => (),

@@ -6,15 +6,15 @@ mod rule;
 
 mod digit_sequence;
 
-use jpreprocess_core::*;
 use jpreprocess_core::pos::*;
+use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 use crate::window::*;
 
 use self::{
     digit_sequence::DigitSequence,
-    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv},
+    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType},
 };
 
 pub fn njd_set_digit(njd: &mut NJD) {
@@ -80,15 +80,15 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.set_chain_flag(true);
                 match prev.get_string() {
                     rule::ZERO1 | rule::ZERO2 => {
-                        prev.set_pron(rule::ZERO_BEFORE_DP);
+                        prev.set_pron_by_str(rule::ZERO_BEFORE_DP);
                         prev.set_mora_size(2);
                     }
                     rule::TWO => {
-                        prev.set_pron(rule::TWO_BEFORE_DP);
+                        prev.set_pron_by_str(rule::TWO_BEFORE_DP);
                         prev.set_mora_size(2);
                     }
                     rule::FIVE => {
-                        prev.set_pron(rule::FIVE_BEFORE_DP);
+                        prev.set_pron_by_str(rule::FIVE_BEFORE_DP);
                         prev.set_mora_size(2);
                     }
                     rule::SIX => {
@@ -123,19 +123,26 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.get_string(),
                 prev.get_string(),
             ) {
-                prev.set_pron(lut1_conversion.0);
+                prev.set_pron_by_str(lut1_conversion.0);
                 prev.set_acc(lut1_conversion.1);
                 prev.set_mora_size(lut1_conversion.2);
             }
             /* convert numerative pron */
-            if let Some(lut2_new_pron) = find_numerative_pron_conv(
+            match find_numerative_pron_conv(
                 &lut2::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
-                node.get_pron().unwrap(),
             ) {
-                node.set_pron(lut2_new_pron.as_str());
-            }
+                Some(DigitType::Voiced) => node
+                    .get_pron_mut()
+                    .first_mut()
+                    .map(|mora| mora.convert_to_voiced_sound()),
+                Some(DigitType::SemiVoiced) => node
+                    .get_pron_mut()
+                    .first_mut()
+                    .map(|mora| mora.convert_to_semivoiced_sound()),
+                _ => None,
+            };
             prev.set_chain_flag(false);
             node.set_chain_flag(true);
         }
@@ -169,18 +176,25 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.get_string(),
                 prev.get_string(),
             ) {
-                prev.set_pron(lut3_conversion.0);
+                prev.set_pron_by_str(lut3_conversion.0);
                 prev.set_acc(lut3_conversion.1);
                 prev.set_mora_size(lut3_conversion.2);
             }
-            if let Some(lut3_new_pron) = find_numerative_pron_conv(
+            match find_numerative_pron_conv(
                 &lut3::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
-                node.get_pron().unwrap(),
             ) {
-                node.set_pron(lut3_new_pron.as_str());
-            }
+                Some(DigitType::Voiced) => node
+                    .get_pron_mut()
+                    .first_mut()
+                    .map(|mora| mora.convert_to_voiced_sound()),
+                Some(DigitType::SemiVoiced) => node
+                    .get_pron_mut()
+                    .first_mut()
+                    .map(|mora| mora.convert_to_semivoiced_sound()),
+                _ => None,
+            };
         }
     }
 
@@ -218,7 +232,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
             {
                 if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
                     node.set_read(conversion.0);
-                    node.set_pron(conversion.0);
+                    node.set_pron_by_str(conversion.0);
                     node.set_acc(conversion.1);
                     node.set_mora_size(conversion.2);
                 }

@@ -22,10 +22,10 @@ pub const NUMERAL_LIST5: Keys = phf_set! {
 const NUMERAL_LIST6: Keys = phf_set! {"百", "千"};
 
 const NUMERAL_LIST7: NumerativeLUT = phf_map! {
- "三"=>1,
- "六"=>2,
- "八"=>2,
- "何"=>1,
+ "三"=>DigitType::Voiced,
+ "六"=>DigitType::SemiVoiced,
+ "八"=>DigitType::SemiVoiced,
+ "何"=>DigitType::Voiced,
 };
 
 const NUMERAL_LIST8: Keys = phf_set! {"百"};

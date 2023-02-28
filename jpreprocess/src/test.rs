@@ -11,7 +11,7 @@ mod test {
         "聞きがたいお手紙の混雑ぶり霊験あらたか。たいそうやっちゃったね。動く細かい部屋に少なめコーヒーだし。尚更。",
         "No.12。番号:12。0.0.2.0.5.0.6.0 1棟、1人、一日、一日間、14日、14日間、20日、24日、24日間、1分。035(123)。100000。10,00。1,000",
         "リャリョ。クーバネティス。行こう。行きます？",
-        "一九〇〇、1900"
+        "一九〇〇、1900，zAゔょぁ"
     ];
 
     #[test]
@@ -60,7 +60,7 @@ mod test {
 
         let output = child.wait_with_output().expect("Failed to read stdout");
         let stdout = String::from_utf8(output.stdout).unwrap();
-        for (node, ans) in njd.nodes.iter().zip(stdout.split("\n")) {
+        for (node, ans) in njd.nodes.iter_mut().zip(stdout.split("\n")) {
             let node_ans = NJDNode::new_single(ans);
             assert_eq!(node, &node_ans);
         }

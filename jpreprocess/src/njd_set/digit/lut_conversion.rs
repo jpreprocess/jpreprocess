@@ -1,9 +1,13 @@
-use phf::{phf_map, Map, Set};
+use phf::{Map, Set};
+
+pub enum DigitType {
+    Voiced,
+    SemiVoiced,
+}
 
 pub type Keys = Set<&'static str>;
 pub type DigitLUT = Map<&'static str, (&'static str, i32, i32)>;
-pub type NumerativeLUT = Map<&'static str, i32>;
-type SoundSymbolList = Map<&'static str, &'static str>;
+pub type NumerativeLUT = Map<&'static str, DigitType>;
 
 pub fn find_digit_pron_conv(
     conversion_table: &[(Keys, DigitLUT)],
@@ -19,54 +23,14 @@ pub fn find_digit_pron_conv(
 }
 
 pub fn find_numerative_pron_conv(
-    conversion_table: &[(Keys, NumerativeLUT)],
+    conversion_table: &'static [(Keys, NumerativeLUT)],
     key1: &str,
     key2: &str,
-    pron: &str,
-) -> Option<String> {
-    let mut digit_type: i32 = 0;
+) -> Option<&'static DigitType> {
     for (set, table) in conversion_table {
         if set.contains(key1) {
-            digit_type = *table.get(key2)?;
+            return table.get(key2);
         }
     }
-    let mut pron_chars = pron.chars();
-    let pron_first_char = pron_chars.next().map(|c| c.to_string());
-    let found = match (digit_type, pron_first_char) {
-        (1, Some(c)) => VOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
-        (2, Some(c)) => SEMIVOICED_SOUND_SYMBOL_LIST.get(c.as_str()),
-        _ => None,
-    }?;
-    Some(format!("{}{}", found, pron_chars.as_str()))
+    None
 }
-
-const VOICED_SOUND_SYMBOL_LIST: SoundSymbolList = phf_map! {
-  "カ"=> "ガ",
-  "キ"=> "ギ",
-  "ク"=> "グ",
-  "ケ"=> "ゲ",
-  "コ"=> "ゴ",
-  "サ"=> "ザ",
-  "シ"=> "ジ",
-  "ス"=> "ズ",
-  "セ"=> "ゼ",
-  "ソ"=> "ゾ",
-  "タ"=> "ダ",
-  "チ"=> "ヂ",
-  "ツ"=> "ヅ",
-  "テ"=> "デ",
-  "ト"=> "ド",
-  "ハ"=> "バ",
-  "ヒ"=> "ビ",
-  "フ"=> "ブ",
-  "ヘ"=> "ベ",
-  "ホ"=> "ボ",
-};
-
-const SEMIVOICED_SOUND_SYMBOL_LIST: SoundSymbolList = phf_map! {
-  "ハ"=> "パ",
-  "ヒ"=> "ピ",
-  "フ"=> "プ",
-  "ヘ"=> "ペ",
-  "ホ"=> "ポ",
-};

@@ -17,16 +17,16 @@ const NUMERATIVE_CLASS2B: Keys = phf_set! {
 };
 
 const CONV_TABLE2B: NumerativeLUT = phf_map! {
-   "一"=> 2,
-   "三"=> 2,
-   "四"=> 2,
-   "六"=> 2,
-   "八"=> 2,
-   "十"=> 2,
-   "百"=> 2,
-   "千"=> 2,
-   "万"=> 2,
-   "何"=> 2,
+   "一"=> DigitType::SemiVoiced,
+   "三"=> DigitType::SemiVoiced,
+   "四"=> DigitType::SemiVoiced,
+   "六"=> DigitType::SemiVoiced,
+   "八"=> DigitType::SemiVoiced,
+   "十"=> DigitType::SemiVoiced,
+   "百"=> DigitType::SemiVoiced,
+   "千"=> DigitType::SemiVoiced,
+   "万"=> DigitType::SemiVoiced,
+   "何"=> DigitType::SemiVoiced,
 };
 
 const NUMERATIVE_CLASS2C: Keys = phf_set! {
@@ -45,15 +45,15 @@ const NUMERATIVE_CLASS2C: Keys = phf_set! {
 };
 
 const CONV_TABLE2C: NumerativeLUT = phf_map! {
-   "一"=> 2,
-   "三"=> 1,
-   "六"=> 2,
-   "八"=> 2,
-   "十"=> 2,
-   "百"=> 2,
-   "千"=> 1,
-   "万"=> 1,
-   "何"=> 1,
+   "一"=> DigitType::SemiVoiced,
+   "三"=> DigitType::Voiced,
+   "六"=> DigitType::SemiVoiced,
+   "八"=> DigitType::SemiVoiced,
+   "十"=> DigitType::SemiVoiced,
+   "百"=> DigitType::SemiVoiced,
+   "千"=> DigitType::Voiced,
+   "万"=> DigitType::Voiced,
+   "何"=> DigitType::Voiced,
 };
 
 const NUMERATIVE_CLASS2D: Keys = phf_set! {
@@ -62,14 +62,14 @@ const NUMERATIVE_CLASS2D: Keys = phf_set! {
 };
 
 const CONV_TABLE2D: NumerativeLUT = phf_map! {
-   "三"=>1,
-   "六"=>2,
-   "八"=>2,
-   "十"=>2,
-   "百"=>2,
-   "千"=>1,
-   "万"=>1,
-   "何"=>1,
+   "三"=>DigitType::Voiced,
+   "六"=>DigitType::SemiVoiced,
+   "八"=>DigitType::SemiVoiced,
+   "十"=>DigitType::SemiVoiced,
+   "百"=>DigitType::SemiVoiced,
+   "千"=>DigitType::Voiced,
+   "万"=>DigitType::Voiced,
+   "何"=>DigitType::Voiced,
 };
 
 const NUMERATIVE_CLASS2E: Keys = phf_set! {
@@ -80,13 +80,13 @@ const NUMERATIVE_CLASS2E: Keys = phf_set! {
 };
 
 const CONV_TABLE2E: NumerativeLUT = phf_map! {
-   "三"=>1,
-   "千"=>1,
-   "万"=>1,
+   "三"=>DigitType::Voiced,
+   "千"=>DigitType::Voiced,
+   "万"=>DigitType::Voiced,
 };
 
 const NUMERATIVE_CLASS2F: Keys = phf_set! {/* from paper */ "階"};
 
 const CONV_TABLE2F: NumerativeLUT = phf_map! {
-   "三"=> 1,
+   "三"=> DigitType::Voiced,
 };
