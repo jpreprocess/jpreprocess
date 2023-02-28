@@ -1,9 +1,4 @@
-use std::{
-    error::Error,
-    fs::File,
-    io,
-    path::Path,
-};
+use std::{error::Error, fs::File, io, path::Path};
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use jpreprocess_core::node_details::NodeDetails;

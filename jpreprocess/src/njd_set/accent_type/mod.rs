@@ -1,8 +1,8 @@
 mod rule;
 
-use jpreprocess_core::*;
 use jpreprocess_core::accent_rule::AccentType;
 use jpreprocess_core::pos::*;
+use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 pub fn njd_set_accent_type(njd: &mut NJD) {

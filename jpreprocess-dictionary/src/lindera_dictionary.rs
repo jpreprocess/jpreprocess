@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::{JPreprocessResult};
+use jpreprocess_core::JPreprocessResult;
 
-use crate::{Dictionary, DictionaryTrait, DictionaryIter};
-
+use crate::{Dictionary, DictionaryIter, DictionaryTrait};
 
 pub struct LinderaDictionary(Dictionary);
 impl DictionaryTrait for LinderaDictionary {

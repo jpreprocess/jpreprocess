@@ -1,4 +1,8 @@
-use lindera_core::{LinderaResult, character_definition::CharacterDefinitions, connection::ConnectionCostMatrix, prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary, dictionary::Dictionary};
+use lindera_core::{
+    character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
+    dictionary::Dictionary, prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
+    LinderaResult,
+};
 
 #[cfg(feature = "naist-jdic")]
 const CHAR_DEFINITION_DATA: &'static [u8] =

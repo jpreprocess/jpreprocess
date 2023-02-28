@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::{JPreprocessResult, node_details::NodeDetails};
+use jpreprocess_core::{node_details::NodeDetails, JPreprocessResult};
 
-use crate::{Dictionary, DictionaryTrait, DictionaryIter};
-
+use crate::{Dictionary, DictionaryIter, DictionaryTrait};
 
 pub struct JPreprocessDictionary(Dictionary);
 impl DictionaryTrait for JPreprocessDictionary {
@@ -25,7 +24,7 @@ impl DictionaryTrait for JPreprocessDictionary {
         DictionaryIter::new(self)
     }
 }
-impl From<Dictionary> for JPreprocessDictionary{
+impl From<Dictionary> for JPreprocessDictionary {
     fn from(dict: Dictionary) -> Self {
         Self(dict)
     }

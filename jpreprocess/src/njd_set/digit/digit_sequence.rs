@@ -1,6 +1,5 @@
-
-use jpreprocess_core::*;
 use jpreprocess_core::pos::*;
+use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
 use crate::window::*;

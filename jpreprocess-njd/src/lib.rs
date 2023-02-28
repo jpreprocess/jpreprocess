@@ -1,5 +1,6 @@
-
-use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult, NJDNode, unk::UNK, node_details::NodeDetails};
+use jpreprocess_core::{
+    error::JPreprocessErrorKind, node_details::NodeDetails, unk::UNK, JPreprocessResult, NJDNode,
+};
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
 use lindera::Token;
 
@@ -27,7 +28,10 @@ impl NJD {
         }
         Self { nodes }
     }
-    pub fn from_tokens_dict(tokens: Vec<Token>, dict: JPreprocessDictionary) -> JPreprocessResult<Self> {
+    pub fn from_tokens_dict(
+        tokens: Vec<Token>,
+        dict: JPreprocessDictionary,
+    ) -> JPreprocessResult<Self> {
         let mut nodes = Vec::new();
         for token in tokens {
             let text = token.text.to_string();
