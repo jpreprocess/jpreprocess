@@ -1,7 +1,7 @@
 pub mod mora;
-pub mod split;
 mod mora_dict;
 mod mora_enum;
+pub mod split;
 
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -16,7 +16,7 @@ pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Pronounciation(pub Vec<Mora>);
+pub struct Pronounciation(Vec<Mora>);
 
 impl Pronounciation {
     pub fn new(moras: Vec<Mora>) -> Self {
@@ -40,8 +40,12 @@ impl Pronounciation {
         matches!(self.mora_enums().as_slice(), [MoraEnum::Touten])
     }
 
-    pub fn is_mora_convertable(s:&str)->bool{
+    pub fn is_mora_convertable(s: &str) -> bool {
         mora_dict::MORA_STR_LIST.contains(&s)
+    }
+
+    pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, Mora> {
+        self.0.iter_mut()
     }
 
     pub fn transfer_from(&mut self, from: &Self) {
