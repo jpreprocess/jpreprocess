@@ -41,7 +41,7 @@ pub enum MoraEnum {
     /// リャ
     Rya,
     /// リェ
-    Rie,
+    Rye,
     /// リ
     Ri,
     /// ラ
