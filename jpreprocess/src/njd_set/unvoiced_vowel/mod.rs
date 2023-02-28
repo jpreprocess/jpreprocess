@@ -1,12 +1,24 @@
-use jpreprocess_core::pronounciation::{Mora, MoraEnum};
-use phf::Set;
+/*
+  無声子音: k ky s sh t ty ch ts h f hy p py
+  Rule 0 フィラーは無声化しない
+  Rule 1 助動詞の「です」と「ます」の「す」が無声化
+  Rule 2 動詞，助動詞，助詞の「し」は無声化しやすい
+  Rule 3 続けて無声化しない
+  Rule 4 アクセント核で無声化しない
+  Rule 5 無声子音(k ky s sh t ty ch ts h f hy p py)に囲まれた「i」と「u」が無声化
+         例外：s->s, s->sh, f->f, f->h, f->hy, h->f, h->h, h->hy
+*/
+
+use jpreprocess_core::pronounciation::{
+    split::{split_mora, Consonant, Vowel},
+    Mora, MoraEnum,
+};
 
 use jpreprocess_core::pos::*;
 use jpreprocess_njd::NJD;
 
 use crate::window::{IterQuintMut, QuadForward};
 
-pub mod rule;
 
 #[derive(Debug)]
 struct MoraState<'a> {
@@ -135,49 +147,51 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
         return Some(true);
     };
 
-    match mora_curr.mora_enum {
-        MoraEnum::Swi | MoraEnum::Su => {
-            if search_list(&rule::NEXT_MORA_LIST1, &mora_next) {
-                return Some(false);
-            } else {
-                return Some(true);
-            }
-        }
-        MoraEnum::Fi | MoraEnum::Hi | MoraEnum::Fu => {
-            if search_list(&rule::NEXT_MORA_LIST2, &mora_next) {
-                return Some(false);
-            } else {
-                return Some(true);
-            }
-        }
-        MoraEnum::Kyu
-        | MoraEnum::Shu
-        | MoraEnum::Chu
-        | MoraEnum::Tsi
-        | MoraEnum::Hyu
-        | MoraEnum::Pyu
-        | MoraEnum::Thu
-        | MoraEnum::Twu
-        | MoraEnum::Thi
-        | MoraEnum::Ki
-        | MoraEnum::Ku
-        | MoraEnum::Shi
-        | MoraEnum::Chi
-        | MoraEnum::Tsu
-        | MoraEnum::Pi
-        | MoraEnum::Pu => {
-            if search_list(&rule::NEXT_MORA_LIST3, &mora_next) {
-                return Some(false);
-            } else {
-                return Some(true);
-            }
-        }
-        _ => (),
+    let (curr_consonant, curr_vowel) = split_mora(mora_curr.mora_enum);
+    let (next_consonant, _) = split_mora(mora_next.mora_enum);
+
+    if matches!(curr_vowel, Some(Vowel::I | Vowel::U)) {
+        Some(match (curr_consonant, next_consonant) {
+            (Some(Consonant::S), Some(Consonant::S | Consonant::Sh)) => true,
+            (
+                Some(Consonant::F | Consonant::H),
+                Some(Consonant::F | Consonant::H | Consonant::Hy),
+            ) => true,
+            (
+                Some(
+                    Consonant::K
+                    | Consonant::Ky
+                    | Consonant::S
+                    | Consonant::Sh
+                    | Consonant::T
+                    | Consonant::Ty
+                    | Consonant::Ch
+                    | Consonant::Ts
+                    | Consonant::H
+                    | Consonant::F
+                    | Consonant::Hy
+                    | Consonant::P
+                    | Consonant::Py,
+                ),
+                Some(
+                    Consonant::K
+                    | Consonant::Ky
+                    | Consonant::S
+                    | Consonant::Sh
+                    | Consonant::T
+                    | Consonant::Ty
+                    | Consonant::Ch
+                    | Consonant::Ts
+                    | Consonant::H
+                    | Consonant::F
+                    | Consonant::Hy
+                    | Consonant::P
+                    | Consonant::Py,
+                ),
+            ) => false,
+            _ => true,
+        })
+    } else {
+        None
     }
-
-    None
-}
-
-fn search_list(set: &'static Set<&'static str>, key: &Mora) -> bool {
-    set.contains(&key.to_string()[0..3])
 }
