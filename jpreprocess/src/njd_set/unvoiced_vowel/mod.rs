@@ -143,10 +143,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 .map(|n| n.is_voiced_flag.get_or_insert(true));
         }
 
-        state_curr.mora.is_voiced = match state_curr.is_voiced_flag {
-            Some(false) => false,
-            _ => true,
-        };
+        state_curr.mora.is_voiced = state_curr.is_voiced_flag.unwrap_or(true);
     }
 }
 
