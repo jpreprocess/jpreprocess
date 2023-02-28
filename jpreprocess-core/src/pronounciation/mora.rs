@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Mora {
     pub mora_enum: MoraEnum,
-    pub is_voiced: Option<bool>,
+    pub is_voiced: bool,
 }
 
 impl Mora {
@@ -15,10 +15,7 @@ impl Mora {
             MoraEnum::Touten => TOUTEN,
             mora_enum => INTO_STR.get(&mora_enum).unwrap(),
         };
-        let suffix = match self.is_voiced {
-            Some(false) => QUOTATION,
-            _ => "",
-        };
+        let suffix = if self.is_voiced { "" } else { QUOTATION };
         format!("{}{}", mora, suffix)
     }
     pub fn convert_to_voiced_sound(&mut self) {

@@ -61,13 +61,7 @@ mod test {
         let output = child.wait_with_output().expect("Failed to read stdout");
         let stdout = String::from_utf8(output.stdout).unwrap();
         for (node, ans) in njd.nodes.iter_mut().zip(stdout.split("\n")) {
-            for mora in node.get_pron_mut().0.iter_mut() {
-                mora.is_voiced.get_or_insert(true);
-            }
-            let mut node_ans = NJDNode::new_single(ans);
-            for mora in node_ans.get_pron_mut().0.iter_mut() {
-                mora.is_voiced.get_or_insert(true);
-            }
+            let node_ans = NJDNode::new_single(ans);
             assert_eq!(node, &node_ans);
         }
     }

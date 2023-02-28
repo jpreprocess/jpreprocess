@@ -19,12 +19,12 @@ use jpreprocess_njd::NJD;
 
 use crate::window::{IterQuintMut, QuadForward};
 
-
 #[derive(Debug)]
 struct MoraState<'a> {
     pub mora: &'a mut Mora,
     pub node_index: usize,
     pub pos_group0: Group0,
+    pub is_voiced_flag: Option<bool>,
     pub midx: i32,
     pub atype: i32,
 }
@@ -43,8 +43,9 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
         let pos_group0 = node.get_pos().get_group0();
         let pron = node.get_pron_mut();
 
-        for mora in &mut pron.0 {
+        for mora in pron.iter_mut() {
             states.push(MoraState {
+                is_voiced_flag: if mora.is_voiced { None } else { Some(false) },
                 mora,
                 node_index,
                 pos_group0,
@@ -79,7 +80,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 (MoraEnum::Ma | MoraEnum::De, MoraEnum::Su)
             );
             if index_ok && pos_ok && mora_ok {
-                state_next.mora.is_voiced = Some(match state_nextnext.mora.mora_enum {
+                state_next.is_voiced_flag = Some(match state_nextnext.mora.mora_enum {
                     MoraEnum::Question | MoraEnum::Long => true,
                     _ => false,
                 });
@@ -88,10 +89,10 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 
         /* rule 2: look-ahead for shi */
         if let Some(state_next) = state_next.as_mut() {
-            let is_voiced_ok = matches!(state_curr.mora.is_voiced, None | Some(true))
-                && matches!(state_next.mora.is_voiced, None)
+            let is_voiced_ok = matches!(state_curr.is_voiced_flag, None | Some(true))
+                && matches!(state_next.is_voiced_flag, None)
                 && matches!(
-                    state_nextnext.as_ref().and_then(|nn| nn.mora.is_voiced),
+                    state_nextnext.as_ref().and_then(|nn| nn.is_voiced_flag),
                     None | Some(true)
                 );
             let pos_ok = matches!(
@@ -100,27 +101,29 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             );
             let mora_ok = matches!(state_next.mora.mora_enum, MoraEnum::Shi);
             if is_voiced_ok && pos_ok && mora_ok {
-                state_next.mora.is_voiced = if state_next.atype == state_next.midx + 1 {
+                state_next.is_voiced_flag = if state_next.atype == state_next.midx + 1 {
                     /* rule 4 */
                     Some(true)
                 } else {
                     /* rule 5 */
                     apply_unvoice_rule(&state_curr.mora, Some(&state_next.mora))
                 };
-                if matches!(state_next.mora.is_voiced, Some(false)) {
-                    state_curr.mora.is_voiced.get_or_insert(true);
-                    state_nextnext.as_mut().map(|nn| nn.mora.is_voiced.get_or_insert(true));
+                if matches!(state_next.is_voiced_flag, Some(false)) {
+                    state_curr.is_voiced_flag.get_or_insert(true);
+                    state_nextnext
+                        .as_mut()
+                        .map(|nn| nn.is_voiced_flag.get_or_insert(true));
                 }
             }
         }
 
         /* estimate unvoice */
-        if state_curr.mora.is_voiced.is_none() {
-            state_curr.mora.is_voiced = if matches!(state_curr.pos_group0, Group0::Filler) {
+        if state_curr.is_voiced_flag.is_none() {
+            state_curr.is_voiced_flag = if matches!(state_curr.pos_group0, Group0::Filler) {
                 /* rule 0 */
                 Some(true)
             } else if matches!(
-                state_next.as_ref().and_then(|n| n.mora.is_voiced),
+                state_next.as_ref().and_then(|n| n.is_voiced_flag),
                 Some(false)
             ) {
                 /* rule 3 */
@@ -134,11 +137,16 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             };
         }
 
-        if matches!(state_curr.mora.is_voiced, Some(false)) {
+        if matches!(state_curr.is_voiced_flag, Some(false)) {
             state_next
                 .as_mut()
-                .map(|n| n.mora.is_voiced.get_or_insert(true));
+                .map(|n| n.is_voiced_flag.get_or_insert(true));
         }
+
+        state_curr.mora.is_voiced = match state_curr.is_voiced_flag {
+            Some(false) => false,
+            _ => true,
+        };
     }
 }
 
