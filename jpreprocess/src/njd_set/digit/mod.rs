@@ -12,10 +12,7 @@ use jpreprocess_njd::NJD;
 
 use crate::window::*;
 
-use self::{
-    digit_sequence::DigitSequence,
-    lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType},
-};
+use self::lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
@@ -28,13 +25,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
             normalize_digit(node);
         }
 
-        let mut sequences = DigitSequence::from_njd(njd);
+        let mut sequences = digit_sequence::from_njd(njd);
 
+        let mut offset = 0;
         for seq in &mut sequences {
-            seq.convert_digit_sequence(njd);
+            offset += seq.convert(njd, offset);
         }
-
-        DigitSequence::to_njd(njd, sequences);
     }
 
     if !find {

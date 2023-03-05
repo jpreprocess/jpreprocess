@@ -22,6 +22,17 @@ impl Pronounciation {
     pub fn new(moras: Vec<Mora>) -> Self {
         Self(moras)
     }
+    pub fn new_simple(moras: Vec<MoraEnum>) -> Self {
+        Self(
+            moras
+                .into_iter()
+                .map(|mora_enum| Mora {
+                    mora_enum,
+                    is_voiced: true,
+                })
+                .collect(),
+        )
+    }
 
     pub fn mora_size(&self) -> usize {
         self.0

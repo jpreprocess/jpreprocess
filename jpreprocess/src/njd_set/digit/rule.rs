@@ -1,27 +1,15 @@
 use phf::{phf_map, Map};
 
-pub const HAIHUN1:&str="―"     /* horizontal bar */;
-pub const HAIHUN2:&str="−"     /* minus sign */;
-pub const HAIHUN3:&str="‐"     /* hyphen */;
-pub const HAIHUN4:&str="—"     /* em dash */;
-pub const HAIHUN5:&str="－"     /* fullwidth hyphen-minus */;
-pub const KAKKO1: &str = "（";
-pub const KAKKO2: &str = "）";
-pub const BANGOU: &str = "番号";
-pub const COMMA: &str = "，";
 pub const TEN1: &str = "．";
 pub const TEN2: &str = "・";
 pub const TEN_FEATURE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1";
 pub const ZERO1: &str = "〇";
 pub const ZERO2: &str = "０";
 pub const ZERO_BEFORE_DP: &str = "レー";
-pub const ZERO_AFTER_DP: &str = "ゼロ";
 pub const TWO: &str = "二";
 pub const TWO_BEFORE_DP: &str = "ニー";
-pub const TWO_AFTER_DP: &str = "ニー";
 pub const FIVE: &str = "五";
 pub const FIVE_BEFORE_DP: &str = "ゴー";
-pub const FIVE_AFTER_DP: &str = "ゴー";
 pub const SIX: &str = "六";
 pub const NIN: &str = "人";
 pub const GATSU: &str = "月";
@@ -80,48 +68,6 @@ pub const NUMERAL_LIST1: Map<&'static str, &'static str> = phf_map! {
    "しち" => "七",
    "く" => "九"
 };
-
-pub const DIGITS: Map<&'static str, u8> = phf_map! {
-   "一" => 1,
-   "二" => 2,
-   "三" => 3,
-   "四" => 4,
-   "五" => 5,
-   "六" => 6,
-   "七" => 7,
-   "八" => 8,
-   "九" => 9,
-   "〇" => 0,
-   "０" => 0,
-};
-
-pub const NUMERAL_LIST2: &[&str] = &[
-    "",
-    "十,名詞,数,*,*,*,*,十,ジュウ,ジュー,1/2,*",
-    "百,名詞,数,*,*,*,*,百,ヒャク,ヒャク,2/2,*",
-    "千,名詞,数,*,*,*,*,千,セン,セン,1/2,*",
-];
-
-pub const NUMERAL_LIST3: &[&str] = &[
-    "",
-    "万,名詞,数,*,*,*,*,万,マン,マン,1/2,*",
-    "億,名詞,数,*,*,*,*,億,オク,オク,1/2,*",
-    "兆,名詞,数,*,*,*,*,兆,チョウ,チョー,1/2,C3",
-    "京,名詞,数,*,*,*,*,京,ケイ,ケー,1/2,*",
-    "垓,名詞,数,*,*,*,*,垓,ガイ,ガイ,1/2,*",
-    "𥝱,名詞,数,*,*,*,*,𥝱,ジョ,ジョ,1/1,*",
-    "穣,名詞,数,*,*,*,*,穣,ジョウ,ジョー,1/2,*",
-    "溝,名詞,数,*,*,*,*,溝,コウ,コウ,1/2,*",
-    "澗,名詞,数,*,*,*,*,澗,カン,カン,1/2,*",
-    "正,名詞,数,*,*,*,*,正,セイ,セー,1/2,*",
-    "載,名詞,数,*,*,*,*,載,サイ,サイ,1/2,*",
-    "極,名詞,数,*,*,*,*,極,ゴク,ゴク,1/2,*",
-    "恒河沙,名詞,数,*,*,*,*,恒河沙,ゴウガシャ,ゴウガシャ,1/4,*",
-    "阿僧祇,名詞,数,*,*,*,*,阿僧祇,アソウギ,アソーギ,2/4,*",
-    "那由他,名詞,数,*,*,*,*,那由他,ナユタ,ナユタ,1/3,*",
-    "不可思議,名詞,数,*,*,*,*,不可思議,フカシギ,フカシギ,2/4,*",
-    "無量大数,名詞,数,*,*,*,*,無量大数,ムリョウタイスウ,ムリョータイスー,6/7,*",
-];
 
 pub const NUMERATIVE_CLASS3: &[(&str, &str)] = &[
     /* from paper */
