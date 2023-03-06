@@ -87,11 +87,7 @@ fn from_parsed_digits(start: usize, digits: &Vec<Digit>) -> Vec<DigitSequence> {
         digits
             .split(|digit| matches!(digit, Digit::Comma))
             .scan(start, |count, chunk| {
-                let seq = create_seq(
-                    *count,
-                    chunk,
-                    if is_zero_start { Some(false) } else { None },
-                );
+                let seq = create_seq(*count, chunk, None);
                 *count += chunk.len() + 1;
                 Some((*count, seq))
             })
@@ -117,7 +113,11 @@ fn create_seq(
                 _ => None,
             })
             .collect(),
-        is_numerical_reading,
+        if check_zero_start(digits) {
+            Some(false)
+        } else {
+            is_numerical_reading
+        },
     ))
 }
 
@@ -140,6 +140,6 @@ fn check_comma_sequence(digits: &Vec<Digit>) -> bool {
     }
     comma_count > 0
 }
-fn check_zero_start(digits: &Vec<Digit>) -> bool {
-    matches!(digits.as_slice(), [Digit::Digit(0), ..])
+fn check_zero_start(digits: &[Digit]) -> bool {
+    matches!(digits, [Digit::Digit(0), ..])
 }

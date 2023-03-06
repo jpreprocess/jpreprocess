@@ -36,6 +36,7 @@ const NUMERAL_LIST3: &[&str] = &[
     "無量大数,名詞,数,*,*,*,*,無量大数,ムリョウタイスウ,ムリョータイスー,6/7,*",
 ];
 
+#[derive(Debug)]
 pub struct DigitSequence {
     start: usize,
     end: usize,
@@ -120,9 +121,11 @@ impl DigitSequence {
         let mut idx = 0;
         njd.nodes.retain(|node| {
             if idx < self.start || self.end < idx {
+                idx += 1;
                 return true;
+            } else {
+                idx += 1;
             }
-            idx += 1;
             if node.get_string() == "，" {
                 offset_comma += 1;
                 false
@@ -136,7 +139,7 @@ impl DigitSequence {
             return offset_comma;
         }
 
-        /* whether any digit is in block. e.g. 1[0000]->false,1[1000]->true */
+        /* whether any digit is in the block. e.g. 1[0000]->false,1[1000]->true */
         let mut have_digit_in_block = false;
 
         let mut offset = 0;
