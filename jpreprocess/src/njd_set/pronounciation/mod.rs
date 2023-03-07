@@ -20,12 +20,12 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
 
             /* if filler, overwrite pos */
             if mora_size != 0 {
-                *node.get_pos_mut() = PartOfSpeech::new([rule::FILLER, "", "", ""]);
+                *node.get_pos_mut() = POS::Filler;
                 node.set_mora_size(mora_size.try_into().unwrap());
             }
 
             if pron.is_touten() {
-                node.get_pos_mut().set_group0(rule::KIGOU);
+                node.get_pos_mut().convert_to_kigou();
             }
 
             if pron.is_empty() {
@@ -53,7 +53,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 let node = b.get_mut(0).unwrap();
                 (head_of_kana_filler_sequence, node)
             };
-            if matches!(node.get_pos().get_group0(), Group0::Filler) {
+            if matches!(node.get_pos(), POS::Filler) {
                 if Pronounciation::is_mora_convertable(&node.get_string()) {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
@@ -80,18 +80,13 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 _ => continue,
             };
             if matches!(next.get_pron().mora_enums().as_slice(), [MoraEnum::U])
-                && matches!(next.get_pos().get_group0(), Group0::Jodoushi)
-                && matches!(
-                    node.get_pos().get_group0(),
-                    Group0::Doushi | Group0::Jodoushi
-                )
+                && matches!(next.get_pos(), POS::Jodoushi)
+                && matches!(node.get_pos(), POS::Doushi(_) | POS::Jodoushi)
                 && node.get_mora_size() > 0
             {
                 next.set_pron_by_str(rule::CHOUON);
             }
-            if matches!(node.get_pos().get_group0(), Group0::Jodoushi)
-                && next.get_string() == rule::QUESTION
-            {
+            if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == rule::QUESTION {
                 match node.get_string() {
                     rule::DESU_STR => node.set_pron_by_str(rule::DESU_PRON),
                     rule::MASU_STR => node.set_pron_by_str(rule::MASU_PRON),

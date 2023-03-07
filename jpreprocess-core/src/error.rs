@@ -5,6 +5,7 @@ pub enum JPreprocessErrorKind {
     DictionaryLoadError,
     DictionaryBuildError,
     PronounciationParseError,
+    PartOfSpeechParseError,
 }
 
 impl JPreprocessErrorKind {

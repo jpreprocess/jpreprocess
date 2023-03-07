@@ -108,10 +108,10 @@ impl NJDNode {
         self.details.chain_rule = None;
     }
 
-    pub fn get_pos(&self) -> &PartOfSpeech {
+    pub fn get_pos(&self) -> &POS {
         &self.details.pos
     }
-    pub fn get_pos_mut(&mut self) -> &mut PartOfSpeech {
+    pub fn get_pos_mut(&mut self) -> &mut POS {
         &mut self.details.pos
     }
 
@@ -191,9 +191,10 @@ mod tests {
     fn load_single_node() {
         let node = NJDNode::new_single("．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1");
         assert_eq!(node.string, "．");
-        assert_eq!(node.get_pos().get_group0(), Group0::Meishi);
-        assert_eq!(node.get_pos().get_group1(), Group1::Setsubi);
-        assert_eq!(node.get_pos().get_group3(), Group3::Others);
+        assert!(matches!(
+            node.get_pos(),
+            POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi))
+        ));
         // assert_eq!(node.details.ctype, "*");
         // assert_eq!(node.details.cform, "*");
         assert_eq!(node.details.is_renyou, false);

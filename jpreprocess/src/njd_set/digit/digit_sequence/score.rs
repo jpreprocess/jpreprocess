@@ -21,20 +21,16 @@ fn score_start(njd: &NJD, start: usize) -> i8 {
             let node = &njd.nodes[start - 1];
             (node.get_pos(), node.get_string())
         };
-        score += match (p1_pos.get_group1(), p1_pos.get_group2()) {
-            (Group1::Suusetsuzoku, Group2::Josuushi) => 3,
-            (Group1::Suusetsuzoku, _) => 2,
-            (Group1::FukushiKanou, _) => 1,
-            (_, Group2::Josuushi) => 1,
+        score += match p1_pos {
+            POS::Settoushi(Settoushi::SuuSetsuzoku) => 2,
+            POS::Meishi(Meishi::FukushiKanou) => 1,
+            POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => 1,
             _ => 0,
         };
         let (p2_is_kazu, p2_is_bangou) = {
             if start > 1 {
                 let node = &njd.nodes[start - 2];
-                (
-                    matches!(node.get_pos().get_group1(), Group1::Kazu),
-                    node.get_string() == BANGOU,
-                )
+                (node.get_pos().is_kazu(), node.get_string() == BANGOU)
             } else {
                 (false, false)
             }
@@ -67,16 +63,16 @@ fn score_end(njd: &NJD, end: usize) -> i8 {
             let node = &njd.nodes[end + 1];
             (node.get_pos(), node.get_string())
         };
-        score += match (pos.get_group1(), pos.get_group2()) {
-            (Group1::FukushiKanou, _) => 2,
-            (_, Group2::Josuushi) => 2,
+        score += match pos {
+            POS::Meishi(Meishi::FukushiKanou) => 2,
+            POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => 2,
             _ => 0,
         };
         score += match string {
             HAIHUN1 | HAIHUN2 | HAIHUN3 | HAIHUN4 | HAIHUN5 => -2,
             KAKKO1 => -2,
             KAKKO2 => match njd.nodes.get(end + 2) {
-                Some(node) if node.get_pos().get_group1() == Group1::Kazu => -2,
+                Some(node) if node.get_pos().is_kazu() => -2,
                 _ => 0,
             },
             BANGOU => -2,

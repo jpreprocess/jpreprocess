@@ -23,7 +23,7 @@ use crate::window::{IterQuintMut, QuadForward};
 struct MoraState<'a> {
     pub mora: &'a mut Mora,
     pub node_index: usize,
-    pub pos_group0: Group0,
+    pub pos: POS,
     pub is_voiced_flag: Option<bool>,
     pub midx: i32,
     pub atype: i32,
@@ -40,7 +40,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
         }
 
         let acc = node.get_acc();
-        let pos_group0 = node.get_pos().get_group0();
+        let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
         for mora in pron.iter_mut() {
@@ -48,7 +48,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 is_voiced_flag: if mora.is_voiced { None } else { Some(false) },
                 mora,
                 node_index,
-                pos_group0,
+                pos,
                 midx,
                 atype: acc,
             });
@@ -72,8 +72,8 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             let index_ok = state_curr.node_index == state_next.node_index
                 && state_next.node_index != state_nextnext.node_index;
             let pos_ok = matches!(
-                state_next.pos_group0,
-                Group0::Doushi | Group0::Jodoushi | Group0::Kandoushi
+                state_next.pos,
+                POS::Doushi(_) | POS::Jodoushi | POS::Kandoushi
             );
             let mora_ok = matches!(
                 (state_curr.mora.mora_enum, state_next.mora.mora_enum),
@@ -96,8 +96,8 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     None | Some(true)
                 );
             let pos_ok = matches!(
-                state_next.pos_group0,
-                Group0::Doushi | Group0::Jodoushi | Group0::Joshi
+                state_next.pos,
+                POS::Doushi(_) | POS::Jodoushi | POS::Joshi(_)
             );
             let mora_ok = matches!(state_next.mora.mora_enum, MoraEnum::Shi);
             if is_voiced_ok && pos_ok && mora_ok {
@@ -119,7 +119,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 
         /* estimate unvoice */
         if state_curr.is_voiced_flag.is_none() {
-            state_curr.is_voiced_flag = if matches!(state_curr.pos_group0, Group0::Filler) {
+            state_curr.is_voiced_flag = if matches!(state_curr.pos, POS::Filler) {
                 /* rule 0 */
                 Some(true)
             } else if matches!(

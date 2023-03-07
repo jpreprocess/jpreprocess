@@ -1,7 +1,6 @@
 mod rule;
 
 use jpreprocess_core::accent_rule::AccentType;
-use jpreprocess_core::pos::*;
 use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
@@ -42,15 +41,15 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
             }
 
             if matches!(current.get_chain_flag(), Some(true))
-                && matches!(prev.map(|n| n.get_pos().get_group1()), Some(Group1::Kazu))
-                && matches!(current.get_pos().get_group1(), Group1::Kazu)
+                && prev.map(|p| p.get_pos().is_kazu()).unwrap_or(false)
+                && current.get_pos().is_kazu()
             {
                 prev_acc = calc_digit_acc(prev.unwrap(), current, next);
             }
 
             if current.get_string() == rule::JYUU
                 && !matches!(current.get_chain_flag(), Some(d) if d)
-                && matches!(next.map(|n| n.get_pos().get_group1()), Some(Group1::Kazu))
+                && next.map(|n| n.get_pos().is_kazu()).unwrap_or(false)
             {
                 current_acc = Some(0);
             }

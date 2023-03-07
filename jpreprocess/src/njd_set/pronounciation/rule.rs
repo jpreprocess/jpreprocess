@@ -1,7 +1,3 @@
-pub const KIGOU: &str = "記号";
-
-pub const FILLER: &str = "フィラー";
-
 pub const CHOUON: &str = "ー";
 
 pub const QUESTION: &str = "？";
