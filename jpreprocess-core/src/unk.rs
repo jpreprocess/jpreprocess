@@ -1,9 +1,9 @@
 use once_cell::sync::Lazy;
 
-use crate::{node_details::NodeDetails, pos::PartOfSpeech, pronounciation::Pronounciation};
+use crate::{node_details::NodeDetails, pos::*, pronounciation::Pronounciation};
 
 pub const UNK: Lazy<NodeDetails> = Lazy::new(|| NodeDetails {
-    pos: PartOfSpeech::new(["名詞", "*", "*", "*"]),
+    pos: POS::Meishi(Meishi::None),
     is_renyou: false,
     orig: "*".to_string(),
     read: None,

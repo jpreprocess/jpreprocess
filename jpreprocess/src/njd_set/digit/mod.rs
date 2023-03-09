@@ -19,7 +19,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
 
     {
         for node in &mut njd.nodes {
-            if matches!(node.get_pos().get_group1(), Group1::Kazu) {
+            if node.get_pos().is_kazu() {
                 find = true;
             }
             normalize_digit(node);
@@ -52,12 +52,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 Triple::Full(prev, node, next) => (prev, node, next),
                 _ => continue,
             };
-            match (&skip_state, node.get_pos().get_group0()) {
+            match (&skip_state, node.get_pos()) {
                 (SkipState::IfMeishi, _) => {
                     skip_state = SkipState::Skipping;
                     continue;
                 }
-                (SkipState::Skipping, Group0::Meishi) => {
+                (SkipState::Skipping, POS::Meishi(_)) => {
                     continue;
                 }
                 (SkipState::Skipping, _) => {
@@ -69,8 +69,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
             if !node.get_string().is_empty()
                 && !prev.get_string().is_empty()
                 && is_period(node.get_string())
-                && matches!(prev.get_pos().get_group1(), Group1::Kazu)
-                && matches!(next.get_pos().get_group1(), Group1::Kazu)
+                && prev.get_pos().is_kazu()
+                && next.get_pos().is_kazu()
             {
                 *node = NJDNode::new_single(rule::TEN_FEATURE);
                 node.set_chain_flag(true);
@@ -104,13 +104,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 Double::Full(prev, node) => (prev, node),
                 _ => continue,
             };
-            match (
-                prev.get_pos().get_group1(),
-                node.get_pos().get_group1(),
-                node.get_pos().get_group2(),
-            ) {
-                (Group1::Kazu, Group1::FukushiKanou, _) => (),
-                (Group1::Kazu, _, Group2::Josuushi) => (),
+            if !prev.get_pos().is_kazu() {
+                continue;
+            }
+            match node.get_pos() {
+                POS::Meishi(Meishi::FukushiKanou) => (),
+                POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => (),
                 _ => continue,
             }
             /* convert digit pron */
@@ -151,11 +150,10 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 Double::Full(prev, node) => (prev, node),
                 _ => continue,
             };
-            if !matches!(prev.get_pos().get_group1(), Group1::Kazu) {
+            if !prev.get_pos().is_kazu() {
                 continue;
             }
-            if matches!(node.get_pos().get_group1(), Group1::Kazu) && !node.get_string().is_empty()
-            {
+            if node.get_pos().is_kazu() && !node.get_string().is_empty() {
                 if lut3::NUMERAL_LIST4.contains(prev.get_string())
                     && lut3::NUMERAL_LIST5.contains(node.get_string())
                 {
@@ -205,21 +203,18 @@ pub fn njd_set_digit(njd: &mut NJD) {
             if next.get_string().is_empty() {
                 continue;
             }
-            if !matches!(node.get_pos().get_group1(), Group1::Kazu) {
+            if !node.get_pos().is_kazu() {
                 continue;
             }
-            match (
-                prev.as_ref().map(|p| p.get_pos().get_group0()),
-                prev.as_ref().map(|p| p.get_pos().get_group1()),
-            ) {
-                (None, None) => (),
-                (Some(Group0::Kigou), _) => (),
-                (_, Some(Group1::Kazu)) => continue,
+            match prev.as_ref().map(|p| p.get_pos()) {
+                None => (),
+                Some(POS::Kigou(_)) => (),
+                Some(pos) if pos.is_kazu() => continue,
                 _ => (),
             };
-            match (next.get_pos().get_group1(), next.get_pos().get_group2()) {
-                (Group1::FukushiKanou, _) => (),
-                (_, Group2::Josuushi) => (),
+            match next.get_pos() {
+                POS::Meishi(Meishi::FukushiKanou) => (),
+                POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => (),
                 _ => continue,
             };
             /* convert class3 */
@@ -268,14 +263,10 @@ pub fn njd_set_digit(njd: &mut NJD) {
             let (node, nx1, nx2, nx3_t) = match quint {
                 Quintuple::Triple(node, nx1, nx2) => (node, nx1, nx2, None),
                 Quintuple::First(node, nx1, nx2, nx3) => (node, nx1, nx2, Some(nx3)),
-                Quintuple::Full(prev, node, nx1, nx2, nx3)
-                    if prev.get_pos().get_group1() != Group1::Kazu =>
-                {
+                Quintuple::Full(prev, node, nx1, nx2, nx3) if !prev.get_pos().is_kazu() => {
                     (node, nx1, nx2, Some(nx3))
                 }
-                Quintuple::ThreeLeft(prev, node, nx1, nx2)
-                    if prev.get_pos().get_group1() != Group1::Kazu =>
-                {
+                Quintuple::ThreeLeft(prev, node, nx1, nx2) if !prev.get_pos().is_kazu() => {
                     (node, nx1, nx2, None)
                 }
                 _ => continue,
@@ -339,7 +330,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
 }
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
-    if node.get_string() != "*" && matches!(node.get_pos().get_group1(), Group1::Kazu) {
+    if node.get_string() != "*" && node.get_pos().is_kazu() {
         if let Some(replace) = rule::NUMERAL_LIST1.get(node.get_string()) {
             node.replace_string(replace);
             return true;

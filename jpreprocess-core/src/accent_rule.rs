@@ -4,9 +4,31 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::pos::Group0Contains;
+use super::pos::POS;
 
-use super::pos::PartOfSpeech;
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+pub enum Group0Contains {
+    Meishi,
+    Keiyoushi,
+    Doushi,
+    Joshi,
+    TokushuJodoushi,
+    None,
+}
+
+impl FromStr for Group0Contains {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "名詞" => Ok(Self::Meishi),
+            "形容詞" => Ok(Self::Keiyoushi),
+            "動詞" => Ok(Self::Doushi),
+            "助詞" => Ok(Self::Joshi),
+            "特殊助動詞" => Ok(Self::TokushuJodoushi),
+            _ => Err(()),
+        }
+    }
+}
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new("^((?P<pos>名詞|形容詞|助詞|特殊助動詞|動詞)%)?(?P<accent>[FC][1-5]|P1|P2|P6|P14)?(@(?P<add>[-0-9]+))?$")
@@ -122,11 +144,17 @@ impl ChainRules {
         Some(ChainRule::new(pos, accent_type, add_type))
     }
 
-    pub fn get_rule(&self, pos: &PartOfSpeech) -> Option<&ChainRule> {
+    pub fn get_rule(&self, pos: &POS) -> Option<&ChainRule> {
         self.rules.iter().find(|rule| {
             rule.pos
                 .as_ref()
-                .map_or(true, |search_pos| pos.get_group0_contains() == *search_pos)
+                .map_or(true, |search_pos| match search_pos {
+                    Group0Contains::Doushi => matches!(pos, POS::Doushi(_)),
+                    Group0Contains::Joshi => matches!(pos, POS::Joshi(_)),
+                    Group0Contains::Keiyoushi => matches!(pos, POS::Keiyoushi(_)),
+                    Group0Contains::Meishi => matches!(pos, POS::Meishi(_)),
+                    _ => false,
+                })
         })
     }
 }
