@@ -8,6 +8,7 @@ pub mod unk;
 
 pub mod ctype;
 pub mod cform;
+pub mod jpcommon;
 
 pub use node::*;
 
