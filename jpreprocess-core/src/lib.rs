@@ -6,6 +6,9 @@ pub mod pos;
 pub mod pronounciation;
 pub mod unk;
 
+pub mod ctype;
+pub mod cform;
+
 pub use node::*;
 
 pub use error::JPreprocessError;
