@@ -86,3 +86,26 @@ impl POS {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_strs() {
+        assert!(matches!(
+            POS::from_strs("フィラー", "*", "*", "*"),
+            Ok(POS::Filler)
+        ));
+        assert!(matches!(
+            POS::from_strs("助詞", "副助詞／並立助詞／終助詞", "*", "*"),
+            Ok(POS::Joshi(Joshi::FukuHeiritsuShuJoshi))
+        ));
+        assert!(matches!(
+            POS::from_strs("名詞", "固有名詞", "人名", "姓"),
+            Ok(POS::Meishi(Meishi::KoyuMeishi(KoyuMeishi::Person(
+                Person::Sei
+            ))))
+        ));
+    }
+}
