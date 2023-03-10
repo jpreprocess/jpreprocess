@@ -1,7 +1,7 @@
 pub mod mora;
 mod mora_dict;
 mod mora_enum;
-pub mod split;
+pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;

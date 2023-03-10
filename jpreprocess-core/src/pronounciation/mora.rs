@@ -1,4 +1,9 @@
-use super::{mora_dict::INTO_STR, mora_enum::MoraEnum, QUESTION, QUOTATION, TOUTEN};
+use super::{
+    mora_dict::INTO_STR,
+    mora_enum::MoraEnum,
+    phoneme::{mora_to_phoneme, Consonant, Vowel},
+    QUESTION, QUOTATION, TOUTEN,
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +23,10 @@ impl Mora {
         let suffix = if self.is_voiced { "" } else { QUOTATION };
         format!("{}{}", mora, suffix)
     }
+    pub fn phonemes(&self) -> (Option<Consonant>, Option<Vowel>) {
+        mora_to_phoneme(self)
+    }
+
     pub fn convert_to_voiced_sound(&mut self) {
         self.mora_enum = match self.mora_enum {
             MoraEnum::Ka => MoraEnum::Ga,
