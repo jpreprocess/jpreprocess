@@ -1,6 +1,6 @@
 use crate::ctype::CType;
 
-pub fn ctype_to_id(ctype: CType) -> Option<u8> {
+pub fn ctype_to_id(ctype: &CType) -> Option<u8> {
     match ctype {
         // *:xx
         CType::None => None,

@@ -1,6 +1,6 @@
 use crate::cform::CForm;
 
-pub fn cform_to_id(cform: CForm) -> Option<u8> {
+pub fn cform_to_id(cform: &CForm) -> Option<u8> {
     match cform {
         // *:xx
         CForm::None => None,

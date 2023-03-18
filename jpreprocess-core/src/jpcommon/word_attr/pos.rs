@@ -1,6 +1,6 @@
 use crate::pos::*;
 
-pub fn pos_to_id(pos: POS) -> Option<u8> {
+pub fn pos_to_id(pos: &POS) -> Option<u8> {
     match pos {
         // その他:xx
         POS::Others => None,
