@@ -2,7 +2,9 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{accent_rule::ChainRules, pos::POS, pronounciation::Pronounciation, ctype::CType, cform::CForm};
+use crate::{
+    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronounciation::Pronounciation,
+};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct NodeDetails {

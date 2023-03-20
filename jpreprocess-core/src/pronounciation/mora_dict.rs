@@ -71,7 +71,10 @@ mod tests {
     #[test]
     fn alphabet() {
         let found = MORA_STR_LIST.iter().position(|l| *l == "ｘ").unwrap();
-        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::E, MoraEnum::Xtsu, MoraEnum::Ku, MoraEnum::Su]);
+        assert_eq!(
+            get_mora_enum(found).as_slice(),
+            [MoraEnum::E, MoraEnum::Xtsu, MoraEnum::Ku, MoraEnum::Su]
+        );
     }
     #[test]
     fn katakana_irregular1() {

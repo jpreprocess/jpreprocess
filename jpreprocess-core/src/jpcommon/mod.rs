@@ -1,4 +1,4 @@
-mod word_attr;
 mod feature;
+mod word_attr;
 
 mod label;

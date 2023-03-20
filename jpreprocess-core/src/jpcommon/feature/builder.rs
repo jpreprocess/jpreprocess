@@ -22,12 +22,22 @@ impl FeatureBuilderUtterance {
 }
 
 pub trait TFeatureBuilderUtterance {
-    fn with_hij(&self, h: Option<String>, i: String, j: Option<String>) -> Rc<FeatureBuilderBreathGroup>;
+    fn with_hij(
+        &self,
+        h: Option<String>,
+        i: String,
+        j: Option<String>,
+    ) -> Rc<FeatureBuilderBreathGroup>;
     fn with_hj(&self, h: Option<String>, j: Option<String>) -> Rc<FeatureBuilderBreathGroup>;
 }
 
 impl TFeatureBuilderUtterance for Rc<FeatureBuilderUtterance> {
-    fn with_hij(&self, h: Option<String>, i: String, j: Option<String>) -> Rc<FeatureBuilderBreathGroup> {
+    fn with_hij(
+        &self,
+        h: Option<String>,
+        i: String,
+        j: Option<String>,
+    ) -> Rc<FeatureBuilderBreathGroup> {
         Rc::new(FeatureBuilderBreathGroup {
             utterance: self.clone(),
             h,
@@ -53,12 +63,22 @@ pub struct FeatureBuilderBreathGroup {
 }
 
 pub trait TFeatureBuilderBreathGroup {
-    fn with_efg(&self, e: Option<String>, f: String, g: Option<String>) -> Rc<FeatureBuilderAccentPhrase>;
+    fn with_efg(
+        &self,
+        e: Option<String>,
+        f: String,
+        g: Option<String>,
+    ) -> Rc<FeatureBuilderAccentPhrase>;
     fn with_eg(&self, e: Option<String>, g: Option<String>) -> Rc<FeatureBuilderAccentPhrase>;
 }
 
 impl TFeatureBuilderBreathGroup for Rc<FeatureBuilderBreathGroup> {
-    fn with_efg(&self, e: Option<String>, f: String, g: Option<String>) -> Rc<FeatureBuilderAccentPhrase> {
+    fn with_efg(
+        &self,
+        e: Option<String>,
+        f: String,
+        g: Option<String>,
+    ) -> Rc<FeatureBuilderAccentPhrase> {
         Rc::new(FeatureBuilderAccentPhrase {
             breath_group: self.clone(),
             e,

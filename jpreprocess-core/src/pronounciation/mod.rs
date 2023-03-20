@@ -83,7 +83,7 @@ impl Pronounciation {
             .fold(String::new(), |a, b| a + &b)
     }
 
-    pub fn moras(&self)->&[Mora]{
+    pub fn moras(&self) -> &[Mora] {
         self.0.as_slice()
     }
 }

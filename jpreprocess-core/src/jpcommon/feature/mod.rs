@@ -164,7 +164,7 @@ fn pau_feature(
 
 #[cfg(test)]
 mod tests {
-    use crate::{pronounciation::phoneme, NJDNode};
+    use crate::NJDNode;
 
     use super::*;
 

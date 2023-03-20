@@ -6,8 +6,8 @@ pub mod pos;
 pub mod pronounciation;
 pub mod unk;
 
-pub mod ctype;
 pub mod cform;
+pub mod ctype;
 pub mod jpcommon;
 
 pub use node::*;
