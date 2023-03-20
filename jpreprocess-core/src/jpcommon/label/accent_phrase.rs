@@ -36,7 +36,7 @@ impl AccentPhrase {
             } else {
                 self.accent
             }),
-            if self.is_interrogative { QUESTION } else { "0" },
+            if self.is_interrogative { 1 } else { 0 },
             match is_next_pause {
                 Some(true) => "1",
                 Some(false) => "0",
@@ -60,7 +60,7 @@ impl AccentPhrase {
             } else {
                 self.accent
             }),
-            if self.is_interrogative { QUESTION } else { "0" },
+            if self.is_interrogative { 1 } else { 0 },
             Limit::M.ulimit(accent_phrase_index_in_breath_group + 1),
             Limit::M
                 .ulimit(accent_phrase_count_in_breath_group - accent_phrase_index_in_breath_group),
@@ -78,7 +78,7 @@ impl AccentPhrase {
             } else {
                 self.accent
             }),
-            if self.is_interrogative { QUESTION } else { "0" },
+            if self.is_interrogative { 1 } else { 0 },
             match is_prev_pause {
                 Some(true) => "1",
                 Some(false) => "0",
