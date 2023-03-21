@@ -6,6 +6,31 @@ use std::rc::Rc;
 use super::label::*;
 use builder::*;
 
+pub fn utterance_to_features(utterance: &Utterance) -> Vec<String> {
+    let phoneme_vec = utterance_to_phoneme_vec(utterance);
+    overwrapping_phonemes(phoneme_vec)
+}
+
+fn overwrapping_phonemes(phoneme_vec: Vec<(String, String)>) -> Vec<String> {
+    (0..phoneme_vec.len())
+        .into_iter()
+        .map(|i| {
+            let (p2, p1) = match i {
+                0 => ("xx", "xx"),
+                1 => ("xx", phoneme_vec[0].0.as_str()),
+                _ => (phoneme_vec[i - 2].0.as_str(), phoneme_vec[i - 1].0.as_str()),
+            };
+            let (c, n1, n2) = match &phoneme_vec[i..] {
+                [c, n1, n2, ..] => (c.0.as_str(), n1.0.as_str(), n2.0.as_str()),
+                [c, n1] => (c.0.as_str(), n1.0.as_str(), "xx"),
+                [c] => (c.0.as_str(), "xx", "xx"),
+                _ => unreachable!(),
+            };
+            format!("{}^{}-{}+{}={}{}", p2, p1, c, n1, n2, &phoneme_vec[i].1)
+        })
+        .collect()
+}
+
 fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
     let breath_group_count_in_utterance = utterance.breath_groups.len();
     let accent_phrase_count_in_utterance = utterance.count_accent_phrase();
