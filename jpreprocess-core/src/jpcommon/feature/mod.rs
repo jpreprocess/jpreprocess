@@ -84,16 +84,28 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
         let builder_bg = builder_u.with_hij(h, i, j);
 
         for accent_phrase_index_in_breath_group in 0..accent_phrase_count_in_breath_group {
-            let (accent_phrase_prev, accent_phrase, accent_phrase_next) = get_prev_next(
-                &breath_group.accent_phrases,
-                accent_phrase_index_in_breath_group,
-            );
+            let (accent_phrase_prev, accent_phrase, accent_phrase_next) = {
+                let (accent_phrase_prev, accent_phrase, accent_phrase_next) = get_prev_next(
+                    &breath_group.accent_phrases,
+                    accent_phrase_index_in_breath_group,
+                );
+                (
+                    accent_phrase_prev
+                        .or_else(|| breath_group_prev.and_then(|bg| bg.accent_phrases.last())),
+                    accent_phrase,
+                    accent_phrase_next
+                        .or_else(|| breath_group_next.and_then(|bg| bg.accent_phrases.first())),
+                )
+            };
 
-            let e = accent_phrase_prev.map(|ap| {
-                ap.to_e(Some(
-                    accent_phrase_index_in_breath_group == accent_phrase_count_in_breath_group - 1,
-                ))
-            });
+            let e = accent_phrase_prev
+                .map(|ap| {
+                    ap.to_e(Some(
+                        breath_group_next.is_some()
+                            && accent_phrase_index_in_breath_group
+                                == accent_phrase_count_in_breath_group - 1,
+                    ))
+                });
             let f = accent_phrase.to_f(
                 accent_phrase_count_in_breath_group,
                 accent_phrase_index_in_breath_group,
@@ -101,7 +113,11 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
                 mora_index_in_breath_group,
             );
             let g = accent_phrase_next
-                .map(|ap| ap.to_g(Some(accent_phrase_index_in_breath_group == 0)));
+                .map(|ap| {
+                    ap.to_g(Some(
+                        breath_group_prev.is_some() && accent_phrase_index_in_breath_group == 0,
+                    ))
+                });
 
             let builder_ap = builder_bg.with_efg(e, f, g);
 
@@ -171,8 +187,8 @@ fn pau_feature(
     let accent_phrase_prev = breath_group_prev.and_then(|bg| bg.accent_phrases.last());
     let word_prev = accent_phrase_prev.and_then(|ap| ap.words.last());
 
-    let accent_phrase_next = breath_group_next.and_then(|bg| bg.accent_phrases.last());
-    let word_next = accent_phrase_next.and_then(|ap| ap.words.last());
+    let accent_phrase_next = breath_group_next.and_then(|bg| bg.accent_phrases.first());
+    let word_next = accent_phrase_next.and_then(|ap| ap.words.first());
 
     builder_u
         .with_hj(
@@ -194,14 +210,37 @@ mod tests {
     use super::*;
 
     #[test]
+    fn overwrapping_phonemes_bonsai() {
+        let features = overwrapping_phonemes(
+            ["sil", "b", "o", "N", "s", "a", "i", "sil"]
+                .iter()
+                .map(|phoneme| (phoneme.to_string(), "".to_string()))
+                .collect(),
+        );
+        let features_answer = [
+            "xx^xx-sil+b=o",
+            "xx^sil-b+o=N",
+            "sil^b-o+N=s",
+            "b^o-N+s=a",
+            "o^N-s+a=i",
+            "N^s-a+i=sil",
+            "s^a-i+sil=xx",
+            "a^i-sil+xx=xx",
+        ];
+        for i in 0..8 {
+            assert_eq!(features[i].as_str(), features_answer[i]);
+        }
+    }
+
+    #[test]
     fn generate_bonsai() {
         let njd = vec![NJDNode::new_single(
             "盆栽,名詞,一般,*,*,*,*,盆栽,ボンサイ,ボンサイ,0/4,C2",
         )];
         let utterance = Utterance::from(njd.as_slice());
         let v = utterance_to_phoneme_vec(&utterance);
-        let phonemes = &["sil", "b", "o", "N", "s", "a", "i", "sil"];
-        let features=&[
+        let phonemes = ["sil", "b", "o", "N", "s", "a", "i", "sil"];
+        let features = [
           "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:4_4%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_4/K:1+1-4",
           "/A:-3+1+4/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#0_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:-3+1+4/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#0_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
@@ -210,7 +249,7 @@ mod tests {
           "/A:-1+3+2/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#0_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:0+4+1/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#0_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:4_4!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_4/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:1+1-4",
-      ];
+        ];
         for i in 0..8 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
             assert_eq!(v[i].1.as_str(), features[i]);
@@ -225,8 +264,8 @@ mod tests {
         ];
         let utterance = Utterance::from(njd.as_slice());
         let v = utterance_to_phoneme_vec(&utterance);
-        let phonemes = &["sil", "b", "o", "N", "s", "a", "i", "sil"];
-        let features=&[
+        let phonemes = ["sil", "b", "o", "N", "s", "a", "i", "sil"];
+        let features = [
           "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:4_4%1_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_4/K:1+1-4",
           "/A:-3+1+4/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#1_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:-3+1+4/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#1_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
@@ -235,8 +274,54 @@ mod tests {
           "/A:-1+3+2/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#1_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:0+4+1/B:xx-xx_xx/C:02_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:4_4#1_xx@1_1|1_4/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-4@1+1&1-1|1+4/J:xx_xx/K:1+1-4",
           "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:4_4!1_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_4/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:1+1-4",
-      ];
+        ];
         for i in 0..8 {
+            assert_eq!(v[i].0.as_str(), phonemes[i]);
+            assert_eq!(v[i].1.as_str(), features[i]);
+        }
+    }
+
+    #[test]
+    fn generate_bonsai_sentence() {
+        let njd = vec![
+            NJDNode::new_single("これ,名詞,代名詞,一般,*,*,*,これ,コレ,コレ,0/2,C3,-1"),
+            NJDNode::new_single("は,助詞,係助詞,*,*,*,*,は,ハ,ワ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0,1"),
+            NJDNode::new_single("，,記号,読点,*,*,*,*,，,、,、,0/0,*,0"),
+            NJDNode::new_single("盆栽,名詞,一般,*,*,*,*,盆栽,ボンサイ,ボンサイ,5/4,C2,0"),
+            NJDNode::new_single("です,助動詞,*,*,*,特殊・デス,基本形,です,デス,デス’,1/2,名詞%F2@1/動詞%F1/形容詞%F2@0,1"),
+            NJDNode::new_single("か,助詞,副助詞／並立助詞／終助詞,*,*,*,*,か,カ,カ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0,1"),
+            NJDNode::new_single("？,記号,一般,*,*,*,*,？,？,？,0/0,*,0")
+        ];
+        let utterance = Utterance::from(njd.as_slice());
+        let v = utterance_to_phoneme_vec(&utterance);
+        let phonemes = [
+            "sil", "k", "o", "r", "e", "w", "a", "pau", "b", "o", "N", "s", "a", "i", "d", "e",
+            "s", "U", "k", "a", "sil",
+        ];
+        let features = [
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:04+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:3_3%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_3/K:2+2-10",
+            "/A:-2+1+3/B:xx-xx_xx/C:04_xx+xx/D:24+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:-2+1+3/B:xx-xx_xx/C:04_xx+xx/D:24+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:-1+2+2/B:xx-xx_xx/C:04_xx+xx/D:24+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:-1+2+2/B:xx-xx_xx/C:04_xx+xx/D:24+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:0+3+1/B:04-xx_xx/C:24_xx+xx/D:02+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:0+3+1/B:04-xx_xx/C:24_xx+xx/D:02+xx_xx/E:xx_xx!xx_xx-xx/F:3_3#0_xx@1_1|1_3/G:7_5%1_xx_0/H:xx_xx/I:1-3@1+2&1-2|1+10/J:1_7/K:2+2-10",
+            "/A:xx+xx+xx/B:24-xx_xx/C:xx_xx+xx/D:02+xx_xx/E:3_3!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:7_5%1_xx_xx/H:1_3/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_7/K:2+2-10",
+            "/A:-4+1+7/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:-4+1+7/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:-3+2+6/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:-2+3+5/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:-2+3+5/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:-1+4+4/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:0+5+3/B:02-xx_xx/C:10_7+2/D:23+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:0+5+3/B:02-xx_xx/C:10_7+2/D:23+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:1+6+2/B:02-xx_xx/C:10_7+2/D:23+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:1+6+2/B:02-xx_xx/C:10_7+2/D:23+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:2+7+1/B:10-7_2/C:23_xx+xx/D:xx+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:2+7+1/B:10-7_2/C:23_xx+xx/D:xx+xx_xx/E:3_3!0_xx-0/F:7_5#1_xx@1_1|1_7/G:xx_xx%xx_xx_xx/H:1_3/I:1-7@2+1&2-1|4+7/J:xx_xx/K:2+2-10",
+            "/A:xx+xx+xx/B:23-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:7_5!1_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_7/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:2+2-10",
+        ];
+        for i in 0..21 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
             assert_eq!(v[i].1.as_str(), features[i]);
         }

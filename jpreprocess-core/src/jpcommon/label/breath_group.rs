@@ -33,7 +33,7 @@ impl BreathGroup {
             Limit::L.ulimit(self.count_mora()),
             Limit::S.ulimit(breath_group_index_in_utterance + 1),
             Limit::S.ulimit(breath_group_count_in_utterance - breath_group_index_in_utterance),
-            Limit::M.ulimit(accent_phrase_index_in_utterance),
+            Limit::M.ulimit(accent_phrase_index_in_utterance + 1),
             Limit::M.ulimit(accent_phrase_count_in_utterance - accent_phrase_index_in_utterance),
             Limit::LL.ulimit(mora_index_in_utterance + 1),
             Limit::LL.ulimit(mora_count_in_utterance - mora_index_in_utterance),
