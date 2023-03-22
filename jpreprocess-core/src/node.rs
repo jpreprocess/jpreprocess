@@ -1,6 +1,8 @@
 use std::{fmt::Debug, str::FromStr};
 
-use crate::{node_details::NodeDetails, pos::*, pronounciation::Pronounciation};
+use crate::{
+    cform::CForm, ctype::CType, node_details::NodeDetails, pos::*, pronounciation::Pronounciation,
+};
 
 use super::accent_rule::ChainRules;
 
@@ -116,7 +118,13 @@ impl NJDNode {
     }
 
     pub fn is_renyou(&self) -> bool {
-        self.details.is_renyou
+        self.details.cform.is_renyou()
+    }
+    pub fn get_ctype(&self) -> &CType {
+        &self.details.ctype
+    }
+    pub fn get_cform(&self) -> &CForm {
+        &self.details.cform
     }
 
     pub fn get_string(&self) -> &str {
@@ -197,7 +205,7 @@ mod tests {
         ));
         // assert_eq!(node.details.ctype, "*");
         // assert_eq!(node.details.cform, "*");
-        assert_eq!(node.details.is_renyou, false);
+        assert_eq!(node.is_renyou(), false);
         assert_eq!(node.details.orig, "．");
         assert_eq!(node.details.read.unwrap(), "テン");
         assert_eq!(node.details.pron, Pronounciation::from_str("テン").unwrap());

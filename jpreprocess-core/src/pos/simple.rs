@@ -130,10 +130,10 @@ impl FromStr for Settoushi {
     type Err = JPreprocessError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "形容詞接続"=>Ok(Self::KeiyoushiSetsuzoku),
-            "数接続"=>Ok(Self::SuuSetsuzoku),
-            "動詞接続"=>Ok(Self::DoushiSetsuzoku),
-            "名詞接続"=>Ok(Self::MeishiSetsuzoku),
+            "形容詞接続" => Ok(Self::KeiyoushiSetsuzoku),
+            "数接続" => Ok(Self::SuuSetsuzoku),
+            "動詞接続" => Ok(Self::DoushiSetsuzoku),
+            "名詞接続" => Ok(Self::MeishiSetsuzoku),
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Settoushi"))),
         }

@@ -2,14 +2,15 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{accent_rule::ChainRules, pos::POS, pronounciation::Pronounciation};
+use crate::{
+    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronounciation::Pronounciation,
+};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct NodeDetails {
     pub(crate) pos: POS,
-    //pub(crate) ctype: String,
-    //pub(crate) cform: String,
-    pub(crate) is_renyou: bool,
+    pub(crate) ctype: CType,
+    pub(crate) cform: CForm,
     pub(crate) orig: String,
     pub(crate) read: Option<String>,
     pub(crate) pron: Pronounciation,
@@ -29,9 +30,8 @@ impl NodeDetails {
 
         let node = Self {
             pos: POS::from_strs(details[0], details[1], details[2], details[3]).unwrap(),
-            //ctype: details[4].to_string(),
-            //cform: details[5].to_string(),
-            is_renyou: details[5].starts_with("連用"),
+            ctype: CType::from_str(details[4]).unwrap(),
+            cform: CForm::from_str(details[5]).unwrap(),
             chain_rule: match chain_rule {
                 "*" => None,
                 _ => Some(ChainRules::new(chain_rule)),

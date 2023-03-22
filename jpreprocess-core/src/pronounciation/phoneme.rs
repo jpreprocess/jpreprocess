@@ -1,23 +1,23 @@
-use super::MoraEnum;
+use std::fmt::Display;
 
-pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
-    match mora_enum {
-        MoraEnum::Vyo => (Some(Consonant::Vy), Some(Vowel::O)),
-        MoraEnum::Vyu => (Some(Consonant::Vy), Some(Vowel::U)),
-        MoraEnum::Vya => (Some(Consonant::Vy), Some(Vowel::A)),
+use super::{Mora, MoraEnum};
+
+pub(crate) fn mora_to_phoneme(mora: &Mora) -> (Option<Consonant>, Option<Vowel>) {
+    let (consonant, vowel) = match mora.mora_enum {
+        MoraEnum::Vyo => (Some(Consonant::By), Some(Vowel::O)),
+        MoraEnum::Vyu => (Some(Consonant::By), Some(Vowel::U)),
+        MoraEnum::Vya => (Some(Consonant::By), Some(Vowel::A)),
         MoraEnum::Vo => (Some(Consonant::V), Some(Vowel::O)),
         MoraEnum::Ve => (Some(Consonant::V), Some(Vowel::E)),
         MoraEnum::Vi => (Some(Consonant::V), Some(Vowel::I)),
         MoraEnum::Va => (Some(Consonant::V), Some(Vowel::A)),
         MoraEnum::Vu => (Some(Consonant::V), Some(Vowel::U)),
-        MoraEnum::N => (Some(Consonant::N), None),
-        MoraEnum::Wo => (Some(Consonant::W), Some(Vowel::O)),
-        MoraEnum::Who => (Some(Consonant::W), Some(Vowel::O)),
-        MoraEnum::Whe => (Some(Consonant::W), Some(Vowel::E)),
-        MoraEnum::Whi => (Some(Consonant::W), Some(Vowel::I)),
-        MoraEnum::Wa => (Some(Consonant::W), Some(Vowel::A)),
+        MoraEnum::N => (Some(Consonant::Nn), None),
+        MoraEnum::Wo => (None, Some(Vowel::O)),
         MoraEnum::We => (None, Some(Vowel::E)),
         MoraEnum::Wi => (None, Some(Vowel::I)),
+        MoraEnum::Wa => (Some(Consonant::W), Some(Vowel::A)),
+        MoraEnum::Xwa => (Some(Consonant::W), Some(Vowel::A)),
         MoraEnum::Ro => (Some(Consonant::R), Some(Vowel::O)),
         MoraEnum::Re => (Some(Consonant::R), Some(Vowel::E)),
         MoraEnum::Ru => (Some(Consonant::R), Some(Vowel::U)),
@@ -28,8 +28,11 @@ pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
         MoraEnum::Ri => (Some(Consonant::R), Some(Vowel::I)),
         MoraEnum::Ra => (Some(Consonant::R), Some(Vowel::A)),
         MoraEnum::Yo => (Some(Consonant::Y), Some(Vowel::O)),
+        MoraEnum::Xyo => (Some(Consonant::Y), Some(Vowel::O)),
         MoraEnum::Yu => (Some(Consonant::Y), Some(Vowel::U)),
+        MoraEnum::Xyu => (Some(Consonant::Y), Some(Vowel::U)),
         MoraEnum::Ya => (Some(Consonant::Y), Some(Vowel::A)),
+        MoraEnum::Xya => (Some(Consonant::Y), Some(Vowel::A)),
         MoraEnum::Mo => (Some(Consonant::M), Some(Vowel::O)),
         MoraEnum::Me => (Some(Consonant::M), Some(Vowel::E)),
         MoraEnum::Mu => (Some(Consonant::M), Some(Vowel::U)),
@@ -86,12 +89,12 @@ pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
         MoraEnum::Dho => (Some(Consonant::Dy), Some(Vowel::O)),
         MoraEnum::Dhu => (Some(Consonant::Dy), Some(Vowel::U)),
         MoraEnum::Dha => (Some(Consonant::Dy), Some(Vowel::A)),
-        MoraEnum::Dhi => (Some(Consonant::Dy), Some(Vowel::I)),
+        MoraEnum::Dhi => (Some(Consonant::D), Some(Vowel::I)),
         MoraEnum::De => (Some(Consonant::D), Some(Vowel::E)),
         MoraEnum::Tho => (Some(Consonant::Ty), Some(Vowel::O)),
         MoraEnum::Thu => (Some(Consonant::Ty), Some(Vowel::U)),
         MoraEnum::Tha => (Some(Consonant::Ty), Some(Vowel::A)),
-        MoraEnum::Thi => (Some(Consonant::Ty), Some(Vowel::I)),
+        MoraEnum::Thi => (Some(Consonant::T), Some(Vowel::I)),
         MoraEnum::Te => (Some(Consonant::T), Some(Vowel::E)),
         MoraEnum::Du => (Some(Consonant::Z), Some(Vowel::U)),
         MoraEnum::Tso => (Some(Consonant::Ts), Some(Vowel::O)),
@@ -99,7 +102,8 @@ pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
         MoraEnum::Tsi => (Some(Consonant::Ts), Some(Vowel::I)),
         MoraEnum::Tsa => (Some(Consonant::Ts), Some(Vowel::A)),
         MoraEnum::Tsu => (Some(Consonant::Ts), Some(Vowel::U)),
-        MoraEnum::Di => (Some(Consonant::D), Some(Vowel::I)),
+        MoraEnum::Xtsu => (Some(Consonant::Cl), None),
+        MoraEnum::Di => (Some(Consonant::J), Some(Vowel::I)),
         MoraEnum::Cho => (Some(Consonant::Ch), Some(Vowel::O)),
         MoraEnum::Chu => (Some(Consonant::Ch), Some(Vowel::U)),
         MoraEnum::Cha => (Some(Consonant::Ch), Some(Vowel::A)),
@@ -131,7 +135,10 @@ pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
         MoraEnum::Ko => (Some(Consonant::K), Some(Vowel::O)),
         MoraEnum::Ge => (Some(Consonant::G), Some(Vowel::E)),
         MoraEnum::Ke => (Some(Consonant::K), Some(Vowel::E)),
+        MoraEnum::Xke => (Some(Consonant::K), Some(Vowel::E)),
+        MoraEnum::Gwa => (Some(Consonant::Gw), Some(Vowel::A)),
         MoraEnum::Gu => (Some(Consonant::G), Some(Vowel::U)),
+        MoraEnum::Kwa => (Some(Consonant::Kw), Some(Vowel::A)),
         MoraEnum::Ku => (Some(Consonant::K), Some(Vowel::U)),
         MoraEnum::Gyo => (Some(Consonant::Gy), Some(Vowel::O)),
         MoraEnum::Gyu => (Some(Consonant::Gy), Some(Vowel::U)),
@@ -146,17 +153,36 @@ pub fn split_mora(mora_enum: MoraEnum) -> (Option<Consonant>, Option<Vowel>) {
         MoraEnum::Ga => (Some(Consonant::G), Some(Vowel::A)),
         MoraEnum::Ka => (Some(Consonant::K), Some(Vowel::A)),
         MoraEnum::O => (None, Some(Vowel::O)),
+        MoraEnum::Xo => (None, Some(Vowel::O)),
         MoraEnum::E => (None, Some(Vowel::E)),
+        MoraEnum::Xe => (None, Some(Vowel::E)),
+        MoraEnum::Who => (Some(Consonant::W), Some(Vowel::O)),
+        MoraEnum::Whe => (Some(Consonant::W), Some(Vowel::E)),
+        MoraEnum::Whi => (Some(Consonant::W), Some(Vowel::I)),
         MoraEnum::U => (None, Some(Vowel::U)),
+        MoraEnum::Xu => (None, Some(Vowel::U)),
         MoraEnum::Ye => (Some(Consonant::Y), Some(Vowel::E)),
         MoraEnum::I => (None, Some(Vowel::I)),
+        MoraEnum::Xi => (None, Some(Vowel::I)),
         MoraEnum::A => (None, Some(Vowel::A)),
-        _ => (None, None),
-    }
+        MoraEnum::Xa => (None, Some(Vowel::A)),
+
+        MoraEnum::Long => (Some(Consonant::Long), None),
+        MoraEnum::Touten | MoraEnum::Question => (None, None),
+    };
+    (
+        consonant,
+        vowel.map(|vowel| {
+            if mora.is_voiced {
+                vowel
+            } else {
+                vowel.into_unvoiced()
+            }
+        }),
+    )
 }
 
 pub enum Consonant {
-    Vy,
     V,
     W,
     R,
@@ -187,6 +213,63 @@ pub enum Consonant {
     K,
     Gy,
     Ky,
+    Gw,
+    Kw,
+
+    // Consonants without vowel
+    /// ン
+    Nn,
+    /// ッ
+    Cl,
+
+    // Consonant removed from output
+    /// ー
+    Long,
+}
+
+impl Display for Consonant {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Self::V => "v",
+            Self::W => "w",
+            Self::R => "r",
+            Self::Ry => "ry",
+            Self::Y => "y",
+            Self::M => "m",
+            Self::My => "my",
+            Self::P => "p",
+            Self::B => "b",
+            Self::H => "h",
+            Self::F => "f",
+            Self::Py => "py",
+            Self::By => "by",
+            Self::Hy => "hy",
+            Self::N => "n",
+            Self::Ny => "ny",
+            Self::D => "d",
+            Self::T => "t",
+            Self::Dy => "dy",
+            Self::Ty => "ty",
+            Self::Ts => "ts",
+            Self::Ch => "ch",
+            Self::Z => "z",
+            Self::S => "s",
+            Self::J => "j",
+            Self::Sh => "sh",
+            Self::G => "g",
+            Self::K => "k",
+            Self::Gy => "gy",
+            Self::Ky => "ky",
+            Self::Gw => "gw",
+            Self::Kw => "kw",
+
+            Self::Nn => "N",
+            Self::Cl => "cl",
+
+            Self::Long => "-",
+        };
+        write!(f, "{}", s)
+    }
 }
 
 pub enum Vowel {
@@ -195,4 +278,40 @@ pub enum Vowel {
     U,
     E,
     O,
+    AUnvoiced,
+    IUnvoiced,
+    UUnvoiced,
+    EUnvoiced,
+    OUnvoiced,
+}
+
+impl Vowel {
+    pub fn into_unvoiced(self) -> Self {
+        match self {
+            Self::A => Self::AUnvoiced,
+            Self::I => Self::IUnvoiced,
+            Self::U => Self::UUnvoiced,
+            Self::E => Self::EUnvoiced,
+            Self::O => Self::OUnvoiced,
+            rest => rest,
+        }
+    }
+}
+
+impl Display for Vowel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            Self::A => "a",
+            Self::I => "i",
+            Self::U => "u",
+            Self::E => "e",
+            Self::O => "o",
+            Self::AUnvoiced => "A",
+            Self::IUnvoiced => "I",
+            Self::UUnvoiced => "U",
+            Self::EUnvoiced => "E",
+            Self::OUnvoiced => "O",
+        };
+        write!(f, "{}", s)
+    }
 }

@@ -322,8 +322,14 @@ pub enum MoraEnum {
     Long,
 
     // Irregurar Katakana
+    /// グヮ
+    Gwa,
+    /// クヮ
+    Kwa,
     /// ヮ
     Xwa,
+    /// ヶ
+    Xke,
 
     // Special
     /// 、

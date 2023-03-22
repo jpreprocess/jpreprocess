@@ -1,7 +1,7 @@
 pub mod mora;
 mod mora_dict;
 mod mora_enum;
-pub mod split;
+pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
@@ -50,6 +50,9 @@ impl Pronounciation {
     pub fn is_touten(&self) -> bool {
         matches!(self.mora_enums().as_slice(), [MoraEnum::Touten])
     }
+    pub fn starts_with_long(&self) -> bool {
+        matches!(self.mora_enums().as_slice(), [MoraEnum::Long, ..])
+    }
 
     pub fn is_mora_convertable(s: &str) -> bool {
         mora_dict::MORA_STR_LIST.contains(&s)
@@ -65,14 +68,23 @@ impl Pronounciation {
     pub fn mora_enums(&self) -> Vec<MoraEnum> {
         self.0.iter().map(|mora| mora.mora_enum).collect()
     }
+
     pub fn first_mut(&mut self) -> Option<&mut Mora> {
         self.0.first_mut()
     }
+    pub fn last(&self) -> Option<&Mora> {
+        self.0.last()
+    }
+
     pub fn to_string(&self) -> String {
         self.0
             .iter()
             .map(|mora| mora.to_string())
             .fold(String::new(), |a, b| a + &b)
+    }
+
+    pub fn moras(&self) -> &[Mora] {
+        self.0.as_slice()
     }
 }
 

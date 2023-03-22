@@ -6,7 +6,7 @@ use once_cell::sync::Lazy;
 use super::mora_enum::MoraEnum;
 
 pub const MORA_STR_LIST: Lazy<Vec<&str>> = Lazy::new(|| {
-    let mut result = Vec::with_capacity(1 + 158 + 158 + 52);
+    let mut result = Vec::with_capacity(1 + 158 + 158 + 52 + 4);
     result.push("ー");
     result.extend(MORA_KATAKANA.iter().map(|(from, _to)| from));
     result.extend(MORA_HIRAGANA.iter().map(|(from, _to)| from));
@@ -27,7 +27,7 @@ pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {
         1..=158 => vec![MORA_KATAKANA[position - 1].1],
         159..=316 => vec![MORA_HIRAGANA[position - 159].1],
         317..=368 => MORA_ALPHABET[position - 317].1.to_vec(),
-        369..=369 => vec![MORA_IRREGULAR_KATAKANA[position - 369].1],
+        369..=372 => vec![MORA_IRREGULAR_KATAKANA[position - 369].1],
         _ => unreachable!(),
     }
 }
@@ -46,6 +46,47 @@ pub const INTO_STR: Lazy<HashMap<MoraEnum, &'static str>> = Lazy::new(|| {
     map.insert(MoraEnum::Long, "ー");
     map
 });
+
+#[cfg(test)]
+mod tests {
+    use crate::pronounciation::MoraEnum;
+
+    use super::{get_mora_enum, MORA_STR_LIST};
+
+    #[test]
+    fn long() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "ー").unwrap();
+        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::Long]);
+    }
+    #[test]
+    fn katakana() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "ヴョ").unwrap();
+        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::Vyo]);
+    }
+    #[test]
+    fn hiragana() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "ぁ").unwrap();
+        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::Xa]);
+    }
+    #[test]
+    fn alphabet() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "ｘ").unwrap();
+        assert_eq!(
+            get_mora_enum(found).as_slice(),
+            [MoraEnum::E, MoraEnum::Xtsu, MoraEnum::Ku, MoraEnum::Su]
+        );
+    }
+    #[test]
+    fn katakana_irregular1() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "グヮ").unwrap();
+        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::Gwa]);
+    }
+    #[test]
+    fn katakana_irregular2() {
+        let found = MORA_STR_LIST.iter().position(|l| *l == "ヶ").unwrap();
+        assert_eq!(get_mora_enum(found).as_slice(), [MoraEnum::Xke]);
+    }
+}
 
 const MORA_KATAKANA: [(&str, MoraEnum); 158] = [
     ("ヴョ", MoraEnum::Vyo),
@@ -438,4 +479,9 @@ const MORA_ALPHABET: [(&str, &[MoraEnum]); 52] = [
     ("Ａ", &[MoraEnum::E, MoraEnum::Long]),   // エー 2
 ];
 
-const MORA_IRREGULAR_KATAKANA: [(&str, MoraEnum); 1] = [("ヮ", MoraEnum::Xwa)];
+const MORA_IRREGULAR_KATAKANA: [(&str, MoraEnum); 4] = [
+    ("グヮ", MoraEnum::Gwa),
+    ("クヮ", MoraEnum::Kwa),
+    ("ヮ", MoraEnum::Xwa),
+    ("ヶ", MoraEnum::Xke),
+];

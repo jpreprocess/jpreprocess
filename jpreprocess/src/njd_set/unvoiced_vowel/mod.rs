@@ -10,7 +10,7 @@
 */
 
 use jpreprocess_core::pronounciation::{
-    split::{split_mora, Consonant, Vowel},
+    phoneme::{Consonant, Vowel},
     Mora, MoraEnum,
 };
 
@@ -152,51 +152,53 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
         return Some(true);
     };
 
-    let (curr_consonant, curr_vowel) = split_mora(mora_curr.mora_enum);
-    let (next_consonant, _) = split_mora(mora_next.mora_enum);
+    let (curr_consonant, curr_vowel) = mora_curr.phonemes();
+    let (next_consonant, _) = mora_next.phonemes();
 
-    if matches!(curr_vowel, Some(Vowel::I | Vowel::U)) {
-        Some(match (curr_consonant, next_consonant) {
-            (Some(Consonant::S), Some(Consonant::S | Consonant::Sh)) => true,
-            (
-                Some(Consonant::F | Consonant::H),
-                Some(Consonant::F | Consonant::H | Consonant::Hy),
-            ) => true,
-            (
-                Some(
-                    Consonant::K
-                    | Consonant::Ky
-                    | Consonant::S
-                    | Consonant::Sh
-                    | Consonant::T
-                    | Consonant::Ty
-                    | Consonant::Ch
-                    | Consonant::Ts
-                    | Consonant::H
-                    | Consonant::F
-                    | Consonant::Hy
-                    | Consonant::P
-                    | Consonant::Py,
-                ),
-                Some(
-                    Consonant::K
-                    | Consonant::Ky
-                    | Consonant::S
-                    | Consonant::Sh
-                    | Consonant::T
-                    | Consonant::Ty
-                    | Consonant::Ch
-                    | Consonant::Ts
-                    | Consonant::H
-                    | Consonant::F
-                    | Consonant::Hy
-                    | Consonant::P
-                    | Consonant::Py,
-                ),
-            ) => false,
-            _ => true,
-        })
-    } else {
-        None
+    if !matches!(
+        curr_vowel,
+        Some(Vowel::I | Vowel::U | Vowel::IUnvoiced | Vowel::UUnvoiced)
+    ) {
+        return None;
     }
+
+    Some(match (curr_consonant, next_consonant) {
+        (Some(Consonant::S), Some(Consonant::S | Consonant::Sh)) => true,
+        (Some(Consonant::F | Consonant::H), Some(Consonant::F | Consonant::H | Consonant::Hy)) => {
+            true
+        }
+        (
+            Some(
+                Consonant::K
+                | Consonant::Ky
+                | Consonant::S
+                | Consonant::Sh
+                | Consonant::T
+                | Consonant::Ty
+                | Consonant::Ch
+                | Consonant::Ts
+                | Consonant::H
+                | Consonant::F
+                | Consonant::Hy
+                | Consonant::P
+                | Consonant::Py,
+            ),
+            Some(
+                Consonant::K
+                | Consonant::Ky
+                | Consonant::S
+                | Consonant::Sh
+                | Consonant::T
+                | Consonant::Ty
+                | Consonant::Ch
+                | Consonant::Ts
+                | Consonant::H
+                | Consonant::F
+                | Consonant::Hy
+                | Consonant::P
+                | Consonant::Py,
+            ),
+        ) => false,
+        _ => true,
+    })
 }

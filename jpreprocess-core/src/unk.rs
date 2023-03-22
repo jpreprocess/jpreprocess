@@ -1,10 +1,13 @@
 use once_cell::sync::Lazy;
 
-use crate::{node_details::NodeDetails, pos::*, pronounciation::Pronounciation};
+use crate::{
+    cform::CForm, ctype::CType, node_details::NodeDetails, pos::*, pronounciation::Pronounciation,
+};
 
 pub const UNK: Lazy<NodeDetails> = Lazy::new(|| NodeDetails {
     pos: POS::Meishi(Meishi::None),
-    is_renyou: false,
+    ctype: CType::None,
+    cform: CForm::None,
     orig: "*".to_string(),
     read: None,
     pron: Pronounciation::default(),
