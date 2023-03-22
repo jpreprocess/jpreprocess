@@ -26,7 +26,7 @@ impl AccentPhrase {
         self.is_interrogative = true;
     }
 
-    pub fn to_e(&self, is_next_pause: Option<bool>) -> String {
+    pub fn to_e(&self, is_prev_pause: Option<bool>) -> String {
         let mora_count = self.count_mora();
         format!(
             "/E:{}_{}!{}_xx-{}",
@@ -37,7 +37,7 @@ impl AccentPhrase {
                 self.accent
             }),
             if self.is_interrogative { 1 } else { 0 },
-            match is_next_pause {
+            match is_prev_pause {
                 Some(true) => "1",
                 Some(false) => "0",
                 None => "xx",
@@ -68,7 +68,7 @@ impl AccentPhrase {
             Limit::L.ulimit(mora_count_in_breath_group - mora_index_in_breath_group),
         )
     }
-    pub fn to_g(&self, is_prev_pause: Option<bool>) -> String {
+    pub fn to_g(&self, is_next_pause: Option<bool>) -> String {
         let mora_count = self.count_mora();
         format!(
             "/G:{}_{}%{}_xx_{}",
@@ -79,7 +79,7 @@ impl AccentPhrase {
                 self.accent
             }),
             if self.is_interrogative { 1 } else { 0 },
-            match is_prev_pause {
+            match is_next_pause {
                 Some(true) => "1",
                 Some(false) => "0",
                 None => "xx",

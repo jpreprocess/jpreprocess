@@ -98,26 +98,25 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
                 )
             };
 
-            let e = accent_phrase_prev
-                .map(|ap| {
-                    ap.to_e(Some(
-                        breath_group_next.is_some()
-                            && accent_phrase_index_in_breath_group
-                                == accent_phrase_count_in_breath_group - 1,
-                    ))
-                });
+            let e = accent_phrase_prev.map(|ap| {
+                ap.to_e(Some(
+                    breath_group_prev.is_some() && accent_phrase_index_in_breath_group == 0,
+                ))
+            });
             let f = accent_phrase.to_f(
                 accent_phrase_count_in_breath_group,
                 accent_phrase_index_in_breath_group,
                 mora_count_in_breath_group,
                 mora_index_in_breath_group,
             );
-            let g = accent_phrase_next
-                .map(|ap| {
-                    ap.to_g(Some(
-                        breath_group_prev.is_some() && accent_phrase_index_in_breath_group == 0,
-                    ))
-                });
+            dbg!(accent_phrase_index_in_breath_group,accent_phrase_count_in_breath_group);
+            let g = accent_phrase_next.map(|ap| {
+                ap.to_g(Some(
+                    breath_group_next.is_some()
+                        && accent_phrase_index_in_breath_group
+                            == accent_phrase_count_in_breath_group - 1,
+                ))
+            });
 
             let builder_ap = builder_bg.with_efg(e, f, g);
 
@@ -282,7 +281,7 @@ mod tests {
     }
 
     #[test]
-    fn generate_bonsai_sentence() {
+    fn generate_is_this_bonsai() {
         let njd = vec![
             NJDNode::new_single("これ,名詞,代名詞,一般,*,*,*,これ,コレ,コレ,0/2,C3,-1"),
             NJDNode::new_single("は,助詞,係助詞,*,*,*,*,は,ハ,ワ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0,1"),
@@ -322,6 +321,81 @@ mod tests {
             "/A:xx+xx+xx/B:23-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:7_5!1_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_7/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:2+2-10",
         ];
         for i in 0..21 {
+            assert_eq!(v[i].0.as_str(), phonemes[i]);
+            assert_eq!(v[i].1.as_str(), features[i]);
+        }
+    }
+
+    #[test]
+    fn generate_no_its_a_smartphone() {
+        let njd = vec![
+            NJDNode::new_single("なに,名詞,代名詞,一般,*,*,*,なに,ナニ,ナニ,1/2,C3,-1"),
+            NJDNode::new_single("を,助詞,格助詞,一般,*,*,*,を,ヲ,ヲ,0/1,動詞%F5/名詞%F1,1"),
+            NJDNode::new_single("言っ,動詞,自立,*,*,五段・ワ行促音便,連用タ接続,言う,イッ,イッ,0/2,*,0"),
+            NJDNode::new_single("て,助詞,接続助詞,*,*,*,*,て,テ,テ,0/1,動詞%F1/形容詞%F1/名詞%F5,1"),
+            NJDNode::new_single("いる,動詞,非自立,*,*,一段,基本形,いる,イル,イル,0/2,動詞%F4@1,0"),
+            NJDNode::new_single("の,名詞,非自立,一般,*,*,*,の,ノ,ノ,2/1,動詞%F2@0/形容詞%F2@-1,0"),
+            NJDNode::new_single("です,助動詞,*,*,*,特殊・デス,基本形,です,デス,デス’,1/2,名詞%F2@1/動詞%F1/形容詞%F2@0,1"),
+            NJDNode::new_single("か,助詞,副助詞／並立助詞／終助詞,*,*,*,*,か,カ,カ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0,1"),
+            NJDNode::new_single("，,記号,読点,*,*,*,*,，,、,、,0/0,*,0"),
+            NJDNode::new_single("それ,名詞,代名詞,一般,*,*,*,それ,ソレ,ソレ,0/2,C3,0"),
+            NJDNode::new_single("は,助詞,係助詞,*,*,*,*,は,ハ,ワ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0,1"),
+            NJDNode::new_single("スマホ,名詞,一般,*,*,*,*,スマホ,スマホ,スマホ,4/3,*,0"),
+            NJDNode::new_single("です,助動詞,*,*,*,特殊・デス,基本形,です,デス,デス’,1/2,名詞%F2@1/動詞%F1/形容詞%F2@0,1"),
+            NJDNode::new_single("よ,助詞,終助詞,*,*,*,*,よ,ヨ,ヨ,0/1,名詞%F1/動詞%F1/形容詞%F1,1"),
+            NJDNode::new_single("．,記号,句点,*,*,*,*,．,、,、,0/0,*,0"),
+        ];
+        let utterance = Utterance::from(njd.as_slice());
+        let v = utterance_to_phoneme_vec(&utterance);
+        let phonemes = [
+            "sil", "n", "a", "n", "i", "o", "i", "cl", "t", "e", "i", "r", "u", "n", "o", "d", "e",
+            "s", "U", "k", "a", "pau", "s", "o", "r", "e", "w", "a", "s", "u", "m", "a", "h", "o",
+            "d", "e", "s", "U", "y", "o", "sil",
+        ];
+        let features = [
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:04+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:3_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:4_12/K:2+6-21",
+            "/A:0+1+3/B:xx-xx_xx/C:04_xx+xx/D:13+xx_xx/E:xx_xx!xx_xx-xx/F:3_1#0_xx@1_4|1_12/G:3_3%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+1+3/B:xx-xx_xx/C:04_xx+xx/D:13+xx_xx/E:xx_xx!xx_xx-xx/F:3_1#0_xx@1_4|1_12/G:3_3%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:1+2+2/B:xx-xx_xx/C:04_xx+xx/D:13+xx_xx/E:xx_xx!xx_xx-xx/F:3_1#0_xx@1_4|1_12/G:3_3%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:1+2+2/B:xx-xx_xx/C:04_xx+xx/D:13+xx_xx/E:xx_xx!xx_xx-xx/F:3_1#0_xx@1_4|1_12/G:3_3%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:2+3+1/B:04-xx_xx/C:13_xx+xx/D:20+1_1/E:xx_xx!xx_xx-xx/F:3_1#0_xx@1_4|1_12/G:3_3%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:-2+1+3/B:13-xx_xx/C:20_1+1/D:12+xx_xx/E:3_1!0_xx-1/F:3_3#0_xx@2_3|4_9/G:2_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:-1+2+2/B:13-xx_xx/C:20_1+1/D:12+xx_xx/E:3_1!0_xx-1/F:3_3#0_xx@2_3|4_9/G:2_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+3+1/B:20-1_1/C:12_xx+xx/D:17+3_2/E:3_1!0_xx-1/F:3_3#0_xx@2_3|4_9/G:2_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+3+1/B:20-1_1/C:12_xx+xx/D:17+3_2/E:3_1!0_xx-1/F:3_3#0_xx@2_3|4_9/G:2_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:-1+1+2/B:12-xx_xx/C:17_3+2/D:22+xx_xx/E:3_3!0_xx-1/F:2_2#0_xx@3_2|7_6/G:4_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+2+1/B:12-xx_xx/C:17_3+2/D:22+xx_xx/E:3_3!0_xx-1/F:2_2#0_xx@3_2|7_6/G:4_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+2+1/B:12-xx_xx/C:17_3+2/D:22+xx_xx/E:3_3!0_xx-1/F:2_2#0_xx@3_2|7_6/G:4_2%0_xx_1/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:-1+1+4/B:17-3_2/C:22_xx+xx/D:10+7_2/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:-1+1+4/B:17-3_2/C:22_xx+xx/D:10+7_2/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+2+3/B:22-xx_xx/C:10_7+2/D:23+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:0+2+3/B:22-xx_xx/C:10_7+2/D:23+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:1+3+2/B:22-xx_xx/C:10_7+2/D:23+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:1+3+2/B:22-xx_xx/C:10_7+2/D:23+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:2+4+1/B:10-7_2/C:23_xx+xx/D:04+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:2+4+1/B:10-7_2/C:23_xx+xx/D:04+xx_xx/E:2_2!0_xx-1/F:4_2#0_xx@4_1|9_4/G:3_3%0_xx_0/H:xx_xx/I:4-12@1+2&1-6|1+21/J:2_9/K:2+6-21",
+            "/A:xx+xx+xx/B:23-xx_xx/C:xx_xx+xx/D:04+xx_xx/E:4_2!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:3_3%0_xx_xx/H:4_12/I:xx-xx@xx+xx&xx-xx|xx+xx/J:2_9/K:2+6-21",
+            "/A:-2+1+3/B:23-xx_xx/C:04_xx+xx/D:24+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-2+1+3/B:23-xx_xx/C:04_xx+xx/D:24+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-1+2+2/B:23-xx_xx/C:04_xx+xx/D:24+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-1+2+2/B:23-xx_xx/C:04_xx+xx/D:24+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:0+3+1/B:04-xx_xx/C:24_xx+xx/D:02+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:0+3+1/B:04-xx_xx/C:24_xx+xx/D:02+xx_xx/E:4_2!0_xx-0/F:3_3#0_xx@1_2|1_9/G:6_4%0_xx_1/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-3+1+6/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-3+1+6/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-2+2+5/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-2+2+5/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-1+3+4/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:-1+3+4/B:24-xx_xx/C:02_xx+xx/D:10+7_2/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:0+4+3/B:02-xx_xx/C:10_7+2/D:14+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:0+4+3/B:02-xx_xx/C:10_7+2/D:14+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:1+5+2/B:02-xx_xx/C:10_7+2/D:14+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:1+5+2/B:02-xx_xx/C:10_7+2/D:14+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:2+6+1/B:10-7_2/C:14_xx+xx/D:xx+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:2+6+1/B:10-7_2/C:14_xx+xx/D:xx+xx_xx/E:3_3!0_xx-1/F:6_4#0_xx@2_1|4_6/G:xx_xx%xx_xx_xx/H:4_12/I:2-9@2+1&5-2|13+9/J:xx_xx/K:2+6-21",
+            "/A:xx+xx+xx/B:14-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:6_4!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:2_9/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:2+6-21",
+        ];
+        for i in 0..41 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
             assert_eq!(v[i].1.as_str(), features[i]);
         }
