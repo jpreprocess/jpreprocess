@@ -18,7 +18,7 @@ pub fn pos_to_id(pos: &POS) -> Option<u8> {
         // 助詞-係助詞:24
         POS::Joshi(Joshi::KakariJoshi) => Some(24),
         // 助詞-終助詞:14
-        POS::Joshi(Joshi::ShuJoshi) => Some(24),
+        POS::Joshi(Joshi::ShuJoshi) => Some(14),
         // 助詞-接続助詞:12
         POS::Joshi(Joshi::SetsuzokuJoshi) => Some(12),
         // 助詞-副助詞:11

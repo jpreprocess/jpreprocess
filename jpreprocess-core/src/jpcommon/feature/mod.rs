@@ -111,10 +111,6 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
                 mora_count_in_breath_group,
                 mora_index_in_breath_group,
             );
-            dbg!(
-                accent_phrase_index_in_breath_group,
-                accent_phrase_count_in_breath_group
-            );
             let g = accent_phrase_next.map(|ap| {
                 ap.to_g(Some(
                     breath_group_next.is_some()
