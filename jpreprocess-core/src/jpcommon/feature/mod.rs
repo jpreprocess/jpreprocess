@@ -3,6 +3,8 @@ pub mod limit;
 
 use std::rc::Rc;
 
+use crate::pronounciation::phoneme::Consonant;
+
 use super::label::*;
 use builder::*;
 
@@ -109,7 +111,10 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
                 mora_count_in_breath_group,
                 mora_index_in_breath_group,
             );
-            dbg!(accent_phrase_index_in_breath_group,accent_phrase_count_in_breath_group);
+            dbg!(
+                accent_phrase_index_in_breath_group,
+                accent_phrase_count_in_breath_group
+            );
             let g = accent_phrase_next.map(|ap| {
                 ap.to_g(Some(
                     breath_group_next.is_some()
@@ -145,7 +150,15 @@ fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
 
                     let (consonant, vowel) = mora.phonemes();
                     if let Some(consonant) = consonant {
-                        phonemes.push((consonant.to_string(), builder.to_string()));
+                        if matches!(&consonant, Consonant::Long) {
+                            if let Some((last, _)) = phonemes.last() {
+                                phonemes.push((last.to_owned(), builder.to_string()));
+                            } else {
+                                eprintln!("WARN: First mora should not be long vowel symbol.");
+                            }
+                        } else {
+                            phonemes.push((consonant.to_string(), builder.to_string()));
+                        }
                     }
                     if let Some(vowel) = vowel {
                         phonemes.push((vowel.to_string(), builder.to_string()));
@@ -396,6 +409,43 @@ mod tests {
             "/A:xx+xx+xx/B:14-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:6_4!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:2_9/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:2+6-21",
         ];
         for i in 0..41 {
+            assert_eq!(v[i].0.as_str(), phonemes[i]);
+            assert_eq!(v[i].1.as_str(), features[i]);
+        }
+    }
+
+    #[test]
+    fn generate_cpp() {
+        // test long phoneme
+        let njd = vec![NJDNode::new_single(
+            "Ｃ＋＋,名詞,固有名詞,一般,*,*,*,Ｃ＋＋,シープラスプラス,シープラス’プラス,6/8,C1,-1",
+        )];
+        let utterance = Utterance::from(njd.as_slice());
+        let v = utterance_to_phoneme_vec(&utterance);
+        let phonemes = [
+            "sil", "sh", "i", "i", "p", "u", "r", "a", "s", "U", "p", "u", "r", "a", "s", "u",
+            "sil",
+        ];
+        let features = [
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:8_6%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_8/K:1+1-8",
+            "/A:-5+1+8/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-5+1+8/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-4+2+7/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-3+3+6/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-3+3+6/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-2+4+5/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-2+4+5/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-1+5+4/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:-1+5+4/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:0+6+3/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:0+6+3/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:1+7+2/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:1+7+2/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:2+8+1/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:2+8+1/B:xx-xx_xx/C:18_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:8_6#0_xx@1_1|1_8/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-8@1+1&1-1|1+8/J:xx_xx/K:1+1-8",
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:8_6!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_8/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:1+1-8",
+        ];
+        for i in 0..17 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
             assert_eq!(v[i].1.as_str(), features[i]);
         }
