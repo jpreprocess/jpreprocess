@@ -282,6 +282,7 @@ name = "jpreprocess"
 version = "0.1.0"
 dependencies = [
  "aho-corasick",
+ "anyhow",
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "jpreprocess-naist-jdic",
