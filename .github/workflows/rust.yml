@@ -22,14 +22,11 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        gh release download --repo jpreprocess/open_jtalk v0.0.4
-        ls
+        gh release download --repo jpreprocess/open_jtalk v0.0.5
         tar xzvf mecab-naist-jdic.tar.gz
-        ls
-        ls build
         rm mecab-naist-jdic.tar.gz
 
     - name: Build
       run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose -- --ignored
