@@ -25,6 +25,7 @@ jobs:
         gh release download --repo jpreprocess/open_jtalk v0.0.5
         tar xzvf mecab-naist-jdic.tar.gz
         rm mecab-naist-jdic.tar.gz
+        chmod +x openjtalk_bin
 
         gh release download --repo jpreprocess/jpreprocess v0.0.1-rc0
         tar xJvf lindera-naist-jdic.tar.xz
