@@ -2,7 +2,7 @@ name: Rust
 
 on:
   push:
-    branches: [ "main", "integration-test" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -19,6 +19,8 @@ jobs:
 
     - name: setup integration test
       working-directory: crates/jpreprocess/tests
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
         gh release download --repo jpreprocess/open_jtalk 0.0.4
         tar xzvf mecab-naist-jdic.tar.gz mecab-naist-jdic
