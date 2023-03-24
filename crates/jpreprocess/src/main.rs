@@ -4,15 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use jpreprocess_core::NJDNode;
-use jpreprocess_njd::NJD;
-use lindera::{mode::Mode, tokenizer::*};
-
-mod njd_set;
-mod text_normalizer;
-mod window;
-
-mod test;
+use jpreprocess::*;
 
 fn main() {
     let input_text = "リャリョ。クーバネティス";
