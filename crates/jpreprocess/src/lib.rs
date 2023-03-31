@@ -7,6 +7,7 @@ use std::path::PathBuf;
 pub use jpreprocess_core::NJDNode;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 pub use jpreprocess_njd::NJD;
+use lindera::dictionary::DictionaryConfig;
 pub use lindera::{mode::Mode, tokenizer::*};
 
 pub fn preprocess_to_njd_string(

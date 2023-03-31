@@ -5,6 +5,7 @@ use std::{
 };
 
 use jpreprocess::*;
+use lindera::dictionary::DictionaryConfig;
 
 fn main() {
     let input_text = "リャリョ。クーバネティス";
