@@ -9,14 +9,10 @@ use std::{
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
-use encoding_rs::UTF_8;
-use encoding_rs_io::DecodeReaderBytesBuilder;
 use glob::glob;
 use log::debug;
 use yada::{builder::DoubleArrayBuilder, DoubleArray};
 
-#[cfg(feature = "compress")]
-use lindera_compress::compress;
 use lindera_core::{
     character_definition::{CharacterDefinitions, CharacterDefinitionsBuilder},
     dictionary_builder::DictionaryBuilder,
@@ -28,13 +24,11 @@ use lindera_core::{
     word_entry::{WordEntry, WordId},
     LinderaResult,
 };
-use lindera_decompress::Algorithm;
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
 const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
-const COMPRESS_ALGORITHM: Algorithm = Algorithm::Deflate;
 
 pub struct IpadicBuilder {}
 
@@ -114,7 +108,7 @@ impl DictionaryBuilder for IpadicBuilder {
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
         );
 
-        compress_write(&chardef_buffer, COMPRESS_ALGORITHM, &mut wtr_chardef)?;
+        write(&chardef_buffer, &mut wtr_chardef)?;
 
         wtr_chardef
             .flush()
@@ -144,7 +138,7 @@ impl DictionaryBuilder for IpadicBuilder {
             File::create(wtr_unk_path)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
         );
-        compress_write(&unk_buffer, COMPRESS_ALGORITHM, &mut wtr_unk)?;
+        write(&unk_buffer, &mut wtr_unk)?;
         wtr_unk
             .flush()
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
@@ -182,15 +176,10 @@ impl DictionaryBuilder for IpadicBuilder {
         for filename in filenames {
             debug!("reading {:?}", filename);
 
-            let file = File::open(filename)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-            let transcoded = DecodeReaderBytesBuilder::new()
-                .encoding(Some(UTF_8))
-                .build(file);
-
             let mut rdr = csv::ReaderBuilder::new()
                 .has_headers(false)
-                .from_reader(transcoded);
+                .from_path(filename)
+                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
 
             for result in rdr.records() {
                 let record = result
@@ -270,8 +259,8 @@ impl DictionaryBuilder for IpadicBuilder {
                 .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
         }
 
-        compress_write(&words_buffer, COMPRESS_ALGORITHM, &mut wtr_words)?;
-        compress_write(&words_idx_buffer, COMPRESS_ALGORITHM, &mut wtr_words_idx)?;
+        write(&words_buffer, &mut wtr_words)?;
+        write(&words_idx_buffer, &mut wtr_words_idx)?;
 
         wtr_words
             .flush()
@@ -294,7 +283,7 @@ impl DictionaryBuilder for IpadicBuilder {
             LinderaErrorKind::Io.with_error(anyhow::anyhow!("DoubleArray build error."))
         })?;
 
-        compress_write(&da_bytes, COMPRESS_ALGORITHM, &mut wtr_da)?;
+        write(&da_bytes, &mut wtr_da)?;
 
         let mut vals_buffer = Vec::new();
         for word_entries in word_entry_map.values() {
@@ -305,7 +294,7 @@ impl DictionaryBuilder for IpadicBuilder {
             }
         }
 
-        compress_write(&vals_buffer, COMPRESS_ALGORITHM, &mut wtr_vals)?;
+        write(&vals_buffer, &mut wtr_vals)?;
 
         wtr_vals
             .flush()
@@ -356,7 +345,7 @@ impl DictionaryBuilder for IpadicBuilder {
                 .write_i16::<LittleEndian>(cost)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
         }
-        compress_write(&matrix_mtx_buffer, COMPRESS_ALGORITHM, &mut wtr_matrix_mtx)?;
+        write(&matrix_mtx_buffer, &mut wtr_matrix_mtx)?;
 
         wtr_matrix_mtx
             .flush()
@@ -489,26 +478,7 @@ impl DictionaryBuilder for IpadicBuilder {
     }
 }
 
-#[cfg(feature = "compress")]
-fn compress_write<W: Write>(
-    buffer: &[u8],
-    algorithm: Algorithm,
-    writer: &mut W,
-) -> LinderaResult<()> {
-    let compressed = compress(buffer, algorithm)
-        .map_err(|err| LinderaErrorKind::Compress.with_error(anyhow::anyhow!(err)))?;
-    bincode::serialize_into(writer, &compressed)
-        .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-
-    Ok(())
-}
-
-#[cfg(not(feature = "compress"))]
-fn compress_write<W: Write>(
-    buffer: &[u8],
-    _algorithm: Algorithm,
-    writer: &mut W,
-) -> LinderaResult<()> {
+fn write<W: Write>(buffer: &[u8], writer: &mut W) -> LinderaResult<()> {
     writer
         .write_all(buffer)
         .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
