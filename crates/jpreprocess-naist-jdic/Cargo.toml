@@ -15,11 +15,11 @@ bincode = "1.3.3"
 byteorder = "1.4.3"
 once_cell = "1.12.0"
 
-lindera-core = { version = "0.22.0" }
+lindera-core = { version = "0.23.0" }
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 
 [build-dependencies]
-lindera-core = { version = "0.22.0" }
+lindera-core = { version = "0.23.0" }
 jpreprocess-dictionary-builder = { version = "0.1.0", path="../jpreprocess-dictionary-builder" }
-lindera-ipadic-builder = { version = "0.22.0", path="../lindera-ipadic-builder" }
+lindera-ipadic-builder = { version = "0.23.0", path="../lindera-ipadic-builder" }

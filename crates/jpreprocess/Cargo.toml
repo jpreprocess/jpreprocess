@@ -12,7 +12,7 @@ naist-jdic=["jpreprocess-naist-jdic/naist-jdic"]
 
 [dependencies]
 phf = { version = "0.11", features = ["macros"] }
-lindera = { version = "0.22" }
+lindera = { version = "0.23" }
 aho-corasick = "0.7"
 once_cell = "1.17.0"
 anyhow = "1.0.69"
