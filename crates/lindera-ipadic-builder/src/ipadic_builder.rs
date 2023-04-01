@@ -7,6 +7,8 @@ use std::{
     u32,
 };
 
+use rayon::prelude::*;
+
 use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
 use glob::glob;
@@ -188,18 +190,18 @@ impl DictionaryBuilder for IpadicBuilder {
             }
         }
 
-        let mut normalized_rows: Vec<Vec<String>> = Vec::new();
-        for row in rows {
-            let mut normalized_row: Vec<String> = Vec::new();
-            for column in row.iter() {
-                // yeah for EUC_JP and ambiguous unicode 8012 vs 8013
-                // same bullshit as above between for 12316 vs 65374
-                normalized_row.push(column.to_string().replace('―', "—").replace('～', "〜"));
-            }
-            normalized_rows.push(normalized_row);
-        }
+        let mut normalized_rows: Vec<Vec<String>> = rows
+            .into_par_iter()
+            .map(|row| {
+                row.into_iter()
+                    // yeah for EUC_JP and ambiguous unicode 8012 vs 8013
+                    // same bullshit as above between for 12316 vs 65374
+                    .map(|column| column.to_string().replace('―', "—").replace('～', "〜"))
+                    .collect()
+            })
+            .collect();
 
-        normalized_rows.sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
 
         let wtr_da_path = output_dir.join(Path::new("dict.da"));
         let mut wtr_da = io::BufWriter::new(
@@ -243,21 +245,35 @@ impl DictionaryBuilder for IpadicBuilder {
             File::create(wtr_words_idx_path)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
         );
+        let words = normalized_rows
+            .par_iter()
+            .map(|row| {
+                let mut word_detail = Vec::new();
+                for item in row.iter().skip(4) {
+                    word_detail.push(item.to_string());
+                }
+                bincode::serialize(&word_detail)
+                    .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+            })
+            .collect::<Result<Vec<Vec<u8>>, _>>()?;
 
-        let mut words_buffer = Vec::new();
-        let mut words_idx_buffer = Vec::new();
-        for row in normalized_rows.iter() {
-            let mut word_detail = Vec::new();
-            for item in row.iter().skip(4) {
-                word_detail.push(item.to_string());
-            }
-            let offset = words_buffer.len();
+        let words_idx: Vec<usize> = words
+            .iter()
+            .scan(0, |acc, e| {
+                let offset = *acc;
+                *acc += e.len();
+                Some(offset)
+            })
+            .collect();
+
+        let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
+        for word_idx in words_idx {
             words_idx_buffer
-                .write_u32::<LittleEndian>(offset as u32)
+                .write_u32::<LittleEndian>(word_idx as u32)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-            bincode::serialize_into(&mut words_buffer, &word_detail)
-                .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
         }
+
+        let words_buffer = words.concat();
 
         write(&words_buffer, &mut wtr_words)?;
         write(&words_idx_buffer, &mut wtr_words_idx)?;
@@ -308,16 +324,16 @@ impl DictionaryBuilder for IpadicBuilder {
         debug!("reading {:?}", matrix_data_path);
 
         let matrix_data = read_utf8_file(&matrix_data_path)?;
-        let mut lines = Vec::new();
-        for line in matrix_data.lines() {
-            let fields: Vec<i32> = line
-                .split_whitespace()
-                .map(i32::from_str)
-                .collect::<Result<_, _>>()
-                .map_err(|err| LinderaErrorKind::Parse.with_error(anyhow::anyhow!(err)))?;
-            lines.push(fields);
-        }
-        let mut lines_it = lines.into_iter();
+        let mut lines_it = matrix_data
+            .par_lines()
+            .map(|line| {
+                line.split_whitespace()
+                    .map(i32::from_str)
+                    .collect::<Result<Vec<i32>, _>>()
+                    .map_err(|err| LinderaErrorKind::Parse.with_error(anyhow::anyhow!(err)))
+            })
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter();
         let header = lines_it.next().ok_or_else(|| {
             LinderaErrorKind::Content.with_error(anyhow::anyhow!("unknown error"))
         })?;

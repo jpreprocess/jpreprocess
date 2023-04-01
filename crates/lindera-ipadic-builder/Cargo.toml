@@ -26,7 +26,11 @@ glob = "0.3.1"
 log = "0.4.17"
 serde = "1.0.152"
 yada = "0.5.0"
+rayon = "1.7"
+itertools = "0.10.5"
 
 lindera-compress = { version = "0.23.0", optional = true }
 lindera-core = { version = "0.23.0" }
 lindera-decompress = { version = "0.23.0" }
+
+pprof = { version = "0.11", features = ["flamegraph"] }
