@@ -7,6 +7,7 @@ use std::{
     u32,
 };
 
+use jpreprocess_core::node_details::NodeDetails;
 use rayon::prelude::*;
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -234,7 +235,18 @@ impl DictionaryBuilder for IpadicBuilder {
                 });
         }
 
-        write_words(output_dir, normalized_rows)?;
+        write_words(
+            output_dir.join(Path::new("dict.words")).as_path(),
+            output_dir.join(Path::new("dict.wordsidx")).as_path(),
+            &normalized_rows,
+            serialize_lindera_word,
+        )?;
+        write_words(
+            output_dir.join(Path::new("jpreprocess.words")).as_path(),
+            output_dir.join(Path::new("jpreprocess.wordsidx")).as_path(),
+            &normalized_rows,
+            serialize_jpreprocess_word,
+        )?;
 
         let mut id = 0u32;
 
@@ -445,30 +457,27 @@ impl DictionaryBuilder for IpadicBuilder {
     }
 }
 
-fn write_words(
-    output_dir: &Path,
-    normalized_rows: Vec<Vec<String>>,
-) -> Result<(), lindera_core::error::LinderaError> {
-    let wtr_words_path = output_dir.join(Path::new("dict.words"));
+fn write_words<F>(
+    wtr_words_path: &Path,
+    wtr_words_idx_path: &Path,
+    normalized_rows: &Vec<Vec<String>>,
+    f: F,
+) -> Result<(), lindera_core::error::LinderaError>
+where
+    F: Sync + Send + Fn(&Vec<String>) -> Result<Vec<u8>, lindera_core::error::LinderaError>,
+{
     let mut wtr_words = io::BufWriter::new(
         File::create(wtr_words_path)
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
     );
-    let wtr_words_idx_path = output_dir.join(Path::new("dict.wordsidx"));
     let mut wtr_words_idx = io::BufWriter::new(
         File::create(wtr_words_idx_path)
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
     );
+
     let words = normalized_rows
         .par_iter()
-        .map(|row| {
-            let mut word_detail = Vec::new();
-            for item in row.iter().skip(4) {
-                word_detail.push(item.to_string());
-            }
-            bincode::serialize(&word_detail)
-                .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
-        })
+        .map(f)
         .collect::<Result<Vec<Vec<u8>>, _>>()?;
     let words_idx: Vec<usize> = words
         .iter()
@@ -485,6 +494,7 @@ fn write_words(
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
     }
     let words_buffer = words.concat();
+
     write(&words_buffer, &mut wtr_words)?;
     write(&words_idx_buffer, &mut wtr_words_idx)?;
     wtr_words
@@ -494,6 +504,25 @@ fn write_words(
         .flush()
         .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
     Ok(())
+}
+
+fn serialize_lindera_word(row: &Vec<String>) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
+    let mut word_detail = Vec::new();
+    for item in row.iter().skip(4) {
+        word_detail.push(item.to_string());
+    }
+    bincode::serialize(&word_detail)
+        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+}
+
+fn serialize_jpreprocess_word(
+    row: &Vec<String>,
+) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
+    let mut str_details = row.iter().skip(4).map(|d| &d[..]).collect::<Vec<&str>>();
+    str_details.resize(13, "");
+    let word_detail = NodeDetails::load(&str_details[..]);
+    bincode::serialize(&word_detail)
+        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
 }
 
 fn write<W: Write>(buffer: &[u8], writer: &mut W) -> LinderaResult<()> {

@@ -3,7 +3,7 @@ use once_cell::sync::Lazy;
 
 mod rule;
 
-const AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
+static AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
     let from: Vec<&&str> = rule::CONVERSION_TABLE
         .iter()
         .map(|(from, _to)| from)
@@ -11,7 +11,7 @@ const AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
     AhoCorasickBuilder::new().build(from)
 });
 
-const REPLACE_TO: Lazy<Vec<&'static &'static str>> = Lazy::new(|| {
+static REPLACE_TO: Lazy<Vec<&'static &'static str>> = Lazy::new(|| {
     rule::CONVERSION_TABLE
         .iter()
         .map(|(_from, to)| to)

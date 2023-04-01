@@ -21,5 +21,4 @@ jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 
 [build-dependencies]
 lindera-core = { version = "0.23.0" }
-jpreprocess-dictionary-builder = { version = "0.1.0", path="../jpreprocess-dictionary-builder" }
 lindera-ipadic-builder = { version = "0.23.0", path="../lindera-ipadic-builder" }
