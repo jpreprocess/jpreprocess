@@ -1,18 +1,9 @@
 [package]
-name = "lindera-ipadic-builder"
-version = "0.23.0"
+name = "jpreprocess-dictionary-builder"
+version = "0.1.0"
 edition = "2021"
-description = "A Japanese morphological dictionary builder for IPADIC."
-documentation = "https://docs.rs/lindera-ipadic-builder"
-homepage = "https://github.com/lindera-morphology/lindera"
-repository = "https://github.com/lindera-morphology/lindera"
-readme = "README.md"
-keywords = ["japanese", "morphological", "dictionary", "builder", "ipadic"]
-categories = ["text-processing"]
-license = "MIT"
 
-[features]
-compress = ["lindera-compress"]
+license = "BSD-3-Clause"
 
 [dependencies]
 anyhow = "1.0.68"
