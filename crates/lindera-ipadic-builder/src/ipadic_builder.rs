@@ -234,56 +234,7 @@ impl DictionaryBuilder for IpadicBuilder {
                 });
         }
 
-        let wtr_words_path = output_dir.join(Path::new("dict.words"));
-        let mut wtr_words = io::BufWriter::new(
-            File::create(wtr_words_path)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
-        );
-
-        let wtr_words_idx_path = output_dir.join(Path::new("dict.wordsidx"));
-        let mut wtr_words_idx = io::BufWriter::new(
-            File::create(wtr_words_idx_path)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
-        );
-        let words = normalized_rows
-            .par_iter()
-            .map(|row| {
-                let mut word_detail = Vec::new();
-                for item in row.iter().skip(4) {
-                    word_detail.push(item.to_string());
-                }
-                bincode::serialize(&word_detail)
-                    .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
-            })
-            .collect::<Result<Vec<Vec<u8>>, _>>()?;
-
-        let words_idx: Vec<usize> = words
-            .iter()
-            .scan(0, |acc, e| {
-                let offset = *acc;
-                *acc += e.len();
-                Some(offset)
-            })
-            .collect();
-
-        let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
-        for word_idx in words_idx {
-            words_idx_buffer
-                .write_u32::<LittleEndian>(word_idx as u32)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-        }
-
-        let words_buffer = words.concat();
-
-        write(&words_buffer, &mut wtr_words)?;
-        write(&words_idx_buffer, &mut wtr_words_idx)?;
-
-        wtr_words
-            .flush()
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-        wtr_words_idx
-            .flush()
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+        write_words(output_dir, normalized_rows)?;
 
         let mut id = 0u32;
 
@@ -492,6 +443,57 @@ impl DictionaryBuilder for IpadicBuilder {
             words_data,
         })
     }
+}
+
+fn write_words(
+    output_dir: &Path,
+    normalized_rows: Vec<Vec<String>>,
+) -> Result<(), lindera_core::error::LinderaError> {
+    let wtr_words_path = output_dir.join(Path::new("dict.words"));
+    let mut wtr_words = io::BufWriter::new(
+        File::create(wtr_words_path)
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
+    );
+    let wtr_words_idx_path = output_dir.join(Path::new("dict.wordsidx"));
+    let mut wtr_words_idx = io::BufWriter::new(
+        File::create(wtr_words_idx_path)
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
+    );
+    let words = normalized_rows
+        .par_iter()
+        .map(|row| {
+            let mut word_detail = Vec::new();
+            for item in row.iter().skip(4) {
+                word_detail.push(item.to_string());
+            }
+            bincode::serialize(&word_detail)
+                .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+        })
+        .collect::<Result<Vec<Vec<u8>>, _>>()?;
+    let words_idx: Vec<usize> = words
+        .iter()
+        .scan(0, |acc, e| {
+            let offset = *acc;
+            *acc += e.len();
+            Some(offset)
+        })
+        .collect();
+    let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
+    for word_idx in words_idx {
+        words_idx_buffer
+            .write_u32::<LittleEndian>(word_idx as u32)
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+    }
+    let words_buffer = words.concat();
+    write(&words_buffer, &mut wtr_words)?;
+    write(&words_idx_buffer, &mut wtr_words_idx)?;
+    wtr_words
+        .flush()
+        .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+    wtr_words_idx
+        .flush()
+        .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+    Ok(())
 }
 
 fn write<W: Write>(buffer: &[u8], writer: &mut W) -> LinderaResult<()> {
