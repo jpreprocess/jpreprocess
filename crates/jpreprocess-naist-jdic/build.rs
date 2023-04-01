@@ -2,9 +2,8 @@ use std::error::Error;
 
 #[cfg(feature = "naist-jdic")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use jpreprocess_dictionary_builder::JPreproessBuilder;
+    use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
     use lindera_core::dictionary_builder::DictionaryBuilder;
-    use lindera_ipadic_builder::ipadic_builder::IpadicBuilder;
     use std::{env, path::Path};
 
     println!("cargo:rerun-if-changed=build.rs");
@@ -22,8 +21,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Build a dictionary
     let builder = IpadicBuilder::new();
     builder.build_dictionary(&input_dir, &output_dir)?;
-
-    JPreproessBuilder::generate_dictionary(&output_dir)?;
 
     Ok(())
 }

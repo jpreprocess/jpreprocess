@@ -4,7 +4,7 @@ use crate::{
     cform::CForm, ctype::CType, node_details::NodeDetails, pos::*, pronounciation::Pronounciation,
 };
 
-pub const UNK: Lazy<NodeDetails> = Lazy::new(|| NodeDetails {
+pub static UNK: Lazy<NodeDetails> = Lazy::new(|| NodeDetails {
     pos: POS::Meishi(Meishi::None),
     ctype: CType::None,
     cform: CForm::None,

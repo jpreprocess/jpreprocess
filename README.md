@@ -1,51 +1,45 @@
 # jpreprocess
 
-**NOTE:** このプロジェクトは開発中であり、まだほとんどの機能が完成していません。
+**NOTE:** まだ仕様が安定していませんのでご注意ください．
 
-日本語文を解析し、音声合成エンジンに渡せる形式に変換します。
+日本語文を解析し、音声合成エンジンに渡せる形式に変換します．
 
-[OpenJTalk](http://open-jtalk.sourceforge.net/)のNJD部分をRustに移植したものです。
-手作業のため、多数のバグが残っていますので、安定するまでしばらくお待ちください。
+[OpenJTalk](http://open-jtalk.sourceforge.net/)のNJD及びJPCommon部分をRustで書き直したものです．
 
 ## Crates
 
 ### jpreprocess
 
 中核部分です．日本語文を解析し，そのデータを音声合成エンジンに渡せる形に変換します．
-解析結果の単語は，jpreprocess-njdで規定されるデータ構造で保持します．
+解析結果の単語は，jpreprocess-coreで規定されるデータ構造で保持します．
 
-### jpreprocess-njd
+### jpreprocess-core
 
-単語を保持するデータ構造と，それに関連する関数群です．
+発音，単語，品詞，JPCommon等のデータ構造と，それに関連する関数群，エラーを表現する構造を含みます．
+
+### jpreprocess-dictionary
+
+jpreprocess-dictionary-builderで生成される単語辞書をメモリ上に読み込み，単語を検索できるようにします．
 
 ### jpreprocess-dictionary-builder
 
-元となる辞書は文字列で単語の情報をもっているので，事前にパースして直接処理できる辞書(`jpreprocess.words`，`jpreprocess.wordsidx`)を生成します．
-jpreprocess-njdの文字列からデータを生成する関数を使います．
+元となる辞書はcsv形式なので，[Lindera](https://github.com/lindera-morphology/lindera)で高速に解析できるよう事前に辞書を生成します．
+Linderaの[lindera-ipadic-builder](https://crates.io/crates/lindera-ipadic-builder)が元になっていますが，jpreprocess-dictionary-builderはさらに，事前に文字列をパースしJPreprocessで直接処理できる辞書(`jpreprocess.words`，`jpreprocess.wordsidx`)を生成します．
 
 ### jpreprocess-naist-jdic
 
-辞書を生成します．このクレートをビルドすると時間がかかります．
-
-### lindera-ipadic-builder
-
-[lindera-ipadic-builder](https://github.com/lindera-morphology/lindera/tree/main/lindera-ipadic-builder)を一部改変したものです．
-そのため，このクレートだけライセンスがMITになっています．
-
-具体的には，openjtalkに含まれる辞書のエンコーディングがUTF-8なので，受け入れるエンコーディングをEUC-JPからUTF-8に変更しています．
+Open JTalkに同梱されている辞書を用いて，JPreprocess/Lindera用の辞書を生成します．
+このクレートはビルドに時間がかかります．
 
 ## Copyrights
 
-Part of the source code of this project is from [OpenJTalk](http://open-jtalk.sourceforge.net/).
+This software includes source code from:
 
-Copyright (c) 2008-2016  Nagoya Institute of Technology Department of Computer Science
+- [OpenJTalk](http://open-jtalk.sourceforge.net/).
+  Copyright (c) 2008-2016  Nagoya Institute of Technology Department of Computer Science
+- [Lindera](https://github.com/lindera-morphology/lindera).
+  Copyright (c) 2019 by the project authors
 
 ## License
-
-### lindera-ipadic-builder
-
-MIT
-
-### others
 
 BSD-3-Clause
