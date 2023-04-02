@@ -391,16 +391,11 @@ dependencies = [
  "bincode",
  "byteorder",
  "csv",
- "encoding_rs",
- "encoding_rs_io",
  "env_logger",
  "glob",
  "jpreprocess-core",
- "lindera-compress",
  "lindera-core",
- "lindera-decompress",
  "log",
- "once_cell",
  "rayon",
  "serde",
  "yada",
@@ -423,13 +418,9 @@ dependencies = [
 name = "jpreprocess-njd"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "lindera",
- "once_cell",
- "regex",
- "serde",
 ]
 
 [[package]]
@@ -497,17 +488,6 @@ dependencies = [
  "lindera-decompress",
  "log",
  "yada",
-]
-
-[[package]]
-name = "lindera-compress"
-version = "0.23.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed9196bf5995503f6878a090dfee6114ba86430c72f67ef3624246b564869937"
-dependencies = [
- "anyhow",
- "flate2",
- "lindera-decompress",
 ]
 
 [[package]]

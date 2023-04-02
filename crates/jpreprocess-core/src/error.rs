@@ -3,7 +3,6 @@ pub enum JPreprocessErrorKind {
     Io,
     DictionaryIndexOutOfRange,
     DictionaryLoadError,
-    DictionaryBuildError,
     LinderaError,
     PronounciationParseError,
     PartOfSpeechParseError,
