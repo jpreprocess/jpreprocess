@@ -1,7 +1,5 @@
 pub mod data;
 pub use data::*;
-use jpreprocess_core::NJDNode;
-use jpreprocess_njd::NJD;
 
 pub trait IterQuintMutTrait {
     type Item;
@@ -11,20 +9,6 @@ pub trait IterQuintMutTrait {
         start: usize,
         end: usize,
     ) -> IterQuintMut<'a, Self::Item>;
-}
-
-impl IterQuintMutTrait for NJD {
-    type Item = NJDNode;
-    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item> {
-        IterQuintMut::new(&mut self.nodes)
-    }
-    fn iter_quint_mut_range<'a>(
-        &'a mut self,
-        start: usize,
-        end: usize,
-    ) -> IterQuintMut<'a, Self::Item> {
-        IterQuintMut::new(&mut self.nodes[start..end])
-    }
 }
 
 pub struct IterQuintMut<'a, T> {

@@ -10,7 +10,7 @@ use jpreprocess_core::pos::*;
 use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
-use crate::window::*;
+use jpreprocess_window::*;
 
 use self::lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType};
 

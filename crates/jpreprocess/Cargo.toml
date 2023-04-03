@@ -18,6 +18,8 @@ once_cell = "1.17.0"
 anyhow = "1.0.69"
 
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-window = { version = "0.1.0", path="../jpreprocess-window" }
+
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 

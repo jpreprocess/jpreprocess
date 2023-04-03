@@ -1,6 +1,5 @@
 pub mod njd_set;
 pub mod text_normalizer;
-pub mod window;
 
 use std::path::PathBuf;
 

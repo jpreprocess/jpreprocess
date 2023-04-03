@@ -2,6 +2,7 @@ use jpreprocess_core::{
     error::JPreprocessErrorKind, node_details::NodeDetails, unk::UNK, JPreprocessResult, NJDNode,
 };
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
+use jpreprocess_window::{IterQuintMutTrait, IterQuintMut};
 use lindera::Token;
 
 #[derive(Debug)]
@@ -49,5 +50,19 @@ impl NJD {
             nodes.extend(NJDNode::load(&text, details));
         }
         Ok(Self { nodes })
+    }
+}
+
+impl IterQuintMutTrait for NJD {
+    type Item = NJDNode;
+    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item> {
+        IterQuintMut::new(&mut self.nodes)
+    }
+    fn iter_quint_mut_range<'a>(
+        &'a mut self,
+        start: usize,
+        end: usize,
+    ) -> IterQuintMut<'a, Self::Item> {
+        IterQuintMut::new(&mut self.nodes[start..end])
     }
 }

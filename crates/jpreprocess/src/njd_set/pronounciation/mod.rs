@@ -9,7 +9,7 @@ use jpreprocess_core::{
     pronounciation::{MoraEnum, Pronounciation},
 };
 
-use crate::window::*;
+use jpreprocess_window::*;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
