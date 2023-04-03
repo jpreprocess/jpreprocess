@@ -351,6 +351,7 @@ dependencies = [
  "jpreprocess-dictionary",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
+ "jpreprocess-window",
  "lindera",
  "once_cell",
  "phf",
@@ -420,8 +421,13 @@ version = "0.1.0"
 dependencies = [
  "jpreprocess-core",
  "jpreprocess-dictionary",
+ "jpreprocess-window",
  "lindera",
 ]
+
+[[package]]
+name = "jpreprocess-window"
+version = "0.1.0"
 
 [[package]]
 name = "kanaria"

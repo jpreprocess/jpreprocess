@@ -11,4 +11,5 @@ license = "BSD-3-Clause"
 lindera = { version = "0.23" }
 
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-window = { version = "0.1.0", path="../jpreprocess-window" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }

@@ -17,7 +17,7 @@ use jpreprocess_core::pronounciation::{
 use jpreprocess_core::pos::*;
 use jpreprocess_njd::NJD;
 
-use crate::window::{IterQuintMut, QuadForward};
+use jpreprocess_window::{IterQuintMut, QuadForward};
 
 #[derive(Debug)]
 struct MoraState<'a> {

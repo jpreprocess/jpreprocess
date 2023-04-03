@@ -4,7 +4,7 @@ use jpreprocess_core::pos::*;
 use jpreprocess_core::*;
 use jpreprocess_njd::NJD;
 
-use crate::window::*;
+use jpreprocess_window::*;
 
 pub fn njd_set_accent_phrase(njd: &mut NJD) {
     if njd.nodes.len() == 0 {
