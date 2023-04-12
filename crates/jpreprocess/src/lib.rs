@@ -1,9 +1,7 @@
-pub mod njd_set;
 pub mod text_normalizer;
 
 use std::path::PathBuf;
 
-pub use jpreprocess_core::NJDNode;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 pub use jpreprocess_njd::NJD;
 use lindera::dictionary::DictionaryConfig;
@@ -36,7 +34,7 @@ pub fn preprocess_to_njd_string(
 
     let mut njd = NJD::from_tokens_string(tokens);
 
-    njd_set::proprocess_njd(&mut njd);
+    jpreprocess_njd::proprocess_njd(&mut njd);
 
     Ok(njd)
 }

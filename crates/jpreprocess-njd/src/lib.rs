@@ -1,9 +1,15 @@
+mod njd_set;
+mod node;
+
 use jpreprocess_core::{
-    error::JPreprocessErrorKind, node_details::NodeDetails, unk::UNK, JPreprocessResult, NJDNode,
+    error::JPreprocessErrorKind, node_details::NodeDetails, unk::UNK, JPreprocessResult,
 };
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
-use jpreprocess_window::{IterQuintMutTrait, IterQuintMut};
+use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera::Token;
+
+pub use njd_set::proprocess_njd;
+pub use node::*;
 
 #[derive(Debug)]
 pub struct NJD {

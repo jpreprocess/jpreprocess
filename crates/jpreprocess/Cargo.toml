@@ -21,6 +21,8 @@ jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
 jpreprocess-window = { version = "0.1.0", path="../jpreprocess-window" }
 
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
+jpreprocess-jpcommon = { version = "0.1.0", path="../jpreprocess-jpcommon" }
+
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 
 jpreprocess-naist-jdic = { version = "0.1.0", path="../jpreprocess-naist-jdic", optional = true }
