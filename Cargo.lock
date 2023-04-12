@@ -349,12 +349,11 @@ dependencies = [
  "anyhow",
  "jpreprocess-core",
  "jpreprocess-dictionary",
+ "jpreprocess-jpcommon",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
- "jpreprocess-window",
  "lindera",
  "once_cell",
- "phf",
 ]
 
 [[package]]
@@ -403,6 +402,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "jpreprocess-jpcommon"
+version = "0.1.0"
+dependencies = [
+ "jpreprocess-core",
+ "jpreprocess-njd",
+]
+
+[[package]]
 name = "jpreprocess-naist-jdic"
 version = "0.1.0"
 dependencies = [
@@ -419,10 +426,13 @@ dependencies = [
 name = "jpreprocess-njd"
 version = "0.1.0"
 dependencies = [
+ "aho-corasick",
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "jpreprocess-window",
  "lindera",
+ "once_cell",
+ "phf",
 ]
 
 [[package]]

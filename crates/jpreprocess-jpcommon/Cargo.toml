@@ -1,0 +1,12 @@
+[package]
+name = "jpreprocess-jpcommon"
+version = "0.1.0"
+edition = "2021"
+
+license = "BSD-3-Clause"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }

@@ -5,6 +5,7 @@ use std::{
 };
 
 use jpreprocess::*;
+use jpreprocess_njd::NJDNode;
 
 #[test]
 #[ignore]
@@ -52,7 +53,7 @@ fn test_one(input_text: &'static str) {
         assert_eq!(node, &node_ans);
     }
 
-    for (node, ans) in jpreprocess_core::jpcommon::njdnodes_to_features(&njd.nodes)
+    for (node, ans) in jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
         .iter()
         .zip(parsed.jpcommon_features.iter())
     {

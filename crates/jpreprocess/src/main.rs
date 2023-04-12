@@ -5,6 +5,7 @@ use std::{
 };
 
 use jpreprocess::*;
+use jpreprocess_njd::NJDNode;
 use lindera::dictionary::DictionaryConfig;
 
 fn main() {
@@ -46,7 +47,7 @@ fn main() {
     #[cfg(not(feature = "naist-jdic"))]
     let mut njd = NJD::from_tokens_string(tokens);
 
-    njd_set::proprocess_njd(&mut njd);
+    jpreprocess_njd::proprocess_njd(&mut njd);
 
     let mut child = Command::new("tester/open_jtalk")
         .arg("-x")

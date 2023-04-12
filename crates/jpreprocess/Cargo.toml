@@ -11,16 +11,16 @@ license = "BSD-3-Clause"
 naist-jdic=["jpreprocess-naist-jdic/naist-jdic"]
 
 [dependencies]
-phf = { version = "0.11", features = ["macros"] }
 lindera = { version = "0.23" }
 aho-corasick = "0.7"
 once_cell = "1.17.0"
 anyhow = "1.0.69"
 
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
-jpreprocess-window = { version = "0.1.0", path="../jpreprocess-window" }
 
 jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
+jpreprocess-jpcommon = { version = "0.1.0", path="../jpreprocess-jpcommon" }
+
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 
 jpreprocess-naist-jdic = { version = "0.1.0", path="../jpreprocess-naist-jdic", optional = true }

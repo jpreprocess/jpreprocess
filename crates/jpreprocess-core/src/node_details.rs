@@ -8,16 +8,16 @@ use crate::{
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub struct NodeDetails {
-    pub(crate) pos: POS,
-    pub(crate) ctype: CType,
-    pub(crate) cform: CForm,
-    pub(crate) orig: String,
-    pub(crate) read: Option<String>,
-    pub(crate) pron: Pronounciation,
-    pub(crate) acc: i32,
-    pub(crate) mora_size: i32,
-    pub(crate) chain_rule: Option<ChainRules>,
-    pub(crate) chain_flag: Option<bool>,
+    pub pos: POS,
+    pub ctype: CType,
+    pub cform: CForm,
+    pub orig: String,
+    pub read: Option<String>,
+    pub pron: Pronounciation,
+    pub acc: i32,
+    pub mora_size: i32,
+    pub chain_rule: Option<ChainRules>,
+    pub chain_flag: Option<bool>,
 }
 
 impl NodeDetails {
