@@ -32,7 +32,7 @@ pub fn preprocess_to_njd_string(
         .tokenize(normalized_input_text.as_str())
         .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
 
-    let mut njd = NJD::from_tokens_string(tokens);
+    let mut njd = NJD::from_tokens_string(tokens)?;
 
     jpreprocess_njd::proprocess_njd(&mut njd);
 

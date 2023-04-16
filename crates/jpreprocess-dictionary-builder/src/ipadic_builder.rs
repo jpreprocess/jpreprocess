@@ -7,7 +7,6 @@ use std::{
     u32,
 };
 
-use jpreprocess_core::word_details::WordDetails;
 use rayon::prelude::*;
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -518,10 +517,12 @@ fn serialize_lindera_word(row: &Vec<String>) -> Result<Vec<u8>, lindera_core::er
 fn serialize_jpreprocess_word(
     row: &Vec<String>,
 ) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
+    use jpreprocess_core::word_entry::WordEntry;
     let mut str_details = row.iter().skip(4).map(|d| &d[..]).collect::<Vec<&str>>();
     str_details.resize(13, "");
-    let word_detail = WordDetails::load(&str_details[..]);
-    bincode::serialize(&word_detail)
+    let entry = WordEntry::load(&str_details[..])
+        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
+    bincode::serialize(&entry)
         .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
 }
 

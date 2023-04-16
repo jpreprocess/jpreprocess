@@ -45,7 +45,7 @@ fn main() {
     .unwrap();
 
     #[cfg(not(feature = "naist-jdic"))]
-    let mut njd = NJD::from_tokens_string(tokens);
+    let mut njd = NJD::from_tokens_string(tokens).unwrap();
 
     jpreprocess_njd::proprocess_njd(&mut njd);
 

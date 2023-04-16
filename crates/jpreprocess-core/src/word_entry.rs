@@ -1,10 +1,29 @@
-use crate::{word_details::WordDetails, JPreprocessResult};
+use crate::{
+    cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_details::WordDetails,
+    JPreprocessResult,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
 pub enum WordEntry {
     Single(WordDetails),
     Multiple(Vec<(String, WordDetails)>),
+}
+
+impl Default for WordEntry {
+    fn default() -> Self {
+        Self::Single(WordDetails {
+            pos: POS::Meishi(Meishi::None),
+            ctype: CType::None,
+            cform: CForm::None,
+            read: None,
+            pron: Pronounciation::default(),
+            acc: 0,
+            mora_size: 0,
+            chain_rule: None,
+            chain_flag: None,
+        })
+    }
 }
 
 impl WordEntry {
@@ -78,7 +97,9 @@ impl WordEntry {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{pos::*, pronounciation::Pronounciation, word_entry::WordEntry, ctype::CType, cform::CForm};
+    use crate::{
+        cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_entry::WordEntry,
+    };
 
     #[test]
     fn load_single_node() {
