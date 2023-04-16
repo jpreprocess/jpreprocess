@@ -2,7 +2,7 @@ mod njd_set;
 mod node;
 
 use jpreprocess_core::{
-    error::JPreprocessErrorKind, node_details::NodeDetails, unk::UNK, JPreprocessResult,
+    error::JPreprocessErrorKind, word_details::WordDetails, unk::UNK, JPreprocessResult,
 };
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
@@ -29,7 +29,7 @@ impl NJD {
                 vec![UNK.to_owned()]
             } else {
                 details_str.resize(13, "");
-                NodeDetails::load(&details_str)
+                WordDetails::load(&details_str)
             };
             nodes.extend(NJDNode::load(&text, details));
         }

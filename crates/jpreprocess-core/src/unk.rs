@@ -1,10 +1,10 @@
 use once_cell::sync::Lazy;
 
 use crate::{
-    cform::CForm, ctype::CType, node_details::NodeDetails, pos::*, pronounciation::Pronounciation,
+    cform::CForm, ctype::CType, word_details::WordDetails, pos::*, pronounciation::Pronounciation,
 };
 
-pub static UNK: Lazy<NodeDetails> = Lazy::new(|| NodeDetails {
+pub static UNK: Lazy<WordDetails> = Lazy::new(|| WordDetails {
     pos: POS::Meishi(Meishi::None),
     ctype: CType::None,
     cform: CForm::None,
