@@ -61,7 +61,7 @@ pub fn preprocess_to_njd_dictionary(
         jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
     )?;
 
-    njd_set::proprocess_njd(&mut njd);
+    jpreprocess_njd::proprocess_njd(&mut njd);
 
     Ok(njd)
 }
