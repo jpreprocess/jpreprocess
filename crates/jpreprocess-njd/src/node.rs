@@ -1,7 +1,7 @@
 use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::{
-    cform::CForm, ctype::CType, node_details::NodeDetails, pos::*, pronounciation::Pronounciation,
+    cform::CForm, ctype::CType, word_details::WordDetails, pos::*, pronounciation::Pronounciation,
 };
 
 use jpreprocess_core::accent_rule::ChainRules;
@@ -9,7 +9,7 @@ use jpreprocess_core::accent_rule::ChainRules;
 #[derive(Clone, PartialEq)]
 pub struct NJDNode {
     string: String, //*は空文字列として扱う
-    details: NodeDetails,
+    details: WordDetails,
 }
 
 impl Debug for NJDNode {
@@ -58,10 +58,10 @@ impl NJDNode {
         Self::load_str(splited[0], &splited[1..splited.len()])
     }
     pub fn load_str(string: &str, details: &[&str]) -> Vec<Self> {
-        let details_vec = NodeDetails::load(details);
+        let details_vec = WordDetails::load(details);
         Self::load(string, details_vec)
     }
-    pub fn load(string: &str, details_vec: Vec<NodeDetails>) -> Vec<Self> {
+    pub fn load(string: &str, details_vec: Vec<WordDetails>) -> Vec<Self> {
         let details_len = details_vec.len();
         details_vec
             .into_iter()

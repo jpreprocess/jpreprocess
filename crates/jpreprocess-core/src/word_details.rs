@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, PartialEq, Serialize, Deserialize)]
-pub struct NodeDetails {
+pub struct WordDetails {
     pub pos: POS,
     pub ctype: CType,
     pub cform: CForm,
@@ -20,7 +20,7 @@ pub struct NodeDetails {
     pub chain_flag: Option<bool>,
 }
 
-impl NodeDetails {
+impl WordDetails {
     pub fn load(details: &[&str]) -> Vec<Self> {
         let orig = details[6];
         let read = details[7];
