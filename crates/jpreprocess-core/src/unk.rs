@@ -8,7 +8,6 @@ pub static UNK: Lazy<WordDetails> = Lazy::new(|| WordDetails {
     pos: POS::Meishi(Meishi::None),
     ctype: CType::None,
     cform: CForm::None,
-    orig: "*".to_string(),
     read: None,
     pron: Pronounciation::default(),
     acc: 0,
