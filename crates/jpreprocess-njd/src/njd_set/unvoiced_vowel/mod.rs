@@ -9,7 +9,7 @@
          例外：s->s, s->sh, f->f, f->h, f->hy, h->f, h->h, h->hy
 */
 
-use jpreprocess_core::pronounciation::{
+use jpreprocess_core::pronunciation::{
     phoneme::{Consonant, Vowel},
     Mora, MoraEnum,
 };

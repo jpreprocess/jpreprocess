@@ -4,11 +4,11 @@ pub mod accent_phrase;
 pub mod accent_type;
 pub mod digit;
 pub mod long_vowel;
-pub mod pronounciation;
+pub mod pronunciation;
 pub mod unvoiced_vowel;
 
 pub fn proprocess_njd(njd: &mut NJD) {
-    pronounciation::njd_set_pronunciation(njd);
+    pronunciation::njd_set_pronunciation(njd);
     digit::njd_set_digit(njd);
     accent_phrase::njd_set_accent_phrase(njd);
     accent_type::njd_set_accent_type(njd);

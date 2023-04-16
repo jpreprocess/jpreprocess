@@ -6,7 +6,7 @@ mod rule;
 
 use jpreprocess_core::{
     pos::*,
-    pronounciation::{MoraEnum, Pronounciation},
+    pronunciation::{MoraEnum, Pronunciation},
 };
 
 use jpreprocess_window::*;
@@ -15,7 +15,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
         if node.get_mora_size() == 0 {
             let pron =
-                Pronounciation::from_str(node.get_string()).unwrap_or(Pronounciation::default());
+                Pronunciation::from_str(node.get_string()).unwrap_or(Pronunciation::default());
             let mora_size = pron.mora_size();
 
             /* if filler, overwrite pos */
@@ -54,7 +54,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 (head_of_kana_filler_sequence, node)
             };
             if matches!(node.get_pos(), POS::Filler) {
-                if Pronounciation::is_mora_convertable(&node.get_string()) {
+                if Pronunciation::is_mora_convertable(&node.get_string()) {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
                     } else {

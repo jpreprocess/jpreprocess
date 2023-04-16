@@ -3,7 +3,7 @@ pub mod limit;
 
 use std::rc::Rc;
 
-use jpreprocess_core::pronounciation::phoneme::Consonant;
+use jpreprocess_core::pronunciation::phoneme::Consonant;
 
 use super::label::*;
 use builder::*;

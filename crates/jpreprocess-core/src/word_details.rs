@@ -3,7 +3,7 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronounciation::Pronounciation,
+    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
     JPreprocessResult,
 };
 
@@ -13,7 +13,7 @@ pub struct WordDetails {
     pub ctype: CType,
     pub cform: CForm,
     pub read: Option<String>,
-    pub pron: Pronounciation,
+    pub pron: Pronunciation,
     pub acc: i32,
     pub mora_size: i32,
     pub chain_rule: Option<ChainRules>,
@@ -47,7 +47,7 @@ impl WordDetails {
                 "*" => None,
                 _ => Some(read.to_string()),
             },
-            pron: Pronounciation::from_str(pron)?,
+            pron: Pronunciation::from_str(pron)?,
             acc,
             mora_size,
         })
@@ -63,7 +63,7 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        self.pron = Pronounciation::from_str(pron)?;
+        self.pron = Pronunciation::from_str(pron)?;
         let (acc, mora_size) = Self::parse_acc_morasize(acc_morasize);
         self.acc = acc;
         self.mora_size = mora_size;

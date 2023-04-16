@@ -2,7 +2,7 @@ use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_core::{
-    cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_details::WordDetails,
+    cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
 };
 
 use jpreprocess_core::accent_rule::ChainRules;
@@ -154,19 +154,19 @@ impl NJDNode {
     }
 
     pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron = Pronounciation::from_str(pron).unwrap();
+        self.details.pron = Pronunciation::from_str(pron).unwrap();
     }
-    pub fn get_pron(&self) -> &Pronounciation {
+    pub fn get_pron(&self) -> &Pronunciation {
         &self.details.pron
     }
-    pub fn get_pron_mut(&mut self) -> &mut Pronounciation {
+    pub fn get_pron_mut(&mut self) -> &mut Pronunciation {
         &mut self.details.pron
     }
-    pub fn set_pron(&mut self, pron: Pronounciation) {
+    pub fn set_pron(&mut self, pron: Pronunciation) {
         self.details.pron = pron;
     }
     pub fn unset_pron(&mut self) {
-        self.details.pron = Pronounciation::default();
+        self.details.pron = Pronunciation::default();
     }
 }
 

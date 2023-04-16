@@ -16,9 +16,9 @@ pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub struct Pronounciation(Vec<Mora>);
+pub struct Pronunciation(Vec<Mora>);
 
-impl Pronounciation {
+impl Pronunciation {
     pub fn new(moras: Vec<Mora>) -> Self {
         Self(moras)
     }
@@ -88,13 +88,13 @@ impl Pronounciation {
     }
 }
 
-impl Default for Pronounciation {
+impl Default for Pronunciation {
     fn default() -> Self {
         Self(Vec::new())
     }
 }
 
-impl FromStr for Pronounciation {
+impl FromStr for Pronunciation {
     type Err = JPreprocessError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -102,7 +102,7 @@ impl FromStr for Pronounciation {
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
-                return Err(JPreprocessErrorKind::PronounciationParseError.with_error(
+                return Err(JPreprocessErrorKind::PronunciationParseError.with_error(
                     anyhow::anyhow!(format!(
                         "Unrecognized mora {}",
                         &s[current_position..match_result.start()]
@@ -148,11 +148,11 @@ impl FromStr for Pronounciation {
 mod test {
     use std::str::FromStr;
 
-    use super::{Mora, MoraEnum, Pronounciation};
+    use super::{Mora, MoraEnum, Pronunciation};
 
     #[test]
     fn from_str_normal() {
-        let pron = Pronounciation::from_str("オツカレサマデシ’タ").unwrap();
+        let pron = Pronunciation::from_str("オツカレサマデシ’タ").unwrap();
         assert_eq!(
             pron.0,
             vec![
@@ -199,7 +199,7 @@ mod test {
     #[test]
     fn from_str_symbol() {
         assert_eq!(
-            Pronounciation::from_str("；").unwrap().0,
+            Pronunciation::from_str("；").unwrap().0,
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
                 is_voiced: true
