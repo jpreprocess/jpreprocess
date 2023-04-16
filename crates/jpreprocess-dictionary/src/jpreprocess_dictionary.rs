@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::{JPreprocessResult, word_entry::WordEntry};
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 
 use crate::{Dictionary, DictionaryIter, DictionaryTrait};
 
