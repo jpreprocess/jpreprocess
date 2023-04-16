@@ -4,7 +4,7 @@ pub enum JPreprocessErrorKind {
     DictionaryIndexOutOfRange,
     DictionaryLoadError,
     LinderaError,
-    PronounciationParseError,
+    PronunciationParseError,
     PartOfSpeechParseError,
     CTypeParseError,
     CFormParseError,

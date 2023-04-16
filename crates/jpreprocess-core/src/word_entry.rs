@@ -1,5 +1,5 @@
 use crate::{
-    cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_details::WordDetails,
+    cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
     JPreprocessResult,
 };
 use serde::{Deserialize, Serialize};
@@ -17,7 +17,7 @@ impl Default for WordEntry {
             ctype: CType::None,
             cform: CForm::None,
             read: None,
-            pron: Pronounciation::default(),
+            pron: Pronunciation::default(),
             acc: 0,
             mora_size: 0,
             chain_rule: None,
@@ -98,7 +98,7 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_entry::WordEntry,
+        cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_entry::WordEntry,
     };
 
     #[test]
@@ -120,7 +120,7 @@ mod tests {
         assert_eq!(details.ctype, CType::None);
         assert_eq!(details.cform, CForm::None);
         assert_eq!(details.read.as_ref().unwrap(), "テン");
-        assert_eq!(details.pron, Pronounciation::from_str("テン").unwrap());
+        assert_eq!(details.pron, Pronunciation::from_str("テン").unwrap());
         assert_eq!(details.acc, 0);
         assert_eq!(details.mora_size, 2);
         assert_eq!(details.chain_rule.is_none(), true);

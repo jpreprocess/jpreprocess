@@ -49,7 +49,7 @@ pub static INTO_STR: Lazy<HashMap<MoraEnum, &'static str>> = Lazy::new(|| {
 
 #[cfg(test)]
 mod tests {
-    use crate::pronounciation::MoraEnum;
+    use crate::pronunciation::MoraEnum;
 
     use super::{get_mora_enum, MORA_STR_LIST};
 

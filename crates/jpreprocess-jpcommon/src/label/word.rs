@@ -1,4 +1,4 @@
-use jpreprocess_core::pronounciation::Pronounciation;
+use jpreprocess_core::pronunciation::Pronunciation;
 
 use jpreprocess_njd::NJDNode;
 
@@ -8,7 +8,7 @@ pub struct Word {
     pos: Option<u8>,
     ctype: Option<u8>,
     cform: Option<u8>,
-    pub moras: Pronounciation,
+    pub moras: Pronunciation,
 }
 
 impl Word {

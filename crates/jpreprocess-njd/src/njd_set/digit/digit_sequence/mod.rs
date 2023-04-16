@@ -1,5 +1,5 @@
 use crate::{NJDNode, NJD};
-use jpreprocess_core::pronounciation::{MoraEnum, Pronounciation};
+use jpreprocess_core::pronunciation::{MoraEnum, Pronunciation};
 
 mod builder;
 mod score;
@@ -80,18 +80,18 @@ impl DigitSequence {
         {
             match *digit {
                 0 => {
-                    node.set_pron(Pronounciation::new_simple(vec![MoraEnum::Ze, MoraEnum::Ro]));
+                    node.set_pron(Pronunciation::new_simple(vec![MoraEnum::Ze, MoraEnum::Ro]));
                     node.set_mora_size(2);
                 }
                 2 => {
-                    node.set_pron(Pronounciation::new_simple(vec![
+                    node.set_pron(Pronunciation::new_simple(vec![
                         MoraEnum::Ni,
                         MoraEnum::Long,
                     ]));
                     node.set_mora_size(2);
                 }
                 5 => {
-                    node.set_pron(Pronounciation::new_simple(vec![
+                    node.set_pron(Pronunciation::new_simple(vec![
                         MoraEnum::Go,
                         MoraEnum::Long,
                     ]));
