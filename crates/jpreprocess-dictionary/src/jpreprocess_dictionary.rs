@@ -1,12 +1,12 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::{word_details::WordDetails, JPreprocessResult};
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 
 use crate::{Dictionary, DictionaryIter, DictionaryTrait};
 
 pub struct JPreprocessDictionary(Dictionary);
 impl DictionaryTrait for JPreprocessDictionary {
-    type StoredType = Vec<WordDetails>;
+    type StoredType = WordEntry;
 
     fn load(dir: PathBuf) -> JPreprocessResult<Self> {
         let dict = Dictionary::load(

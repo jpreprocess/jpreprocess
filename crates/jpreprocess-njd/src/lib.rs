@@ -1,9 +1,7 @@
 mod njd_set;
 mod node;
 
-use jpreprocess_core::{
-    error::JPreprocessErrorKind, word_details::WordDetails, unk::UNK, JPreprocessResult,
-};
+use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPreprocessResult};
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera::Token;
@@ -20,20 +18,20 @@ impl NJD {
     pub fn remove_silent_node(&mut self) {
         self.nodes.retain(|node| !node.get_pron().is_empty())
     }
-    pub fn from_tokens_string(tokens: Vec<Token>) -> Self {
+    pub fn from_tokens_string(tokens: Vec<Token>) -> JPreprocessResult<Self> {
         let mut nodes = Vec::new();
         for mut token in tokens {
             let text = token.text.to_string();
             let mut details_str = token.get_details().unwrap();
             let details = if details_str.len() == 1 && details_str[0] == "UNK" {
-                vec![UNK.to_owned()]
+                WordEntry::default()
             } else {
                 details_str.resize(13, "");
-                WordDetails::load(&details_str)
+                WordEntry::load(&details_str)?
             };
             nodes.extend(NJDNode::load(&text, details));
         }
-        Self { nodes }
+        Ok(Self { nodes })
     }
     pub fn from_tokens_dict(
         tokens: Vec<Token>,
@@ -51,7 +49,7 @@ impl NJD {
             } else {
                 None
             }
-            .unwrap_or_else(|| vec![UNK.to_owned()]);
+            .unwrap_or_else(|| WordEntry::default());
 
             nodes.extend(NJDNode::load(&text, details));
         }

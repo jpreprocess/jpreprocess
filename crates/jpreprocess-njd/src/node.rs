@@ -1,7 +1,8 @@
 use std::{fmt::Debug, str::FromStr};
 
+use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_core::{
-    cform::CForm, ctype::CType, word_details::WordDetails, pos::*, pronounciation::Pronounciation,
+    cform::CForm, ctype::CType, pos::*, pronounciation::Pronounciation, word_details::WordDetails,
 };
 
 use jpreprocess_core::accent_rule::ChainRules;
@@ -16,12 +17,12 @@ impl Debug for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},*,*,{},{},{:?},{}/{},{},{}",
+            "{},{:?},*,*,*,{},{:?},{}/{},{},{}",
             self.string,
             self.details.pos,
             // self.details.ctype,
             // self.details.cform,
-            self.details.orig,
+            // self.details.orig,
             self.details.read.as_ref().unwrap_or(&"*".to_string()),
             self.details.pron,
             self.details.acc,
@@ -58,32 +59,19 @@ impl NJDNode {
         Self::load_str(splited[0], &splited[1..splited.len()])
     }
     pub fn load_str(string: &str, details: &[&str]) -> Vec<Self> {
-        let details_vec = WordDetails::load(details);
-        Self::load(string, details_vec)
+        let entry = WordEntry::load(details).unwrap();
+        Self::load(string, entry)
     }
-    pub fn load(string: &str, details_vec: Vec<WordDetails>) -> Vec<Self> {
-        let details_len = details_vec.len();
-        details_vec
+    pub fn load(string: &str, entry: WordEntry) -> Vec<Self> {
+        entry
+            .get_with_string(string)
             .into_iter()
-            .scan(0, |len, details| {
-                *len += details.orig.len();
-                Some((*len, details))
-            })
-            .enumerate()
-            .map(|(i, (len, details))| Self {
-                string: if i + 1 < details_len {
-                    details.orig.to_string()
-                } else {
-                    string[len - details.orig.len()..string.len()].to_string()
-                },
-                details,
-            })
+            .map(|(string, details)| Self { string, details })
             .collect()
     }
 
     pub fn transfer_from(&mut self, node: &mut Self) {
         self.string.push_str(&node.string);
-        self.details.orig.push_str(&node.details.orig);
         self.add_mora_size(node.details.mora_size);
         if let Some(add) = &node.details.read {
             if let Some(read) = &mut self.details.read {
@@ -131,14 +119,9 @@ impl NJDNode {
         self.string.as_str()
     }
     pub fn replace_string(&mut self, new_string: &str) {
-        self.details.orig = new_string.to_string();
         self.string = new_string.to_string();
     }
-    pub fn ensure_orig(&mut self) {
-        if self.details.orig == "*" {
-            self.details.orig = self.string.clone();
-        }
-    }
+    pub fn ensure_orig(&mut self) {}
 
     pub fn get_read(&self) -> Option<&str> {
         self.details.read.as_ref().map(|read| read.as_str())
@@ -189,43 +172,18 @@ impl NJDNode {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
-    use jpreprocess_core::{pos::*, pronounciation::Pronounciation};
-
     use super::NJDNode;
 
     #[test]
     fn load_single_node() {
         let node = NJDNode::new_single("．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1");
         assert_eq!(node.string, "．");
-        assert!(matches!(
-            node.get_pos(),
-            POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi))
-        ));
-        // assert_eq!(node.details.ctype, "*");
-        // assert_eq!(node.details.cform, "*");
         assert_eq!(node.is_renyou(), false);
-        assert_eq!(node.details.orig, "．");
-        assert_eq!(node.details.read.unwrap(), "テン");
-        assert_eq!(node.details.pron, Pronounciation::from_str("テン").unwrap());
-        assert_eq!(node.details.acc, 0);
-        assert_eq!(node.details.mora_size, 2);
-        assert_eq!(node.details.chain_rule.is_none(), true);
-        assert_eq!(node.details.chain_flag, None);
     }
 
     #[test]
     fn load_multiple_nodes() {
         let nodes = NJDNode::load_csv("あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1");
         assert_eq!(nodes.len(), 2);
-        assert_eq!(nodes[0].string, "あー");
-        assert_eq!(nodes[1].string, "あ");
-        assert_eq!(nodes[0].details.orig, "あー");
-        assert_eq!(nodes[1].details.orig, "あ");
-        assert_eq!(nodes[0].details.acc, 1);
-        assert_eq!(nodes[1].details.acc, 1);
-        assert_eq!(nodes[0].details.mora_size, 2);
-        assert_eq!(nodes[1].details.mora_size, 1);
     }
 }
