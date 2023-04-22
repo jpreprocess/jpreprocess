@@ -11,7 +11,7 @@ use lindera::dictionary::DictionaryConfig;
 fn main() {
     let input_text = "リャリョ。クーバネティス";
 
-    let normalized_input_text = text_normalizer::normalize(input_text);
+    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
 
     #[cfg(feature = "naist-jdic")]
     let tokenizer = Tokenizer::new(

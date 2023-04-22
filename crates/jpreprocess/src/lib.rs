@@ -1,17 +1,18 @@
-pub mod text_normalizer;
-
 use std::path::PathBuf;
+
+mod normalize_text;
 
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 pub use jpreprocess_njd::NJD;
 use lindera::dictionary::DictionaryConfig;
 pub use lindera::{mode::Mode, tokenizer::*};
+pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub fn preprocess_to_njd_string(
     input_text: &str,
     dictionary_path: PathBuf,
 ) -> JPreprocessResult<NJD> {
-    let normalized_input_text = text_normalizer::normalize(input_text);
+    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
 
     let tokenizer = {
         let dictionary = DictionaryConfig {
