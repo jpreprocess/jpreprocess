@@ -1,14 +1,16 @@
 pub fn normalize_text_for_naist_jdic(input_text: &str) -> String {
-    let yen_space = kana::yen2wide(&kana::space2wide(input_text)).replace("\\", "\u{a5}");
+    let yen_space = kana::yen2wide(&kana::space2wide(input_text).replace("\\", "\u{00A5}"));
     let kana = kana::vsmark2full(&kana::combine(&kana::half2full(&yen_space)))
-        .replace("\u{309b}", "")
+        .replace("\u{309B}", "")
         .replace("\u{309C}", "");
-    let kana_ascii = kana::ascii2wide(&kana::yen2wide(&kana))
-        .replace("－", "−")
-        .replace("\u{FF5E}", "\u{301C}")
-        .replace("｀", "‘")
-        .replace("＂", "”")
-        .replace("＇", "’");
+    let kana_ascii = kana::ascii2wide(
+        &kana
+            .replace("-", "\u{2212}") // − U+2212 MINUS SIGN
+            .replace("~", "\u{301C}") // 〜 U+301C WAVE DASH
+            .replace("`", "\u{2018}") // ‘ U+2018 LEFT SINGLE QUOTATION MARK
+            .replace("\"", "\u{201D}") // ” U+201D RIGHT DOUBLE QUOTATION MARK
+            .replace("'", "\u{2019}"), // ’ U+2019 RIGHT SINGLE QUOTATION MARK
+    );
     kana::space2wide(&kana_ascii)
 }
 
