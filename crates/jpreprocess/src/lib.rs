@@ -45,7 +45,7 @@ pub fn preprocess_to_njd_dictionary(
     input_text: &str,
     dictionary_path: PathBuf,
 ) -> JPreprocessResult<NJD> {
-    let normalized_input_text = text_normalizer::normalize(input_text);
+    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
 
     let tokenizer = Tokenizer::new(
         jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
