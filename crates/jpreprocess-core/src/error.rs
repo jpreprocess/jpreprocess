@@ -8,6 +8,7 @@ pub enum JPreprocessErrorKind {
     PartOfSpeechParseError,
     CTypeParseError,
     CFormParseError,
+    AccentRuleParseError,
 }
 
 impl JPreprocessErrorKind {
