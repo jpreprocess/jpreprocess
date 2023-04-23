@@ -4,31 +4,9 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
+use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
+
 use super::pos::POS;
-
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
-pub enum Group0Contains {
-    Meishi,
-    Keiyoushi,
-    Doushi,
-    Joshi,
-    TokushuJodoushi,
-    None,
-}
-
-impl FromStr for Group0Contains {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "名詞" => Ok(Self::Meishi),
-            "形容詞" => Ok(Self::Keiyoushi),
-            "動詞" => Ok(Self::Doushi),
-            "助詞" => Ok(Self::Joshi),
-            "特殊助動詞" => Ok(Self::TokushuJodoushi),
-            _ => Err(()),
-        }
-    }
-}
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new("^((?P<pos>名詞|形容詞|助詞|特殊助動詞|動詞)%)?(?P<accent>[FC][1-5]|P1|P2|P6|P14)?(@(?P<add>[-0-9]+))?$")
@@ -84,49 +62,98 @@ impl FromStr for AccentType {
 // Accent sandhi rule
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRule {
-    pos: Option<Group0Contains>,
     pub accent_type: AccentType,
     pub add_type: i32,
 }
 
 impl ChainRule {
-    pub fn new(pos: Option<Group0Contains>, accent_type: AccentType, add_type: i32) -> Self {
+    pub fn new(accent_type: AccentType, add_type: i32) -> Self {
         Self {
-            pos,
             accent_type,
             add_type,
         }
     }
 }
 
+#[derive(Debug)]
+pub enum POSMatch {
+    Default,
+    Doushi,
+    Joshi,
+    Keiyoushi,
+    Meishi,
+}
+
+impl FromStr for POSMatch {
+    type Err = JPreprocessError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "動詞" => Ok(Self::Doushi),
+            "助詞" => Ok(Self::Joshi),
+            "形容詞" => Ok(Self::Keiyoushi),
+            "名詞" => Ok(Self::Meishi),
+            _ => Err(JPreprocessErrorKind::AccentRuleParseError
+                .with_error(anyhow::anyhow!("Parse failed in POSMatch"))),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRules {
-    rules: Vec<ChainRule>,
+    default: Option<ChainRule>,
+    doushi: Option<ChainRule>,
+    joshi: Option<ChainRule>,
+    keiyoushi: Option<ChainRule>,
+    meishi: Option<ChainRule>,
+}
+
+impl Default for ChainRules {
+    fn default() -> Self {
+        Self {
+            default: None,
+            doushi: None,
+            joshi: None,
+            keiyoushi: None,
+            meishi: None,
+        }
+    }
 }
 
 impl ChainRules {
     pub fn new(rules: &str) -> Self {
-        Self {
-            rules: rules
-                .split("/")
-                .filter_map(|rule| {
-                    let result = Self::parse_rule(rule);
-                    if result.is_none() {
-                        eprintln!("WARN: accent rule parsing has failed in {}. Skipped.", rule);
-                    }
-                    result
-                })
-                .collect(),
+        let mut result = Self::default();
+        for rule in rules.split("/") {
+            if result.push_rule(rule).is_err() {
+                eprintln!("WARN: accent rule parsing has failed in {}. Skipped.", rule);
+            }
         }
+        result
     }
 
-    fn parse_rule(rule: &str) -> Option<ChainRule> {
-        let capture = PARSE_REGEX.captures(rule)?;
+    fn push_rule(&mut self, rule_str: &str) -> JPreprocessResult<()> {
+        let (pos, rule) = Self::parse_rule(rule_str)?;
+        match pos {
+            POSMatch::Doushi => self.doushi.replace(rule),
+            POSMatch::Joshi => self.joshi.replace(rule),
+            POSMatch::Keiyoushi => self.keiyoushi.replace(rule),
+            POSMatch::Meishi => self.meishi.replace(rule),
+            POSMatch::Default => self.default.replace(rule),
+        };
+        Ok(())
+    }
 
-        let pos = if let Some(matched) = capture.name("pos") {
-            Group0Contains::from_str(matched.as_str()).ok()
-        } else {
-            None
+    fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
+        let capture = PARSE_REGEX.captures(rule).ok_or(
+            JPreprocessErrorKind::AccentRuleParseError
+                .with_error(anyhow::anyhow!("accent rule does not match regex")),
+        )?;
+
+        let pos = {
+            if let Some(pos) = capture.name("pos") {
+                POSMatch::from_str(pos.as_str())?
+            } else {
+                POSMatch::Default
+            }
         };
 
         let accent_type = if let Some(matched) = capture.name("accent") {
@@ -141,66 +168,79 @@ impl ChainRules {
             .and_then(|matched| matched.as_str().parse().ok())
             .unwrap_or(0);
 
-        Some(ChainRule::new(pos, accent_type, add_type))
+        Ok((pos, ChainRule::new(accent_type, add_type)))
     }
 
     pub fn get_rule(&self, pos: &POS) -> Option<&ChainRule> {
-        self.rules.iter().find(|rule| {
-            rule.pos
-                .as_ref()
-                .map_or(true, |search_pos| match search_pos {
-                    Group0Contains::Doushi => matches!(pos, POS::Doushi(_)),
-                    Group0Contains::Joshi => matches!(pos, POS::Joshi(_)),
-                    Group0Contains::Keiyoushi => matches!(pos, POS::Keiyoushi(_)),
-                    Group0Contains::Meishi => matches!(pos, POS::Meishi(_)),
-                    _ => false,
-                })
-        })
+        let rule = match pos {
+            POS::Doushi(_) => self.doushi.as_ref(),
+            POS::Joshi(_) => self.joshi.as_ref(),
+            POS::Keiyoushi(_) => self.keiyoushi.as_ref(),
+            POS::Meishi(_) => self.meishi.as_ref(),
+            _ => None,
+        };
+        rule.or_else(|| self.default.as_ref())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::accent_rule::AccentType;
+    use crate::{accent_rule::AccentType, pos::*};
 
-    use super::{ChainRules, Group0Contains};
+    use super::ChainRules;
 
     #[test]
     fn load_simple_rule() {
-        let rule = &ChainRules::new("C3").rules[0];
-        assert_eq!(rule.pos, None);
+        let rules = ChainRules::new("C3");
+        let rule = rules.get_rule(&POS::Others).unwrap();
         assert_eq!(rule.accent_type, AccentType::C3);
         assert_eq!(rule.add_type, 0);
     }
 
     #[test]
     fn load_single_complex_rule() {
-        let rule = &ChainRules::new("形容詞%F2@-1").rules[0];
-        assert_eq!(rule.pos, Some(Group0Contains::Keiyoushi));
+        let rules = ChainRules::new("形容詞%F2@-1");
+        let rule = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule.accent_type, AccentType::F2);
         assert_eq!(rule.add_type, -1);
     }
 
     #[test]
     fn load_multiple_complex_rule() {
-        let rules = &ChainRules::new("形容詞%F2@0/動詞%F5");
-        let rule1 = &rules.rules[0];
-        assert_eq!(rule1.pos, Some(Group0Contains::Keiyoushi));
+        let rules = ChainRules::new("形容詞%F2@0/動詞%F5");
+        let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule1.accent_type, AccentType::F2);
         assert_eq!(rule1.add_type, 0);
-        let rule2 = &rules.rules[1];
-        assert_eq!(rule2.pos, Some(Group0Contains::Doushi));
+        let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
         assert_eq!(rule2.accent_type, AccentType::F5);
         assert_eq!(rule2.add_type, 0);
     }
 
     #[test]
     fn reject_invalid_pos() {
-        assert_eq!(ChainRules::parse_rule("特殊助詞%F2@0"), None);
+        assert_eq!(ChainRules::parse_rule("特殊助詞%F2@0").is_err(), true);
     }
 
     #[test]
     fn add_type_only() {
         ChainRules::new("-1");
+    }
+
+    #[test]
+    fn default_rule_1() {
+        let rules = ChainRules::new("形容詞%F2/F5");
+        let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
+        assert_eq!(rule1.accent_type, AccentType::F2);
+        let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
+        assert_eq!(rule2.accent_type, AccentType::F5);
+    }
+
+    #[test]
+    fn default_rule_2() {
+        let rules = ChainRules::new("F5/形容詞%F2");
+        let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
+        assert_eq!(rule1.accent_type, AccentType::F2);
+        let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
+        assert_eq!(rule2.accent_type, AccentType::F5);
     }
 }
