@@ -225,4 +225,22 @@ mod tests {
     fn add_type_only() {
         ChainRules::new("-1");
     }
+
+    #[test]
+    fn default_rule_1() {
+        let rules = ChainRules::new("形容詞%F2/F5");
+        let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
+        assert_eq!(rule1.accent_type, AccentType::F2);
+        let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
+        assert_eq!(rule2.accent_type, AccentType::F5);
+    }
+
+    #[test]
+    fn default_rule_2() {
+        let rules = ChainRules::new("F5/形容詞%F2");
+        let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
+        assert_eq!(rule1.accent_type, AccentType::F2);
+        let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
+        assert_eq!(rule2.accent_type, AccentType::F5);
+    }
 }
