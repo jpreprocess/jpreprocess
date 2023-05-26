@@ -6,6 +6,15 @@
 
 [OpenJTalk](http://open-jtalk.sourceforge.net/)のNJD及びJPCommon部分をRustで書き直したものです．
 
+## 目標・方針
+
+- OpenJTalkの構造をそのまま移すのではなく，できるだけ読みやすく，書きやすい構造に
+- 独自の辞書形式により辞書ファイルのサイズを削減しつつ，従来の「すべての情報を文字列で持つ」辞書も使える
+  - どちらもMecab辞書自体とは互換性がありませんが，Mecab辞書用のCSVファイルを使って辞書を生成できます．
+- 一部のバグと思われる機能を除き，OpenJTalkと同じ出力が得られる
+  - たとえば「特殊助動詞」や紛らわしい2,2,3桁区切りの数字の読み方は，OpenJTalkと異なります
+- HTS Engineは実装しない
+
 ## Crates
 
 ### jpreprocess
