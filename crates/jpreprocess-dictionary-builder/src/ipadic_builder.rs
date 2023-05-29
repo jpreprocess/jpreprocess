@@ -22,9 +22,8 @@ use lindera_core::{
     file_util::read_utf8_file,
     prefix_dict::PrefixDict,
     unknown_dictionary::parse_unk,
-    user_dictionary::UserDictionary,
     word_entry::{WordEntry, WordId},
-    LinderaResult,
+    LinderaResult, dictionary::UserDictionary,
 };
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;

@@ -6,7 +6,9 @@ use std::{
 
 use jpreprocess::*;
 use jpreprocess_njd::NJDNode;
-use lindera::dictionary::DictionaryConfig;
+use lindera_core::mode::Mode;
+use lindera_dictionary::DictionaryConfig;
+use lindera_tokenizer::tokenizer::{TokenizerConfig, Tokenizer};
 
 fn main() {
     let input_text = "リャリョ。クーバネティス";
