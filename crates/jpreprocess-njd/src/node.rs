@@ -6,7 +6,7 @@ use jpreprocess_core::{
     cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
 };
 
-use jpreprocess_core::accent_rule::ChainRules;
+use jpreprocess_core::accent_rule::ChainRule;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct NJDNode {
@@ -14,7 +14,7 @@ pub struct NJDNode {
     details: WordDetails,
 }
 
-impl Display for NJDNode{
+impl Display for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -92,8 +92,11 @@ impl NJDNode {
         self.details.chain_flag = Some(chain_flag);
     }
 
-    pub fn get_chain_rule(&self) -> Option<&ChainRules> {
-        self.details.chain_rule.as_ref()
+    pub fn get_chain_rule(&self, pos: &POS) -> Option<&ChainRule> {
+        self.details
+            .chain_rule
+            .as_ref()
+            .and_then(|chain_rule| chain_rule.get_rule(pos))
     }
     pub fn unset_chain_rule(&mut self) {
         self.details.chain_rule = None;
