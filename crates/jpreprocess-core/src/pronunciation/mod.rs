@@ -4,12 +4,12 @@ mod mora_enum;
 pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use crate::{error::JPreprocessErrorKind, pronunciation::mora_dict::INTO_STR, JPreprocessError};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -141,6 +141,19 @@ impl FromStr for Pronunciation {
             }
         }
         Ok(result)
+    }
+}
+
+impl Display for Pronunciation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0.iter().fold(String::new(), |acc, mora| {
+            format!(
+                "{}{}{}",
+                acc,
+                INTO_STR.get(&mora.mora_enum).expect("Unknown Mora. Check INTO_STR implementation."),
+                if mora.is_voiced { "'" } else { "" }
+            )
+        }))
     }
 }
 

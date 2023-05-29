@@ -7,7 +7,7 @@ use crate::{
     JPreprocessResult,
 };
 
-#[derive(Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct WordDetails {
     pub pos: POS,
     pub ctype: CType,

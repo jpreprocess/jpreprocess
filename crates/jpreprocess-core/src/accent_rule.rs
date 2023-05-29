@@ -1,4 +1,7 @@
-use std::{fmt::Debug, str::FromStr};
+use std::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -59,6 +62,28 @@ impl FromStr for AccentType {
     }
 }
 
+impl Display for AccentType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
+            Self::F1 => "F1",
+            Self::F2 => "F2",
+            Self::F3 => "F3",
+            Self::F4 => "F4",
+            Self::F5 => "F5",
+            Self::C1 => "C1",
+            Self::C2 => "C2",
+            Self::C3 => "C3",
+            Self::C4 => "C4",
+            Self::C5 => "C5",
+            Self::P1 => "P1",
+            Self::P2 => "P2",
+            Self::P6 => "P6",
+            Self::P14 => "P14",
+            Self::None => "*",
+        })
+    }
+}
+
 // Accent sandhi rule
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRule {
@@ -71,6 +96,16 @@ impl ChainRule {
         Self {
             accent_type,
             add_type,
+        }
+    }
+}
+
+impl Display for ChainRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.add_type == 0 {
+            write!(f, "{}", self.accent_type)
+        } else {
+            write!(f, "{}@{}", self.accent_type, self.add_type)
         }
     }
 }
@@ -180,6 +215,30 @@ impl ChainRules {
             _ => None,
         };
         rule.or_else(|| self.default.as_ref())
+    }
+}
+
+impl Display for ChainRules {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            &[
+                ("", &self.default),
+                ("動詞", &self.doushi),
+                ("助詞", &self.joshi),
+                ("形容詞", &self.keiyoushi),
+                ("名詞", &self.meishi),
+            ]
+            .iter()
+            .filter(|(_name, chainrule_option)| chainrule_option.is_some())
+            .fold(String::new(), |acc, (pos, chainrule_option)| {
+                let chainrule = chainrule_option.as_ref().unwrap();
+                if pos.is_empty() {
+                    format!("{}{}", acc, chainrule)
+                } else {
+                    format!("{}{}%{}", acc, pos, chainrule)
+                }
+            }),
+        )
     }
 }
 

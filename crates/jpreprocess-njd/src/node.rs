@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::word_entry::WordEntry;
@@ -7,21 +8,21 @@ use jpreprocess_core::{
 
 use jpreprocess_core::accent_rule::ChainRules;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct NJDNode {
     string: String, //*は空文字列として扱う
     details: WordDetails,
 }
 
-impl Debug for NJDNode {
+impl Display for NJDNode{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},*,*,*,{},{:?},{}/{},{},{}",
+            "{},{:?},{:?},{:?},*,{},{},{}/{},{},{}",
             self.string,
             self.details.pos,
-            // self.details.ctype,
-            // self.details.cform,
+            self.details.ctype,
+            self.details.cform,
             // self.details.orig,
             self.details.read.as_ref().unwrap_or(&"*".to_string()),
             self.details.pron,
@@ -30,7 +31,7 @@ impl Debug for NJDNode {
             self.details
                 .chain_rule
                 .as_ref()
-                .map(|r| format!("{:?}", r))
+                .map(|r| format!("{}", r))
                 .unwrap_or("*".to_string()),
             match self.details.chain_flag {
                 Some(true) => 1,
