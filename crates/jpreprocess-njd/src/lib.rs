@@ -4,7 +4,7 @@ mod node;
 use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPreprocessResult};
 use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
-use lindera::Token;
+use lindera_tokenizer::token::Token;
 
 pub use njd_set::proprocess_njd;
 pub use node::*;

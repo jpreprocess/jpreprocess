@@ -17,6 +17,6 @@ serde = "1.0.152"
 yada = "0.5.0"
 rayon = "1.7"
 
-lindera-core = { version = "0.23.0" }
+lindera-core = { version = "0.25.0" }
 
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
