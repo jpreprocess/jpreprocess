@@ -4,12 +4,12 @@ mod mora_enum;
 pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use crate::{error::JPreprocessErrorKind, pronunciation::mora_dict::INTO_STR, JPreprocessError};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -76,7 +76,7 @@ impl Pronunciation {
         self.0.last()
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_pure_string(&self) -> String {
         self.0
             .iter()
             .map(|mora| mora.to_string())
@@ -144,6 +144,21 @@ impl FromStr for Pronunciation {
     }
 }
 
+impl Display for Pronunciation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0.iter().fold(String::new(), |acc, mora| {
+            format!(
+                "{}{}{}",
+                acc,
+                INTO_STR
+                    .get(&mora.mora_enum)
+                    .expect("Unknown Mora. Check INTO_STR implementation."),
+                if mora.is_voiced { "" } else { QUOTATION }
+            )
+        }))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use std::str::FromStr;
@@ -205,5 +220,15 @@ mod test {
                 is_voiced: true
             }]
         )
+    }
+
+    #[test]
+    fn to_string() {
+        assert_eq!(
+            Pronunciation::from_str("オツカレサマデシ’タ")
+                .unwrap()
+                .to_string(),
+            "オツカレサマデシ’タ"
+        );
     }
 }

@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::word_entry::WordEntry;
@@ -5,33 +6,31 @@ use jpreprocess_core::{
     cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
 };
 
-use jpreprocess_core::accent_rule::ChainRules;
+use jpreprocess_core::accent_rule::ChainRule;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct NJDNode {
     string: String, //*は空文字列として扱う
     details: WordDetails,
 }
 
-impl Debug for NJDNode {
+impl Display for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},*,*,*,{},{:?},{}/{},{},{}",
+            "{},{},{},{},{},{},{},{}/{},{},{}",
             self.string,
             self.details.pos,
-            // self.details.ctype,
-            // self.details.cform,
-            // self.details.orig,
+            self.details.ctype,
+            self.details.cform,
+            // Ideally, this should be `self.details.orig`, but jpreprocess njdnode does not have orig
+            // and in most cases, orig is the same as string.
+            self.string,
             self.details.read.as_ref().unwrap_or(&"*".to_string()),
             self.details.pron,
             self.details.acc,
             self.details.mora_size,
-            self.details
-                .chain_rule
-                .as_ref()
-                .map(|r| format!("{:?}", r))
-                .unwrap_or("*".to_string()),
+            self.details.chain_rule,
             match self.details.chain_flag {
                 Some(true) => 1,
                 Some(false) => 0,
@@ -91,11 +90,11 @@ impl NJDNode {
         self.details.chain_flag = Some(chain_flag);
     }
 
-    pub fn get_chain_rule(&self) -> Option<&ChainRules> {
-        self.details.chain_rule.as_ref()
+    pub fn get_chain_rule(&self, pos: &POS) -> Option<&ChainRule> {
+        self.details.chain_rule.get_rule(pos)
     }
     pub fn unset_chain_rule(&mut self) {
-        self.details.chain_rule = None;
+        self.details.chain_rule.unset();
     }
 
     pub fn get_pos(&self) -> &POS {
@@ -175,15 +174,29 @@ mod tests {
     use super::NJDNode;
 
     #[test]
-    fn load_single_node() {
+    fn single_node() {
         let node = NJDNode::new_single("．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1");
         assert_eq!(node.string, "．");
         assert_eq!(node.is_renyou(), false);
+
+        assert_eq!(
+            node.to_string(),
+            "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1"
+        )
     }
 
     #[test]
-    fn load_multiple_nodes() {
+    fn multiple_nodes() {
         let nodes = NJDNode::load_csv("あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1");
         assert_eq!(nodes.len(), 2);
+
+        assert_eq!(
+            nodes[0].to_string(),
+            "あー,感動詞,*,*,*,*,*,あー,アー,アー,1/2,C1,-1"
+        );
+        assert_eq!(
+            nodes[1].to_string(),
+            "あ,感動詞,*,*,*,*,*,あ,ア,ア,1/1,C1,0"
+        );
     }
 }

@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -69,5 +69,24 @@ impl FromStr for KakuJoshi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in KakuJoshi"))),
         }
+    }
+}
+
+impl Display for Joshi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
+            Self::KakuJoshi(KakuJoshi::General) => "格助詞,一般,*",
+            Self::KakuJoshi(KakuJoshi::Quote) => "格助詞,引用,*",
+            Self::KakuJoshi(KakuJoshi::Rengo) => "格助詞,連語,*",
+            Self::KakariJoshi => "係助詞,*,*",
+            Self::ShuJoshi => "終助詞,*,*",
+            Self::SetsuzokuJoshi => "接続助詞,*,*",
+            Self::Special => "特殊,*,*",
+            Self::Fukushika => "副詞化,*,*",
+            Self::FukuJoshi => "副助詞,*,*",
+            Self::FukuHeiritsuShuJoshi => "副助詞／並立助詞／終助詞,*,*",
+            Self::HeiritsuJoshi => "並立助詞,*,*",
+            Self::Rentaika => "連体化,*,*",
+        })
     }
 }

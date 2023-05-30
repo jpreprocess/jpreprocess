@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use crate::{error::JPreprocessErrorKind, JPreprocessError};
 
@@ -60,5 +60,27 @@ impl FromStr for CType {
             _ => Err(JPreprocessErrorKind::CTypeParseError
                 .with_error(anyhow::anyhow!("Parse failed in CType major"))),
         }
+    }
+}
+
+impl Display for CType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // Current implementation loses the latter half of CType
+        f.write_str(match &self {
+            Self::KaIrregular => "カ変",
+            Self::SaIrregular => "サ変",
+            Self::RaIrregular => "ラ変",
+            Self::One => "一段",
+            Self::LowerTwo => "下二",
+            Self::Keiyoushi => "形容詞",
+            Self::Five => "五段",
+            Self::Four => "四段",
+            Self::UpperTwo => "上二",
+            Self::Special => "特殊",
+            Self::NoConjugation => "不変化型",
+            Self::Old => "文語",
+
+            Self::None => "*",
+        })
     }
 }

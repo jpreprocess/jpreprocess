@@ -1,4 +1,7 @@
-use std::{fmt::Debug, str::FromStr};
+use std::{
+    fmt::{Debug, Display},
+    str::FromStr,
+};
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -59,6 +62,28 @@ impl FromStr for AccentType {
     }
 }
 
+impl Display for AccentType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
+            Self::F1 => "F1",
+            Self::F2 => "F2",
+            Self::F3 => "F3",
+            Self::F4 => "F4",
+            Self::F5 => "F5",
+            Self::C1 => "C1",
+            Self::C2 => "C2",
+            Self::C3 => "C3",
+            Self::C4 => "C4",
+            Self::C5 => "C5",
+            Self::P1 => "P1",
+            Self::P2 => "P2",
+            Self::P6 => "P6",
+            Self::P14 => "P14",
+            Self::None => "*",
+        })
+    }
+}
+
 // Accent sandhi rule
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRule {
@@ -71,6 +96,16 @@ impl ChainRule {
         Self {
             accent_type,
             add_type,
+        }
+    }
+}
+
+impl Display for ChainRule {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.add_type == 0 {
+            write!(f, "{}", self.accent_type)
+        } else {
+            write!(f, "{}@{}", self.accent_type, self.add_type)
         }
     }
 }
@@ -122,6 +157,10 @@ impl Default for ChainRules {
 impl ChainRules {
     pub fn new(rules: &str) -> Self {
         let mut result = Self::default();
+        if rules == "*" {
+            return result;
+        }
+
         for rule in rules.split("/") {
             if result.push_rule(rule).is_err() {
                 eprintln!("WARN: accent rule parsing has failed in {}. Skipped.", rule);
@@ -181,6 +220,42 @@ impl ChainRules {
         };
         rule.or_else(|| self.default.as_ref())
     }
+
+    pub fn unset(&mut self) {
+        self.default = None;
+        self.doushi = None;
+        self.joshi = None;
+        self.keiyoushi = None;
+        self.meishi = None;
+    }
+}
+
+impl Display for ChainRules {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let text = &[
+            ("", &self.default),
+            ("動詞", &self.doushi),
+            ("助詞", &self.joshi),
+            ("形容詞", &self.keiyoushi),
+            ("名詞", &self.meishi),
+        ]
+        .iter()
+        .filter(|(_name, chainrule_option)| chainrule_option.is_some())
+        .fold(String::new(), |acc, (pos, chainrule_option)| {
+            let chainrule = chainrule_option.as_ref().unwrap();
+            let delim = if acc.is_empty() { "" } else { "/" };
+            if pos.is_empty() {
+                format!("{}{}{}", acc, delim, chainrule)
+            } else {
+                format!("{}{}{}%{}", acc, delim, pos, chainrule)
+            }
+        });
+        if text.is_empty() {
+            f.write_str("*")
+        } else {
+            f.write_str(&text)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -190,23 +265,27 @@ mod tests {
     use super::ChainRules;
 
     #[test]
-    fn load_simple_rule() {
+    fn simple_rule() {
         let rules = ChainRules::new("C3");
         let rule = rules.get_rule(&POS::Others).unwrap();
         assert_eq!(rule.accent_type, AccentType::C3);
         assert_eq!(rule.add_type, 0);
+
+        assert_eq!(rules.to_string(), "C3");
     }
 
     #[test]
-    fn load_single_complex_rule() {
+    fn single_complex_rule() {
         let rules = ChainRules::new("形容詞%F2@-1");
         let rule = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule.accent_type, AccentType::F2);
         assert_eq!(rule.add_type, -1);
+
+        assert_eq!(rules.to_string(), "形容詞%F2@-1");
     }
 
     #[test]
-    fn load_multiple_complex_rule() {
+    fn multiple_complex_rule() {
         let rules = ChainRules::new("形容詞%F2@0/動詞%F5");
         let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule1.accent_type, AccentType::F2);
@@ -214,6 +293,8 @@ mod tests {
         let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
         assert_eq!(rule2.accent_type, AccentType::F5);
         assert_eq!(rule2.add_type, 0);
+
+        assert_eq!(rules.to_string(), "動詞%F5/形容詞%F2");
     }
 
     #[test]
@@ -233,6 +314,8 @@ mod tests {
         assert_eq!(rule1.accent_type, AccentType::F2);
         let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
         assert_eq!(rule2.accent_type, AccentType::F5);
+
+        assert_eq!(rules.to_string(), "F5/形容詞%F2");
     }
 
     #[test]
@@ -242,5 +325,19 @@ mod tests {
         assert_eq!(rule1.accent_type, AccentType::F2);
         let rule2 = rules.get_rule(&POS::Doushi(Doushi::Jiritsu)).unwrap();
         assert_eq!(rule2.accent_type, AccentType::F5);
+
+        assert_eq!(rules.to_string(), "F5/形容詞%F2");
+    }
+
+    #[test]
+    fn empty() {
+        let rules = ChainRules::new("*");
+        assert_eq!(rules.default, None);
+        assert_eq!(rules.doushi, None);
+        assert_eq!(rules.joshi, None);
+        assert_eq!(rules.keiyoushi, None);
+        assert_eq!(rules.meishi, None);
+
+        assert_eq!(rules.to_string(), "*");
     }
 }
