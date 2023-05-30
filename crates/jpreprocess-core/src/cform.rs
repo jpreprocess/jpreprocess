@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use crate::{error::JPreprocessErrorKind, JPreprocessError};
 
@@ -116,5 +116,41 @@ impl FromStr for CForm {
             _ => Err(JPreprocessErrorKind::CFormParseError
                 .with_error(anyhow::anyhow!("Parse failed in CForm"))),
         }
+    }
+}
+
+impl Display for CForm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
+            Self::ConjunctionGaru => "ガル接続",
+            Self::BasicEuphony => "音便基本形",
+            Self::Conditional => "仮定形",
+            Self::ConditionalContraction1 => "仮定縮約１",
+            Self::ConditionalContraction2 => "仮定縮約２",
+            Self::Basic => "基本形",
+            Self::BasicDoubledConsonant => "基本形-促音便",
+            Self::BasicModern => "現代基本形",
+            Self::TaigenConjunction => "体言接続",
+            Self::TaigenConjunctionSpecial => "体言接続特殊",
+            Self::TaigenConjunctionSpecial2 => "体言接続特殊２",
+            Self::BasicOld => "文語基本形",
+            Self::MizenConjunctionU => "未然ウ接続",
+            Self::MizenConjunctionNu => "未然ヌ接続",
+            Self::MizenConjunctionReru => "未然レル接続",
+            Self::Mizen => "未然形",
+            Self::MizenSpecial => "未然特殊",
+            Self::ImperativeE => "命令ｅ",
+            Self::ImperativeI => "命令ｉ",
+            Self::ImperativeRo => "命令ｒｏ",
+            Self::ImperativeYo => "命令ｙｏ",
+            Self::RenyouConjunctionGozai => "連用ゴザイ接続",
+            Self::RenyouConjunctionTa => "連用タ接続",
+            Self::RenyouConjunctionTe => "連用テ接続",
+            Self::RenyouConjunctionDe => "連用デ接続",
+            Self::RenyouConjunctionNi => "連用ニ接続",
+            Self::Renyou => "連用形",
+
+            Self::None => "*",
+        })
     }
 }
