@@ -265,7 +265,7 @@ mod tests {
     use super::ChainRules;
 
     #[test]
-    fn load_simple_rule() {
+    fn simple_rule() {
         let rules = ChainRules::new("C3");
         let rule = rules.get_rule(&POS::Others).unwrap();
         assert_eq!(rule.accent_type, AccentType::C3);
@@ -275,7 +275,7 @@ mod tests {
     }
 
     #[test]
-    fn load_single_complex_rule() {
+    fn single_complex_rule() {
         let rules = ChainRules::new("形容詞%F2@-1");
         let rule = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule.accent_type, AccentType::F2);
@@ -285,7 +285,7 @@ mod tests {
     }
 
     #[test]
-    fn load_multiple_complex_rule() {
+    fn multiple_complex_rule() {
         let rules = ChainRules::new("形容詞%F2@0/動詞%F5");
         let rule1 = rules.get_rule(&POS::Keiyoushi(Keiyoushi::Jiritsu)).unwrap();
         assert_eq!(rule1.accent_type, AccentType::F2);
