@@ -174,15 +174,29 @@ mod tests {
     use super::NJDNode;
 
     #[test]
-    fn load_single_node() {
+    fn single_node() {
         let node = NJDNode::new_single("．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1");
         assert_eq!(node.string, "．");
         assert_eq!(node.is_renyou(), false);
+
+        assert_eq!(
+            node.to_string(),
+            "．,Meishi(Setsubi(Josuushi)),None,None,．,テン,テン,0/2,*,-1"
+        )
     }
 
     #[test]
-    fn load_multiple_nodes() {
+    fn multiple_nodes() {
         let nodes = NJDNode::load_csv("あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1");
         assert_eq!(nodes.len(), 2);
+
+        assert_eq!(
+            nodes[0].to_string(),
+            "あー,Kandoushi,None,None,あー,アー,アー,1/2,C1,-1"
+        );
+        assert_eq!(
+            nodes[1].to_string(),
+            "あ,Kandoushi,None,None,あ,ア,ア,1/1,C1,0"
+        );
     }
 }
