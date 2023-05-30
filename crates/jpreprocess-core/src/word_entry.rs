@@ -1,6 +1,6 @@
 use crate::{
     cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
-    JPreprocessResult,
+    JPreprocessResult, accent_rule::ChainRules,
 };
 use serde::{Deserialize, Serialize};
 
@@ -20,7 +20,7 @@ impl Default for WordEntry {
             pron: Pronunciation::default(),
             acc: 0,
             mora_size: 0,
-            chain_rule: None,
+            chain_rule: ChainRules::default(),
             chain_flag: None,
         })
     }
@@ -123,7 +123,7 @@ mod tests {
         assert_eq!(details.pron, Pronunciation::from_str("テン").unwrap());
         assert_eq!(details.acc, 0);
         assert_eq!(details.mora_size, 2);
-        assert_eq!(details.chain_rule.is_none(), true);
+        assert_eq!(details.chain_rule.get_rule(&POS::Filler), None);
         assert_eq!(details.chain_flag, None);
     }
 

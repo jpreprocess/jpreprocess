@@ -28,11 +28,7 @@ impl Display for NJDNode {
             self.details.pron,
             self.details.acc,
             self.details.mora_size,
-            self.details
-                .chain_rule
-                .as_ref()
-                .map(|r| format!("{}", r))
-                .unwrap_or("*".to_string()),
+            self.details.chain_rule,
             match self.details.chain_flag {
                 Some(true) => 1,
                 Some(false) => 0,
@@ -93,13 +89,10 @@ impl NJDNode {
     }
 
     pub fn get_chain_rule(&self, pos: &POS) -> Option<&ChainRule> {
-        self.details
-            .chain_rule
-            .as_ref()
-            .and_then(|chain_rule| chain_rule.get_rule(pos))
+        self.details.chain_rule.get_rule(pos)
     }
     pub fn unset_chain_rule(&mut self) {
-        self.details.chain_rule = None;
+        self.details.chain_rule.unset();
     }
 
     pub fn get_pos(&self) -> &POS {

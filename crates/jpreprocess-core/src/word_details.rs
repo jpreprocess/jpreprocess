@@ -16,7 +16,7 @@ pub struct WordDetails {
     pub pron: Pronunciation,
     pub acc: i32,
     pub mora_size: i32,
-    pub chain_rule: Option<ChainRules>,
+    pub chain_rule: ChainRules,
     pub chain_flag: Option<bool>,
 }
 
@@ -34,10 +34,7 @@ impl WordDetails {
             pos: POS::from_strs(details[0], details[1], details[2], details[3])?,
             ctype: CType::from_str(details[4])?,
             cform: CForm::from_str(details[5])?,
-            chain_rule: match chain_rule {
-                "*" => None,
-                _ => Some(ChainRules::new(chain_rule)),
-            },
+            chain_rule: ChainRules::new(chain_rule),
             chain_flag: match details[11] {
                 "1" => Some(true),
                 "0" => Some(false),
