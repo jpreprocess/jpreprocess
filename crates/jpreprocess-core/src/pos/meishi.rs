@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -65,6 +65,29 @@ impl Meishi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Meishi"))),
         }
+    }
+}
+
+impl Display for Meishi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&match &self {
+            Self::SahenSetsuzoku => "サ変接続,*,*".to_string(),
+            Self::NaiKeiyoushiGokan => "ナイ形容詞語幹,*,*".to_string(),
+            Self::General => "一般,*,*".to_string(),
+            Self::QuoteStr => "引用文字列,*,*".to_string(),
+            Self::KeiyoudoushiGokan => "形容動詞語幹,*,*".to_string(),
+            Self::KoyuMeishi(koyumeishi) => format!("固有名詞,{}", koyumeishi),
+            Self::Kazu => "数,*,*".to_string(),
+            Self::Setsuzokushiteki => "接続詞的,*,*".to_string(),
+            Self::Setsubi(setsubi) => format!("接尾,{}", setsubi),
+            Self::Daimeishi(daimeishi) => format!("代名詞,{}", daimeishi),
+            Self::DoushiHijiritsuteki => "動詞非自立的,*,*".to_string(),
+            Self::Special => "特殊,*,*".to_string(),
+            Self::Hijiritsu(meishi_hijiritsu) => format!("非自立,{}", meishi_hijiritsu),
+            Self::FukushiKanou => "副詞可能,*,*".to_string(),
+
+            Self::None => "*".to_string(),
+        })
     }
 }
 
@@ -139,6 +162,20 @@ impl FromStr for Region {
     }
 }
 
+impl Display for KoyuMeishi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match &self {
+            Self::General => "一般,*",
+            Self::Person(Person::General) => "人名,一般",
+            Self::Person(Person::Sei) => "人名,姓",
+            Self::Person(Person::Mei) => "人名,名",
+            Self::Organization => "組織,*",
+            Self::Region(Region::General) => "地域,一般",
+            Self::Region(Region::Country) => "地域,国",
+        })
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Setsubi {
     /// サ変接続
@@ -181,6 +218,26 @@ impl FromStr for Setsubi {
     }
 }
 
+impl Display for Setsubi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*",
+            match &self {
+                Self::SahenSetsuzoku => "サ変接続",
+                Self::General => "一般",
+                Self::KeiyoudoushiGokan => "形容動詞語幹",
+                Self::Josuushi => "助数詞",
+                Self::JodoushiGokan => "助動詞語幹",
+                Self::Person => "人名",
+                Self::Region => "地域",
+                Self::Special => "特殊",
+                Self::FukushiKanou => "副詞可能",
+            },
+        )
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Daimeishi {
     /// 一般
@@ -199,6 +256,19 @@ impl FromStr for Daimeishi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Daimeishi"))),
         }
+    }
+}
+
+impl Display for Daimeishi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*",
+            match &self {
+                Self::General => "一般",
+                Self::Contraction => "縮約",
+            },
+        )
     }
 }
 
@@ -229,5 +299,21 @@ impl FromStr for MeishiHijiritsu {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in MeishiHijiritsu"))),
         }
+    }
+}
+
+impl Display for MeishiHijiritsu {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*",
+            match &self {
+                Self::General => "一般",
+                Self::KeiyoudoushiGokan => "形容動詞語幹",
+                Self::JodoushiGokan => "助動詞語幹",
+                Self::FukushiKanou => "副詞可能",
+                Self::None => "*",
+            },
+        )
     }
 }

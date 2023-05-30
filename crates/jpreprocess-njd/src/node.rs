@@ -18,7 +18,7 @@ impl Display for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{:?},{:?},{:?},{},{},{},{}/{},{},{}",
+            "{},{},{:?},{:?},{},{},{},{}/{},{},{}",
             self.string,
             self.details.pos,
             self.details.ctype,
@@ -181,7 +181,7 @@ mod tests {
 
         assert_eq!(
             node.to_string(),
-            "．,Meishi(Setsubi(Josuushi)),None,None,．,テン,テン,0/2,*,-1"
+            "．,名詞,接尾,助数詞,*,None,None,．,テン,テン,0/2,*,-1"
         )
     }
 
@@ -192,11 +192,11 @@ mod tests {
 
         assert_eq!(
             nodes[0].to_string(),
-            "あー,Kandoushi,None,None,あー,アー,アー,1/2,C1,-1"
+            "あー,感動詞,*,*,*,None,None,あー,アー,アー,1/2,C1,-1"
         );
         assert_eq!(
             nodes[1].to_string(),
-            "あ,Kandoushi,None,None,あ,ア,ア,1/1,C1,0"
+            "あ,感動詞,*,*,*,None,None,あ,ア,ア,1/1,C1,0"
         );
     }
 }

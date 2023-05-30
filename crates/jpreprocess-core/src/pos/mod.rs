@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 mod joshi;
 mod meishi;
@@ -87,25 +87,54 @@ impl POS {
     }
 }
 
+impl Display for POS {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&match &self {
+            Self::Filler => "フィラー,*,*,*".to_string(),
+            Self::Kandoushi => "感動詞,*,*,*".to_string(),
+            Self::Kigou(kigou) => format!("記号,{}", kigou),
+            Self::Keiyoushi(keiyoushi) => format!("形容詞,{}", keiyoushi),
+            Self::Joshi(joshi) => format!("助詞,{}", joshi),
+            Self::Jodoushi => "助動詞,*,*,*".to_string(),
+            Self::Setsuzokushi => "接続詞,*,*,*".to_string(),
+            Self::Settoushi(settoushi) => format!("接頭詞,{}", settoushi),
+            Self::Doushi(doushi) => format!("動詞,{}", doushi),
+            Self::Fukushi(fukushi) => format!("副詞,{}", fukushi),
+            Self::Meishi(meishi) => format!("名詞,{}", meishi),
+            Self::Rentaishi => "連体詞,*,*,*".to_string(),
+
+            Self::Others => "その他,*,*,*".to_string(),
+
+            Self::Unknown => "*,*,*,*".to_string(),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn from_strs() {
+    fn filler() {
+        let pos = POS::from_strs("フィラー", "*", "*", "*").unwrap();
+        assert!(matches!(pos, POS::Filler));
+        assert_eq!(pos.to_string(), "フィラー,*,*,*")
+    }
+
+    #[test]
+    fn joshi() {
+        let pos = POS::from_strs("助詞", "副助詞／並立助詞／終助詞", "*", "*").unwrap();
+        assert!(matches!(pos, POS::Joshi(Joshi::FukuHeiritsuShuJoshi)));
+        assert_eq!(pos.to_string(), "助詞,副助詞／並立助詞／終助詞,*,*")
+    }
+
+    #[test]
+    fn meishi() {
+        let pos = POS::from_strs("名詞", "固有名詞", "人名", "姓").unwrap();
         assert!(matches!(
-            POS::from_strs("フィラー", "*", "*", "*"),
-            Ok(POS::Filler)
+            pos,
+            POS::Meishi(Meishi::KoyuMeishi(KoyuMeishi::Person(Person::Sei)))
         ));
-        assert!(matches!(
-            POS::from_strs("助詞", "副助詞／並立助詞／終助詞", "*", "*"),
-            Ok(POS::Joshi(Joshi::FukuHeiritsuShuJoshi))
-        ));
-        assert!(matches!(
-            POS::from_strs("名詞", "固有名詞", "人名", "姓"),
-            Ok(POS::Meishi(Meishi::KoyuMeishi(KoyuMeishi::Person(
-                Person::Sei
-            ))))
-        ));
+        assert_eq!(pos.to_string(), "名詞,固有名詞,人名,姓")
     }
 }

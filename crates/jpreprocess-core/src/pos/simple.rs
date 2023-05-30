@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
@@ -45,6 +45,26 @@ impl FromStr for Kigou {
     }
 }
 
+impl Display for Kigou {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*,*",
+            match &self {
+                Self::None => "*",
+                Self::Alphabet => "アルファベット",
+                Self::General => "一般",
+                Self::KakkoOpen => "括弧開",
+                Self::KakkoClose => "括弧閉",
+                Self::Kuten => "句点",
+                Self::Space => "空白",
+                Self::Kazu => "数",
+                Self::Touten => "読点",
+            },
+        )
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Keiyoushi {
     /// 自立
@@ -65,6 +85,20 @@ impl FromStr for Keiyoushi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Keiyoushi"))),
         }
+    }
+}
+
+impl Display for Keiyoushi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*,*",
+            match &self {
+                Self::Jiritsu => "自立",
+                Self::Setsubi => "接尾",
+                Self::Hijiritsu => "非自立",
+            },
+        )
     }
 }
 
@@ -91,6 +125,20 @@ impl FromStr for Doushi {
     }
 }
 
+impl Display for Doushi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*,*",
+            match &self {
+                Self::Jiritsu => "自立",
+                Self::Setsubi => "接尾",
+                Self::Hijiritsu => "非自立",
+            },
+        )
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Fukushi {
     /// *
@@ -111,6 +159,20 @@ impl FromStr for Fukushi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Fukushi"))),
         }
+    }
+}
+
+impl Display for Fukushi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*,*",
+            match &self {
+                Self::None => "*",
+                Self::General => "一般",
+                Self::JoshiruiSetsuzoku => "助詞類接続",
+            },
+        )
     }
 }
 
@@ -137,5 +199,20 @@ impl FromStr for Settoushi {
             _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
                 .with_error(anyhow::anyhow!("Parse failed in Settoushi"))),
         }
+    }
+}
+
+impl Display for Settoushi {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},*,*",
+            match &self {
+                Self::KeiyoushiSetsuzoku => "形容詞接続",
+                Self::SuuSetsuzoku => "数接続",
+                Self::DoushiSetsuzoku => "動詞接続",
+                Self::MeishiSetsuzoku => "名詞接続",
+            },
+        )
     }
 }
