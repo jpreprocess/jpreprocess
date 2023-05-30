@@ -76,7 +76,7 @@ impl Pronunciation {
         self.0.last()
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn to_pure_string(&self) -> String {
         self.0
             .iter()
             .map(|mora| mora.to_string())
@@ -150,8 +150,10 @@ impl Display for Pronunciation {
             format!(
                 "{}{}{}",
                 acc,
-                INTO_STR.get(&mora.mora_enum).expect("Unknown Mora. Check INTO_STR implementation."),
-                if mora.is_voiced { "'" } else { "" }
+                INTO_STR
+                    .get(&mora.mora_enum)
+                    .expect("Unknown Mora. Check INTO_STR implementation."),
+                if mora.is_voiced { "" } else { QUOTATION }
             )
         }))
     }
@@ -218,5 +220,15 @@ mod test {
                 is_voiced: true
             }]
         )
+    }
+
+    #[test]
+    fn to_string() {
+        assert_eq!(
+            Pronunciation::from_str("オツカレサマデシ’タ")
+                .unwrap()
+                .to_string(),
+            "オツカレサマデシ’タ"
+        );
     }
 }

@@ -32,7 +32,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 node.unset_pron();
                 node.unset_read();
             } else {
-                let read_string = pron.to_string();
+                let read_string = pron.to_pure_string();
                 node.set_pron(pron);
                 node.set_read(&read_string);
             }
