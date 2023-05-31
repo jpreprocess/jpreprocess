@@ -42,7 +42,7 @@ fn main() {
     #[cfg(feature = "naist-jdic")]
     let mut njd = NJD::from_tokens_dict(
         tokens,
-        jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
+        &jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
     )
     .unwrap();
 

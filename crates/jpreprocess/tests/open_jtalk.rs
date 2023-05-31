@@ -26,7 +26,16 @@ const TEST_STR: &[&str] = &[
 ];
 
 fn test_one(input_text: &'static str) {
-    let njd = preprocess_to_njd_string(input_text, PathBuf::from("tests/dict")).unwrap();
+    #[cfg(feature = "naist-jdic")]
+    let config = JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    #[cfg(not(feature = "naist-jdic"))]
+    let config = JPreprocessDictionaryConfig::FileLindera(PathBuf::from("tests/dict"));
+
+    let jpreprocess = JPreprocess::new(config).unwrap();
+
+    let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
+
+    njd.proprocess();
 
     let mut child = Command::new("tests/openjtalk_bin")
         .arg("-x")
