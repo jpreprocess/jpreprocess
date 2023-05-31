@@ -1,6 +1,6 @@
 use crate::{
-    cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_details::WordDetails,
-    JPreprocessResult, accent_rule::ChainRules,
+    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation,
+    word_details::WordDetails, JPreprocessResult,
 };
 use serde::{Deserialize, Serialize};
 

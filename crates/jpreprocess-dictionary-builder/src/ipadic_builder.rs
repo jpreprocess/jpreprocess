@@ -17,13 +17,14 @@ use yada::{builder::DoubleArrayBuilder, DoubleArray};
 
 use lindera_core::{
     character_definition::{CharacterDefinitions, CharacterDefinitionsBuilder},
+    dictionary::UserDictionary,
     dictionary_builder::DictionaryBuilder,
     error::LinderaErrorKind,
     file_util::read_utf8_file,
     prefix_dict::PrefixDict,
     unknown_dictionary::parse_unk,
     word_entry::{WordEntry, WordId},
-    LinderaResult, dictionary::UserDictionary,
+    LinderaResult,
 };
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;

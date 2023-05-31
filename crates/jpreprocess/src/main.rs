@@ -8,7 +8,7 @@ use jpreprocess::*;
 use jpreprocess_njd::NJDNode;
 use lindera_core::mode::Mode;
 use lindera_dictionary::DictionaryConfig;
-use lindera_tokenizer::tokenizer::{TokenizerConfig, Tokenizer};
+use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
 
 fn main() {
     let input_text = "リャリョ。クーバネティス";

@@ -6,7 +6,7 @@ use jpreprocess_core::{error::JPreprocessErrorKind, *};
 pub use jpreprocess_njd::NJD;
 use lindera_core::mode::Mode;
 use lindera_dictionary::DictionaryConfig;
-use lindera_tokenizer::tokenizer::{TokenizerConfig, Tokenizer};
+use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub fn preprocess_to_njd_string(
