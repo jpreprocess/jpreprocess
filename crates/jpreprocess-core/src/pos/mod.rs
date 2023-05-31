@@ -1,15 +1,17 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
+mod doushi;
+mod fukushi;
 mod joshi;
+mod keiyoushi;
+mod kigou;
 mod meishi;
-mod simple;
-
-pub use joshi::*;
-pub use meishi::*;
-pub use simple::*;
+mod settoushi;
 
 use crate::{error::JPreprocessErrorKind, JPreprocessResult};
+
+pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 品詞
