@@ -89,18 +89,18 @@ fn parse_openjtalk_output(output: &str) -> OpenJTalkOutput {
 
     enum ParseState {
         None,
-        NJD,
+        Njd,
         JPCommon,
     }
 
     let mut state = ParseState::None;
     for line in output.lines() {
         match line {
-            "[NJD]" => state = ParseState::NJD,
+            "[NJD]" => state = ParseState::Njd,
             "[JPCommon Features]" => state = ParseState::JPCommon,
             _ => match state {
                 ParseState::None => (),
-                ParseState::NJD => result.njd.push(line.to_string()),
+                ParseState::Njd => result.njd.push(line.to_string()),
                 ParseState::JPCommon => result.njd.push(line.to_string()),
             },
         }
