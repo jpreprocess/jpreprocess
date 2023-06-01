@@ -199,4 +199,16 @@ mod tests {
             "あ,感動詞,*,*,*,*,*,あ,ア,ア,1/1,C1,0"
         );
     }
+
+    #[test]
+    fn test_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<NJDNode>();
+    }
+
+    #[test]
+    fn test_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<NJDNode>();
+    }
 }
