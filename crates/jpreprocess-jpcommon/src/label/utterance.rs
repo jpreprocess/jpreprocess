@@ -66,7 +66,6 @@ impl From<&[NJDNode]> for Utterance {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::Utterance;
