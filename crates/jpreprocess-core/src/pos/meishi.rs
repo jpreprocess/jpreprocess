@@ -47,18 +47,14 @@ impl Meishi {
             "一般" => Ok(Self::General),
             "引用文字列" => Ok(Self::QuoteStr),
             "形容動詞語幹" => Ok(Self::KeiyoudoushiGokan),
-            "固有名詞" => {
-                KoyuMeishi::from_strs(g2, g3).map(Self::KoyuMeishi)
-            }
+            "固有名詞" => KoyuMeishi::from_strs(g2, g3).map(Self::KoyuMeishi),
             "数" => Ok(Self::Kazu),
             "接続詞的" => Ok(Self::Setsuzokushiteki),
             "接尾" => Setsubi::from_str(g2).map(Self::Setsubi),
             "代名詞" => Daimeishi::from_str(g2).map(Self::Daimeishi),
             "動詞非自立的" => Ok(Self::DoushiHijiritsuteki),
             "特殊" => Ok(Self::Special),
-            "非自立" => {
-                MeishiHijiritsu::from_str(g2).map(Self::Hijiritsu)
-            }
+            "非自立" => MeishiHijiritsu::from_str(g2).map(Self::Hijiritsu),
             "副詞可能" => Ok(Self::FukushiKanou),
             "*" => Ok(Self::None),
 

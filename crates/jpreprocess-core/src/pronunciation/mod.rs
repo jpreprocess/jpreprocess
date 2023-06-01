@@ -88,8 +88,6 @@ impl Pronunciation {
     }
 }
 
-
-
 impl FromStr for Pronunciation {
     type Err = JPreprocessError;
 
@@ -142,9 +140,12 @@ impl FromStr for Pronunciation {
 
 impl Display for Pronunciation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.0.iter().fold(String::new(), |acc, mora| {
-            format!("{}{}", acc, mora)
-        }))
+        f.write_str(
+            &self
+                .0
+                .iter()
+                .fold(String::new(), |acc, mora| format!("{}{}", acc, mora)),
+        )
     }
 }
 

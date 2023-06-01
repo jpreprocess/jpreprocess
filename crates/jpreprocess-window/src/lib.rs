@@ -4,11 +4,7 @@ pub use data::*;
 pub trait IterQuintMutTrait {
     type Item;
     fn iter_quint_mut(&mut self) -> IterQuintMut<'_, Self::Item>;
-    fn iter_quint_mut_range(
-        &mut self,
-        start: usize,
-        end: usize,
-    ) -> IterQuintMut<'_, Self::Item>;
+    fn iter_quint_mut_range(&mut self, start: usize, end: usize) -> IterQuintMut<'_, Self::Item>;
 }
 
 pub struct IterQuintMut<'a, T> {

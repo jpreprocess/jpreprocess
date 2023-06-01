@@ -142,8 +142,6 @@ pub struct ChainRules {
     meishi: Option<ChainRule>,
 }
 
-
-
 impl ChainRules {
     pub fn new(rules: &str) -> Self {
         let mut result = Self::default();

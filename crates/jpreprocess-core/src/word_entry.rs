@@ -51,10 +51,7 @@ impl WordEntry {
                 details_vec.push(pron);
                 details_vec.push(acc_morasize);
                 details_vec.extend(&details[10..]);
-                (
-                    orig.to_string(),
-                    WordDetails::load(details_vec.as_slice())?,
-                )
+                (orig.to_string(), WordDetails::load(details_vec.as_slice())?)
             };
 
             word_details.push((orig_base, base.clone()));

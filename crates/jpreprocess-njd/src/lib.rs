@@ -49,7 +49,8 @@ impl NJD {
                 dict.get(id)
             } else {
                 None
-            }.unwrap_or_default();
+            }
+            .unwrap_or_default();
 
             nodes.extend(NJDNode::load(&text, details));
         }
@@ -75,11 +76,7 @@ impl IterQuintMutTrait for NJD {
     fn iter_quint_mut(&mut self) -> IterQuintMut<'_, Self::Item> {
         IterQuintMut::new(&mut self.nodes)
     }
-    fn iter_quint_mut_range(
-        &mut self,
-        start: usize,
-        end: usize,
-    ) -> IterQuintMut<'_, Self::Item> {
+    fn iter_quint_mut_range(&mut self, start: usize, end: usize) -> IterQuintMut<'_, Self::Item> {
         IterQuintMut::new(&mut self.nodes[start..end])
     }
 }
