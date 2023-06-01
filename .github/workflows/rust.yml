@@ -18,6 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Cache Cargo dependencies
+      uses: Swatinem/rust-cache@988c164c3d0e93c4dbab36aaf5bbeb77425b2894
+
     - name: setup integration test
       working-directory: crates/jpreprocess/tests
       env:
