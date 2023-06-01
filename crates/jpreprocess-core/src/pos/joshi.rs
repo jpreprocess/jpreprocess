@@ -31,7 +31,7 @@ pub enum Joshi {
 impl Joshi {
     pub fn from_strs(g1: &str, g2: &str) -> JPreprocessResult<Joshi> {
         match g1 {
-            "格助詞" => KakuJoshi::from_str(g2).map(|kakujoshi| Self::KakuJoshi(kakujoshi)),
+            "格助詞" => KakuJoshi::from_str(g2).map(Self::KakuJoshi),
             "係助詞" => Ok(Self::KakariJoshi),
             "終助詞" => Ok(Self::ShuJoshi),
             "接続助詞" => Ok(Self::SetsuzokuJoshi),

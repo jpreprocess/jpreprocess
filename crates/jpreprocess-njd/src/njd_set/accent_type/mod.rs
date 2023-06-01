@@ -4,7 +4,7 @@ use crate::{NJDNode, NJD};
 use jpreprocess_core::accent_rule::AccentType;
 
 pub fn njd_set_accent_type(njd: &mut NJD) {
-    if njd.nodes.len() == 0 {
+    if njd.nodes.is_empty() {
         return;
     }
     let mut top_node_i: Option<usize> = None;

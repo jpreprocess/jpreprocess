@@ -69,7 +69,7 @@ impl WordDetails {
     }
 
     fn parse_acc_morasize(acc_morasize: &str) -> (i32, i32) {
-        match acc_morasize.split_once("/") {
+        match acc_morasize.split_once('/') {
             Some((acc_s, mora_size_s)) => {
                 let acc = acc_s.parse().unwrap_or(0);
                 let mora_size = mora_size_s.parse().unwrap_or(0);

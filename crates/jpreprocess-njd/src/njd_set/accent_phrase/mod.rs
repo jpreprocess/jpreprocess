@@ -6,7 +6,7 @@ use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
 pub fn njd_set_accent_phrase(njd: &mut NJD) {
-    if njd.nodes.len() == 0 {
+    if njd.nodes.is_empty() {
         return;
     }
     let mut iter = njd.iter_quint_mut();
@@ -15,7 +15,7 @@ pub fn njd_set_accent_phrase(njd: &mut NJD) {
             Double::Full(p, c) => (p, c),
             _ => continue,
         };
-        if node.get_chain_flag() == None {
+        if node.get_chain_flag().is_none() {
             let chain: bool = chain_flag(prev, node);
             node.set_chain_flag(chain);
         }

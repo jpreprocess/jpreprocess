@@ -71,7 +71,7 @@ fn main() {
     let output = child.wait_with_output().expect("Failed to read stdout");
     let stdout = String::from_utf8(output.stdout).unwrap();
     // println!("{}", stdout);
-    for (node, ans) in njd.nodes.iter().zip(stdout.split("\n")) {
+    for (node, ans) in njd.nodes.iter().zip(stdout.split('\n')) {
         let node_ans = NJDNode::new_single(ans);
         if node != &node_ans {
             println!("Failed: {:?}--{:?}", node, node_ans);

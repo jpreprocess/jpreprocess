@@ -179,6 +179,6 @@ impl DigitSequence {
             }
         }
 
-        offset as i64 - offset_comma as i64
+        offset as i64 - offset_comma
     }
 }

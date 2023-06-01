@@ -15,7 +15,6 @@ pub fn utterance_to_features(utterance: &Utterance) -> Vec<String> {
 
 fn overwrapping_phonemes(phoneme_vec: Vec<(String, String)>) -> Vec<String> {
     (0..phoneme_vec.len())
-        .into_iter()
         .map(|i| {
             let (p2, p1) = match i {
                 0 => ("xx", "xx"),

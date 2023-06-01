@@ -9,13 +9,13 @@ use std::{fmt::Display, str::FromStr};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{error::JPreprocessErrorKind, pronunciation::mora_dict::INTO_STR, JPreprocessError};
+use crate::{error::JPreprocessErrorKind, JPreprocessError};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Pronunciation(Vec<Mora>);
 
 impl Pronunciation {
@@ -58,7 +58,7 @@ impl Pronunciation {
         mora_dict::MORA_STR_LIST.contains(&s)
     }
 
-    pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, Mora> {
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Mora> {
         self.0.iter_mut()
     }
 
@@ -85,12 +85,6 @@ impl Pronunciation {
 
     pub fn moras(&self) -> &[Mora] {
         self.0.as_slice()
-    }
-}
-
-impl Default for Pronunciation {
-    fn default() -> Self {
-        Self(Vec::new())
     }
 }
 
@@ -127,7 +121,7 @@ impl FromStr for Pronunciation {
             }
         }
 
-        if result.0.len() == 0 {
+        if result.0.is_empty() {
             if s == QUESTION {
                 result.0.push(Mora {
                     mora_enum: MoraEnum::Question,
@@ -146,22 +140,12 @@ impl FromStr for Pronunciation {
 
 impl Display for Pronunciation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.0.iter().fold(String::new(), |acc, mora| {
-            let mora_text = match &mora.mora_enum {
-                MoraEnum::Question => QUESTION,
-                MoraEnum::Touten => TOUTEN,
-                mora_enum => INTO_STR
-                    .get(&mora_enum)
-                    .expect("Unknown Mora. Check INTO_STR implementation."),
-            };
-
-            format!(
-                "{}{}{}",
-                acc,
-                mora_text,
-                if mora.is_voiced { "" } else { QUOTATION }
-            )
-        }))
+        f.write_str(
+            &self
+                .0
+                .iter()
+                .fold(String::new(), |acc, mora| format!("{}{}", acc, mora)),
+        )
     }
 }
 

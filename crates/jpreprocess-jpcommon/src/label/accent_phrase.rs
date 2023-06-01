@@ -97,7 +97,6 @@ impl AccentPhrase {
             self.accent
         };
         (0..mora_count)
-            .into_iter()
             .map(|mora_index| {
                 format!(
                     "/A:{}+{}+{}",

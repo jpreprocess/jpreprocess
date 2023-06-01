@@ -80,10 +80,10 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 (MoraEnum::Ma | MoraEnum::De, MoraEnum::Su)
             );
             if index_ok && pos_ok && mora_ok {
-                state_next.is_voiced_flag = Some(match state_nextnext.mora.mora_enum {
-                    MoraEnum::Question | MoraEnum::Long => true,
-                    _ => false,
-                });
+                state_next.is_voiced_flag = Some(matches!(
+                    state_nextnext.mora.mora_enum,
+                    MoraEnum::Question | MoraEnum::Long
+                ));
             }
         }
 
@@ -106,7 +106,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     Some(true)
                 } else {
                     /* rule 5 */
-                    apply_unvoice_rule(&state_curr.mora, Some(&state_next.mora))
+                    apply_unvoice_rule(state_curr.mora, Some(state_next.mora))
                 };
                 if matches!(state_next.is_voiced_flag, Some(false)) {
                     state_curr.is_voiced_flag.get_or_insert(true);
@@ -119,21 +119,21 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
 
         /* estimate unvoice */
         if state_curr.is_voiced_flag.is_none() {
-            state_curr.is_voiced_flag = if matches!(state_curr.pos, POS::Filler) {
-                /* rule 0 */
-                Some(true)
-            } else if matches!(
-                state_next.as_ref().and_then(|n| n.is_voiced_flag),
-                Some(false)
-            ) {
+            state_curr.is_voiced_flag = if
+            /* rule 0 */
+            matches!(state_curr.pos, POS::Filler)  ||
                 /* rule 3 */
-                Some(true)
-            } else if state_curr.atype == state_curr.midx + 1 {
+                matches!(
+                    state_next.as_ref().and_then(|n| n.is_voiced_flag),
+                    Some(false)
+                ) ||
                 /* rule 4 */
+                state_curr.atype == state_curr.midx + 1
+            {
                 Some(true)
             } else {
                 /* rule 5 */
-                apply_unvoice_rule(&state_curr.mora, state_next.as_ref().map(|n| &*n.mora))
+                apply_unvoice_rule(state_curr.mora, state_next.as_ref().map(|n| &*n.mora))
             };
         }
 

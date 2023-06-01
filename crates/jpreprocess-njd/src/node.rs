@@ -51,7 +51,7 @@ impl NJDNode {
     }
     pub fn load_csv(s: &str) -> Vec<Self> {
         let splited = {
-            let mut splited: Vec<&str> = s.split(",").collect();
+            let mut splited: Vec<&str> = s.split(',').collect();
             splited.resize(13, "");
             splited
         };
@@ -123,7 +123,7 @@ impl NJDNode {
     pub fn ensure_orig(&mut self) {}
 
     pub fn get_read(&self) -> Option<&str> {
-        self.details.read.as_ref().map(|read| read.as_str())
+        self.details.read.as_deref()
     }
     pub fn set_read(&mut self, read: &str) {
         self.details.read = Some(read.to_string());

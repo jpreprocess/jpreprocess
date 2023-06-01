@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::{
     mora_dict::INTO_STR,
     mora_enum::MoraEnum,
@@ -14,15 +16,6 @@ pub struct Mora {
 }
 
 impl Mora {
-    pub fn to_string(&self) -> String {
-        let mora = match self.mora_enum {
-            MoraEnum::Question => QUESTION,
-            MoraEnum::Touten => TOUTEN,
-            mora_enum => INTO_STR.get(&mora_enum).unwrap(),
-        };
-        let suffix = if self.is_voiced { "" } else { QUOTATION };
-        format!("{}{}", mora, suffix)
-    }
     pub fn phonemes(&self) -> (Option<Consonant>, Option<Vowel>) {
         mora_to_phoneme(self)
     }
@@ -83,5 +76,17 @@ impl Mora {
             MoraEnum::Hyo => MoraEnum::Pyo,
             others => others,
         }
+    }
+}
+
+impl Display for Mora {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mora = match self.mora_enum {
+            MoraEnum::Question => QUESTION,
+            MoraEnum::Touten => TOUTEN,
+            mora_enum => INTO_STR.get(&mora_enum).unwrap(),
+        };
+        let suffix = if self.is_voiced { "" } else { QUOTATION };
+        write!(f, "{}{}", mora, suffix)
     }
 }

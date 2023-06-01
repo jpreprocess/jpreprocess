@@ -15,7 +15,7 @@ pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
     let mut digits = Vec::new();
     let mut is_in_seq = false;
     for (i, node) in njd.nodes.iter().enumerate() {
-        if !is_in_seq && digits.len() > 0 {
+        if !is_in_seq && !digits.is_empty() {
             trim_digits(&mut digits);
             result.extend(from_parsed_digits(start, &digits));
             digits.clear();
@@ -37,7 +37,7 @@ pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
 
         digits.push(digit);
     }
-    if digits.len() > 0 {
+    if !digits.is_empty() {
         trim_digits(&mut digits);
         result.extend(from_parsed_digits(start, &digits));
     }
@@ -73,7 +73,7 @@ fn trim_digits(digits: &mut Vec<Digit>) {
     }
 }
 
-fn from_parsed_digits(start: usize, digits: &Vec<Digit>) -> Vec<DigitSequence> {
+fn from_parsed_digits(start: usize, digits: &[Digit]) -> Vec<DigitSequence> {
     let is_zero_start = check_zero_start(digits);
     if !is_zero_start && check_comma_sequence(digits) {
         /* numerical reading */
@@ -121,7 +121,7 @@ fn create_seq(
     ))
 }
 
-fn check_comma_sequence(digits: &Vec<Digit>) -> bool {
+fn check_comma_sequence(digits: &[Digit]) -> bool {
     let mut comma_count = 0;
     for (i, digit) in digits.iter().rev().enumerate() {
         let is_comma_place = i % 4 == 3;

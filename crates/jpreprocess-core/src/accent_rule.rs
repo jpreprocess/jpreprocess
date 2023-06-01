@@ -133,25 +133,13 @@ impl FromStr for POSMatch {
     }
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub struct ChainRules {
     default: Option<ChainRule>,
     doushi: Option<ChainRule>,
     joshi: Option<ChainRule>,
     keiyoushi: Option<ChainRule>,
     meishi: Option<ChainRule>,
-}
-
-impl Default for ChainRules {
-    fn default() -> Self {
-        Self {
-            default: None,
-            doushi: None,
-            joshi: None,
-            keiyoushi: None,
-            meishi: None,
-        }
-    }
 }
 
 impl ChainRules {
@@ -161,7 +149,7 @@ impl ChainRules {
             return result;
         }
 
-        for rule in rules.split("/") {
+        for rule in rules.split('/') {
             if result.push_rule(rule).is_err() {
                 eprintln!("WARN: accent rule parsing has failed in {}. Skipped.", rule);
             }
@@ -218,7 +206,7 @@ impl ChainRules {
             POS::Meishi(_) => self.meishi.as_ref(),
             _ => None,
         };
-        rule.or_else(|| self.default.as_ref())
+        rule.or(self.default.as_ref())
     }
 
     pub fn unset(&mut self) {
@@ -253,7 +241,7 @@ impl Display for ChainRules {
         if text.is_empty() {
             f.write_str("*")
         } else {
-            f.write_str(&text)
+            f.write_str(text)
         }
     }
 }
