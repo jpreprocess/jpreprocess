@@ -8,7 +8,7 @@
 //! use jpreprocess::*;
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
-//! # let path = PathBuf::from("tests/dict");
+//! #     let path = PathBuf::from("tests/dict");
 //! let config = JPreprocessDictionaryConfig::FileLindera(path);
 //! let jpreprocess = JPreprocess::new(config)?;
 //!
@@ -62,7 +62,7 @@ impl JPreprocess {
     /// use jpreprocess::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// # let path = PathBuf::from("tests/dict");
+    /// #     let path = PathBuf::from("tests/dict");
     /// let config = JPreprocessDictionaryConfig::FileLindera(path);
     /// let jpreprocess = JPreprocess::new(config)?;
     /// #
