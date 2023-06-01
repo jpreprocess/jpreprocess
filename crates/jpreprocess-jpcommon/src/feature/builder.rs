@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{fmt::Display, rc::Rc};
 
 const DEFAULT_A: &str = "/A:xx+xx+xx";
 const DEFAULT_B: &str = "/B:xx-xx_xx";
@@ -184,10 +184,13 @@ impl FeatureBuilder {
     fn apply_default<'a>(prop: Option<&'a String>, default: &'static str) -> &'a str {
         prop.map(|s| s.as_str()).unwrap_or(default)
     }
+}
 
+impl Display for FeatureBuilder {
     /* generate feature string */
-    pub fn to_string(&self) -> String {
-        format!(
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}{}{}{}{}{}{}{}{}{}{}",
             Self::apply_default(self.a.as_ref(), DEFAULT_A),
             Self::apply_default(
