@@ -4,6 +4,9 @@ use std::process::{Command, Stdio};
 use jpreprocess::*;
 use jpreprocess_njd::NJDNode;
 
+#[cfg(feature = "naist-jdic")]
+use jpreprocess::kind::*;
+
 #[cfg(not(feature = "naist-jdic"))]
 use std::path::PathBuf;
 
