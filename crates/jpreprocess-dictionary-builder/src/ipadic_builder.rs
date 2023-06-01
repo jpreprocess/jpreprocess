@@ -505,6 +505,7 @@ where
     Ok(())
 }
 
+#[allow(clippy::ptr_arg)]
 fn serialize_lindera_word(row: &Vec<String>) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
     let mut word_detail = Vec::new();
     for item in row.iter().skip(4) {
@@ -514,6 +515,7 @@ fn serialize_lindera_word(row: &Vec<String>) -> Result<Vec<u8>, lindera_core::er
         .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
 }
 
+#[allow(clippy::ptr_arg)]
 fn serialize_jpreprocess_word(
     row: &Vec<String>,
 ) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
