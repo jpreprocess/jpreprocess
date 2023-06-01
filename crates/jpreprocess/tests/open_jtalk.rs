@@ -37,6 +37,13 @@ fn test_one(input_text: &'static str) {
 
     njd.proprocess();
 
+    let features = jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes);
+
+    let njd_string = jpreprocess.run_frontend(input_text).unwrap();
+    for (nontext, text) in jpreprocess.make_label(njd_string).iter().zip(&features) {
+        assert_eq!(nontext, text)
+    }
+
     let mut child = Command::new("tests/openjtalk_bin")
         .arg("-x")
         .arg("tests/mecab-naist-jdic")
@@ -62,10 +69,7 @@ fn test_one(input_text: &'static str) {
         assert_eq!(node, &node_ans);
     }
 
-    for (node, ans) in jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
-        .iter()
-        .zip(parsed.jpcommon_features.iter())
-    {
+    for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
         assert_eq!(node, ans);
     }
 }

@@ -57,7 +57,7 @@ impl NJD {
         Ok(Self { nodes })
     }
 
-    pub fn from_strings(njd_features: &[&str]) -> Self {
+    pub fn from_strings(njd_features: Vec<String>) -> Self {
         Self {
             nodes: njd_features
                 .iter()

@@ -43,7 +43,7 @@ impl JPreprocess {
         Ok(njd.into())
     }
 
-    pub fn make_label(&self, njd_features: &[&str]) -> Vec<String> {
+    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<String> {
         let njd = NJD::from_strings(njd_features);
         jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
     }
