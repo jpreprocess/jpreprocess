@@ -1,14 +1,18 @@
 use std::io::Write;
-use std::{
-    path::PathBuf,
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
 
 use jpreprocess::*;
 use jpreprocess_njd::NJDNode;
 use lindera_core::mode::Mode;
+
+use lindera_tokenizer::tokenizer::Tokenizer;
+
+#[cfg(not(feature = "naist-jdic"))]
 use lindera_dictionary::DictionaryConfig;
-use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
+#[cfg(not(feature = "naist-jdic"))]
+use lindera_tokenizer::tokenizer::TokenizerConfig;
+#[cfg(not(feature = "naist-jdic"))]
+use std::path::PathBuf;
 
 fn main() {
     let input_text = "リャリョ。クーバネティス";

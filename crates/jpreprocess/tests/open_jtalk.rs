@@ -1,11 +1,11 @@
 use std::io::Write;
-use std::{
-    path::PathBuf,
-    process::{Command, Stdio},
-};
+use std::process::{Command, Stdio};
 
 use jpreprocess::*;
 use jpreprocess_njd::NJDNode;
+
+#[cfg(not(feature = "naist-jdic"))]
+use std::path::PathBuf;
 
 #[test]
 #[ignore]

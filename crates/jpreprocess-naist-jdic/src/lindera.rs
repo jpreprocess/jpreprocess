@@ -5,30 +5,28 @@ use lindera_core::{
 };
 
 #[cfg(feature = "naist-jdic")]
-const CHAR_DEFINITION_DATA: &'static [u8] =
+const CHAR_DEFINITION_DATA: &[u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/char_def.bin"));
 #[cfg(not(feature = "naist-jdic"))]
 const CHAR_DEFINITION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const CONNECTION_DATA: &'static [u8] =
-    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/matrix.mtx"));
+const CONNECTION_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/matrix.mtx"));
 #[cfg(not(feature = "naist-jdic"))]
 const CONNECTION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const IPADIC_DATA: &'static [u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.da"));
+const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.da"));
 #[cfg(not(feature = "naist-jdic"))]
 const IPADIC_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const IPADIC_VALS: &'static [u8] =
-    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.vals"));
+const IPADIC_VALS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.vals"));
 #[cfg(not(feature = "naist-jdic"))]
 const IPADIC_VALS: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const UNKNOWN_DATA: &'static [u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/unk.bin"));
+const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/unk.bin"));
 #[cfg(not(feature = "naist-jdic"))]
 const UNKNOWN_DATA: &[u8] = &[];
 

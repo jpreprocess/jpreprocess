@@ -287,7 +287,7 @@ mod tests {
 
     #[test]
     fn reject_invalid_pos() {
-        assert_eq!(ChainRules::parse_rule("特殊助詞%F2@0").is_err(), true);
+        assert!(ChainRules::parse_rule("特殊助詞%F2@0").is_err());
     }
 
     #[test]

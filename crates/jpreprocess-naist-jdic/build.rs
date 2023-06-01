@@ -20,7 +20,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Build a dictionary
     let builder = IpadicBuilder::new();
-    builder.build_dictionary(&input_dir, &output_dir)?;
+    builder.build_dictionary(input_dir, &output_dir)?;
 
     Ok(())
 }

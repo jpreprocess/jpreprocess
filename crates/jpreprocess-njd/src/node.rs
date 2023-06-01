@@ -177,7 +177,7 @@ mod tests {
     fn single_node() {
         let node = NJDNode::new_single("．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1");
         assert_eq!(node.string, "．");
-        assert_eq!(node.is_renyou(), false);
+        assert!(!node.is_renyou());
 
         assert_eq!(
             node.to_string(),
