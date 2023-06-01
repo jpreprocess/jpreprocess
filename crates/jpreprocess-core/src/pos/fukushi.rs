@@ -7,7 +7,7 @@ use crate::{error::JPreprocessErrorKind, JPreprocessError};
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 副詞
 pub enum Fukushi {
-    /// *
+    /// \*
     None,
     /// 一般
     General,

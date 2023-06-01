@@ -61,7 +61,7 @@ pub enum CForm {
     /// 連用形
     Renyou,
 
-    /// *
+    /// \*
     None,
 }
 

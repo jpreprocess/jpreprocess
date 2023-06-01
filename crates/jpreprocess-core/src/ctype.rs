@@ -31,7 +31,7 @@ pub enum CType {
     /// 文語
     Old,
 
-    /// *
+    /// \*
     None,
 }
 

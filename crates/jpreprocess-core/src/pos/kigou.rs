@@ -7,7 +7,7 @@ use crate::{error::JPreprocessErrorKind, JPreprocessError};
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 記号
 pub enum Kigou {
-    /// *
+    /// \*
     None,
     /// アルファベット
     Alphabet,

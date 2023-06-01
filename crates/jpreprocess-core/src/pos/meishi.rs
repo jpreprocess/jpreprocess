@@ -36,7 +36,7 @@ pub enum Meishi {
     /// 副詞可能
     FukushiKanou,
 
-    /// *
+    /// \*
     None,
 }
 
@@ -285,7 +285,7 @@ pub enum MeishiHijiritsu {
     JodoushiGokan,
     /// 副詞可能
     FukushiKanou,
-    /// *
+    /// \*
     None,
 }
 
