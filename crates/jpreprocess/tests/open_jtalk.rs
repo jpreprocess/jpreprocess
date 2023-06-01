@@ -23,6 +23,7 @@ const TEST_STR: &[&str] = &[
     "一九〇〇、1900，zAゔょぁ。123,456,789",
     // This sentence fails, but I won't fix.
     // "12,34,567．89"
+    // "クヮルテット。789"
 ];
 
 fn test_one(input_text: &'static str) {
