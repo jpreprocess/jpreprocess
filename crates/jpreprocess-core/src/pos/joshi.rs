@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 助詞
 pub enum Joshi {
     /// 格助詞
     KakuJoshi(KakuJoshi),
@@ -49,6 +50,7 @@ impl Joshi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 格助詞
 pub enum KakuJoshi {
     /// 一般
     General,

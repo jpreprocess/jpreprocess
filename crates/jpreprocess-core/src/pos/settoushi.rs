@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{error::JPreprocessErrorKind, JPreprocessError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 接頭詞
 pub enum Settoushi {
     /// 形容詞接続
     KeiyoushiSetsuzoku,
