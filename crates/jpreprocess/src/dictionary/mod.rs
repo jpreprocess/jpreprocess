@@ -9,7 +9,7 @@ use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
 pub mod kind;
 
 /// Dictionary configuration for JPreprocess.
-/// 
+///
 /// The only difference between FileLindera and FileJPreprocess is how the words are stored in memory.
 /// JPreprocess dictionary pre-parse the strings, and it consumes less memory,
 /// whereas Lindera dictionary contains all the data in string.
