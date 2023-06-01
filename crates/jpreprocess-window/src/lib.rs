@@ -3,12 +3,12 @@ pub use data::*;
 
 pub trait IterQuintMutTrait {
     type Item;
-    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item>;
-    fn iter_quint_mut_range<'a>(
-        &'a mut self,
+    fn iter_quint_mut(&mut self) -> IterQuintMut<'_, Self::Item>;
+    fn iter_quint_mut_range(
+        &mut self,
         start: usize,
         end: usize,
-    ) -> IterQuintMut<'a, Self::Item>;
+    ) -> IterQuintMut<'_, Self::Item>;
 }
 
 pub struct IterQuintMut<'a, T> {
@@ -47,7 +47,7 @@ impl<'a, T> IterQuintMut<'a, T> {
     //     }
     // }
 
-    fn next_iter<'b>(target: usize, vec: &'b mut [T]) -> Option<Quintuple<&'b mut T>> {
+    fn next_iter(target: usize, vec: &mut [T]) -> Option<Quintuple<&mut T>> {
         use Quintuple::*;
         match (vec.len(), target) {
             (0, _) => None,

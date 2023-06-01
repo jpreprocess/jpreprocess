@@ -72,14 +72,14 @@ impl NJD {
 
 impl IterQuintMutTrait for NJD {
     type Item = NJDNode;
-    fn iter_quint_mut<'a>(&'a mut self) -> IterQuintMut<'a, Self::Item> {
+    fn iter_quint_mut(&mut self) -> IterQuintMut<'_, Self::Item> {
         IterQuintMut::new(&mut self.nodes)
     }
-    fn iter_quint_mut_range<'a>(
-        &'a mut self,
+    fn iter_quint_mut_range(
+        &mut self,
         start: usize,
         end: usize,
-    ) -> IterQuintMut<'a, Self::Item> {
+    ) -> IterQuintMut<'_, Self::Item> {
         IterQuintMut::new(&mut self.nodes[start..end])
     }
 }

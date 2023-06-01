@@ -58,7 +58,7 @@ impl Pronunciation {
         mora_dict::MORA_STR_LIST.contains(&s)
     }
 
-    pub fn iter_mut<'a>(&'a mut self) -> std::slice::IterMut<'a, Mora> {
+    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Mora> {
         self.0.iter_mut()
     }
 
