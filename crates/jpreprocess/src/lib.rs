@@ -1,3 +1,24 @@
+//! Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language).
+//!
+//! ## Example
+//!
+//! ```rust
+//! # use std::error::Error;
+//! # use std::path::PathBuf;
+//! use jpreprocess::*;
+//!
+//! # fn main() -> Result<(), Box<dyn Error>> {
+//! # let path = PathBuf::from("tests/dict");
+//! let config = JPreprocessDictionaryConfig::FileLindera(path);
+//! let jpreprocess = JPreprocess::new(config)?;
+//!
+//! let jpcommon_label = jpreprocess.extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
+//! assert_eq!(jpcommon_label[2], "sil^n-i+h=o/A:-3+1+7/B:xx-xx_xx/C:02_xx+xx/D:02+xx_xx/E:xx_xx!xx_xx-xx/F:7_4#0_xx@1_3|1_12/G:4_4%0_xx_1/H:xx_xx/I:3-12@1+2&1-8|1+41/J:5_29/K:2+8-41");
+//! #
+//! #     Ok(())
+//! # }
+//! ```
+
 mod dictionary;
 mod normalize_text;
 
