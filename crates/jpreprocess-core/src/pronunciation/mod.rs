@@ -15,7 +15,7 @@ pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Pronunciation(Vec<Mora>);
 
 impl Pronunciation {
@@ -88,11 +88,7 @@ impl Pronunciation {
     }
 }
 
-impl Default for Pronunciation {
-    fn default() -> Self {
-        Self(Vec::new())
-    }
-}
+
 
 impl FromStr for Pronunciation {
     type Err = JPreprocessError;

@@ -133,7 +133,7 @@ impl FromStr for POSMatch {
     }
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub struct ChainRules {
     default: Option<ChainRule>,
     doushi: Option<ChainRule>,
@@ -142,17 +142,7 @@ pub struct ChainRules {
     meishi: Option<ChainRule>,
 }
 
-impl Default for ChainRules {
-    fn default() -> Self {
-        Self {
-            default: None,
-            doushi: None,
-            joshi: None,
-            keiyoushi: None,
-            meishi: None,
-        }
-    }
-}
+
 
 impl ChainRules {
     pub fn new(rules: &str) -> Self {
