@@ -1,69 +1,56 @@
-use std::path::PathBuf;
-
+mod dictionary;
 mod normalize_text;
 
+pub use dictionary::*;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
+use jpreprocess_dictionary::JPreprocessDictionary;
 pub use jpreprocess_njd::NJD;
-use lindera_core::mode::Mode;
-use lindera_dictionary::DictionaryConfig;
-use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
+use lindera_tokenizer::tokenizer::Tokenizer;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
-pub fn preprocess_to_njd_string(
-    input_text: &str,
-    dictionary_path: PathBuf,
-) -> JPreprocessResult<NJD> {
-    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
-
-    let tokenizer = {
-        let dictionary = DictionaryConfig {
-            kind: None,
-            path: Some(dictionary_path),
-        };
-
-        let config = TokenizerConfig {
-            dictionary,
-            user_dictionary: None,
-            mode: Mode::Normal,
-        };
-        Tokenizer::from_config(config)
-            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?
-    };
-
-    let tokens = tokenizer
-        .tokenize(normalized_input_text.as_str())
-        .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
-
-    let mut njd = NJD::from_tokens_string(tokens)?;
-
-    jpreprocess_njd::proprocess_njd(&mut njd);
-
-    Ok(njd)
+pub struct JPreprocess {
+    tokenizer: Tokenizer,
+    dictionary: Option<JPreprocessDictionary>,
 }
 
-#[cfg(feature = "naist-jdic")]
-pub fn preprocess_to_njd_dictionary(
-    input_text: &str,
-    dictionary_path: PathBuf,
-) -> JPreprocessResult<NJD> {
-    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
+impl JPreprocess {
+    pub fn new(config: JPreprocessDictionaryConfig) -> JPreprocessResult<Self> {
+        let (tokenizer, dictionary) = config.load()?;
 
-    let tokenizer = Tokenizer::new(
-        jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
-        None,
-        Mode::Normal,
-    );
+        Ok(Self {
+            tokenizer,
+            dictionary,
+        })
+    }
 
-    let tokens = tokenizer
-        .tokenize(normalized_input_text.as_str())
-        .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
+    pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
+        let normalized_input_text = normalize_text_for_naist_jdic(text);
+        let tokens = self
+            .tokenizer
+            .tokenize(normalized_input_text.as_str())
+            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
 
-    let mut njd = NJD::from_tokens_dict(
-        tokens,
-        jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
-    )?;
+        if let Some(dictionary) = self.dictionary.as_ref() {
+            NJD::from_tokens_dict(tokens, dictionary)
+        } else {
+            NJD::from_tokens_string(tokens)
+        }
+    }
 
-    jpreprocess_njd::proprocess_njd(&mut njd);
+    pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
+        let mut njd = Self::text_to_njd(&self, text)?;
+        njd.proprocess();
+        Ok(njd.into())
+    }
 
-    Ok(njd)
+    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<String> {
+        let njd = NJD::from_strings(njd_features);
+        jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
+    }
+
+    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<String>> {
+        let mut njd = Self::text_to_njd(&self, text)?;
+        njd.proprocess();
+        Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
+    }
 }

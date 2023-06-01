@@ -147,12 +147,18 @@ impl FromStr for Pronunciation {
 impl Display for Pronunciation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0.iter().fold(String::new(), |acc, mora| {
+            let mora_text = match &mora.mora_enum {
+                MoraEnum::Question => QUESTION,
+                MoraEnum::Touten => TOUTEN,
+                mora_enum => INTO_STR
+                    .get(&mora_enum)
+                    .expect("Unknown Mora. Check INTO_STR implementation."),
+            };
+
             format!(
                 "{}{}{}",
                 acc,
-                INTO_STR
-                    .get(&mora.mora_enum)
-                    .expect("Unknown Mora. Check INTO_STR implementation."),
+                mora_text,
                 if mora.is_voiced { "" } else { QUOTATION }
             )
         }))

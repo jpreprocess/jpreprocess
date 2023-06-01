@@ -26,7 +26,23 @@ const TEST_STR: &[&str] = &[
 ];
 
 fn test_one(input_text: &'static str) {
-    let njd = preprocess_to_njd_string(input_text, PathBuf::from("tests/dict")).unwrap();
+    #[cfg(feature = "naist-jdic")]
+    let config = JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    #[cfg(not(feature = "naist-jdic"))]
+    let config = JPreprocessDictionaryConfig::FileLindera(PathBuf::from("tests/dict"));
+
+    let jpreprocess = JPreprocess::new(config).unwrap();
+
+    let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
+
+    njd.proprocess();
+
+    let features = jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes);
+
+    let njd_string = jpreprocess.run_frontend(input_text).unwrap();
+    for (nontext, text) in jpreprocess.make_label(njd_string).iter().zip(&features) {
+        assert_eq!(nontext, text)
+    }
 
     let mut child = Command::new("tests/openjtalk_bin")
         .arg("-x")
@@ -53,10 +69,7 @@ fn test_one(input_text: &'static str) {
         assert_eq!(node, &node_ans);
     }
 
-    for (node, ans) in jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
-        .iter()
-        .zip(parsed.jpcommon_features.iter())
-    {
+    for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
         assert_eq!(node, ans);
     }
 }

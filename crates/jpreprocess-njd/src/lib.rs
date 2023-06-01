@@ -33,9 +33,10 @@ impl NJD {
         }
         Ok(Self { nodes })
     }
+
     pub fn from_tokens_dict(
         tokens: Vec<Token>,
-        dict: JPreprocessDictionary,
+        dict: &JPreprocessDictionary,
     ) -> JPreprocessResult<Self> {
         let mut nodes = Vec::new();
         for token in tokens {
@@ -55,6 +56,19 @@ impl NJD {
         }
         Ok(Self { nodes })
     }
+
+    pub fn from_strings(njd_features: Vec<String>) -> Self {
+        Self {
+            nodes: njd_features
+                .iter()
+                .flat_map(|feature| NJDNode::load_csv(feature))
+                .collect(),
+        }
+    }
+
+    pub fn proprocess(&mut self) {
+        njd_set::proprocess_njd(self)
+    }
 }
 
 impl IterQuintMutTrait for NJD {
@@ -68,5 +82,11 @@ impl IterQuintMutTrait for NJD {
         end: usize,
     ) -> IterQuintMut<'a, Self::Item> {
         IterQuintMut::new(&mut self.nodes[start..end])
+    }
+}
+
+impl From<NJD> for Vec<String> {
+    fn from(njd: NJD) -> Self {
+        njd.nodes.into_iter().map(|node| node.to_string()).collect()
     }
 }
