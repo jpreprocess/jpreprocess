@@ -1,0 +1,14 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  crates:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
