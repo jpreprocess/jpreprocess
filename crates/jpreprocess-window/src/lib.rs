@@ -17,6 +17,8 @@ impl<'a, T> IterQuintMut<'a, T> {
         Self { vec, target: 0 }
     }
 
+    // This method cannot be converted into trait because of the mutable references
+    #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> Option<Quintuple<&mut T>> {
         let next = Self::next_iter(self.target, self.vec);
         self.target += 1;
