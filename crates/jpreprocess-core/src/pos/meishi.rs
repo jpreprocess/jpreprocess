@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 名詞
 pub enum Meishi {
     /// サ変接続
     SahenSetsuzoku,
@@ -88,6 +89,7 @@ impl Display for Meishi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 固有名詞
 pub enum KoyuMeishi {
     /// 一般
     General,
@@ -114,6 +116,7 @@ impl KoyuMeishi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 人名
 pub enum Person {
     /// 一般
     General,
@@ -138,6 +141,7 @@ impl FromStr for Person {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 地域
 pub enum Region {
     /// 一般
     General,
@@ -173,6 +177,7 @@ impl Display for KoyuMeishi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 名詞・接尾
 pub enum Setsubi {
     /// サ変接続
     SahenSetsuzoku,
@@ -235,6 +240,7 @@ impl Display for Setsubi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 代名詞
 pub enum Daimeishi {
     /// 一般
     General,
@@ -269,6 +275,7 @@ impl Display for Daimeishi {
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+/// 名詞・非自立
 pub enum MeishiHijiritsu {
     /// 一般
     General,

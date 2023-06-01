@@ -14,6 +14,40 @@ pub struct JPreprocess {
 }
 
 impl JPreprocess {
+    /// Loads the dictionary.
+    /// 
+    /// ## Example 1: Load from file
+    /// 
+    /// ```rust
+    /// # use std::error::Error;
+    /// # use std::path::PathBuf;
+    /// use jpreprocess::*;
+    /// 
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # let path = PathBuf::from("tests/dict");
+    /// let config = JPreprocessDictionaryConfig::FileLindera(path);
+    /// let jpreprocess = JPreprocess::new(config)?;
+    /// #
+    /// #     Ok(())
+    /// # }
+    /// ```
+    /// 
+    /// ## Example 2: Load bundled dictionary (This requires a feature to be enabled)
+    /// 
+    /// ```rust
+    /// # use std::error::Error;
+    /// use jpreprocess::{*, kind::*};
+    /// 
+    /// # #[cfg(feature = "naist-jdic")]
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// let config = JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    /// let jpreprocess = JPreprocess::new(config)?;
+    /// #
+    /// #     Ok(())
+    /// # }
+    /// # #[cfg(not(feature = "naist-jdic"))]
+    /// # fn main() {}
+    /// ```
     pub fn new(config: JPreprocessDictionaryConfig) -> JPreprocessResult<Self> {
         let (tokenizer, dictionary) = config.load()?;
 
@@ -23,6 +57,7 @@ impl JPreprocess {
         })
     }
 
+    /// Tokenize a text and return NJD.
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
         let tokens = self
@@ -37,17 +72,33 @@ impl JPreprocess {
         }
     }
 
+    /// Tokenize a text, preprocess, and return NJD converted to string.
+    /// 
+    /// The returned string does not match that of openjtalk.
+    /// JPreprocess drops orig string and some of the CForm information,
+    /// which is unnecessary to preprocessing.
+    /// 
+    /// If you need these infomation, please raise a feature request as an issue.
     pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.proprocess();
         Ok(njd.into())
     }
 
+    /// Generate jpcommon features from NJD features(returned by [`run_frontend`]).
+    /// 
+    /// [`run_frontend`]: #method.run_frontend
     pub fn make_label(&self, njd_features: Vec<String>) -> Vec<String> {
         let njd = NJD::from_strings(njd_features);
         jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
     }
 
+    /// Generate jpcommon features from a text.
+    /// 
+    /// This is not guaranteed to be same as calling [`run_frontend`] and [`make_label`].
+    /// 
+    /// [`run_frontend`]: #method.run_frontend
+    /// [`make_label`]: #method.make_label
     pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.proprocess();

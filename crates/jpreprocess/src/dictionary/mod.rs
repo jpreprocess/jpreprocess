@@ -6,27 +6,22 @@ use lindera_core::mode::Mode;
 use lindera_dictionary::DictionaryConfig;
 use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
 
-pub enum JPreprocessDictionaryKind {
-    #[cfg(feature = "naist-jdic")]
-    NaistJdic,
-}
+pub mod kind;
 
-impl JPreprocessDictionaryKind {
-    pub(crate) fn load(&self) -> (lindera_core::dictionary::Dictionary, JPreprocessDictionary) {
-        match &self {
-            #[cfg(feature = "naist-jdic")]
-            Self::NaistJdic => (
-                jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
-                jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
-            ),
-            _ => unreachable!(),
-        }
-    }
-}
-
+/// Dictionary configuration for JPreprocess.
+/// 
+/// The only difference between FileLindera and FileJPreprocess is how the words are stored in memory.
+/// JPreprocess dictionary pre-parse the strings, and it consumes less memory,
+/// whereas Lindera dictionary contains all the data in string.
 pub enum JPreprocessDictionaryConfig {
-    Bundled(JPreprocessDictionaryKind),
+    /// Use self-contained dictionary. This is only valid if appropreate feature is enabled.
+    Bundled(kind::JPreprocessDictionaryKind),
+    /// Use pre-built external lindera dictionary. The PathBuf is the path to dictionary.
+    /// Please note that normal dictionary cannot be used; it must contain the accent position
+    /// and accent rule.
     FileLindera(PathBuf),
+    /// Use pre-built external jpreprocess dictionary. The PathBuf is the path to dictionary.
+    /// Please note that the version of the dictionary must match the jpreprocess version you use.
     FileJPreprocess(PathBuf),
 }
 
