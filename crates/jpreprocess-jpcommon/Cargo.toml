@@ -3,9 +3,11 @@ name = "jpreprocess-jpcommon"
 version = "0.1.0"
 edition = "2021"
 
+description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
 license = "BSD-3-Clause"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/jpreprocess/jpreprocess"
+keywords = ["tts", "openjtalk", "library"]
+categories = ["text-processing"]
 
 [dependencies]
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }

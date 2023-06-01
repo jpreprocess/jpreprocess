@@ -3,7 +3,11 @@ name = "jpreprocess-dictionary-builder"
 version = "0.1.0"
 edition = "2021"
 
+description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
 license = "BSD-3-Clause"
+repository = "https://github.com/jpreprocess/jpreprocess"
+keywords = ["tts", "openjtalk", "library"]
+categories = ["text-processing"]
 
 [dependencies]
 anyhow = "1.0.68"
