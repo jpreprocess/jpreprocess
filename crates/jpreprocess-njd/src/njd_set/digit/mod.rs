@@ -241,11 +241,9 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 {
                     *node = NJDNode::new_single(rule::TSUITACHI);
                     next.unset_pron();
-                } else {
-                    if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
-                        *node = NJDNode::new_single(new_node_s);
-                        next.unset_pron();
-                    }
+                } else if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
+                    *node = NJDNode::new_single(new_node_s);
+                    next.unset_pron();
                 }
             } else if next.get_string() == rule::NICHIKAN {
                 if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {

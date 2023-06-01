@@ -8,29 +8,29 @@ use lindera_core::{
 const CHAR_DEFINITION_DATA: &'static [u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/char_def.bin"));
 #[cfg(not(feature = "naist-jdic"))]
-const CHAR_DEFINITION_DATA: &'static [u8] = &[];
+const CHAR_DEFINITION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
 const CONNECTION_DATA: &'static [u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/matrix.mtx"));
 #[cfg(not(feature = "naist-jdic"))]
-const CONNECTION_DATA: &'static [u8] = &[];
+const CONNECTION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
 const IPADIC_DATA: &'static [u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.da"));
 #[cfg(not(feature = "naist-jdic"))]
-const IPADIC_DATA: &'static [u8] = &[];
+const IPADIC_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
 const IPADIC_VALS: &'static [u8] =
     include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.vals"));
 #[cfg(not(feature = "naist-jdic"))]
-const IPADIC_VALS: &'static [u8] = &[];
+const IPADIC_VALS: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
 const UNKNOWN_DATA: &'static [u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/unk.bin"));
 #[cfg(not(feature = "naist-jdic"))]
-const UNKNOWN_DATA: &'static [u8] = &[];
+const UNKNOWN_DATA: &[u8] = &[];
 
 pub fn load_dictionary() -> LinderaResult<Dictionary> {
     Ok(Dictionary {
@@ -44,17 +44,17 @@ pub fn load_dictionary() -> LinderaResult<Dictionary> {
 }
 
 pub fn char_def() -> LinderaResult<CharacterDefinitions> {
-    CharacterDefinitions::load(&CHAR_DEFINITION_DATA)
+    CharacterDefinitions::load(CHAR_DEFINITION_DATA)
 }
 
 pub fn connection() -> ConnectionCostMatrix {
-    ConnectionCostMatrix::load(&CONNECTION_DATA)
+    ConnectionCostMatrix::load(CONNECTION_DATA)
 }
 
 pub fn prefix_dict() -> PrefixDict {
-    PrefixDict::from_static_slice(&IPADIC_DATA, &IPADIC_VALS)
+    PrefixDict::from_static_slice(IPADIC_DATA, IPADIC_VALS)
 }
 
 pub fn unknown_dict() -> LinderaResult<UnknownDictionary> {
-    UnknownDictionary::load(&UNKNOWN_DATA)
+    UnknownDictionary::load(UNKNOWN_DATA)
 }

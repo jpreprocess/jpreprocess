@@ -39,7 +39,7 @@ impl FromStr for CType {
     type Err = JPreprocessError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (major, _minor) = s
-            .split_once("・")
+            .split_once('・')
             .map(|(major, minor)| (major, Some(minor)))
             .unwrap_or((s, None));
         match major {

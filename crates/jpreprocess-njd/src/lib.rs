@@ -49,8 +49,7 @@ impl NJD {
                 dict.get(id)
             } else {
                 None
-            }
-            .unwrap_or_else(|| WordEntry::default());
+            }.unwrap_or_default();
 
             nodes.extend(NJDNode::load(&text, details));
         }

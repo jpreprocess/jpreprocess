@@ -127,7 +127,7 @@ impl FromStr for Pronunciation {
             }
         }
 
-        if result.0.len() == 0 {
+        if result.0.is_empty() {
             if s == QUESTION {
                 result.0.push(Mora {
                     mora_enum: MoraEnum::Question,
@@ -151,7 +151,7 @@ impl Display for Pronunciation {
                 MoraEnum::Question => QUESTION,
                 MoraEnum::Touten => TOUTEN,
                 mora_enum => INTO_STR
-                    .get(&mora_enum)
+                    .get(mora_enum)
                     .expect("Unknown Mora. Check INTO_STR implementation."),
             };
 

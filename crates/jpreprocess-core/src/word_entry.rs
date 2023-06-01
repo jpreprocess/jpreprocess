@@ -33,12 +33,12 @@ impl WordEntry {
         let pron = details[8];
         let acc_morasize = details[9];
 
-        if orig.contains(":") {
+        if orig.contains(':') {
             let mut iter = orig
-                .split(":")
-                .zip(read.split(":"))
-                .zip(pron.split(":"))
-                .zip(acc_morasize.split(":"))
+                .split(':')
+                .zip(read.split(':'))
+                .zip(pron.split(':'))
+                .zip(acc_morasize.split(':'))
                 .map(|(((orig, read), pron), acc_morasize)| (orig, read, pron, acc_morasize));
 
             let mut word_details = Vec::new();
@@ -53,7 +53,7 @@ impl WordEntry {
                 details_vec.extend(&details[10..]);
                 (
                     orig.to_string(),
-                    WordDetails::load(&details_vec.as_slice())?,
+                    WordDetails::load(details_vec.as_slice())?,
                 )
             };
 
@@ -104,10 +104,10 @@ mod tests {
     #[test]
     fn load_single_node() {
         let input: Vec<&str> = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,"
-            .split(",")
+            .split(',')
             .collect();
         let entry = WordEntry::load(&input[1..]).unwrap();
-        let details_vec = entry.get_with_string(&input[0]);
+        let details_vec = entry.get_with_string(input[0]);
         assert_eq!(details_vec.len(), 1);
 
         let (string, details) = &details_vec[0];
@@ -130,10 +130,10 @@ mod tests {
     #[test]
     fn load_multiple_nodes() {
         let input: Vec<&str> = "あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1,"
-            .split(",")
+            .split(',')
             .collect();
         let entry = WordEntry::load(&input[1..]).unwrap();
-        let details_vec = entry.get_with_string(&input[0]);
+        let details_vec = entry.get_with_string(input[0]);
         assert_eq!(details_vec.len(), 2);
 
         assert_eq!(details_vec[0].0, "あー");

@@ -54,7 +54,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 (head_of_kana_filler_sequence, node)
             };
             if matches!(node.get_pos(), POS::Filler) {
-                if Pronunciation::is_mora_convertable(&node.get_string()) {
+                if Pronunciation::is_mora_convertable(node.get_string()) {
                     if let Some(seq) = head_of_kana_filler_sequence {
                         seq.transfer_from(node);
                     } else {
