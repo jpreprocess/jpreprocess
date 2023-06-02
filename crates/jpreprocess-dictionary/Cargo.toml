@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess-dictionary"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -19,4 +19,4 @@ lindera-core = { version = "0.25.0" }
 lindera-ipadic-builder = { version = "0.25.0" }
 serde = { version = "1.0.152" }
 
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }

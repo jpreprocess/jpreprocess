@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -22,11 +22,11 @@ once_cell = "1.17.0"
 anyhow = "1.0.69"
 unicode-jp = "0.4.0"
 
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
 
-jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
-jpreprocess-jpcommon = { version = "0.1.0", path="../jpreprocess-jpcommon" }
+jpreprocess-njd = { version = "0.1.1", path="../jpreprocess-njd" }
+jpreprocess-jpcommon = { version = "0.1.1", path="../jpreprocess-jpcommon" }
 
-jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
+jpreprocess-dictionary = { version = "0.1.1", path="../jpreprocess-dictionary" }
 
-jpreprocess-naist-jdic = { version = "0.1.0", path="../jpreprocess-naist-jdic", optional = true }
+jpreprocess-naist-jdic = { version = "0.1.1", path="../jpreprocess-naist-jdic", optional = true }

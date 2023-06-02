@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess-naist-jdic"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -19,8 +19,8 @@ byteorder = "1.4.3"
 once_cell = "1.12.0"
 
 lindera-core = { version = "0.25.0" }
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
-jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
+jpreprocess-dictionary = { version = "0.1.1", path="../jpreprocess-dictionary" }
 
 [build-dependencies]
 encoding = { version = "0.2.33", optional = true }
@@ -29,4 +29,4 @@ tar = { version = "0.4.38", optional = true }
 ureq = { version = "2.5.0", default-features = false, features = ["tls"], optional = true }
 
 lindera-core = { version = "0.25.0" }
-jpreprocess-dictionary-builder = { version = "0.1.0", path="../jpreprocess-dictionary-builder" }
+jpreprocess-dictionary-builder = { version = "0.1.1", path="../jpreprocess-dictionary-builder" }

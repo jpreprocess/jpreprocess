@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess-njd"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -16,6 +16,6 @@ lindera-tokenizer = { version = "0.25" }
 aho-corasick = "0.7"
 once_cell = "1.17.0"
 
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
-jpreprocess-window = { version = "0.1.0", path="../jpreprocess-window" }
-jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
+jpreprocess-window = { version = "0.1.1", path="../jpreprocess-window" }
+jpreprocess-dictionary = { version = "0.1.1", path="../jpreprocess-dictionary" }
