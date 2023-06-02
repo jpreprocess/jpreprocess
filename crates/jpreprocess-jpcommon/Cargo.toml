@@ -8,6 +8,7 @@ license = "BSD-3-Clause"
 repository = "https://github.com/jpreprocess/jpreprocess"
 keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
+documentation = "https://docs.rs/jpreprocess-jpcommon"
 
 [dependencies]
 jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
