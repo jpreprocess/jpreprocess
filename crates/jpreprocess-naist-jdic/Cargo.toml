@@ -10,7 +10,7 @@ keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
 
 [features]
-naist-jdic=[]
+naist-jdic = ["encoding", "flate2", "tar", "ureq"]
 
 [dependencies]
 bincode = "1.3.3"
@@ -22,5 +22,10 @@ jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
 jpreprocess-dictionary = { version = "0.1.0", path="../jpreprocess-dictionary" }
 
 [build-dependencies]
+encoding = { version = "0.2.33", optional = true }
+flate2 = { version = "1.0.25", optional = true }
+tar = { version = "0.4.38", optional = true }
+ureq = { version = "2.5.0", default-features = false, features = ["tls"], optional = true }
+
 lindera-core = { version = "0.25.0" }
 jpreprocess-dictionary-builder = { version = "0.1.0", path="../jpreprocess-dictionary-builder" }
