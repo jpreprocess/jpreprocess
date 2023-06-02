@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess-jpcommon"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -11,5 +11,5 @@ categories = ["text-processing"]
 documentation = "https://docs.rs/jpreprocess-jpcommon"
 
 [dependencies]
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
-jpreprocess-njd = { version = "0.1.0", path="../jpreprocess-njd" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
+jpreprocess-njd = { version = "0.1.1", path="../jpreprocess-njd" }

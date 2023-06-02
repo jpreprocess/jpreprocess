@@ -1,6 +1,6 @@
 [package]
 name = "jpreprocess-dictionary-builder"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
@@ -24,4 +24,4 @@ rayon = "1.7"
 
 lindera-core = { version = "0.25.0" }
 
-jpreprocess-core = { version = "0.1.0", path="../jpreprocess-core" }
+jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }

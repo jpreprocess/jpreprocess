@@ -440,7 +440,7 @@ checksum = "453ad9f582a441959e5f0d088b02ce04cfe8d51a8eaf077f12ac6d3e94164ca6"
 
 [[package]]
 name = "jpreprocess"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aho-corasick 0.7.20",
  "anyhow",
@@ -458,7 +458,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aho-corasick 0.7.20",
  "anyhow",
@@ -472,7 +472,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-dictionary"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bincode",
  "byteorder",
@@ -485,7 +485,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-dictionary-builder"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "bincode",
@@ -503,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-jpcommon"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "jpreprocess-core",
  "jpreprocess-njd",
@@ -511,7 +511,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-naist-jdic"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "bincode",
  "byteorder",
@@ -528,7 +528,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-njd"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aho-corasick 0.7.20",
  "jpreprocess-core",
@@ -541,7 +541,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-window"
-version = "0.1.0"
+version = "0.1.1"
 
 [[package]]
 name = "js-sys"
