@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - v*.*.*
-      - test-ci-publish
 
 jobs:
   pre-publish-test:
@@ -50,6 +49,8 @@ jobs:
   publish-crates:
     runs-on: ubuntu-latest
     needs: [pre-publish-test]
+    env:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v3  
       - name: publish
@@ -61,7 +62,7 @@ jobs:
               echo "$1 ${VERSION} has already been published"
             else
               sleep 15
-              cargo publish -p "$1" --all-features --dry-run
+              cargo publish -p "$1" --all-features
             fi
           }
 
@@ -83,7 +84,7 @@ jobs:
 
   create-release:
     name: Create Release
-    needs: [publish-crates,build-naist-jdic]
+    needs: [publish-crates, build-naist-jdic]
     runs-on: ubuntu-latest
     steps:
       - name: Download naist-jdic
