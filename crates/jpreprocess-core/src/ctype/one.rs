@@ -41,7 +41,7 @@ impl Display for One {
             Self::Kureru => "クレル",
             Self::Eru => "得ル",
             Self::Ru => "ル",
-            Self::None => "(Empty)",
+            Self::None => "",
         })
     }
 }

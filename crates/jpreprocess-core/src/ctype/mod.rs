@@ -104,6 +104,44 @@ impl Display for CType {
 
             Self::None => ("*", "".to_string()),
         };
-        write!(f, "{}・{}", major, minor)
+
+        if minor.is_empty() {
+            write!(f, "{}", major)
+        } else {
+            write!(f, "{}・{}", major, minor)
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn none() {
+        let ctype = CType::from_str("*").unwrap();
+        assert!(matches!(ctype, CType::None));
+        assert_eq!(ctype.to_string(), "*")
+    }
+
+    #[test]
+    fn ra_irregular() {
+        let ctype = CType::from_str("ラ変").unwrap();
+        assert!(matches!(ctype, CType::RaIrregular));
+        assert_eq!(ctype.to_string(), "ラ変")
+    }
+
+    #[test]
+    fn lower_two() {
+        let ctype = CType::from_str("下二・ア行").unwrap();
+        assert!(matches!(ctype, CType::LowerTwo(LowerTwo::A)));
+        assert_eq!(ctype.to_string(), "下二・ア行")
+    }
+
+    #[test]
+    fn one_empty() {
+        let ctype = CType::from_str("一段").unwrap();
+        assert!(matches!(ctype, CType::One(One::None)));
+        assert_eq!(ctype.to_string(), "一段")
     }
 }
