@@ -1,5 +1,20 @@
-pub mod data;
-pub use data::*;
+//! An iterator-like object which returns contiguous windows containing five mutable references.
+//!
+//! ## Example
+//! ```rust
+//! use jpreprocess_window::*;
+//!
+//! let mut vector = [0, 1, 2, 3, 4];
+//! let mut iter = IterQuintMut::new(&mut vector);
+//! assert_eq!(iter.next().unwrap(), Quintuple::First(&mut 0, &mut 1, &mut 2, &mut 3));
+//! assert_eq!(iter.next().unwrap(), Quintuple::Full(&mut 0, &mut 1, &mut 2, &mut 3, &mut 4));
+//! assert_eq!(iter.next().unwrap(), Quintuple::ThreeLeft(&mut 1, &mut 2, &mut 3, &mut 4));
+//! assert_eq!(iter.next().unwrap(), Quintuple::TwoLeft(&mut 2, &mut 3, &mut 4));
+//! assert_eq!(iter.next().unwrap(), Quintuple::Last(&mut 3, &mut 4));
+//! ```
+
+pub mod structures;
+pub use structures::*;
 
 pub trait IterQuintMutTrait {
     type Item;
@@ -24,26 +39,6 @@ impl<'a, T> IterQuintMut<'a, T> {
         self.target += 1;
         next
     }
-
-    // pub fn next_with_extra(
-    //     &mut self,
-    //     index: Option<usize>,
-    // ) -> (usize, Option<&mut T>, Option<Quintuple<&mut T>>) {
-    //     if let Some(i) = index {
-    //         if i + 1 >= self.target {
-    //             panic!()
-    //         }
-    //         // self.target>=1 is guaranteed by previous `if`
-    //         let (a, b) = self.vec.split_at_mut(self.target - 1);
-
-    //         let next = Self::next_iter(1, b);
-    //         let result = (self.target, a.get_mut(i), next);
-    //         self.target += 1;
-    //         result
-    //     } else {
-    //         (self.target, None, self.next())
-    //     }
-    // }
 
     fn next_iter(target: usize, vec: &mut [T]) -> Option<Quintuple<&mut T>> {
         use Quintuple::*;
