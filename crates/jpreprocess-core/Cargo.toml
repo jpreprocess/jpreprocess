@@ -12,13 +12,13 @@ documentation = "https://docs.rs/jpreprocess-core"
 
 [dependencies]
 
-thiserror = "1.0.38"
-anyhow = "1.0.69"
+thiserror = "1.0.40"
+anyhow = "1.0.71"
 
 aho-corasick = "0.7"
 
 lindera-tokenizer = { version = "0.25" }
 bincode = "1.3.3"
-serde = { version = "1.0.152", features = ["derive"] }
-regex = "1.7.1"
-once_cell = "1.17.0"
+serde = { version = "1.0.163", features = ["derive"] }
+regex = "1.8.3"
+once_cell = "1.17.2"
