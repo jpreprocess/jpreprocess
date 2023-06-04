@@ -37,7 +37,28 @@ jobs:
     - name: Build
       run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose -- --ignored
+      run: cargo test --verbose -- --include-ignored
 
     - name: Run Clippy
       run: cargo clippy --all-targets
+
+  check-msrv:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Get MSRV
+      id: msrv
+      run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+          toolchain: ${{ steps.msrv.outputs.msrv }}
+          override: true
+
+    - name: Cache Cargo dependencies
+      uses: Swatinem/rust-cache@988c164c3d0e93c4dbab36aaf5bbeb77425b2894
+
+    - name: Run test
+      run: cargo test --verbose

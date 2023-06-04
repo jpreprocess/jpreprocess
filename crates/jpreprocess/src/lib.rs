@@ -2,7 +2,7 @@
 //!
 //! ## Example
 //!
-//! ```rust
+//! ```ignore
 //! # use std::error::Error;
 //! # use std::path::PathBuf;
 //! use jpreprocess::*;
@@ -56,7 +56,7 @@ impl JPreprocess {
     ///
     /// ## Example 1: Load from file
     ///
-    /// ```rust
+    /// ```ignore
     /// # use std::error::Error;
     /// # use std::path::PathBuf;
     /// use jpreprocess::*;

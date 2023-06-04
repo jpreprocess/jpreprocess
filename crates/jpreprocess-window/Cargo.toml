@@ -8,5 +8,6 @@ license.workspace = true
 repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
+rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-window"
