@@ -55,6 +55,12 @@ impl FromStr for Five {
             "ラ行特殊" => Ok(Self::RaSpecial),
             "ワ行ウ音便" => Ok(Self::WaU),
             "ワ行促音便" => Ok(Self::WaDouble),
+
+            "カ往促音便" => {
+                eprintln!("WARN: Unrecognized CType {}. Processed as カ行促音便.", s);
+                Ok(Self::KaDouble)
+            },
+
             _ => Err(JPreprocessErrorKind::CTypeParseError
                 .with_error(anyhow::anyhow!("Parse failed in Five"))),
         }
