@@ -522,10 +522,14 @@ fn serialize_jpreprocess_word(
     use jpreprocess_core::word_entry::WordEntry;
     let mut str_details = row.iter().skip(4).map(|d| &d[..]).collect::<Vec<&str>>();
     str_details.resize(13, "");
-    let entry = WordEntry::load(&str_details[..])
-        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-    bincode::serialize(&entry)
-        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+    match WordEntry::load(&str_details[..]) {
+        Ok(entry) => bincode::serialize(&entry)
+            .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err))),
+        Err(err) => {
+            eprintln!("ERR: jpreprocess parse failed. Word:\n{:?}", &row);
+            Err(LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+        }
+    }
 }
 
 fn write<W: Write>(buffer: &[u8], writer: &mut W) -> LinderaResult<()> {
