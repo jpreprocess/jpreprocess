@@ -107,7 +107,7 @@ impl FromStr for Pronunciation {
             let quotation = s[match_result.end()..].starts_with(QUOTATION);
 
             result.0.extend(
-                mora_dict::get_mora_enum(match_result.pattern())
+                mora_dict::get_mora_enum(match_result.pattern().as_usize())
                     .into_iter()
                     .map(|mora_enum| Mora {
                         mora_enum,
