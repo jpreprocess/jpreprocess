@@ -15,7 +15,7 @@ documentation = "https://docs.rs/jpreprocess-core"
 thiserror = "1.0.40"
 anyhow = "1.0.71"
 
-aho-corasick = "0.7"
+aho-corasick = "1.0"
 
 lindera-tokenizer = { version = "0.25" }
 bincode = "1.3.3"
