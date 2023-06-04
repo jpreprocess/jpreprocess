@@ -17,7 +17,7 @@ naist-jdic=["jpreprocess-naist-jdic/naist-jdic"]
 lindera-core = { version = "0.25" }
 lindera-tokenizer = { version = "0.25" }
 lindera-dictionary = { version = "0.25" }
-aho-corasick = "0.7"
+aho-corasick = "1.0"
 once_cell = "1.17.2"
 anyhow = "1.0.71"
 unicode-jp = "0.4.0"

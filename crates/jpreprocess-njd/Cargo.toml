@@ -13,7 +13,7 @@ documentation = "https://docs.rs/jpreprocess-njd"
 [dependencies]
 phf = { version = "0.11", features = ["macros"] }
 lindera-tokenizer = { version = "0.25" }
-aho-corasick = "0.7"
+aho-corasick = "1.0"
 once_cell = "1.17.2"
 
 jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }

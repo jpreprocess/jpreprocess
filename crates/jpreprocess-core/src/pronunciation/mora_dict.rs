@@ -19,6 +19,7 @@ pub static MORA_DICT_AHO_CORASICK: Lazy<AhoCorasick> = Lazy::new(|| {
     AhoCorasickBuilder::new()
         .match_kind(MatchKind::LeftmostLongest)
         .build(MORA_STR_LIST.as_slice())
+        .unwrap()
 });
 
 pub fn get_mora_enum(position: usize) -> Vec<MoraEnum> {
