@@ -54,7 +54,7 @@ jobs:
     - name: Install Rust
       uses: actions-rs/toolchain@v1
       with:
-          toolchain: ${{ steps.run_tests.outputs.msrv }}
+          toolchain: ${{ steps.msrv.outputs.msrv }}
           override: true
 
     - name: Cache Cargo dependencies
