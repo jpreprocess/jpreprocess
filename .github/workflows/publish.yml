@@ -84,6 +84,8 @@ jobs:
 
   create-release:
     name: Create Release
+    permissions:
+      contents: write
     needs: [publish-crates, build-naist-jdic]
     runs-on: ubuntu-latest
     steps:
