@@ -13,8 +13,6 @@
   - どちらもMecab辞書自体とは互換性がありませんが，Mecab辞書用のCSVファイルを使って辞書を生成できます．
 - 一部のバグと思われる機能を除き，OpenJTalkと全く同じ出力(JPCommon)を得ることができる
   - たとえば「特殊助動詞」や紛らわしい2,2,3桁区切りの数字の読み方は，OpenJTalkと異なります．
-  - そのほかの部分でも，品詞の扱いなどNJDレベルではOpenJTalkと違っていることがありますが，
-    最終的な出力である，JPCommonでは同じになることを目指します．
   - 新しい機能の追加を排除するものではありませんが，
     オプションやバージョン，feature等でOpenJTalkと同じ出力を得る手段が残るようにしたいと考えています．
 - HTS Engineは実装しない
@@ -100,6 +98,12 @@ This software includes source code from:
   Copyright (c) 2008-2016  Nagoya Institute of Technology Department of Computer Science
 - [Lindera](https://github.com/lindera-morphology/lindera).
   Copyright (c) 2019 by the project authors
+
+Although this repository has CODEOWNERS file,
+it does not necessarily mean that the developers listed in codeowners file
+have the copyright for all files in this repository.
+Copyrights are listed in NOTICE or LICENSE files,
+and CODEOWNERS file is just for code reviewing.
 
 ## License
 

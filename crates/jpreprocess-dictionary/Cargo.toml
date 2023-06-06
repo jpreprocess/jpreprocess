@@ -21,4 +21,4 @@ lindera-core = { version = "0.25.0" }
 lindera-ipadic-builder = { version = "0.25.0" }
 serde = { version = "1.0.163" }
 
-jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
+jpreprocess-core = { version = "0.2.0", path="../jpreprocess-core" }
