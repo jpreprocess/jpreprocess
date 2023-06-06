@@ -4,7 +4,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.1"
+version = "0.2.0"
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
 license = "BSD-3-Clause"
 repository = "https://github.com/jpreprocess/jpreprocess"
