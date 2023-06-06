@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-njd = "0.1.1"
+jpreprocess-njd = "0.2.0"
 ```
 
 ## Copyrights

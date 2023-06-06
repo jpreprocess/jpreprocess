@@ -13,5 +13,5 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-jpcommon"
 
 [dependencies]
-jpreprocess-core = { version = "0.1.1", path="../jpreprocess-core" }
-jpreprocess-njd = { version = "0.1.1", path="../jpreprocess-njd" }
+jpreprocess-core = { version = "0.2.0", path="../jpreprocess-core" }
+jpreprocess-njd = { version = "0.2.0", path="../jpreprocess-njd" }

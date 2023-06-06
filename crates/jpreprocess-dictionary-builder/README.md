@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-dictionary-builder = "0.1.1"
+jpreprocess-dictionary-builder = "0.2.0"
 ```
 
 ## Copyrights
@@ -23,7 +23,7 @@ This software includes source code from:
 - [Lindera](https://github.com/lindera-morphology/lindera).
   Copyright (c) 2019 by the project authors
 
-For details, please see [NOTICE.txt](https://github.com/jpreprocess/jpreprocess/blob/v0.1.1/crates/jpreprocess-dictionary-builder/NOTICE.txt).
+For details, please see [NOTICE.txt](https://github.com/jpreprocess/jpreprocess/blob/v0.2.0/crates/jpreprocess-dictionary-builder/NOTICE.txt).
 
 ## License
 
