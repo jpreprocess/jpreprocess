@@ -1,84 +1,81 @@
-use std::io::Write;
-use std::process::{Command, Stdio};
-
-use jpreprocess::*;
-use jpreprocess_njd::NJDNode;
-use lindera_core::mode::Mode;
-
-use lindera_tokenizer::tokenizer::Tokenizer;
-
-#[cfg(not(feature = "naist-jdic"))]
-use lindera_dictionary::DictionaryConfig;
-#[cfg(not(feature = "naist-jdic"))]
-use lindera_tokenizer::tokenizer::TokenizerConfig;
-#[cfg(not(feature = "naist-jdic"))]
+use std::error::Error;
 use std::path::PathBuf;
 
-fn main() {
-    let input_text = "リャリョ。クーバネティス";
+use jpreprocess::*;
 
-    let normalized_input_text = normalize_text_for_naist_jdic(input_text);
+use clap::{Args, Parser};
 
-    #[cfg(feature = "naist-jdic")]
-    let tokenizer = Tokenizer::new(
-        jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
-        None,
-        Mode::Normal,
-    );
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    #[command(flatten)]
+    dict: DictionaryArgs,
 
-    #[cfg(not(feature = "naist-jdic"))]
-    let tokenizer = {
-        let dictionary = DictionaryConfig {
-            kind: None,
-            path: Some(PathBuf::from("dict")),
+    /// The text to be processed
+    input: String,
+}
+
+#[derive(Args, Debug)]
+#[group(required = true, multiple = false)]
+struct DictionaryArgs {
+    /// The location of lindera dictionary
+    #[arg(short, long)]
+    lindera_dictionary: Option<PathBuf>,
+
+    /// The location of jpreprocess dictionary
+    #[arg(short, long)]
+    jpreprocess_dictionary: Option<PathBuf>,
+
+    /// Use bundled naist-jdic dictionary
+    #[arg(short, long)]
+    naist_jdic: bool,
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let cli = Cli::parse();
+
+    let config = if let Some(dict) = cli.dict.jpreprocess_dictionary {
+        JPreprocessDictionaryConfig::FileJPreprocess(dict)
+    } else if let Some(dict) = cli.dict.lindera_dictionary {
+        JPreprocessDictionaryConfig::FileLindera(dict)
+    } else {
+        let args_error = || {
+            use clap::{error::ErrorKind, CommandFactory};
+            let mut cmd = Cli::command();
+            cmd.error(
+                ErrorKind::ValueValidation,
+                concat!(
+                    "This build of jpreprocess does not have the bundled dictionary. ",
+                    "Please use other dictionary type."
+                ),
+            )
+            .exit()
         };
-
-        let config = TokenizerConfig {
-            dictionary,
-            user_dictionary: None,
-            mode: Mode::Normal,
-        };
-        Tokenizer::from_config(config).unwrap()
+        if cli.dict.naist_jdic {
+            #[cfg(not(feature = "naist-jdic"))]
+            {
+                args_error()
+            }
+            #[cfg(feature = "naist-jdic")]
+            JPreprocessDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
+        } else {
+            args_error()
+        }
     };
 
-    let tokens = tokenizer.tokenize(normalized_input_text.as_str()).unwrap();
+    let jpreprocess = JPreprocess::new(config)?;
 
-    #[cfg(feature = "naist-jdic")]
-    let mut njd = NJD::from_tokens_dict(
-        tokens,
-        &jpreprocess_naist_jdic::jpreprocess::load_dictionary(),
-    )
-    .unwrap();
+    let njd = jpreprocess.run_frontend(&cli.input)?;
 
-    #[cfg(not(feature = "naist-jdic"))]
-    let mut njd = NJD::from_tokens_string(tokens).unwrap();
-
-    jpreprocess_njd::proprocess_njd(&mut njd);
-
-    let mut child = Command::new("tester/open_jtalk")
-        .arg("-x")
-        .arg("tester/mecab-naist-jdic")
-        .arg("-m")
-        .arg("tester/nitech_jp_atr503_m001.htsvoice")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("Failed to spawn child process");
-
-    let mut stdin = child.stdin.take().expect("Failed to open stdin");
-    std::thread::spawn(move || {
-        stdin
-            .write_all(input_text.as_bytes())
-            .expect("Failed to write to stdin");
-    });
-
-    let output = child.wait_with_output().expect("Failed to read stdout");
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    // println!("{}", stdout);
-    for (node, ans) in njd.nodes.iter().zip(stdout.split('\n')) {
-        let node_ans = NJDNode::new_single(ans);
-        if node != &node_ans {
-            println!("Failed: {:?}--{:?}", node, node_ans);
-        }
+    println!("[NJD]");
+    for line in &njd {
+        println!("{}", line);
     }
+
+    println!("\n[JPCommon]");
+    for line in jpreprocess.make_label(njd) {
+        println!("{}", line);
+    }
+
+    Ok(())
 }
