@@ -26,9 +26,9 @@ struct DictionaryArgs {
     #[arg(short, long)]
     jpreprocess_dictionary: Option<PathBuf>,
 
-    /// Use bundled dictionary
+    /// Use bundled naist-jdic dictionary
     #[arg(short, long)]
-    bundled: bool,
+    naist_jdic: bool,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -38,23 +38,29 @@ fn main() -> Result<(), Box<dyn Error>> {
         JPreprocessDictionaryConfig::FileJPreprocess(dict)
     } else if let Some(dict) = cli.dict.lindera_dictionary {
         JPreprocessDictionaryConfig::FileLindera(dict)
-    } else if cli.dict.bundled {
-        #[cfg(not(feature = "naist-jdic"))]
-        {
+    } else {
+        let args_error = || {
             use clap::{error::ErrorKind, CommandFactory};
             let mut cmd = Cli::command();
             cmd.error(
                 ErrorKind::ValueValidation,
-                 concat!(
-                    "This build of jpreprocess does not have bundled dictionary. ",
-                    "Please use --lindera-dictionary or --jpreprocess-dictionary and provide the path to the dictionary."
-                )
-            ).exit();
+                concat!(
+                    "This build of jpreprocess does not have the bundled dictionary. ",
+                    "Please use other dictionary type."
+                ),
+            )
+            .exit()
+        };
+        if cli.dict.naist_jdic {
+            #[cfg(not(feature = "naist-jdic"))]
+            {
+                args_error()
+            }
+            #[cfg(feature = "naist-jdic")]
+            JPreprocessDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
+        } else {
+            args_error()
         }
-        #[cfg(feature = "naist-jdic")]
-        JPreprocessDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
-    } else {
-        unreachable!()
     };
 
     let jpreprocess = JPreprocess::new(config)?;
