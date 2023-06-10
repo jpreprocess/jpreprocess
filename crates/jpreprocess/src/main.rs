@@ -1,12 +1,9 @@
 use std::error::Error;
-
-use jpreprocess::*;
-#[cfg(not(feature = "naist-jdic"))]
 use std::path::PathBuf;
 
-use clap::{error::ErrorKind, Args, CommandFactory, Parser};
+use jpreprocess::*;
 
-// #[cfg(feature = "binary")]
+use clap::{Args, Parser};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -44,6 +41,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     } else if cli.dict.bundled {
         #[cfg(not(feature = "naist-jdic"))]
         {
+            use clap::{error::ErrorKind, CommandFactory};
             let mut cmd = Cli::command();
             cmd.error(
                 ErrorKind::ValueValidation,
@@ -54,7 +52,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             ).exit();
         }
         #[cfg(feature = "naist-jdic")]
-        JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic)
+        JPreprocessDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
     } else {
         unreachable!()
     };

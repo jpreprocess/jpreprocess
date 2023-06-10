@@ -14,7 +14,11 @@ documentation = "https://docs.rs/jpreprocess"
 
 [features]
 naist-jdic = ["jpreprocess-naist-jdic/naist-jdic"]
-binary = []
+binary = ["clap"]
+
+[[bin]]
+name = "jpreprocess"
+required-features = ["binary"]
 
 [dependencies]
 lindera-core = { version = "0.25" }
@@ -33,4 +37,4 @@ jpreprocess-dictionary = { version = "0.2.0", path="../jpreprocess-dictionary" }
 
 jpreprocess-naist-jdic = { version = "0.2.0", path="../jpreprocess-naist-jdic", optional = true }
 
-clap = { version = "4.3.3", features = ["derive"] }
+clap = { version = "4.3.3", features = ["derive"], optional = true }
