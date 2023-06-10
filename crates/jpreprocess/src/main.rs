@@ -4,7 +4,7 @@ use jpreprocess::*;
 #[cfg(not(feature = "naist-jdic"))]
 use std::path::PathBuf;
 
-use clap::{Args, Parser};
+use clap::{error::ErrorKind, Args, CommandFactory, Parser};
 
 // #[cfg(feature = "binary")]
 
@@ -37,15 +37,24 @@ struct DictionaryArgs {
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let config = if cli.dict.bundled {
-        #[cfg(not(feature = "naist-jdic"))]
-        panic!("This build of jpreprocess does not contain dictionary. Instead, please specify the path to the dictionary.");
-        #[cfg(feature = "naist-jdic")]
-        JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic)
-    } else if let Some(dict) = cli.dict.jpreprocess_dictionary {
+    let config = if let Some(dict) = cli.dict.jpreprocess_dictionary {
         JPreprocessDictionaryConfig::FileJPreprocess(dict)
     } else if let Some(dict) = cli.dict.lindera_dictionary {
         JPreprocessDictionaryConfig::FileLindera(dict)
+    } else if cli.dict.bundled {
+        #[cfg(not(feature = "naist-jdic"))]
+        {
+            let mut cmd = Cli::command();
+            cmd.error(
+                ErrorKind::ValueValidation,
+                 concat!(
+                    "This build of jpreprocess does not have bundled dictionary. ",
+                    "Please use --lindera-dictionary or --jpreprocess-dictionary and provide the path to the dictionary."
+                )
+            ).exit();
+        }
+        #[cfg(feature = "naist-jdic")]
+        JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic)
     } else {
         unreachable!()
     };
