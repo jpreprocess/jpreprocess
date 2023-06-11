@@ -6,7 +6,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     use lindera_core::dictionary_builder::DictionaryBuilder;
     use std::{
         env,
-        fs::{create_dir, rename, File},
+        fs::{copy, create_dir, rename, File},
         io::{self, Cursor, Read, Write},
         path::Path,
     };
@@ -90,6 +90,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Build a dictionary
     let builder = IpadicBuilder::new();
     builder.build_dictionary(&input_dir, &output_dir)?;
+
+    let license_file = &input_dir.join(Path::new("COPYING"));
+    if license_file.exists() {
+        copy(license_file, output_dir.join(Path::new("COPYING")))?;
+    }
 
     Ok(())
 }
