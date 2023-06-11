@@ -95,13 +95,20 @@ jobs:
           name: naist-jdic
       - name: Package naist-jdic
         run: |
-          mkdir naist-jdic
-          cp jpreprocess-naist-jdic-*/out/naist-jdic/* naist-jdic
-          tar cvf naist-jdic.tar.gz naist-jdic
+          mkdir naist-jdic-lindera
+          cp jpreprocess-naist-jdic-*/out/naist-jdic/* naist-jdic-lindera
+          rm naist-jdic-lindera/jpreprocess*
+          tar czvf naist-jdic-lindera.tar.gz naist-jdic-lindera
+
+          mkdir naist-jdic-jpreprocess
+          cp jpreprocess-naist-jdic-*/out/naist-jdic/* naist-jdic-jpreprocess
+          rm naist-jdic-jpreprocess/dict.words*
+          tar czvf naist-jdic-jpreprocess.tar.gz naist-jdic-jpreprocess
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            naist-jdic.tar.gz
+            naist-jdic-lindera.tar.gz
+            naist-jdic-jpreprocess.tar.gz
