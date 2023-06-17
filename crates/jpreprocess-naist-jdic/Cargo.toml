@@ -28,7 +28,7 @@ jpreprocess-dictionary = { version = "0.2.0", path="../jpreprocess-dictionary" }
 encoding = { version = "0.2.33", optional = true }
 flate2 = { version = "1.0.26", optional = true }
 tar = { version = "0.4.38", optional = true }
-ureq = { version = "2.6.2", default-features = false, features = ["tls"], optional = true }
+ureq = { version = "2.7.0", default-features = false, features = ["tls"], optional = true }
 
 lindera-core = { version = "0.25.0" }
 jpreprocess-dictionary-builder = { version = "0.2.0", path="../jpreprocess-dictionary-builder" }
