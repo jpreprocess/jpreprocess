@@ -52,10 +52,9 @@ jobs:
       run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
 
     - name: Install Rust
-      uses: actions-rs/toolchain@v1
+      uses: dtolnay/rust-toolchain@1f5cdb56c8779e3efa22473ce181ff83143b172c
       with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
-          override: true
 
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@715970feed13a5a0a7503121aa14d1ba5fa45d14
