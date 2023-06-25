@@ -38,6 +38,14 @@
         "dependencies"
       ],
       "groupName": "dependencies (non-major)"
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "schedule": [
+        "every weekend on the 1st through 7th day of the month"
+      ]
     }
   ]
 }
