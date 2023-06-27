@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@715970feed13a5a0a7503121aa14d1ba5fa45d14
+        uses: Swatinem/rust-cache@be7377e68e88e0998e53402e5414eca81c4ac820
       - name: Setup integration test
         working-directory: crates/jpreprocess/tests
         env:
@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@715970feed13a5a0a7503121aa14d1ba5fa45d14
+        uses: Swatinem/rust-cache@be7377e68e88e0998e53402e5414eca81c4ac820
       - name: Build
         run: cargo build -p jpreprocess-naist-jdic --features=naist-jdic
       - name: Upload Artifact
