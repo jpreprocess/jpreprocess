@@ -45,7 +45,7 @@
         "github-actions"
       ],
       "schedule": [
-        "every weekend on the 1st through 7th day of the month"
+        "on Sat on the last day of the month also every weekend on the 1st through 6th day of the month"
       ]
     }
   ]
