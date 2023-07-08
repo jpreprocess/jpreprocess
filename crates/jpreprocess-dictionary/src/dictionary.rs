@@ -1,22 +1,22 @@
-use std::{fs, path::PathBuf};
+use std::{fs, path::PathBuf, borrow::Cow};
 
 use byteorder::{ByteOrder, LittleEndian};
 
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
 pub struct Dictionary {
-    words_data: Vec<u8>,
-    words_idx_data: Vec<u32>,
+    words_data: Cow<'static, [u8]>,
+    words_idx_data: Cow<'static, [u32]>,
 }
 
 impl Dictionary {
     pub fn load(words_path: PathBuf, words_idx_path: PathBuf) -> JPreprocessResult<Dictionary> {
         Ok(Self::load_bin(
-            Self::read_file(words_path)?,
-            Self::read_file(words_idx_path)?,
+            Cow::Owned(Self::read_file(words_path)?),
+            Cow::Owned(Self::read_file(words_idx_path)?),
         ))
     }
-    pub fn load_bin(words_data: Vec<u8>, words_idx_data: Vec<u8>) -> Self {
+    pub fn load_bin(words_data: Cow<'static, [u8]>, words_idx_data: Cow<'static, [u8]>) -> Self {
         Self {
             words_data,
             words_idx_data: words_idx_data
