@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use lindera_core::{
     character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
     dictionary::Dictionary, prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
@@ -36,8 +38,8 @@ pub fn load_dictionary() -> LinderaResult<Dictionary> {
         cost_matrix: connection(),
         char_definitions: char_def()?,
         unknown_dictionary: unknown_dict()?,
-        words_idx_data: vec![],
-        words_data: vec![],
+        words_idx_data: Cow::from(vec![]),
+        words_data: Cow::from(vec![]),
     })
 }
 
