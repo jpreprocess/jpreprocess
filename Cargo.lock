@@ -200,7 +200,7 @@ dependencies = [
  "heck",
  "proc-macro2",
  "quote",
- "syn 2.0.18",
+ "syn 2.0.23",
 ]
 
 [[package]]
@@ -360,9 +360,9 @@ checksum = "a246d82be1c9d791c5dfde9a2bd045fc3cbba3fa2b11ad558f27d01712f00569"
 
 [[package]]
 name = "encoding_rs"
-version = "0.8.31"
+version = "0.8.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9852635589dc9f9ea1b6fe9f05b50ef208c85c834a562f0c6abb1c475736ec2b"
+checksum = "071a31f4ee85403370b58aca746f01041ede6f0da2730960ad001edc2b71b394"
 dependencies = [
  "cfg-if",
 ]
@@ -533,7 +533,7 @@ dependencies = [
  "jpreprocess-jpcommon",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-dictionary",
  "lindera-tokenizer",
  "once_cell",
@@ -561,7 +561,7 @@ dependencies = [
  "bincode",
  "byteorder",
  "jpreprocess-core",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-ipadic-builder",
  "once_cell",
  "serde",
@@ -578,7 +578,7 @@ dependencies = [
  "env_logger",
  "glob",
  "jpreprocess-core",
- "lindera-core",
+ "lindera-core 0.25.0",
  "log",
  "rayon",
  "serde",
@@ -604,7 +604,8 @@ dependencies = [
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
- "lindera-core",
+ "lindera-core 0.25.0",
+ "lindera-core 0.26.0",
  "once_cell",
  "tar",
  "ureq",
@@ -671,7 +672,7 @@ dependencies = [
  "encoding",
  "env_logger",
  "glob",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-decompress",
  "log",
  "yada",
@@ -682,6 +683,23 @@ name = "lindera-core"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c3935e966409156f22cb4b334b21b0dce84b7aa1cad62214b466489d249c8e5"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "byteorder",
+ "encoding_rs",
+ "log",
+ "once_cell",
+ "serde",
+ "thiserror",
+ "yada",
+]
+
+[[package]]
+name = "lindera-core"
+version = "0.26.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e29998c143e7e5d749690e8a0f9249f00b662c1d382f5e026304d995601d0a61"
 dependencies = [
  "anyhow",
  "bincode",
@@ -715,7 +733,7 @@ dependencies = [
  "bincode",
  "byteorder",
  "lindera-cc-cedict-builder",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-ipadic-builder",
  "lindera-ipadic-neologd-builder",
  "lindera-ko-dic-builder",
@@ -737,7 +755,7 @@ dependencies = [
  "encoding_rs_io",
  "env_logger",
  "glob",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-decompress",
  "log",
  "serde",
@@ -758,7 +776,7 @@ dependencies = [
  "encoding_rs_io",
  "env_logger",
  "glob",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-decompress",
  "log",
  "serde",
@@ -778,7 +796,7 @@ dependencies = [
  "encoding",
  "env_logger",
  "glob",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-decompress",
  "log",
  "yada",
@@ -792,7 +810,7 @@ checksum = "cb6a8acbd068019d1cdac7316f0dcb87f8e33ede2b13aa237f45114f9750afb8"
 dependencies = [
  "bincode",
  "byteorder",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-dictionary",
  "once_cell",
  "serde",
@@ -812,7 +830,7 @@ dependencies = [
  "encoding",
  "env_logger",
  "glob",
- "lindera-core",
+ "lindera-core 0.25.0",
  "lindera-decompress",
  "log",
  "yada",
@@ -929,18 +947,18 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.59"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6aeca18b86b413c660b781aa319e4e2648a3e6f9eadc9b47e9038e6fe9f3451b"
+checksum = "7b368fba921b0dce7e60f5e04ec15e565b3303972b42bcfde1d0713b881959eb"
 dependencies = [
  "unicode-ident",
 ]
 
 [[package]]
 name = "quote"
-version = "1.0.28"
+version = "1.0.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b9ab9c7eadfd8df19006f1cf1a4aed13540ed5cbc047010ece5826e10825488"
+checksum = "573015e8ab27661678357f27dc26460738fd2b6c86e46f386fde94cb5d913105"
 dependencies = [
  "proc-macro2",
 ]
@@ -1102,22 +1120,22 @@ dependencies = [
 
 [[package]]
 name = "serde"
-version = "1.0.164"
+version = "1.0.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e8c8cf938e98f769bc164923b06dce91cea1751522f46f8466461af04c9027d"
+checksum = "7daf513456463b42aa1d94cff7e0c24d682b429f020b9afa4f5ba5c40a22b237"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.164"
+version = "1.0.167"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9735b638ccc51c28bf6914d90a2e9725b377144fc612c49a611fddd1b631d68"
+checksum = "b69b106b68bc8054f0e974e70d19984040f8a5cf9215ca82626ea4853f82c4b9"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.18",
+ "syn 2.0.23",
 ]
 
 [[package]]
@@ -1168,9 +1186,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.18"
+version = "2.0.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32d41677bcbe24c20c52e7c70b0d8db04134c5d1066bf98662e2871ad200ea3e"
+checksum = "59fb7d6d8281a51045d62b8eb3a7d1ce347b76f312af50cd3dc0af39c87c1737"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1208,22 +1226,22 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "978c9a314bd8dc99be594bc3c175faaa9794be04a5a5e153caba6915336cebac"
+checksum = "a35fc5b8971143ca348fa6df4f024d4d55264f3468c71ad1c2f365b0a4d58c42"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.40"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
+checksum = "463fe12d7993d3b327787537ce8dd4dfa058de32fc2b195ef3cde03dc4771e8f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.18",
+ "syn 2.0.23",
 ]
 
 [[package]]

@@ -30,5 +30,5 @@ flate2 = { version = "1.0.26", optional = true }
 tar = { version = "0.4.38", optional = true }
 ureq = { version = "2.7.1", default-features = false, features = ["tls"], optional = true }
 
-lindera-core = { version = "0.25.0" }
+lindera-core = { version = "0.26.0" }
 jpreprocess-dictionary-builder = { version = "0.2.0", path="../jpreprocess-dictionary-builder" }
