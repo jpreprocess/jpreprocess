@@ -38,8 +38,8 @@ pub fn load_dictionary() -> LinderaResult<Dictionary> {
         cost_matrix: connection(),
         char_definitions: char_def()?,
         unknown_dictionary: unknown_dict()?,
-        words_idx_data: Cow::from(vec![]),
-        words_data: Cow::from(vec![]),
+        words_idx_data: Cow::Owned(vec![]),
+        words_data: Cow::Owned(vec![]),
     })
 }
 

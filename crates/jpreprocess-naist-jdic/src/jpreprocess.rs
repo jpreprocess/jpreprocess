@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use jpreprocess_dictionary::{Dictionary, JPreprocessDictionary};
 
 #[cfg(feature = "naist-jdic")]
@@ -15,10 +17,10 @@ pub fn load_dictionary() -> JPreprocessDictionary {
     Dictionary::load_bin(words_data(), words_idx_data()).into()
 }
 
-pub fn words_idx_data() -> Vec<u8> {
-    WORDS_IDX_DATA.to_vec()
+pub fn words_idx_data() -> Cow<'static, [u8]> {
+    Cow::Borrowed(WORDS_IDX_DATA)
 }
 
-pub fn words_data() -> Vec<u8> {
-    WORDS_DATA.to_vec()
+pub fn words_data() -> Cow<'static, [u8]> {
+    Cow::Borrowed(WORDS_DATA)
 }
