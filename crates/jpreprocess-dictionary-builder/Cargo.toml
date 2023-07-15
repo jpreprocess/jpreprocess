@@ -20,10 +20,10 @@ csv = "1.2.2"
 env_logger = "0.10.0"
 glob = "0.3.1"
 log = "0.4.19"
-serde = "1.0.170"
+serde = "1.0.171"
 yada = "0.5.0"
 rayon = "1.7"
 
-lindera-core = { version = "0.26.0" }
+lindera-core = { version = "0.27.0" }
 
 jpreprocess-core = { version = "0.2.0", path="../jpreprocess-core" }
