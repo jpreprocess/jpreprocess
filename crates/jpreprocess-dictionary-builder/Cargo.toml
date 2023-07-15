@@ -13,7 +13,7 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-dictionary-builder"
 
 [dependencies]
-anyhow = "1.0.71"
+anyhow = "1.0.72"
 bincode = "1.3.3"
 byteorder = "1.4.3"
 csv = "1.2.2"

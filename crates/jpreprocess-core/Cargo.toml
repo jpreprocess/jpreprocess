@@ -15,7 +15,7 @@ documentation = "https://docs.rs/jpreprocess-core"
 [dependencies]
 
 thiserror = "1.0.43"
-anyhow = "1.0.71"
+anyhow = "1.0.72"
 
 aho-corasick = "1.0"
 
