@@ -37,4 +37,4 @@ jpreprocess-dictionary = { version = "0.2.0", path="../jpreprocess-dictionary" }
 
 jpreprocess-naist-jdic = { version = "0.2.0", path="../jpreprocess-naist-jdic", optional = true }
 
-clap = { version = "4.3.12", features = ["derive"], optional = true }
+clap = { version = "4.3.19", features = ["derive"], optional = true }
