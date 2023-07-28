@@ -41,14 +41,14 @@ mod normalize_text;
 
 pub use dictionary::*;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
-use jpreprocess_dictionary::JPreprocessDictionary;
+use jpreprocess_dictionary::WordDictionaryConfig;
 pub use jpreprocess_njd::NJD;
 use lindera_tokenizer::tokenizer::Tokenizer;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub struct JPreprocess {
     tokenizer: Tokenizer,
-    dictionary: Option<JPreprocessDictionary>,
+    dictionary_config: WordDictionaryConfig,
 }
 
 impl JPreprocess {
@@ -87,11 +87,11 @@ impl JPreprocess {
     /// # fn main() {}
     /// ```
     pub fn new(config: JPreprocessDictionaryConfig) -> JPreprocessResult<Self> {
-        let (tokenizer, dictionary) = config.load()?;
+        let (tokenizer, dictionary_config) = config.load()?;
 
         Ok(Self {
             tokenizer,
-            dictionary,
+            dictionary_config,
         })
     }
 
@@ -103,11 +103,7 @@ impl JPreprocess {
             .tokenize(normalized_input_text.as_str())
             .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
 
-        if let Some(dictionary) = self.dictionary.as_ref() {
-            NJD::from_tokens_dict(tokens, dictionary)
-        } else {
-            NJD::from_tokens_string(tokens)
-        }
+        NJD::from_tokens(&tokens, self.dictionary_config)
     }
 
     /// Tokenize a text, preprocess, and return NJD converted to string.

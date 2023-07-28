@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
-use jpreprocess_dictionary::{DictionaryTrait, JPreprocessDictionary};
+use jpreprocess_dictionary::{WordDictionaryConfig, WordDictionaryMode};
 use lindera_core::mode::Mode;
 use lindera_dictionary::DictionaryConfig;
 use lindera_tokenizer::tokenizer::{Tokenizer, TokenizerConfig};
@@ -26,21 +26,38 @@ pub enum JPreprocessDictionaryConfig {
 }
 
 impl JPreprocessDictionaryConfig {
-    pub(crate) fn load(self) -> JPreprocessResult<(Tokenizer, Option<JPreprocessDictionary>)> {
+    pub(crate) fn load(self) -> JPreprocessResult<(Tokenizer, WordDictionaryConfig)> {
         match self {
             Self::Bundled(kind) => {
-                let (lindera_dictionary, jpreprocess_dictionary) = kind.load();
-                let tokenizer = Tokenizer::new(lindera_dictionary, None, Mode::Normal);
-                Ok((tokenizer, Some(jpreprocess_dictionary)))
+                let dictionary = kind.load();
+                let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
+                Ok((
+                    tokenizer,
+                    WordDictionaryConfig {
+                        system: WordDictionaryMode::JPreprocess,
+                        user: None,
+                    },
+                ))
             }
             Self::FileLindera(dictionary_path) => {
                 let tokenizer = Self::lindera_tokenizer(dictionary_path)?;
-                Ok((tokenizer, None))
+                Ok((
+                    tokenizer,
+                    WordDictionaryConfig {
+                        system: WordDictionaryMode::Lindera,
+                        user: None,
+                    },
+                ))
             }
             Self::FileJPreprocess(dictionary_path) => {
-                let tokenizer = Self::lindera_tokenizer(dictionary_path.clone())?;
-                let jpreprocess_dictionary = JPreprocessDictionary::load(dictionary_path)?;
-                Ok((tokenizer, Some(jpreprocess_dictionary)))
+                let tokenizer = Self::lindera_tokenizer(dictionary_path)?;
+                Ok((
+                    tokenizer,
+                    WordDictionaryConfig {
+                        system: WordDictionaryMode::JPreprocess,
+                        user: None,
+                    },
+                ))
             }
         }
     }

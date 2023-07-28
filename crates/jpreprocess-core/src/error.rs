@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum JPreprocessErrorKind {
     Io,
-    DictionaryIndexOutOfRange,
+    WordNotFoundError,
     DictionaryLoadError,
     LinderaError,
     PronunciationParseError,
