@@ -603,8 +603,6 @@ dependencies = [
  "byteorder",
  "encoding",
  "flate2",
- "jpreprocess-core",
- "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
  "lindera-core",
  "once_cell",

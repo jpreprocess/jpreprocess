@@ -68,17 +68,17 @@ jobs:
 
           publish_package "jpreprocess-core"
           sleep 5
+          publish_package "jpreprocess-dictionary-builder"
+          sleep 5
+          publish_package "jpreprocess-naist-jdic"
+          sleep 5
           publish_package "jpreprocess-window"
           sleep 5
           publish_package "jpreprocess-dictionary"
           sleep 5
-          publish_package "jpreprocess-dictionary-builder"
-          sleep 5
           publish_package "jpreprocess-njd"
           sleep 5
           publish_package "jpreprocess-jpcommon"
-          sleep 5
-          publish_package "jpreprocess-naist-jdic"
           sleep 5
           publish_package "jpreprocess"
 
