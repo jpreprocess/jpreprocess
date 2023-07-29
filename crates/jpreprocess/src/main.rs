@@ -35,9 +35,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
     let config = if let Some(dict) = cli.dict.jpreprocess_dictionary {
-        JPreprocessDictionaryConfig::FileJPreprocess(dict)
+        SystemDictionaryConfig::FileJPreprocess(dict)
     } else if let Some(dict) = cli.dict.lindera_dictionary {
-        JPreprocessDictionaryConfig::FileLindera(dict)
+        SystemDictionaryConfig::File(dict)
     } else {
         let args_error = || {
             use clap::{error::ErrorKind, CommandFactory};
@@ -57,7 +57,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 args_error()
             }
             #[cfg(feature = "naist-jdic")]
-            JPreprocessDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
+            SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
         } else {
             args_error()
         }

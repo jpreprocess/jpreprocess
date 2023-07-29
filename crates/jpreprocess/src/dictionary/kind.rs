@@ -12,6 +12,7 @@ impl JPreprocessDictionaryKind {
             #[cfg(feature = "naist-jdic")]
             Self::NaistJdic => jpreprocess_naist_jdic::lindera::load_dictionary().unwrap(),
 
+            #[allow(unreachable_patterns)]
             _ => unreachable!(),
         }
     }

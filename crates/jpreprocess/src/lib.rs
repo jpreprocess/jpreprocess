@@ -9,7 +9,7 @@
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! #     let path = PathBuf::from("tests/dict");
-//! let config = JPreprocessDictionaryConfig::FileLindera(path);
+//! let config = SystemDictionaryConfig::File(path);
 //! let jpreprocess = JPreprocess::new(config)?;
 //!
 //! let jpcommon_label = jpreprocess
@@ -63,7 +63,7 @@ impl JPreprocess {
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("tests/dict");
-    /// let config = JPreprocessDictionaryConfig::FileLindera(path);
+    /// let config = SystemDictionaryConfig::File(path);
     /// let jpreprocess = JPreprocess::new(config)?;
     /// #
     /// #     Ok(())
@@ -78,7 +78,7 @@ impl JPreprocess {
     ///
     /// # #[cfg(feature = "naist-jdic")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let config = JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    /// let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
     /// let jpreprocess = JPreprocess::new(config)?;
     /// #
     /// #     Ok(())
@@ -86,12 +86,15 @@ impl JPreprocess {
     /// # #[cfg(not(feature = "naist-jdic"))]
     /// # fn main() {}
     /// ```
-    pub fn new(config: JPreprocessDictionaryConfig) -> JPreprocessResult<Self> {
-        let (tokenizer, dictionary_config) = config.load()?;
+    pub fn new(config: SystemDictionaryConfig) -> JPreprocessResult<Self> {
+        let (tokenizer, system_mode) = config.load()?;
 
         Ok(Self {
             tokenizer,
-            dictionary_config,
+            dictionary_config: WordDictionaryConfig {
+                system: system_mode,
+                user: None,
+            },
         })
     }
 
