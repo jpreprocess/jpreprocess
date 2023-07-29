@@ -33,8 +33,7 @@ const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic
 const UNKNOWN_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const WORDS_IDX_DATA: &[u8] =
-    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.wordsidx"));
+const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.wordsidx"));
 #[cfg(not(feature = "naist-jdic"))]
 const WORDS_IDX_DATA: &[u8] = &[];
 
