@@ -22,6 +22,6 @@ lindera-core = { version = "0.27.0" }
 lindera-ipadic-builder = { version = "0.27.0" }
 lindera-tokenizer = { version = "0.27" }
 
-serde = { version = "1.0.175" }
+serde = { version = "1.0.178" }
 
 jpreprocess-core = { version = "0.2.0", path="../jpreprocess-core" }
