@@ -13,7 +13,7 @@ pub struct WordDictionaryConfig {
 impl WordDictionaryConfig {
     pub fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
         if token.word_id.is_unknown() {
-            return Ok(WordEntry::default());
+            Ok(WordEntry::default())
         } else if token.word_id.is_system() {
             self.system.get_word(token)
         } else if let Some(user_dict) = self.user {
@@ -36,7 +36,7 @@ pub enum WordDictionaryMode {
 
 impl WordDictionaryMode {
     pub fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
-        let details_bin = Self::get_word_binary(&token)?;
+        let details_bin = Self::get_word_binary(token)?;
         match self {
             Self::Lindera => {
                 let mut details_str: Vec<&str> = bincode::deserialize(details_bin)

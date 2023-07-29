@@ -62,7 +62,7 @@ impl IpadicBuilder {
 
         let mut words = normalized_rows
             .par_iter()
-            .map(|s| self.serializer.serialize(&s))
+            .map(|s| self.serializer.serialize(s))
             .collect::<Result<Vec<Vec<u8>>, _>>()?;
 
         words.insert(0, self.serializer.identifier().as_bytes().to_vec());
