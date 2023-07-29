@@ -23,26 +23,19 @@ pub enum SystemDictionaryConfig {
 
 impl SystemDictionaryConfig {
     pub(crate) fn load(self) -> JPreprocessResult<(Tokenizer, WordDictionaryMode)> {
-        match self {
-            Self::Bundled(kind) => {
-                let dictionary = kind.load();
-                let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
-                Ok((tokenizer, WordDictionaryMode::JPreprocess))
-            }
-            Self::File(dictionary_path) => {
-                let dictionary = load_dictionary_from_config(DictionaryConfig {
-                    kind: None,
-                    path: Some(dictionary_path),
-                })
-                .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
+        let dictionary = match self {
+            Self::Bundled(kind) => kind.load(),
+            Self::File(dictionary_path) => load_dictionary_from_config(DictionaryConfig {
+                kind: None,
+                path: Some(dictionary_path),
+            })
+            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?,
+        };
 
-                let word_dict_config = detect_dictionary(&dictionary.words_data);
+        let word_dict_config = detect_dictionary(&dictionary.words_data);
+        let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
 
-                let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
-
-                Ok((tokenizer, word_dict_config))
-            }
-        }
+        Ok((tokenizer, word_dict_config))
     }
 }
 
