@@ -31,9 +31,9 @@ const TEST_STR: &[&str] = &[
 
 fn test_one(input_text: &'static str) {
     #[cfg(feature = "naist-jdic")]
-    let config = JPreprocessDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
     #[cfg(not(feature = "naist-jdic"))]
-    let config = JPreprocessDictionaryConfig::FileLindera(PathBuf::from("tests/dict"));
+    let config = SystemDictionaryConfig::File(PathBuf::from("tests/dict"));
 
     let jpreprocess = JPreprocess::new(config).unwrap();
 

@@ -558,11 +558,13 @@ dependencies = [
 name = "jpreprocess-dictionary"
 version = "0.2.0"
 dependencies = [
+ "anyhow",
  "bincode",
  "byteorder",
  "jpreprocess-core",
  "lindera-core",
  "lindera-ipadic-builder",
+ "lindera-tokenizer",
  "once_cell",
  "serde",
 ]

@@ -32,14 +32,24 @@ const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic
 #[cfg(not(feature = "naist-jdic"))]
 const UNKNOWN_DATA: &[u8] = &[];
 
+#[cfg(feature = "naist-jdic")]
+const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.wordsidx"));
+#[cfg(not(feature = "naist-jdic"))]
+const WORDS_IDX_DATA: &[u8] = &[];
+
+#[cfg(feature = "naist-jdic")]
+const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.words"));
+#[cfg(not(feature = "naist-jdic"))]
+const WORDS_DATA: &[u8] = &[];
+
 pub fn load_dictionary() -> LinderaResult<Dictionary> {
     Ok(Dictionary {
         dict: prefix_dict(),
         cost_matrix: connection(),
         char_definitions: char_def()?,
         unknown_dictionary: unknown_dict()?,
-        words_idx_data: Cow::Owned(vec![]),
-        words_data: Cow::Owned(vec![]),
+        words_idx_data: words_idx_data(),
+        words_data: words_data(),
     })
 }
 
@@ -57,4 +67,12 @@ pub fn prefix_dict() -> PrefixDict {
 
 pub fn unknown_dict() -> LinderaResult<UnknownDictionary> {
     UnknownDictionary::load(UNKNOWN_DATA)
+}
+
+pub fn words_idx_data() -> Cow<'static, [u8]> {
+    Cow::Borrowed(WORDS_IDX_DATA)
+}
+
+pub fn words_data() -> Cow<'static, [u8]> {
+    Cow::Borrowed(WORDS_DATA)
 }
