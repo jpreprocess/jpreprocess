@@ -2,7 +2,9 @@ use std::error::Error;
 
 #[cfg(feature = "naist-jdic")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
+    use jpreprocess_dictionary_builder::{
+        ipadic_builder::IpadicBuilder, serializer::JPreprocessSerializer,
+    };
     use lindera_core::dictionary_builder::DictionaryBuilder;
     use std::{
         env,
@@ -88,7 +90,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let output_dir = Path::new(&build_dir).join("naist-jdic");
 
     // Build a dictionary
-    let builder = IpadicBuilder::new();
+    let builder = IpadicBuilder::new(Box::new(JPreprocessSerializer));
     builder.build_dictionary(&input_dir, &output_dir)?;
 
     let license_file = &input_dir.join(Path::new("COPYING"));

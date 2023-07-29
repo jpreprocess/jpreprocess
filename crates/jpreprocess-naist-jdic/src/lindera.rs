@@ -34,12 +34,12 @@ const UNKNOWN_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
 const WORDS_IDX_DATA: &[u8] =
-    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/jpreprocess.wordsidx"));
+    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.wordsidx"));
 #[cfg(not(feature = "naist-jdic"))]
 const WORDS_IDX_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/jpreprocess.words"));
+const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/dict.words"));
 #[cfg(not(feature = "naist-jdic"))]
 const WORDS_DATA: &[u8] = &[];
 

@@ -27,24 +27,80 @@ use lindera_core::{
     LinderaResult,
 };
 
+use crate::serializer::{DictionarySerializer, LinderaSerializer};
+
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
 const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
 
-pub struct IpadicBuilder {}
+pub struct IpadicBuilder {
+    serializer: Box<dyn Send + Sync + DictionarySerializer>,
+}
 
 impl IpadicBuilder {
     const UNK_FIELDS_NUM: usize = 11;
 
-    pub fn new() -> Self {
-        IpadicBuilder {}
+    pub fn new(serializer: Box<dyn Send + Sync + DictionarySerializer>) -> Self {
+        IpadicBuilder { serializer }
+    }
+
+    fn write_words(
+        &self,
+        wtr_words_path: &Path,
+        wtr_words_idx_path: &Path,
+        normalized_rows: &Vec<Vec<String>>,
+    ) -> Result<(), lindera_core::error::LinderaError> {
+        let mut wtr_words = io::BufWriter::new(
+            File::create(wtr_words_path)
+                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
+        );
+        let mut wtr_words_idx = io::BufWriter::new(
+            File::create(wtr_words_idx_path)
+                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
+        );
+
+        let mut words = normalized_rows
+            .par_iter()
+            .map(|s| self.serializer.serialize(&s))
+            .collect::<Result<Vec<Vec<u8>>, _>>()?;
+
+        words.insert(0, self.serializer.identifier().as_bytes().to_vec());
+
+        let words_idx: Vec<usize> = words
+            .iter()
+            .scan(0, |acc, e| {
+                let offset = *acc;
+                *acc += e.len();
+                Some(offset)
+            })
+            .collect();
+
+        let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
+        // The first element is metadata, so skip it.
+        for word_idx in words_idx.iter().skip(1) {
+            words_idx_buffer
+                .write_u32::<LittleEndian>(*word_idx as u32)
+                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+        }
+
+        let words_buffer = words.concat();
+
+        write(&words_buffer, &mut wtr_words)?;
+        write(&words_idx_buffer, &mut wtr_words_idx)?;
+        wtr_words
+            .flush()
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+        wtr_words_idx
+            .flush()
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+        Ok(())
     }
 }
 
 impl Default for IpadicBuilder {
     fn default() -> Self {
-        Self::new()
+        Self::new(Box::new(LinderaSerializer))
     }
 }
 
@@ -234,17 +290,10 @@ impl DictionaryBuilder for IpadicBuilder {
                 });
         }
 
-        write_words(
+        self.write_words(
             output_dir.join(Path::new("dict.words")).as_path(),
             output_dir.join(Path::new("dict.wordsidx")).as_path(),
             &normalized_rows,
-            serialize_lindera_word,
-        )?;
-        write_words(
-            output_dir.join(Path::new("jpreprocess.words")).as_path(),
-            output_dir.join(Path::new("jpreprocess.wordsidx")).as_path(),
-            &normalized_rows,
-            serialize_jpreprocess_word,
         )?;
 
         let mut id = 0u32;
@@ -453,82 +502,6 @@ impl DictionaryBuilder for IpadicBuilder {
             words_idx_data,
             words_data,
         })
-    }
-}
-
-fn write_words<F>(
-    wtr_words_path: &Path,
-    wtr_words_idx_path: &Path,
-    normalized_rows: &Vec<Vec<String>>,
-    f: F,
-) -> Result<(), lindera_core::error::LinderaError>
-where
-    F: Sync + Send + Fn(&Vec<String>) -> Result<Vec<u8>, lindera_core::error::LinderaError>,
-{
-    let mut wtr_words = io::BufWriter::new(
-        File::create(wtr_words_path)
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
-    );
-    let mut wtr_words_idx = io::BufWriter::new(
-        File::create(wtr_words_idx_path)
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
-    );
-
-    let words = normalized_rows
-        .par_iter()
-        .map(f)
-        .collect::<Result<Vec<Vec<u8>>, _>>()?;
-    let words_idx: Vec<usize> = words
-        .iter()
-        .scan(0, |acc, e| {
-            let offset = *acc;
-            *acc += e.len();
-            Some(offset)
-        })
-        .collect();
-    let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
-    for word_idx in words_idx {
-        words_idx_buffer
-            .write_u32::<LittleEndian>(word_idx as u32)
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-    }
-    let words_buffer = words.concat();
-
-    write(&words_buffer, &mut wtr_words)?;
-    write(&words_idx_buffer, &mut wtr_words_idx)?;
-    wtr_words
-        .flush()
-        .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-    wtr_words_idx
-        .flush()
-        .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-    Ok(())
-}
-
-#[allow(clippy::ptr_arg)]
-fn serialize_lindera_word(row: &Vec<String>) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
-    let mut word_detail = Vec::new();
-    for item in row.iter().skip(4) {
-        word_detail.push(item.to_string());
-    }
-    bincode::serialize(&word_detail)
-        .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
-}
-
-#[allow(clippy::ptr_arg)]
-fn serialize_jpreprocess_word(
-    row: &Vec<String>,
-) -> Result<Vec<u8>, lindera_core::error::LinderaError> {
-    use jpreprocess_core::word_entry::WordEntry;
-    let mut str_details = row.iter().skip(4).map(|d| &d[..]).collect::<Vec<&str>>();
-    str_details.resize(13, "");
-    match WordEntry::load(&str_details[..]) {
-        Ok(entry) => bincode::serialize(&entry)
-            .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err))),
-        Err(err) => {
-            eprintln!("ERR: jpreprocess parse failed. Word:\n{:?}", &row);
-            Err(LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
-        }
     }
 }
 
