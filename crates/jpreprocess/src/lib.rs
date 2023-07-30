@@ -44,7 +44,7 @@ mod normalize_text;
 
 pub use dictionary::*;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
-use jpreprocess_dictionary::WordDictionaryConfig;
+use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
 pub use jpreprocess_njd::NJD;
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
@@ -121,10 +121,10 @@ impl JPreprocess {
     /// Note: `new` before v0.2.0 has moved to `from_config`
     pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
         let dictionary_config = WordDictionaryConfig {
-            system: detect_dictionary(&dictionary.words_data),
-            user: user_dictionary
-                .as_ref()
-                .map(|user_dictionary| detect_dictionary(&user_dictionary.words_data)),
+            system: detect_dictionary(&dictionary.words_idx_data, &dictionary.words_data),
+            user: user_dictionary.as_ref().map(|user_dictionary| {
+                detect_dictionary(&user_dictionary.words_idx_data, &user_dictionary.words_data)
+            }),
         };
 
         let tokenizer = Tokenizer::new(

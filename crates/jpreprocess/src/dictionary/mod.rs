@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
-use jpreprocess_dictionary::WordDictionaryMode;
 use lindera_core::dictionary::Dictionary;
 use lindera_dictionary::{load_dictionary_from_config, DictionaryConfig};
 
@@ -30,13 +29,5 @@ impl SystemDictionaryConfig {
             })
             .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err)),
         }
-    }
-}
-
-pub fn detect_dictionary(words_data: &[u8]) -> WordDictionaryMode {
-    if words_data.starts_with(b"JPreprocess") {
-        WordDictionaryMode::JPreprocess
-    } else {
-        WordDictionaryMode::Lindera
     }
 }
