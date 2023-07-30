@@ -4,6 +4,8 @@ use lindera_tokenizer::token::Token;
 
 use jpreprocess_core::JPreprocessResult;
 
+use crate::query::DictionaryQuery;
+
 #[derive(Clone, Copy, Debug)]
 pub struct WordDictionaryConfig {
     pub system: WordDictionaryMode,
@@ -35,8 +37,8 @@ pub enum WordDictionaryMode {
 }
 
 impl WordDictionaryMode {
-    pub fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
-        let details_bin = Self::get_word_binary(token)?;
+    pub fn get_word(&self, query: &(dyn DictionaryQuery)) -> JPreprocessResult<WordEntry> {
+        let details_bin = Self::get_word_binary(query)?;
         match self {
             Self::Lindera => {
                 let mut details_str: Vec<&str> = bincode::deserialize(details_bin)
@@ -52,14 +54,14 @@ impl WordDictionaryMode {
         }
     }
 
-    fn get_word_binary<'a>(token: &'a Token) -> JPreprocessResult<&'a [u8]> {
-        let (words_idx_data, words_data) = if token.word_id.is_system() {
+    fn get_word_binary<'a>(query: &'a (dyn DictionaryQuery)) -> JPreprocessResult<&'a [u8]> {
+        let (words_idx_data, words_data) = if query.word_id().is_system() {
             (
-                &token.dictionary.words_idx_data[..],
-                &token.dictionary.words_data[..],
+                &query.dictionary().words_idx_data[..],
+                &query.dictionary().words_data[..],
             )
         } else {
-            match token.user_dictionary {
+            match query.user_dictionary() {
                 Some(user_dictionary) => (
                     &user_dictionary.words_idx_data[..],
                     &user_dictionary.words_data[..],
@@ -74,12 +76,12 @@ impl WordDictionaryMode {
             }
         };
 
-        let start_point = 4 * token.word_id.0 as usize;
+        let start_point = 4 * query.word_id().0 as usize;
         if words_idx_data.len() < start_point + 4 {
             return Err(
                 JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(
                     "Word index {:?} is out of range.",
-                    token.word_id
+                    query.word_id()
                 )),
             );
         }
