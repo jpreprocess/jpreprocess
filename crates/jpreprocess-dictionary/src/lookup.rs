@@ -75,13 +75,17 @@ impl WordDictionaryMode {
         };
 
         let start_point = 4 * token.word_id.0 as usize;
-        if words_idx_data.len() <= start_point + 4 {
-            return Err(JPreprocessErrorKind::WordNotFoundError
-                .with_error(anyhow::anyhow!("Word index is out of range.")));
+        if words_idx_data.len() < start_point + 4 {
+            return Err(
+                JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(
+                    "Word index {:?} is out of range.",
+                    token.word_id
+                )),
+            );
         }
 
         let idx = LittleEndian::read_u32(&words_idx_data[start_point..start_point + 4]) as usize;
-        let idx_next = if words_idx_data.len() <= start_point + 8 {
+        let idx_next = if words_idx_data.len() < start_point + 8 {
             words_data.len()
         } else {
             LittleEndian::read_u32(&words_idx_data[start_point + 4..start_point + 8]) as usize
