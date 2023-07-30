@@ -2,9 +2,8 @@ use std::path::PathBuf;
 
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 use jpreprocess_dictionary::WordDictionaryMode;
-use lindera_core::mode::Mode;
+use lindera_core::dictionary::Dictionary;
 use lindera_dictionary::{load_dictionary_from_config, DictionaryConfig};
-use lindera_tokenizer::tokenizer::Tokenizer;
 
 pub mod kind;
 
@@ -22,26 +21,14 @@ pub enum SystemDictionaryConfig {
 }
 
 impl SystemDictionaryConfig {
-    pub(crate) fn load(self) -> JPreprocessResult<(Tokenizer, WordDictionaryMode)> {
+    pub fn load(self) -> JPreprocessResult<Dictionary> {
         match self {
-            Self::Bundled(kind) => {
-                let dictionary = kind.load();
-                let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
-                Ok((tokenizer, WordDictionaryMode::JPreprocess))
-            }
-            Self::File(dictionary_path) => {
-                let dictionary = load_dictionary_from_config(DictionaryConfig {
-                    kind: None,
-                    path: Some(dictionary_path),
-                })
-                .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
-
-                let word_dict_config = detect_dictionary(&dictionary.words_data);
-
-                let tokenizer = Tokenizer::new(dictionary, None, Mode::Normal);
-
-                Ok((tokenizer, word_dict_config))
-            }
+            Self::Bundled(kind) => Ok(kind.load()),
+            Self::File(dictionary_path) => load_dictionary_from_config(DictionaryConfig {
+                kind: None,
+                path: Some(dictionary_path),
+            })
+            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err)),
         }
     }
 }

@@ -1,7 +1,7 @@
 use std::{
-    collections::BTreeMap,
     fs::{self, File},
     io::{self, Write},
+    ops::Deref,
     path::{Path, PathBuf},
     str::FromStr,
     u32,
@@ -13,7 +13,6 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
 use glob::glob;
 use log::debug;
-use yada::{builder::DoubleArrayBuilder, DoubleArray};
 
 use lindera_core::{
     character_definition::{CharacterDefinitions, CharacterDefinitionsBuilder},
@@ -21,21 +20,17 @@ use lindera_core::{
     dictionary_builder::DictionaryBuilder,
     error::LinderaErrorKind,
     file_util::read_utf8_file,
-    prefix_dict::PrefixDict,
     unknown_dictionary::parse_unk,
-    word_entry::{WordEntry, WordId},
     LinderaResult,
 };
 
-use crate::serializer::{DictionarySerializer, LinderaSerializer};
-
-const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
-const SIMPLE_WORD_COST: i16 = -10000;
-const SIMPLE_CONTEXT_ID: u16 = 0;
-const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
+use crate::{
+    build_dict::*,
+    serializer::{DictionarySerializer, LinderaSerializer},
+};
 
 pub struct IpadicBuilder {
-    serializer: Box<dyn Send + Sync + DictionarySerializer>,
+    serializer: Box<dyn DictionarySerializer + Send + Sync>,
 }
 
 impl IpadicBuilder {
@@ -49,6 +44,7 @@ impl IpadicBuilder {
         &self,
         wtr_words_path: &Path,
         wtr_words_idx_path: &Path,
+        is_system: bool,
         normalized_rows: &Vec<Vec<String>>,
     ) -> Result<(), lindera_core::error::LinderaError> {
         let mut wtr_words = io::BufWriter::new(
@@ -60,31 +56,8 @@ impl IpadicBuilder {
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
         );
 
-        let mut words = normalized_rows
-            .par_iter()
-            .map(|s| self.serializer.serialize(s))
-            .collect::<Result<Vec<Vec<u8>>, _>>()?;
-
-        words.insert(0, self.serializer.identifier().as_bytes().to_vec());
-
-        let words_idx: Vec<usize> = words
-            .iter()
-            .scan(0, |acc, e| {
-                let offset = *acc;
-                *acc += e.len();
-                Some(offset)
-            })
-            .collect();
-
-        let mut words_idx_buffer = Vec::with_capacity(words_idx.len() * 4);
-        // The first element is metadata, so skip it.
-        for word_idx in words_idx.iter().skip(1) {
-            words_idx_buffer
-                .write_u32::<LittleEndian>(*word_idx as u32)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-        }
-
-        let words_buffer = words.concat();
+        let (words_idx_buffer, words_buffer) =
+            build_words(self.serializer.deref(), normalized_rows, is_system)?;
 
         write(&words_buffer, &mut wtr_words)?;
         write(&words_idx_buffer, &mut wtr_words_idx)?;
@@ -95,6 +68,22 @@ impl IpadicBuilder {
             .flush()
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
         Ok(())
+    }
+
+    pub fn build_user_dict_from_data(
+        &self,
+        rows: &Vec<Vec<&str>>,
+    ) -> LinderaResult<UserDictionary> {
+        let mut normalized_rows: Vec<Vec<String>> = normalize_rows(rows);
+        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        let (words_idx_data, words_data) =
+            build_words(self.serializer.deref(), &normalized_rows, false)?;
+        let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
+        Ok(UserDictionary {
+            dict,
+            words_idx_data,
+            words_data,
+        })
     }
 }
 
@@ -246,16 +235,7 @@ impl DictionaryBuilder for IpadicBuilder {
             }
         }
 
-        let mut normalized_rows: Vec<Vec<String>> = rows
-            .into_par_iter()
-            .map(|row| {
-                row.into_iter()
-                    // yeah for EUC_JP and ambiguous unicode 8012 vs 8013
-                    // same bullshit as above between for 12316 vs 65374
-                    .map(|column| column.to_string().replace('―', "—").replace('～', "〜"))
-                    .collect()
-            })
-            .collect();
+        let mut normalized_rows: Vec<Vec<String>> = normalize_rows(&rows);
 
         normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
 
@@ -271,57 +251,18 @@ impl DictionaryBuilder for IpadicBuilder {
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,
         );
 
-        let mut word_entry_map: BTreeMap<String, Vec<WordEntry>> = BTreeMap::new();
-
-        for (row_id, row) in normalized_rows.iter().enumerate() {
-            word_entry_map
-                .entry(row[0].to_string())
-                .or_insert_with(Vec::new)
-                .push(WordEntry {
-                    word_id: WordId(row_id as u32, true),
-                    word_cost: i16::from_str(row[3].trim()).map_err(|_err| {
-                        LinderaErrorKind::Parse
-                            .with_error(anyhow::anyhow!("failed to parse word_cost"))
-                    })?,
-                    cost_id: u16::from_str(row[1].trim()).map_err(|_err| {
-                        LinderaErrorKind::Parse
-                            .with_error(anyhow::anyhow!("failed to parse cost_id"))
-                    })?,
-                });
-        }
-
         self.write_words(
             output_dir.join(Path::new("dict.words")).as_path(),
             output_dir.join(Path::new("dict.wordsidx")).as_path(),
+            true,
             &normalized_rows,
         )?;
 
-        let mut id = 0u32;
+        let prefix_dict = build_prefix_dict(build_word_entry_map(&normalized_rows, true)?, true)?;
 
-        let mut keyset: Vec<(&[u8], u32)> = vec![];
-        for (key, word_entries) in &word_entry_map {
-            let len = word_entries.len() as u32;
-            let val = (id << 5) | len; // 27bit for word ID, 5bit for different parts of speech on the same surface.
-            keyset.push((key.as_bytes(), val));
-            id += len;
-        }
+        write(&prefix_dict.da.0, &mut wtr_da)?;
 
-        let da_bytes = DoubleArrayBuilder::build(&keyset).ok_or_else(|| {
-            LinderaErrorKind::Io.with_error(anyhow::anyhow!("DoubleArray build error."))
-        })?;
-
-        write(&da_bytes, &mut wtr_da)?;
-
-        let mut vals_buffer = Vec::new();
-        for word_entries in word_entry_map.values() {
-            for word_entry in word_entries {
-                word_entry
-                    .serialize(&mut vals_buffer)
-                    .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-            }
-        }
-
-        write(&vals_buffer, &mut wtr_vals)?;
+        write(&prefix_dict.vals_data, &mut wtr_vals)?;
 
         wtr_vals
             .flush()
@@ -396,106 +337,12 @@ impl DictionaryBuilder for IpadicBuilder {
                 result.map_err(|err| LinderaErrorKind::Content.with_error(anyhow::anyhow!(err)))?;
             rows.push(record);
         }
-        rows.sort_by_key(|row| row[0].to_string());
 
-        let mut word_entry_map: BTreeMap<String, Vec<WordEntry>> = BTreeMap::new();
-
-        for (row_id, row) in rows.iter().enumerate() {
-            let surface = row[0].to_string();
-            let word_cost = if row.len() == SIMPLE_USERDIC_FIELDS_NUM {
-                SIMPLE_WORD_COST
-            } else {
-                row[3].parse::<i16>().map_err(|_err| {
-                    LinderaErrorKind::Parse.with_error(anyhow::anyhow!("failed to parse word cost"))
-                })?
-            };
-            let cost_id = if row.len() == SIMPLE_USERDIC_FIELDS_NUM {
-                SIMPLE_CONTEXT_ID
-            } else {
-                row[1].parse::<u16>().map_err(|_err| {
-                    LinderaErrorKind::Parse
-                        .with_error(anyhow::anyhow!("failed to parse left context id"))
-                })?
-            };
-
-            word_entry_map
-                .entry(surface)
-                .or_insert_with(Vec::new)
-                .push(WordEntry {
-                    word_id: WordId(row_id as u32, false),
-                    word_cost,
-                    cost_id,
-                });
-        }
-
-        let mut words_data = Vec::<u8>::new();
-        let mut words_idx_data = Vec::<u8>::new();
-        for row in rows.iter() {
-            let word_detail = if row.len() == SIMPLE_USERDIC_FIELDS_NUM {
-                vec![
-                    row[1].to_string(), // POS
-                    "*".to_string(),    // POS subcategory 1
-                    "*".to_string(),    // POS subcategory 2
-                    "*".to_string(),    // POS subcategory 3
-                    "*".to_string(),    // Conjugation type
-                    "*".to_string(),    // Conjugation form
-                    row[0].to_string(), // Base form
-                    row[2].to_string(), // Reading
-                    "*".to_string(),    // Pronunciation
-                ]
-            } else if row.len() >= DETAILED_USERDIC_FIELDS_NUM {
-                let mut tmp_word_detail = Vec::new();
-                for item in row.iter().skip(4) {
-                    tmp_word_detail.push(item.to_string());
-                }
-                tmp_word_detail
-            } else {
-                return Err(LinderaErrorKind::Content.with_error(anyhow::anyhow!(
-                    "user dictionary should be a CSV with {} or {}+ fields",
-                    SIMPLE_USERDIC_FIELDS_NUM,
-                    DETAILED_USERDIC_FIELDS_NUM
-                )));
-            };
-
-            let offset = words_data.len();
-            words_idx_data
-                .write_u32::<LittleEndian>(offset as u32)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-            bincode::serialize_into(&mut words_data, &word_detail)
-                .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-        }
-
-        let mut id = 0u32;
-
-        // building da
-        let mut keyset: Vec<(&[u8], u32)> = vec![];
-        for (key, word_entries) in &word_entry_map {
-            let len = word_entries.len() as u32;
-            let val = (id << 5) | len;
-            keyset.push((key.as_bytes(), val));
-            id += len;
-        }
-
-        let da_bytes = DoubleArrayBuilder::build(&keyset).ok_or_else(|| {
-            LinderaErrorKind::Io
-                .with_error(anyhow::anyhow!("DoubleArray build error for user dict."))
-        })?;
-
-        // building values
-        let mut vals_data = Vec::<u8>::new();
-        for word_entries in word_entry_map.values() {
-            for word_entry in word_entries {
-                word_entry
-                    .serialize(&mut vals_data)
-                    .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-            }
-        }
-
-        let dict = PrefixDict {
-            da: DoubleArray::new(da_bytes),
-            vals_data,
-            is_system: false,
-        };
+        let mut normalized_rows: Vec<Vec<String>> = normalize_rows(&rows);
+        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        let (words_idx_data, words_data) =
+            build_words(self.serializer.deref(), &normalized_rows, false)?;
+        let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
 
         Ok(UserDictionary {
             dict,
