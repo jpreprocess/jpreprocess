@@ -54,6 +54,23 @@ impl WordDictionaryMode {
         }
     }
 
+    pub fn debug_get_word(&self, query: &(dyn DictionaryQuery)) -> String {
+        let details_bin = match Self::get_word_binary(query) {
+            Ok(details_bin) => details_bin,
+            Err(err) => return format!("Error: {:?}", err),
+        };
+        match self {
+            Self::Lindera => match bincode::deserialize::<'_, Vec<&str>>(details_bin) {
+                Ok(details_str) => details_str.join(","),
+                Err(err) => format!("Error: {:?}", err),
+            },
+            Self::JPreprocess => match bincode::deserialize::<'_, WordEntry>(details_bin) {
+                Ok(details) => format!("{:?}", details),
+                Err(err) => format!("Error: {:?}", err),
+            },
+        }
+    }
+
     fn get_word_binary<'a>(query: &'a (dyn DictionaryQuery)) -> JPreprocessResult<&'a [u8]> {
         let (words_idx_data, words_data) = if query.word_id().is_system() {
             (
@@ -80,7 +97,7 @@ impl WordDictionaryMode {
         if words_idx_data.len() < start_point + 4 {
             return Err(
                 JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(
-                    "Word index {:?} is out of range.",
+                    "Word with id {:?} does not exist.",
                     query.word_id()
                 )),
             );
