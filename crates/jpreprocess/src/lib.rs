@@ -10,7 +10,7 @@
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! #     let path = PathBuf::from("tests/dict");
 //! let config = SystemDictionaryConfig::File(path);
-//! let jpreprocess = JPreprocess::new(config)?;
+//! let jpreprocess = JPreprocess::from_config(config)?;
 //!
 //! let jpcommon_label = jpreprocess
 //!     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
@@ -43,8 +43,15 @@ pub use dictionary::*;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 use jpreprocess_dictionary::WordDictionaryConfig;
 pub use jpreprocess_njd::NJD;
+use lindera_core::dictionary::{Dictionary, UserDictionary};
+use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
 pub use normalize_text::normalize_text_for_naist_jdic;
+
+pub struct JPreprocessConfig {
+    pub dictionary: SystemDictionaryConfig,
+    pub user_dictionary: Option<UserDictionaryConfig>,
+}
 
 pub struct JPreprocess {
     tokenizer: Tokenizer,
@@ -64,7 +71,7 @@ impl JPreprocess {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("tests/dict");
     /// let config = SystemDictionaryConfig::File(path);
-    /// let jpreprocess = JPreprocess::new(config)?;
+    /// let jpreprocess = JPreprocess::from_config(config)?;
     /// #
     /// #     Ok(())
     /// # }
@@ -79,23 +86,48 @@ impl JPreprocess {
     /// # #[cfg(feature = "naist-jdic")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
-    /// let jpreprocess = JPreprocess::new(config)?;
+    /// let jpreprocess = JPreprocess::from_config(config)?;
     /// #
     /// #     Ok(())
     /// # }
     /// # #[cfg(not(feature = "naist-jdic"))]
     /// # fn main() {}
     /// ```
-    pub fn new(config: SystemDictionaryConfig) -> JPreprocessResult<Self> {
-        let (tokenizer, system_mode) = config.load()?;
+    pub fn from_config(config: JPreprocessConfig) -> JPreprocessResult<Self> {
+        let dictionary = config.dictionary.load()?;
 
-        Ok(Self {
+        let user_dictionary = match config.user_dictionary {
+            Some(user_dict_conf) => Some(
+                load_user_dictionary(user_dict_conf)
+                    .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?,
+            ),
+            None => None,
+        };
+
+        Ok(Self::new(dictionary, user_dictionary))
+    }
+
+    /// Creates JPreprocess from dictionaries.
+    ///
+    /// Note: `new` before v0.2.0 has moved to `from_config`
+    pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
+        let dictionary_config = WordDictionaryConfig {
+            system: detect_dictionary(&dictionary.words_data),
+            user: user_dictionary
+                .as_ref()
+                .map(|user_dictionary| detect_dictionary(&user_dictionary.words_data)),
+        };
+
+        let tokenizer = Tokenizer::new(
+            dictionary,
+            user_dictionary,
+            lindera_core::mode::Mode::Normal,
+        );
+
+        Self {
             tokenizer,
-            dictionary_config: WordDictionaryConfig {
-                system: system_mode,
-                user: None,
-            },
-        })
+            dictionary_config,
+        }
     }
 
     /// Tokenize a text and return NJD.

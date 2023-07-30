@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let jpreprocess = JPreprocess::new(config)?;
+    let jpreprocess = JPreprocess::from_config(config)?;
 
     let njd = jpreprocess.run_frontend(&cli.input)?;
 

@@ -530,6 +530,7 @@ dependencies = [
  "clap 4.3.19",
  "jpreprocess-core",
  "jpreprocess-dictionary",
+ "jpreprocess-dictionary-builder",
  "jpreprocess-jpcommon",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
