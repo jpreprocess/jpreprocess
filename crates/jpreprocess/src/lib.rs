@@ -9,7 +9,10 @@
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! #     let path = PathBuf::from("tests/dict");
-//! let config = SystemDictionaryConfig::File(path);
+//!  let config = JPreprocessConfig {
+//!      dictionary: SystemDictionaryConfig::File(path),
+//!      user_dictionary: None,
+//!  };
 //! let jpreprocess = JPreprocess::from_config(config)?;
 //!
 //! let jpcommon_label = jpreprocess
@@ -70,7 +73,10 @@ impl JPreprocess {
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("tests/dict");
-    /// let config = SystemDictionaryConfig::File(path);
+    ///  let config = JPreprocessConfig {
+    ///      dictionary: SystemDictionaryConfig::File(path),
+    ///      user_dictionary: None,
+    ///  };
     /// let jpreprocess = JPreprocess::from_config(config)?;
     /// #
     /// #     Ok(())
@@ -85,7 +91,10 @@ impl JPreprocess {
     ///
     /// # #[cfg(feature = "naist-jdic")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
+    ///  let config = JPreprocessConfig {
+    ///      dictionary: SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic),
+    ///      user_dictionary: None,
+    ///  };
     /// let jpreprocess = JPreprocess::from_config(config)?;
     /// #
     /// #     Ok(())

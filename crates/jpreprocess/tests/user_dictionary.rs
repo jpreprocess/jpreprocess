@@ -1,9 +1,15 @@
-use std::{error::Error, path::PathBuf};
+use std::error::Error;
 
 use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
 use jpreprocess_dictionary_builder::{
     ipadic_builder::IpadicBuilder, serializer::JPreprocessSerializer,
 };
+
+#[cfg(feature = "naist-jdic")]
+use jpreprocess::kind::*;
+
+#[cfg(not(feature = "naist-jdic"))]
+use std::path::PathBuf;
 
 #[test]
 #[ignore]
