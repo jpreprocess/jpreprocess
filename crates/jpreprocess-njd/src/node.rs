@@ -18,24 +18,9 @@ impl Display for NJDNode {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{},{},{},{},{},{},{},{}/{},{},{}",
+            "{},{}",
             self.string,
-            self.details.pos,
-            self.details.ctype,
-            self.details.cform,
-            // Ideally, this should be `self.details.orig`, but jpreprocess njdnode does not have orig
-            // and in most cases, orig is the same as string.
-            self.string,
-            self.details.read.as_ref().unwrap_or(&"*".to_string()),
-            self.details.pron,
-            self.details.acc,
-            self.details.mora_size,
-            self.details.chain_rule,
-            match self.details.chain_flag {
-                Some(true) => 1,
-                Some(false) => 0,
-                None => -1,
-            }
+            self.details.to_str_vec(self.string.to_owned()).join(",")
         )
     }
 }
