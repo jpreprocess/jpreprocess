@@ -20,7 +20,7 @@ impl DoubleArrayParser<'_> {
                 Some(unit) if c == unit.label() => {
                     assert!(!unit.is_leaf());
                     if unit.has_leaf() {
-                        let gc_pos = (unit.offset() ^ node_pos as u32 ^ 0u32) as UnitID;
+                        let gc_pos = (unit.offset() ^ node_pos as u32) as UnitID;
                         let Some(gc_unit) = self.get_unit(gc_pos) else {continue};
                         keyset.push((vec![c as u8], gc_unit.value()))
                     }
@@ -78,7 +78,7 @@ mod tests {
         let da_bytes = DoubleArrayBuilder::build(keyset);
         assert!(da_bytes.is_some());
 
-        let mut inverse = DoubleArrayParser(&da_bytes.as_ref().unwrap()).inverse_da();
+        let mut inverse = DoubleArrayParser(da_bytes.as_ref().unwrap()).inverse_da();
         inverse.sort_by_key(|(_, id)| *id);
         for (n, (s, id)) in inverse.iter().enumerate() {
             assert_eq!(keyset[n].0, s.as_bytes());
