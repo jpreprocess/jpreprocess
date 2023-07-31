@@ -44,14 +44,14 @@ impl DictionaryQuery for Query {
     }
     fn dictionary(&self) -> &Dictionary {
         match &self.dict {
-            QueryDict::System(dict) => &dict,
+            QueryDict::System(dict) => dict,
             QueryDict::User(_) => unreachable!(),
         }
     }
     fn user_dictionary(&self) -> Option<&UserDictionary> {
         match &self.dict {
             QueryDict::System(_) => unreachable!(),
-            QueryDict::User(dict) => Some(&dict),
+            QueryDict::User(dict) => Some(dict),
         }
     }
 }

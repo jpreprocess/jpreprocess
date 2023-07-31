@@ -71,7 +71,7 @@ impl WordDictionaryMode {
         }
     }
 
-    fn get_word_binary<'a>(query: &'a (dyn DictionaryQuery)) -> JPreprocessResult<&'a [u8]> {
+    fn get_word_binary(query: &(dyn DictionaryQuery)) -> JPreprocessResult<&[u8]> {
         let (words_idx_data, words_data) = if query.word_id().is_system() {
             (
                 &query.dictionary().words_idx_data[..],
