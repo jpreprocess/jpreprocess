@@ -98,6 +98,7 @@ This software includes source code from:
   Copyright (c) 2008-2016  Nagoya Institute of Technology Department of Computer Science
 - [Lindera](https://github.com/lindera-morphology/lindera).
   Copyright (c) 2019 by the project authors
+- [Yada: Yet Another Double-Array](https://github.com/takuyaa/yada).
 
 Although this repository has CODEOWNERS file,
 it does not necessarily mean that the developers listed in codeowners file
