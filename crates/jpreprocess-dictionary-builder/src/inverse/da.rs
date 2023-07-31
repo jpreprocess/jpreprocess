@@ -3,7 +3,7 @@ use yada::unit::*;
 pub struct DoubleArrayParser<'a>(pub &'a [u8]);
 
 impl DoubleArrayParser<'_> {
-    fn inverse_da(&self) -> Vec<(String, u32)> {
+    pub fn inverse_da(&self) -> Vec<(String, u32)> {
         let Some(unit) = self.get_unit(0) else {return vec![]};
         self.dfs(0, unit.offset())
             .into_iter()

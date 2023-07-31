@@ -17,6 +17,7 @@ pub trait DictionarySerializer {
         ];
         self.serialize(&details)
     }
+    fn deserialize(&self, data: &[u8], string: String) -> LinderaResult<String>;
 }
 
 pub struct LinderaSerializer;
@@ -31,6 +32,11 @@ impl DictionarySerializer for LinderaSerializer {
         }
         bincode::serialize(&word_detail)
             .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
+    }
+    fn deserialize(&self, data: &[u8], _string: String) -> LinderaResult<String> {
+        bincode::deserialize(data)
+            .map(|v: Vec<String>| v.join(","))
+            .map_err(|err| LinderaErrorKind::Deserialize.with_error(anyhow::anyhow!(err)))
     }
 }
 
@@ -51,5 +57,11 @@ impl DictionarySerializer for JPreprocessSerializer {
                 Err(LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))
             }
         }
+    }
+    fn deserialize(&self, data: &[u8], string: String) -> LinderaResult<String> {
+        use jpreprocess_core::word_entry::WordEntry;
+        let word_entry: WordEntry = bincode::deserialize(data)
+            .map_err(|err| LinderaErrorKind::Deserialize.with_error(anyhow::anyhow!(err)))?;
+        Ok(word_entry.to_str_vec(string).join(","))
     }
 }
