@@ -166,7 +166,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
 
             println!("Inverse building dictionary csv...");
-            let inverse = inverse_dict(prefix_dict, words_idx_data, words_data, serializer.deref())?;
+            let inverse =
+                inverse_dict(prefix_dict, words_idx_data, words_data, serializer.deref())?;
             println!("done.");
 
             println!("Writing csv file...");
