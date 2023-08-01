@@ -8,7 +8,7 @@ use self::da::DoubleArrayParser;
 mod da;
 
 pub fn inverse_dict(
-    prefix_dict: PrefixDict,
+    prefix_dict: &PrefixDict,
     words_idx_data: &[u8],
     words_data: &[u8],
     serializer: &dyn DictionarySerializer,
@@ -43,7 +43,7 @@ pub fn inverse_dict(
         .collect())
 }
 
-pub fn inverse_prefix_dict(prefix_dict: PrefixDict, is_system: bool) -> WordEntryMap {
+pub fn inverse_prefix_dict(prefix_dict: &PrefixDict, is_system: bool) -> WordEntryMap {
     let mut result: WordEntryMap = BTreeMap::new();
 
     let keyset = DoubleArrayParser(&prefix_dict.da.0).inverse_da();
@@ -105,7 +105,7 @@ mod tests {
         let user_dict = builder.build_user_dict_from_data(&rows_split)?;
 
         let inverse = inverse_dict(
-            user_dict.dict,
+            &user_dict.dict,
             &user_dict.words_idx_data,
             &user_dict.words_data,
             &LinderaSerializer,

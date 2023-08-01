@@ -5,6 +5,7 @@ use jpreprocess_dictionary::{
 };
 use lindera_core::{
     dictionary::{Dictionary, UserDictionary},
+    prefix_dict::PrefixDict,
     word_entry::WordId,
 };
 
@@ -16,14 +17,33 @@ pub enum QueryDict {
 impl QueryDict {
     pub fn metadata(&self) -> Option<String> {
         match &self {
-            QueryDict::System(dict) => get_metadata(&dict.words_idx_data, &dict.words_data),
-            QueryDict::User(dict) => get_metadata(&dict.words_idx_data, &dict.words_data),
+            Self::System(dict) => get_metadata(&dict.words_idx_data, &dict.words_data),
+            Self::User(dict) => get_metadata(&dict.words_idx_data, &dict.words_data),
         }
     }
     pub fn mode(&self) -> WordDictionaryMode {
         match &self {
-            QueryDict::System(dict) => detect_dictionary(&dict.words_idx_data, &dict.words_data),
-            QueryDict::User(dict) => detect_dictionary(&dict.words_idx_data, &dict.words_data),
+            Self::System(dict) => detect_dictionary(&dict.words_idx_data, &dict.words_data),
+            Self::User(dict) => detect_dictionary(&dict.words_idx_data, &dict.words_data),
+        }
+    }
+    fn dictionary(&self) -> &Dictionary {
+        match &self {
+            Self::System(dict) => dict,
+            Self::User(_) => unreachable!(),
+        }
+    }
+    fn user_dictionary(&self) -> &UserDictionary {
+        match &self {
+            Self::System(_) => unreachable!(),
+            Self::User(dict) => dict,
+        }
+    }
+
+    pub fn dictionary_data(&self) -> (&PrefixDict, &[u8], &[u8]) {
+        match &self {
+            Self::System(dict) => (&dict.dict, &dict.words_idx_data, &dict.words_data),
+            Self::User(dict) => (&dict.dict, &dict.words_idx_data, &dict.words_data),
         }
     }
 }
@@ -43,15 +63,9 @@ impl DictionaryQuery for Query {
         )
     }
     fn dictionary(&self) -> &Dictionary {
-        match &self.dict {
-            QueryDict::System(dict) => dict,
-            QueryDict::User(_) => unreachable!(),
-        }
+        self.dict.dictionary()
     }
     fn user_dictionary(&self) -> Option<&UserDictionary> {
-        match &self.dict {
-            QueryDict::System(_) => unreachable!(),
-            QueryDict::User(dict) => Some(dict),
-        }
+        Some(self.dict.user_dictionary())
     }
 }

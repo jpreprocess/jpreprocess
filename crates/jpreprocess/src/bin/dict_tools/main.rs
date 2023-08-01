@@ -1,10 +1,12 @@
-use std::{error::Error, path::PathBuf};
+use std::{error::Error, fs::File, io::Write, ops::Deref, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess::SystemDictionaryConfig;
+use jpreprocess_core::error::JPreprocessErrorKind;
 use jpreprocess_dictionary_builder::{
+    inverse::inverse_dict,
     ipadic_builder::IpadicBuilder,
-    serializer::{JPreprocessSerializer, LinderaSerializer},
+    serializer::{DictionarySerializer, JPreprocessSerializer, LinderaSerializer},
 };
 use lindera_core::dictionary_builder::DictionaryBuilder;
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
@@ -40,6 +42,19 @@ enum Commands {
         input: PathBuf,
         /// The directory(system dictionary) or file(user dictionary) to put the dictionary.
         /// For user dictionary, the parent directory of the output file should not exist.
+        output: PathBuf,
+    },
+    Inverse {
+        /// User dictionary
+        #[arg(short, long)]
+        user: bool,
+        /// The serlializer to be used
+        #[arg(value_enum)]
+        serializer: Serializer,
+
+        /// The directory(system dictionary) or file(user dictionary) to the dictionary.
+        /// For user dictionary, the parent directory of the output file should not exist.
+        input: PathBuf,
         output: PathBuf,
     },
 }
@@ -113,6 +128,52 @@ fn main() -> Result<(), Box<dyn Error>> {
                 builder.build_dictionary(&input, &output)?;
                 println!("done.");
             }
+        }
+        Commands::Inverse {
+            user,
+            serializer: serializer_config,
+            input,
+            output,
+        } => {
+            if output.exists() {
+                return Err(Box::new(JPreprocessErrorKind::Io.with_error(
+                    anyhow::anyhow!("The file {} already exists", output.to_str().unwrap()),
+                )));
+            } else if !matches!(output.extension(),Some(s) if s.to_str()==Some("csv")) {
+                return Err(Box::new(JPreprocessErrorKind::Io.with_error(
+                    anyhow::anyhow!("The output file extension must be csv"),
+                )));
+            }
+
+            println!("Loading dictionary...");
+            let dict = if !user {
+                let dict = SystemDictionaryConfig::File(input).load()?;
+                QueryDict::System(dict)
+            } else {
+                let dict = load_user_dictionary(UserDictionaryConfig {
+                    path: input,
+                    kind: None,
+                })?;
+                QueryDict::User(dict)
+            };
+            println!("Successfully loaded source dictionary.");
+
+            let serializer: Box<dyn DictionarySerializer> = match serializer_config {
+                Serializer::Lindera => Box::new(LinderaSerializer),
+                Serializer::Jpreprocess => Box::new(JPreprocessSerializer),
+            };
+
+            let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
+
+            println!("Inverse building dictionary csv...");
+            let inverse = inverse_dict(prefix_dict, words_idx_data, words_data, serializer.deref())?;
+            println!("done.");
+
+            println!("Writing csv file...");
+            let mut file = File::create(output)?;
+            file.write_all(inverse.join("\n").as_bytes())?;
+            file.flush()?;
+            println!("done.");
         }
     }
 
