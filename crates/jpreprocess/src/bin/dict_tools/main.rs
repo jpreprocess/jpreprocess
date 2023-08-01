@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess::SystemDictionaryConfig;
 use jpreprocess_core::error::JPreprocessErrorKind;
 use jpreprocess_dictionary_builder::{
-    inverse::inverse_dict,
+    to_csv::dict_to_csv,
     ipadic_builder::IpadicBuilder,
     serializer::{DictionarySerializer, JPreprocessSerializer, LinderaSerializer},
 };
@@ -44,7 +44,7 @@ enum Commands {
         /// For user dictionary, the parent directory of the output file should not exist.
         output: PathBuf,
     },
-    Inverse {
+    Csv {
         /// User dictionary
         #[arg(short, long)]
         user: bool,
@@ -55,6 +55,7 @@ enum Commands {
         /// The directory(system dictionary) or file(user dictionary) to the dictionary.
         /// For user dictionary, the parent directory of the output file should not exist.
         input: PathBuf,
+        /// The path to the output csv file
         output: PathBuf,
     },
 }
@@ -129,7 +130,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 println!("done.");
             }
         }
-        Commands::Inverse {
+        Commands::Csv {
             user,
             serializer: serializer_config,
             input,
@@ -165,14 +166,14 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
 
-            println!("Inverse building dictionary csv...");
-            let inverse =
-                inverse_dict(prefix_dict, words_idx_data, words_data, serializer.deref())?;
+            println!("Converting dictionary csv...");
+            let csv =
+                dict_to_csv(prefix_dict, words_idx_data, words_data, serializer.deref())?;
             println!("done.");
 
             println!("Writing csv file...");
             let mut file = File::create(output)?;
-            file.write_all(inverse.join("\n").as_bytes())?;
+            file.write_all(csv.join("\n").as_bytes())?;
             file.flush()?;
             println!("done.");
         }
