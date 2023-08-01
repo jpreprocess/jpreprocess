@@ -7,8 +7,12 @@ use self::da::DoubleArrayParser;
 
 mod da;
 
-pub fn inverse_dict(
-    prefix_dict: PrefixDict,
+/// Converts dictionary to csv.
+///
+/// The third column (right_id) cannot be recovered
+/// because it is already lost while building the dictionary.
+pub fn dict_to_csv(
+    prefix_dict: &PrefixDict,
     words_idx_data: &[u8],
     words_data: &[u8],
     serializer: &dyn DictionarySerializer,
@@ -28,7 +32,7 @@ pub fn inverse_dict(
 
     Ok(rows
         .into_iter()
-        .zip(inverse_words(words_idx_data, words_data, words, serializer)?.into_iter())
+        .zip(words_to_csv(words_idx_data, words_data, words, serializer)?.into_iter())
         .map(|((string, word_entry), right)| {
             format!(
                 "{},{},{},{},{}",
@@ -43,7 +47,11 @@ pub fn inverse_dict(
         .collect())
 }
 
-pub fn inverse_prefix_dict(prefix_dict: PrefixDict, is_system: bool) -> WordEntryMap {
+/// Converts prefix dict to WordEntry map.
+///
+/// This is considered to be inverse of build_prefix_dict,
+/// and no data is expected to be lost.
+pub fn inverse_prefix_dict(prefix_dict: &PrefixDict, is_system: bool) -> WordEntryMap {
     let mut result: WordEntryMap = BTreeMap::new();
 
     let keyset = DoubleArrayParser(&prefix_dict.da.0).inverse_da();
@@ -65,7 +73,11 @@ pub fn inverse_prefix_dict(prefix_dict: PrefixDict, is_system: bool) -> WordEntr
     result
 }
 
-pub fn inverse_words(
+/// Converts words data to csv.
+///
+/// Note that some data is already lost in dictionary build process
+/// if jpreprocess serlializer is used.
+pub fn words_to_csv(
     words_idx_data: &[u8],
     words_data: &[u8],
     words: Vec<String>,
@@ -89,7 +101,7 @@ mod tests {
 
     use crate::{ipadic_builder::IpadicBuilder, serializer::LinderaSerializer};
 
-    use super::inverse_dict;
+    use super::dict_to_csv;
 
     #[test]
     fn inverse() -> Result<(), Box<dyn Error>> {
@@ -104,8 +116,8 @@ mod tests {
         let builder = IpadicBuilder::new(Box::new(LinderaSerializer));
         let user_dict = builder.build_user_dict_from_data(&rows_split)?;
 
-        let inverse = inverse_dict(
-            user_dict.dict,
+        let inverse = dict_to_csv(
+            &user_dict.dict,
             &user_dict.words_idx_data,
             &user_dict.words_data,
             &LinderaSerializer,
