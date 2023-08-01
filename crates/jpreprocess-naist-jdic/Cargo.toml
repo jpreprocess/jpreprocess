@@ -30,4 +30,4 @@ ureq = { version = "2.7.1", default-features = false, features = ["tls"], option
 
 lindera-core = { version = "0.27.0" }
 
-jpreprocess-dictionary-builder = { version = "0.2.0", path="../jpreprocess-dictionary-builder" }
+jpreprocess-dictionary-builder = { version = "0.3.0", path="../jpreprocess-dictionary-builder" }
