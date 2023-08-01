@@ -34,12 +34,12 @@ once_cell = "1.18.0"
 anyhow = "1.0.72"
 unicode-jp = "0.4.0"
 
-jpreprocess-core = { version = "0.2.0", path="../jpreprocess-core" }
-jpreprocess-njd = { version = "0.2.0", path="../jpreprocess-njd" }
-jpreprocess-jpcommon = { version = "0.2.0", path="../jpreprocess-jpcommon" }
-jpreprocess-dictionary = { version = "0.2.0", path="../jpreprocess-dictionary" }
-jpreprocess-dictionary-builder = { version = "0.2.0", path="../jpreprocess-dictionary-builder" }
+jpreprocess-core = { version = "0.3.0", path="../jpreprocess-core" }
+jpreprocess-njd = { version = "0.3.0", path="../jpreprocess-njd" }
+jpreprocess-jpcommon = { version = "0.3.0", path="../jpreprocess-jpcommon" }
+jpreprocess-dictionary = { version = "0.3.0", path="../jpreprocess-dictionary" }
+jpreprocess-dictionary-builder = { version = "0.3.0", path="../jpreprocess-dictionary-builder" }
 
-jpreprocess-naist-jdic = { version = "0.2.0", path="../jpreprocess-naist-jdic", optional = true }
+jpreprocess-naist-jdic = { version = "0.3.0", path="../jpreprocess-naist-jdic", optional = true }
 
 clap = { version = "4.3.19", features = ["derive"], optional = true }
