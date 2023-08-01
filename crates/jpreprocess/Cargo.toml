@@ -15,7 +15,6 @@ documentation = "https://docs.rs/jpreprocess"
 [features]
 naist-jdic = ["jpreprocess-naist-jdic/naist-jdic"]
 binary = ["clap"]
-default=["binary"]
 
 [[bin]]
 name = "jpreprocess"
