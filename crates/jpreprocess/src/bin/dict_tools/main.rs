@@ -35,7 +35,7 @@ enum Commands {
         user: bool,
         /// The serlializer to be used
         #[arg(value_enum)]
-        serlializer: Serlializer,
+        serializer: Serializer,
 
         input: PathBuf,
         /// The directory(system dictionary) or file(user dictionary) to put the dictionary.
@@ -45,7 +45,7 @@ enum Commands {
 }
 
 #[derive(Clone, ValueEnum, Debug)]
-enum Serlializer {
+enum Serializer {
     /// Build lindera dictionary
     Lindera,
     /// Build jpreprocess dictionary
@@ -95,13 +95,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Build {
             user,
-            serlializer,
+            serializer: serlializer,
             input,
             output,
         } => {
             let builder = IpadicBuilder::new(match serlializer {
-                Serlializer::Lindera => Box::new(LinderaSerializer),
-                Serlializer::Jpreprocess => Box::new(JPreprocessSerializer),
+                Serializer::Lindera => Box::new(LinderaSerializer),
+                Serializer::Jpreprocess => Box::new(JPreprocessSerializer),
             });
 
             if user {
