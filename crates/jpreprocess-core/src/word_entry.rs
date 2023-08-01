@@ -88,6 +88,28 @@ impl WordEntry {
             }
         }
     }
+
+    pub fn to_str_vec(&self, orig: String) -> [String; 9] {
+        match self {
+            Self::Single(details) => details.to_str_vec(orig),
+            Self::Multiple(details_vec) => {
+                details_vec.iter().skip(1).fold(
+                    {
+                        let first_elem = &details_vec[0];
+                        first_elem.1.to_str_vec(first_elem.0.to_owned())
+                    },
+                    |mut acc, (orig, details)| {
+                        let v = details.to_str_vec(orig.to_owned());
+                        acc[3] = format!("{}:{}", acc[3], v[3]); // orig
+                        acc[4] = format!("{}:{}", acc[4], v[4]); // read
+                        acc[5] = format!("{}:{}", acc[5], v[5]); // pron
+                        acc[6] = format!("{}:{}", acc[6], v[6]); // acc/mora_size
+                        acc
+                    },
+                )
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -122,6 +144,9 @@ mod tests {
         assert_eq!(details.mora_size, 2);
         assert_eq!(details.chain_rule.get_rule(&POS::Filler), None);
         assert_eq!(details.chain_flag, None);
+
+        let v = entry.to_str_vec(input[0].to_owned());
+        assert_eq!(v[0..8].join(","), input[1..12].join(","));
     }
 
     #[test]
@@ -143,5 +168,8 @@ mod tests {
         assert_eq!(details1.acc, 1);
         assert_eq!(details0.mora_size, 2);
         assert_eq!(details1.mora_size, 1);
+
+        let v = entry.to_str_vec(input[0].to_owned());
+        assert_eq!(v[0..8].join(","), input[1..12].join(","));
     }
 }

@@ -78,4 +78,25 @@ impl WordDetails {
             None => (0, 0),
         }
     }
+
+    pub fn to_str_vec(&self, orig: String) -> [String; 9] {
+        [
+            self.pos.to_string(),
+            self.ctype.to_string(),
+            self.cform.to_string(),
+            // Ideally, this should be `self.orig`, but jpreprocess njdnode does not have orig
+            // and in most cases, orig is the same as string.
+            orig,
+            self.read.to_owned().unwrap_or("*".to_string()),
+            self.pron.to_string(),
+            format!("{}/{}", self.acc, self.mora_size),
+            self.chain_rule.to_string(),
+            match self.chain_flag {
+                Some(true) => 1,
+                Some(false) => 0,
+                None => -1,
+            }
+            .to_string(),
+        ]
+    }
 }

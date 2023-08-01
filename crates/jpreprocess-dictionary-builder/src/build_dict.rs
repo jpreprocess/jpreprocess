@@ -17,7 +17,7 @@ const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
 
-type WordEntryMap = BTreeMap<String, Vec<WordEntry>>;
+pub type WordEntryMap = BTreeMap<String, Vec<WordEntry>>;
 
 pub fn normalize_rows<'a, T, U, V>(rows: &'a T) -> Vec<Vec<String>>
 where
