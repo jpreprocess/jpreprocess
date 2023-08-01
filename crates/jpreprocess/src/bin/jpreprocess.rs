@@ -34,8 +34,8 @@ struct DictionaryArgs {
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
 
-    let config = if let Some(dict) = cli.dict.jpreprocess_dictionary {
-        SystemDictionaryConfig::FileJPreprocess(dict)
+    let dictionary = if let Some(dict) = cli.dict.jpreprocess_dictionary {
+        SystemDictionaryConfig::File(dict)
     } else if let Some(dict) = cli.dict.lindera_dictionary {
         SystemDictionaryConfig::File(dict)
     } else {
@@ -63,7 +63,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    let jpreprocess = JPreprocess::from_config(config)?;
+    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
+        dictionary,
+        user_dictionary: None,
+    })?;
 
     let njd = jpreprocess.run_frontend(&cli.input)?;
 
