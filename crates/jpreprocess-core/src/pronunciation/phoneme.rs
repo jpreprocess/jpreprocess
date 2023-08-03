@@ -182,6 +182,7 @@ pub(crate) fn mora_to_phoneme(mora: &Mora) -> (Option<Consonant>, Option<Vowel>)
     )
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum Consonant {
     V,
     W,
@@ -272,6 +273,7 @@ impl Display for Consonant {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum Vowel {
     A,
     I,
