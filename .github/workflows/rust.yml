@@ -52,7 +52,7 @@ jobs:
       run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@0e66bd3e6b38ec0ad5312288c83e47c143e6b09e # master
+      uses: dtolnay/rust-toolchain@f361669954a8ecfc00a3443f35f9ac8e610ffc06 # master
       with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
 
