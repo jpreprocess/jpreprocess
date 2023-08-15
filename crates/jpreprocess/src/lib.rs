@@ -159,7 +159,7 @@ impl JPreprocess {
     /// If you need these infomation, please raise a feature request as an issue.
     pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.proprocess();
+        njd.preprocess();
         Ok(njd.into())
     }
 
@@ -179,7 +179,7 @@ impl JPreprocess {
     /// [`make_label`]: #method.make_label
     pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.proprocess();
+        njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
     }
 }
