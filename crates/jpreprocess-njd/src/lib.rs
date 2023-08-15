@@ -6,7 +6,7 @@ use jpreprocess_dictionary::WordDictionaryConfig;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
-pub use njd_set::proprocess_njd;
+pub use njd_set::preprocess_njd;
 pub use node::*;
 
 #[derive(Debug)]
@@ -42,8 +42,8 @@ impl NJD {
         }
     }
 
-    pub fn proprocess(&mut self) {
-        njd_set::proprocess_njd(self)
+    pub fn preprocess(&mut self) {
+        njd_set::preprocess_njd(self)
     }
 }
 

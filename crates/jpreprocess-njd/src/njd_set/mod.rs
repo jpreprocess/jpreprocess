@@ -7,7 +7,7 @@ pub mod long_vowel;
 pub mod pronunciation;
 pub mod unvoiced_vowel;
 
-pub fn proprocess_njd(njd: &mut NJD) {
+pub fn preprocess_njd(njd: &mut NJD) {
     pronunciation::njd_set_pronunciation(njd);
     digit::njd_set_digit(njd);
     accent_phrase::njd_set_accent_phrase(njd);
