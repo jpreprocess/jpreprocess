@@ -1,7 +1,11 @@
 pub enum Limit {
+    /// unsigned: 1 - 19, signed: -19 - 19
     S,
+    /// unsigned: 1 - 49, signed: -49 - 49
     M,
+    /// unsigned: 1 - 99, signed: -99 - 99
     L,
+    /// unsigned: 1 - 199, signed: -199 - 199
     LL,
 }
 impl Limit {

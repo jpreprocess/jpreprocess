@@ -8,13 +8,13 @@ use jpreprocess_core::pronunciation::phoneme::Consonant;
 use super::label::*;
 use builder::*;
 
-/// Convers JPCommon Utterance to fullcontext label
+/// Converts JPCommon Utterance to fullcontext label
 pub fn utterance_to_features(utterance: &Utterance) -> Vec<String> {
     let phoneme_vec = utterance_to_phoneme_vec(utterance);
     overwrapping_phonemes(phoneme_vec)
 }
 
-/// Take Vec of phoneme and context label, and converts it to fullcontext label
+/// Takes Vec of phoneme and context label, and converts it to fullcontext label
 pub fn overwrapping_phonemes(phoneme_vec: Vec<(String, String)>) -> Vec<String> {
     (0..phoneme_vec.len())
         .map(|i| {
@@ -34,7 +34,7 @@ pub fn overwrapping_phonemes(phoneme_vec: Vec<(String, String)>) -> Vec<String> 
         .collect()
 }
 
-/// Converts JPCommon Utterance to Vec of phoneme and context label.
+/// Converts JPCommon Utterance to Vec of phoneme and context label
 pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
     let breath_group_count_in_utterance = utterance.breath_groups.len();
     let accent_phrase_count_in_utterance = utterance.count_accent_phrase();
