@@ -43,13 +43,17 @@ mod dictionary;
 mod normalize_text;
 
 pub use dictionary::*;
+
+pub use jpreprocess_core::error;
+pub use jpreprocess_dictionary;
+pub use jpreprocess_njd::NJD;
+pub use normalize_text::normalize_text_for_naist_jdic;
+
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
-pub use jpreprocess_njd::NJD;
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
-pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,
@@ -139,7 +143,37 @@ impl JPreprocess {
         }
     }
 
-    /// Tokenize a text and return NJD.
+    /// Tokenize input text and return NJD.
+    ///
+    /// Useful for customizing text processing.
+    ///
+    /// ```ignore
+    /// # use std::error::Error;
+    /// # use std::path::PathBuf;
+    /// use jpreprocess::*;
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// #     let path = PathBuf::from("tests/dict");
+    /// #  let config = JPreprocessConfig {
+    /// #      dictionary: SystemDictionaryConfig::File(path),
+    /// #      user_dictionary: None,
+    /// #  };
+    /// let jpreprocess = JPreprocess::from_config(config)?;
+    ///
+    /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
+    /// njd.preprocess();
+    ///
+    /// // jpcommon utterance
+    /// let utterance = jpreprocess_jpcommon::Utterance::from(njd.nodes.as_slice());
+    /// // Vec<[phoneme string], [context labels]>
+    /// let phoneme_vec = jpreprocess_jpcommon::utterance_to_phoneme_vec(&utterance);
+    /// let fullcontext = jpreprocess_jpcommon::overwrapping_phonemes(phoneme_vec);
+    ///
+    /// assert!(fullcontext[2].starts_with("sil^n-i+h=o"));
+    /// #
+    /// #     Ok(())
+    /// # }
+    /// ```
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
         let tokens = self
