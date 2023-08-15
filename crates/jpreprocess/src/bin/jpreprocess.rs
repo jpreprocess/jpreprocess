@@ -59,6 +59,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         user_dictionary,
     })?;
 
+    let njd_texts:Vec<String>=jpreprocess.text_to_njd(&cli.input)?.into();
+    for line in njd_texts {
+        println!("{}", line);
+    }
+
     let njd = jpreprocess.run_frontend(&cli.input)?;
 
     println!("[NJD]");

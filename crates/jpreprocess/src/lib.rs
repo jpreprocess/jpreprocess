@@ -2,13 +2,13 @@
 //!
 //! ## Example
 //!
-//! ```ignore
+//! ```rust
 //! # use std::error::Error;
 //! # use std::path::PathBuf;
 //! use jpreprocess::*;
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
-//! #     let path = PathBuf::from("tests/dict");
+//! #     let path = PathBuf::from("tests/min-dict");
 //!  let config = JPreprocessConfig {
 //!      dictionary: SystemDictionaryConfig::File(path),
 //!      user_dictionary: None,
@@ -70,13 +70,13 @@ impl JPreprocess {
     ///
     /// ## Example 1: Load from file
     ///
-    /// ```ignore
+    /// ```rust
     /// # use std::error::Error;
     /// # use std::path::PathBuf;
     /// use jpreprocess::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("tests/dict");
+    /// #     let path = PathBuf::from("tests/min-dict");
     ///  let config = JPreprocessConfig {
     ///      dictionary: SystemDictionaryConfig::File(path),
     ///      user_dictionary: None,
@@ -147,13 +147,13 @@ impl JPreprocess {
     ///
     /// Useful for customizing text processing.
     ///
-    /// ```ignore
+    /// ```rust
     /// # use std::error::Error;
     /// # use std::path::PathBuf;
     /// use jpreprocess::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("tests/dict");
+    /// #     let path = PathBuf::from("tests/min-dict");
     /// #  let config = JPreprocessConfig {
     /// #      dictionary: SystemDictionaryConfig::File(path),
     /// #      user_dictionary: None,
