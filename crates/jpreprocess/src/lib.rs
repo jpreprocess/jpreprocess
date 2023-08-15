@@ -43,12 +43,13 @@ mod dictionary;
 mod normalize_text;
 
 pub use dictionary::*;
+pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary;
-pub use jpreprocess_njd::NJD;
-pub use normalize_text::normalize_text_for_naist_jdic;
+pub use jpreprocess_njd;
 
+use jpreprocess_njd::NJD;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
 use lindera_core::dictionary::{Dictionary, UserDictionary};

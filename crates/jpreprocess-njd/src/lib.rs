@@ -6,7 +6,7 @@ use jpreprocess_dictionary::WordDictionaryConfig;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
-pub use njd_set::preprocess_njd;
+pub use njd_set::*;
 pub use node::*;
 
 #[derive(Debug)]
