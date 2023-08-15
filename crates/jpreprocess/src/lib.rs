@@ -46,10 +46,8 @@ pub use dictionary::*;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
-pub use jpreprocess_dictionary;
-pub use jpreprocess_njd;
+pub use jpreprocess_njd::NJD;
 
-use jpreprocess_njd::NJD;
 use jpreprocess_core::{error::JPreprocessErrorKind, *};
 use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
 use lindera_core::dictionary::{Dictionary, UserDictionary};
@@ -152,6 +150,7 @@ impl JPreprocess {
     /// # use std::error::Error;
     /// # use std::path::PathBuf;
     /// use jpreprocess::*;
+    /// use jpreprocess_jpcommon::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("tests/min-dict");
@@ -165,16 +164,16 @@ impl JPreprocess {
     /// njd.preprocess();
     ///
     /// // jpcommon utterance
-    /// let utterance = jpreprocess_jpcommon::Utterance::from(njd.nodes.as_slice());
+    /// let utterance = Utterance::from(njd.nodes.as_slice());
     ///
     /// // Vec<([phoneme string], [context labels])>
-    /// let phoneme_vec = jpreprocess_jpcommon::utterance_to_phoneme_vec(&utterance);
+    /// let phoneme_vec = utterance_to_phoneme_vec(&utterance);
     ///
     /// assert_eq!(&phoneme_vec[2].0, "i");
     /// assert!(phoneme_vec[2].1.starts_with("/A:-3+1+7"));
     ///
     /// // fullcontext label
-    /// let fullcontext = jpreprocess_jpcommon::overwrapping_phonemes(phoneme_vec);
+    /// let fullcontext = overwrapping_phonemes(phoneme_vec);
     ///
     /// assert!(fullcontext[2].starts_with("sil^n-i+h=o"));
     /// #

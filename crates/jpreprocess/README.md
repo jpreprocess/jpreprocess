@@ -13,6 +13,11 @@ Put the following in Cargo.toml
 jpreprocess = "0.4.0"
 ```
 
+It may be necessary to add
+[jpreprocess-njd](https://crates.io/crates/jpreprocess-njd/) and/or
+[jpreprocess-jpcommon](https://crates.io/crates/jpreprocess-jpcommon/)
+if you want control over how njd and jpcommon are processed.
+
 ## Example
 
 In this example, jpreprocess takes a [lindera](https://crates.io/crates/lindera-tokenizer/) dictionary and
