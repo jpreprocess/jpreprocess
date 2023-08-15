@@ -1,3 +1,4 @@
+/// Normalize input text
 pub fn normalize_text_for_naist_jdic(input_text: &str) -> String {
     let yen_space = kana::yen2wide(&kana::space2wide(input_text).replace('\\', "\u{00A5}"));
     let kana = kana::vsmark2full(&kana::combine(&kana::half2full(&yen_space)))
