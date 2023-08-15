@@ -10,8 +10,13 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess = "0.3.0"
+jpreprocess = "0.4.0"
 ```
+
+It may be necessary to add
+[jpreprocess-njd](https://crates.io/crates/jpreprocess-njd/) and/or
+[jpreprocess-jpcommon](https://crates.io/crates/jpreprocess-jpcommon/)
+if you want control over how njd and jpcommon are processed.
 
 ## Example
 
@@ -21,8 +26,11 @@ preprocesses a text into jpcommon labels.
 ```rs
 use jpreprocess::*;
 
-let config = JPreprocessDictionaryConfig::FileLindera(PathBuf::from("path_to_lindera_dictionary"));
-let jpreprocess = JPreprocess::new(config)?;
+ let config = JPreprocessConfig {
+     dictionary: SystemDictionaryConfig::File(path),
+     user_dictionary: None,
+ };
+let jpreprocess = JPreprocess::from_config(config)?;
 
 let jpcommon_label = jpreprocess
     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
