@@ -166,8 +166,14 @@ impl JPreprocess {
     ///
     /// // jpcommon utterance
     /// let utterance = jpreprocess_jpcommon::Utterance::from(njd.nodes.as_slice());
-    /// // Vec<[phoneme string], [context labels]>
+    ///
+    /// // Vec<([phoneme string], [context labels])>
     /// let phoneme_vec = jpreprocess_jpcommon::utterance_to_phoneme_vec(&utterance);
+    ///
+    /// assert_eq!(&phoneme_vec[2].0, "i");
+    /// assert!(phoneme_vec[2].1.starts_with("/A:-3+1+7"));
+    ///
+    /// // fullcontext label
     /// let fullcontext = jpreprocess_jpcommon::overwrapping_phonemes(phoneme_vec);
     ///
     /// assert!(fullcontext[2].starts_with("sil^n-i+h=o"));
