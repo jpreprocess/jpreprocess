@@ -75,7 +75,7 @@ pub fn inverse_prefix_dict(prefix_dict: &PrefixDict, is_system: bool) -> WordEnt
 
 /// Converts words data to csv.
 ///
-/// Note that some data is already lost in dictionary build process
+/// Note that some data (e.g. orig) is already lost in dictionary build process
 /// if jpreprocess serlializer is used.
 pub fn words_to_csv(
     words_idx_data: &[u8],

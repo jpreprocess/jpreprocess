@@ -3,7 +3,7 @@ mod label;
 mod word_attr;
 
 pub use feature::*;
-pub use label::Utterance;
+pub use label::*;
 
 use jpreprocess_njd::NJDNode;
 
