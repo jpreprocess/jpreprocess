@@ -20,7 +20,7 @@ bincode = "1.3.3"
 byteorder = "1.4.3"
 once_cell = "1.18.0"
 
-lindera-core = { version = "0.27.0" }
+lindera-core = { version = "0.27.1" }
 
 [build-dependencies]
 encoding = { version = "0.2.33", optional = true }
