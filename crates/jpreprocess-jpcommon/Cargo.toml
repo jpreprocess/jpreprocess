@@ -13,5 +13,5 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-jpcommon"
 
 [dependencies]
-jpreprocess-core = { version = "0.4.0", path="../jpreprocess-core" }
-jpreprocess-njd = { version = "0.4.0", path="../jpreprocess-njd" }
+jpreprocess-core.workspace = true
+jpreprocess-njd.workspace = true

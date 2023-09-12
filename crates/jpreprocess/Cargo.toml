@@ -32,12 +32,12 @@ lindera-dictionary = { version = "0.27" }
 phf = { version = "0.11", features = ["macros"] }
 anyhow = "1.0.75"
 
-jpreprocess-core = { version = "0.4.0", path="../jpreprocess-core" }
-jpreprocess-njd = { version = "0.4.0", path="../jpreprocess-njd" }
-jpreprocess-jpcommon = { version = "0.4.0", path="../jpreprocess-jpcommon" }
-jpreprocess-dictionary = { version = "0.4.0", path="../jpreprocess-dictionary" }
-jpreprocess-dictionary-builder = { version = "0.4.0", path="../jpreprocess-dictionary-builder" }
+jpreprocess-core.workspace = true
+jpreprocess-njd.workspace = true
+jpreprocess-jpcommon.workspace = true
+jpreprocess-dictionary.workspace = true
+jpreprocess-dictionary-builder.workspace = true
 
-jpreprocess-naist-jdic = { version = "0.4.0", path="../jpreprocess-naist-jdic", optional = true }
+jpreprocess-naist-jdic = { workspace = true, optional = true }
 
 clap = { version = "4.4.2", features = ["derive"], optional = true }
