@@ -13,3 +13,13 @@ keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
 
 rust-version = "1.65.0"
+
+[workspace.dependencies]
+jpreprocess = { path = "crates/jpreprocess" }
+jpreprocess-core = { path = "crates/jpreprocess-core" }
+jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary" }
+jpreprocess-dictionary-builder = { path = "crates/jpreprocess-dictionary-builder" }
+jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon" }
+jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic" }
+jpreprocess-njd = { path = "crates/jpreprocess-njd" }
+jpreprocess-window = { path = "crates/jpreprocess-window" }
