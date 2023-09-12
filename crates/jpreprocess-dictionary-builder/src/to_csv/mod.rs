@@ -32,7 +32,7 @@ pub fn dict_to_csv(
 
     Ok(rows
         .into_iter()
-        .zip(words_to_csv(words_idx_data, words_data, words, serializer)?.into_iter())
+        .zip(words_to_csv(words_idx_data, words_data, words, serializer)?)
         .map(|((string, word_entry), right)| {
             format!(
                 "{},{},{},{},{}",

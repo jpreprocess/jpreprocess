@@ -90,7 +90,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
         /* rule 2: look-ahead for shi */
         if let Some(state_next) = state_next.as_mut() {
             let is_voiced_ok = matches!(state_curr.is_voiced_flag, None | Some(true))
-                && matches!(state_next.is_voiced_flag, None)
+                && state_next.is_voiced_flag.is_none()
                 && matches!(
                     state_nextnext.as_ref().and_then(|nn| nn.is_voiced_flag),
                     None | Some(true)
