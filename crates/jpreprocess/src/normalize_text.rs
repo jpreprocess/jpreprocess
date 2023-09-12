@@ -6,7 +6,7 @@ pub fn normalize_text_for_naist_jdic(input_text: &str) -> String {
         .chars()
         .map(|c| {
             if let Some(replacement) = HALFWIDTH.get(&c) {
-                replacement.clone()
+                *replacement
             } else if '\u{0020}' < c && c < '\u{007f}' {
                 char::from_u32((c as u32) + 0xfee0).unwrap()
             } else {
