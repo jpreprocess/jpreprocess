@@ -38,8 +38,6 @@ jpreprocess-jpcommon = { version = "0.4.0", path="../jpreprocess-jpcommon" }
 jpreprocess-dictionary = { version = "0.4.0", path="../jpreprocess-dictionary" }
 jpreprocess-dictionary-builder = { version = "0.4.0", path="../jpreprocess-dictionary-builder" }
 
-wasm-bindgen = "0.2.87"
-
 jpreprocess-naist-jdic = { version = "0.4.0", path="../jpreprocess-naist-jdic", optional = true }
 
 clap = { version = "4.4.2", features = ["derive"], optional = true }

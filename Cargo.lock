@@ -481,7 +481,6 @@ dependencies = [
  "lindera-dictionary",
  "lindera-tokenizer",
  "phf",
- "wasm-bindgen",
 ]
 
 [[package]]
