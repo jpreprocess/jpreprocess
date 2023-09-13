@@ -1,3 +1,5 @@
+use lindera_core::error::LinderaError;
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub enum JPreprocessErrorKind {
     Io,
@@ -28,4 +30,10 @@ impl JPreprocessErrorKind {
 pub struct JPreprocessError {
     pub kind: JPreprocessErrorKind,
     source: anyhow::Error,
+}
+
+impl From<LinderaError> for JPreprocessError {
+    fn from(value: LinderaError) -> Self {
+        JPreprocessErrorKind::LinderaError.with_error(value)
+    }
 }

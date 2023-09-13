@@ -490,6 +490,7 @@ dependencies = [
  "aho-corasick",
  "anyhow",
  "bincode",
+ "lindera-core",
  "lindera-tokenizer",
  "once_cell",
  "regex",
