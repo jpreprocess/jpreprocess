@@ -21,12 +21,14 @@ pub enum SystemDictionaryConfig {
 
 impl SystemDictionaryConfig {
     pub fn load(self) -> JPreprocessResult<Dictionary> {
-        match self {
-            Self::Bundled(kind) => Ok(kind.load()),
-            Self::File(dictionary_path) => Ok(load_dictionary_from_config(DictionaryConfig {
+        let dictionary = match self {
+            Self::Bundled(kind) => kind.load(),
+            Self::File(dictionary_path) => load_dictionary_from_config(DictionaryConfig {
                 kind: None,
                 path: Some(dictionary_path),
-            })?),
-        }
+            })?,
+        };
+
+        Ok(dictionary)
     }
 }
