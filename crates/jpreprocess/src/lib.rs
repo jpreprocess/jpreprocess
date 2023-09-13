@@ -48,7 +48,7 @@ pub use normalize_text::normalize_text_for_naist_jdic;
 pub use jpreprocess_core::error;
 pub use jpreprocess_njd::NJD;
 
-use jpreprocess_core::{error::JPreprocessErrorKind, *};
+use jpreprocess_core::*;
 use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
@@ -109,10 +109,7 @@ impl JPreprocess {
         let dictionary = config.dictionary.load()?;
 
         let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(
-                load_user_dictionary(user_dict_conf)
-                    .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?,
-            ),
+            Some(user_dict_conf) => Some(load_user_dictionary(user_dict_conf)?),
             None => None,
         };
 
@@ -182,10 +179,7 @@ impl JPreprocess {
     /// ```
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
-        let tokens = self
-            .tokenizer
-            .tokenize(normalized_input_text.as_str())
-            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err))?;
+        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
 
         NJD::from_tokens(&tokens, self.dictionary_config)
     }

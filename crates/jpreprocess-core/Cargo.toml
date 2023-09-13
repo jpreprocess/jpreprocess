@@ -19,7 +19,9 @@ anyhow = "1.0.75"
 
 aho-corasick = "1.0"
 
+lindera-core = { version = "0.27" }
 lindera-tokenizer = { version = "0.27" }
+
 bincode = "1.3.3"
 serde = { version = "1.0.188", features = ["derive"] }
 regex = "1.9.5"
