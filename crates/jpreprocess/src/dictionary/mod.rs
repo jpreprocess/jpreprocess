@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
+use jpreprocess_core::JPreprocessResult;
 use lindera_core::dictionary::Dictionary;
 use lindera_dictionary::{load_dictionary_from_config, DictionaryConfig};
 
@@ -23,11 +23,10 @@ impl SystemDictionaryConfig {
     pub fn load(self) -> JPreprocessResult<Dictionary> {
         match self {
             Self::Bundled(kind) => Ok(kind.load()),
-            Self::File(dictionary_path) => load_dictionary_from_config(DictionaryConfig {
+            Self::File(dictionary_path) => Ok(load_dictionary_from_config(DictionaryConfig {
                 kind: None,
                 path: Some(dictionary_path),
-            })
-            .map_err(|err| JPreprocessErrorKind::LinderaError.with_error(err)),
+            })?),
         }
     }
 }
