@@ -4,7 +4,8 @@ use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess::SystemDictionaryConfig;
 use jpreprocess_core::error::JPreprocessErrorKind;
 use jpreprocess_dictionary::{
-    jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionaryStore, DictionarySerializer,
+    jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionarySerializer,
+    DictionaryStore,
 };
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 use lindera_core::dictionary_builder::DictionaryBuilder;

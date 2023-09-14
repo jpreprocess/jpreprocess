@@ -1,5 +1,5 @@
-use byteorder::{ByteOrder, LittleEndian};
 use crate::{DictionarySerializer, DictionaryStore};
+use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
 use super::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer};
