@@ -21,7 +21,7 @@ impl NJD {
 
     pub fn from_tokens(
         tokens: &[Token],
-        dict_config: &Box<dyn DictionaryFetcher>,
+        dict_config: &dyn DictionaryFetcher,
     ) -> JPreprocessResult<Self> {
         let mut nodes = Vec::new();
         for token in tokens {
