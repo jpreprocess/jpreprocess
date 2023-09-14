@@ -49,7 +49,7 @@ pub use jpreprocess_core::error;
 pub use jpreprocess_njd::NJD;
 
 use jpreprocess_core::*;
-use jpreprocess_dictionary::{metadata::detect_dictionary, WordDictionaryConfig};
+use jpreprocess_dictionary::{fetcher::WordDictionaryConfig, DictionaryFetcher, DictionaryStore};
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
@@ -61,7 +61,7 @@ pub struct JPreprocessConfig {
 
 pub struct JPreprocess {
     tokenizer: Tokenizer,
-    dictionary_config: WordDictionaryConfig,
+    dictionary_config: Box<dyn DictionaryFetcher>,
 }
 
 impl JPreprocess {
@@ -121,10 +121,10 @@ impl JPreprocess {
     /// Note: `new` before v0.2.0 has moved to `from_config`
     pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
         let dictionary_config = WordDictionaryConfig {
-            system: detect_dictionary(&dictionary.words_idx_data, &dictionary.words_data),
-            user: user_dictionary.as_ref().map(|user_dictionary| {
-                detect_dictionary(&user_dictionary.words_idx_data, &user_dictionary.words_data)
-            }),
+            system: dictionary.serlializer_hint(),
+            user: user_dictionary
+                .as_ref()
+                .map(DictionaryStore::serlializer_hint),
         };
 
         let tokenizer = Tokenizer::new(
@@ -135,7 +135,7 @@ impl JPreprocess {
 
         Self {
             tokenizer,
-            dictionary_config,
+            dictionary_config: Box::new(dictionary_config),
         }
     }
 
@@ -181,7 +181,7 @@ impl JPreprocess {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
         let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
 
-        NJD::from_tokens(&tokens, self.dictionary_config)
+        NJD::from_tokens(&tokens, &self.dictionary_config)
     }
 
     /// Tokenize a text, preprocess, and return NJD converted to string.
