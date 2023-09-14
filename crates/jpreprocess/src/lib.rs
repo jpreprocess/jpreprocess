@@ -152,9 +152,8 @@ impl JPreprocess {
     }
 
     /// Alias of [`with_dictionaries`].
-    /// This method is deprecated. Use [`with_dictionaries`] instead.
     ///
-    /// Note: `new` before v0.2.0 has moved to `from_config`
+    /// Note: `new` before v0.2.0 has moved to `from_config`.
     ///
     /// [`with_dictionaries`]: #method.with_dictionaries
     #[deprecated(since = "0.5.0", note = "please use `with_dictionaries` instead")]
