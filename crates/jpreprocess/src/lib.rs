@@ -116,7 +116,7 @@ impl JPreprocess {
         Ok(Self::with_dictionaries(dictionary, user_dictionary))
     }
 
-    /// Creates JPreprocess from provided dictionaries.
+    /// Creates JPreprocess with provided dictionaries.
     pub fn with_dictionaries(
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
@@ -128,6 +128,17 @@ impl JPreprocess {
                 .map(DictionaryStore::serlializer_hint),
         };
 
+        Self::with_dictionary_fetcher(dictionary, user_dictionary, Box::new(dictionary_fetcher))
+    }
+
+    /// Creates JPreprocess with provided dictionary fetcher.
+    ///
+    /// Note: I'm not sure if this is useful for someone. If you need this, please create an issue.
+    fn with_dictionary_fetcher(
+        dictionary: Dictionary,
+        user_dictionary: Option<UserDictionary>,
+        dictionary_fetcher: Box<dyn DictionaryFetcher>,
+    ) -> Self {
         let tokenizer = Tokenizer::new(
             dictionary,
             user_dictionary,
@@ -136,7 +147,7 @@ impl JPreprocess {
 
         Self {
             tokenizer,
-            dictionary_fetcher: Box::new(dictionary_fetcher),
+            dictionary_fetcher,
         }
     }
 
@@ -146,7 +157,7 @@ impl JPreprocess {
     /// Note: `new` before v0.2.0 has moved to `from_config`
     ///
     /// [`with_dictionaries`]: #method.with_dictionaries
-    #[deprecated(since="0.5.0", note="please use `with_dictionaries` instead")]
+    #[deprecated(since = "0.5.0", note = "please use `with_dictionaries` instead")]
     pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
         Self::with_dictionaries(dictionary, user_dictionary)
     }
