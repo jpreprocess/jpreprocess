@@ -61,7 +61,7 @@ pub struct JPreprocessConfig {
 
 pub struct JPreprocess {
     tokenizer: Tokenizer,
-    dictionary_config: Box<dyn DictionaryFetcher>,
+    dictionary_fetcher: Box<dyn DictionaryFetcher>,
 }
 
 impl JPreprocess {
@@ -121,7 +121,7 @@ impl JPreprocess {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
-        let dictionary_config = WordDictionaryConfig {
+        let dictionary_fetcher = WordDictionaryConfig {
             system: dictionary.serlializer_hint(),
             user: user_dictionary
                 .as_ref()
@@ -136,7 +136,7 @@ impl JPreprocess {
 
         Self {
             tokenizer,
-            dictionary_config: Box::new(dictionary_config),
+            dictionary_fetcher: Box::new(dictionary_fetcher),
         }
     }
 
@@ -193,7 +193,7 @@ impl JPreprocess {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
         let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
 
-        NJD::from_tokens(&tokens, self.dictionary_config.as_ref())
+        NJD::from_tokens(&tokens, self.dictionary_fetcher.as_ref())
     }
 
     /// Tokenize a text, preprocess, and return NJD converted to string.
