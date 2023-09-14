@@ -7,6 +7,7 @@ use std::{
     u32,
 };
 
+use jpreprocess_dictionary::{DictionarySerializer, lindera::LinderaSerializer};
 use rayon::prelude::*;
 
 use byteorder::{LittleEndian, WriteBytesExt};
@@ -24,10 +25,7 @@ use lindera_core::{
     LinderaResult,
 };
 
-use crate::{
-    build_dict::*,
-    serializer::{DictionarySerializer, LinderaSerializer},
-};
+use crate::build_dict::*;
 
 pub struct IpadicBuilder {
     serializer: Box<dyn DictionarySerializer + Send + Sync>,

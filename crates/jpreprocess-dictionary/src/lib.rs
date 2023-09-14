@@ -41,5 +41,5 @@ pub trait DictionarySerializer {
     fn deserialize_debug(&self, data: &[u8]) -> String;
 
     // For dictionary restorer
-    fn deserialize_with_string(&self, data: &[u8], string: String) -> JPreprocessResult<String>;
+    fn deserialize_with_string(&self, data: &[u8], string: String) -> LinderaResult<String>;
 }

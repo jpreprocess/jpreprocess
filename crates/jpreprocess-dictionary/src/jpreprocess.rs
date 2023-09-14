@@ -30,10 +30,9 @@ impl DictionarySerializer for JPreprocessSerializer {
     fn deserialize_debug(&self, data: &[u8]) -> String {
         format!("{:?}", self.deserialize(data))
     }
-    fn deserialize_with_string(&self, data: &[u8], string: String) -> JPreprocessResult<String> {
-        let word_entry: WordEntry = bincode::deserialize(data).map_err(|err| {
-            JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(err))
-        })?;
+    fn deserialize_with_string(&self, data: &[u8], string: String) -> LinderaResult<String> {
+        let word_entry: WordEntry = bincode::deserialize(data)
+            .map_err(|err| LinderaErrorKind::Deserialize.with_error(anyhow::anyhow!(err)))?;
         Ok(word_entry.to_str_vec(string).join(","))
     }
 }

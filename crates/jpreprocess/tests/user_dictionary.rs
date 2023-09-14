@@ -1,9 +1,8 @@
 use std::error::Error;
 
 use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
-use jpreprocess_dictionary_builder::{
-    ipadic_builder::IpadicBuilder, serializer::JPreprocessSerializer,
-};
+use jpreprocess_dictionary::jpreprocess::JPreprocessSerializer;
+use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
 
 #[cfg(feature = "naist-jdic")]
 use jpreprocess::kind::*;

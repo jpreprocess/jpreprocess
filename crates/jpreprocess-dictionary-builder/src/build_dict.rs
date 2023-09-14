@@ -9,7 +9,7 @@ use rayon::prelude::*;
 use std::{collections::BTreeMap, str::FromStr};
 use yada::{builder::DoubleArrayBuilder, DoubleArray};
 
-use crate::serializer::DictionarySerializer;
+use jpreprocess_dictionary::DictionarySerializer;
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
@@ -146,7 +146,7 @@ pub fn build_words(
             if is_system || row.len() >= DETAILED_USERDIC_FIELDS_NUM {
                 serializer.serialize(&row[4..])
             } else if row.len() == SIMPLE_USERDIC_FIELDS_NUM {
-                serializer.simple(row)
+                serializer.serialize_simple(row)
             } else {
                 Err(LinderaErrorKind::Content.with_error(anyhow::anyhow!(
                     "user dictionary should be a CSV with {} or {}+ fields",

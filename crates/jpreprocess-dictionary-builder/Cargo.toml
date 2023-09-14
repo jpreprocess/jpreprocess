@@ -27,3 +27,4 @@ rayon = "1.7"
 lindera-core = { version = "0.27.1" }
 
 jpreprocess-core.workspace = true
+jpreprocess-dictionary.workspace = true

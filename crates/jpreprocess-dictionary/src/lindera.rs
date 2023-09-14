@@ -30,9 +30,9 @@ impl DictionarySerializer for LinderaSerializer {
             Err(err) => format!("Error: {:?}", err),
         }
     }
-    fn deserialize_with_string(&self, data: &[u8], _string: String) -> JPreprocessResult<String> {
+    fn deserialize_with_string(&self, data: &[u8], _string: String) -> LinderaResult<String> {
         bincode::deserialize(data)
             .map(|v: Vec<String>| v.join(","))
-            .map_err(|err| JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(err)))
+            .map_err(|err| LinderaErrorKind::Deserialize.with_error(anyhow::anyhow!(err)))
     }
 }

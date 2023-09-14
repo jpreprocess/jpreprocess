@@ -3,12 +3,10 @@ use std::{error::Error, fs::File, io::Write, ops::Deref, path::PathBuf};
 use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess::SystemDictionaryConfig;
 use jpreprocess_core::error::JPreprocessErrorKind;
-use jpreprocess_dictionary::DictionaryStore;
-use jpreprocess_dictionary_builder::{
-    ipadic_builder::IpadicBuilder,
-    serializer::{DictionarySerializer, JPreprocessSerializer, LinderaSerializer},
-    to_csv::dict_to_csv,
+use jpreprocess_dictionary::{
+    jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionaryStore, DictionarySerializer,
 };
+use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 use lindera_core::dictionary_builder::DictionaryBuilder;
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 
@@ -99,7 +97,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 } else {
                     println!("No metadata found. Assuming lindera dictionary.")
                 }
-
 
                 if let Some(word_id) = word_id {
                     let word_bin = match dict.get_bytes(word_id) {
