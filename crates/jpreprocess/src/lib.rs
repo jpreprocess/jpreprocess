@@ -113,13 +113,14 @@ impl JPreprocess {
             None => None,
         };
 
-        Ok(Self::new(dictionary, user_dictionary))
+        Ok(Self::with_dictionaries(dictionary, user_dictionary))
     }
 
-    /// Creates JPreprocess from dictionaries.
-    ///
-    /// Note: `new` before v0.2.0 has moved to `from_config`
-    pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
+    /// Creates JPreprocess from provided dictionaries.
+    pub fn with_dictionaries(
+        dictionary: Dictionary,
+        user_dictionary: Option<UserDictionary>,
+    ) -> Self {
         let dictionary_config = WordDictionaryConfig {
             system: dictionary.serlializer_hint(),
             user: user_dictionary
@@ -137,6 +138,17 @@ impl JPreprocess {
             tokenizer,
             dictionary_config: Box::new(dictionary_config),
         }
+    }
+
+    /// Alias of [`with_dictionaries`].
+    /// This method is deprecated. Use [`with_dictionaries`] instead.
+    ///
+    /// Note: `new` before v0.2.0 has moved to `from_config`
+    ///
+    /// [`with_dictionaries`]: #method.with_dictionaries
+    #[deprecated(since="0.5.0", note="please use `with_dictionaries` instead")]
+    pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
+        Self::with_dictionaries(dictionary, user_dictionary)
     }
 
     /// Tokenize input text and return NJD.
