@@ -9,7 +9,7 @@
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! #     let path = PathBuf::from("tests/min-dict");
-//!  let config = JPreprocessConfig {
+//! let config = JPreprocessConfig {
 //!      dictionary: SystemDictionaryConfig::File(path),
 //!      user_dictionary: None,
 //!  };

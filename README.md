@@ -1,7 +1,5 @@
 # jpreprocess
 
-**NOTE:** まだ仕様が安定していませんのでご注意ください．
-
 日本語文を解析し、音声合成エンジンに渡せる形式に変換します．
 
 [OpenJTalk](http://open-jtalk.sourceforge.net/)の前処理部分(HTS Engine以外)をRustで書き直したものです．
@@ -16,7 +14,7 @@
   - 新しい機能の追加を排除するものではありませんが，
     オプションやバージョン，feature等でOpenJTalkと同じ出力を得る手段が残るようにしたいと考えています．
 - HTS Engineは実装しない
-  - 荷が重い，かつ需要が少ないと考えられるので，少なくともこのリポジトリではHTS Engineは実装しません．
+  - フルコンテキストラベルの生成までをサポートしますが，その先はこのリポジトリの範囲外とします．
 
 ## Crates
 
@@ -31,8 +29,11 @@ Lindera，jpreprocess-njd，jpreprocess-jpcommonなどのラッパーです．
 ```rs
 use jpreprocess::*;
 
-let config = JPreprocessDictionaryConfig::FileLindera(PathBuf::from("path_to_lindera_dictionary"));
-let jpreprocess = JPreprocess::new(config)?;
+let config = JPreprocessConfig {
+     dictionary: SystemDictionaryConfig::File(path),
+     user_dictionary: None,
+ };
+let jpreprocess = JPreprocess::from_config(config)?;
 
 let jpcommon_label = jpreprocess
     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
