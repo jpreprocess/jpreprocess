@@ -1,9 +1,8 @@
 use std::error::Error;
 
 use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
-use jpreprocess_dictionary_builder::{
-    ipadic_builder::IpadicBuilder, serializer::JPreprocessSerializer,
-};
+use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
+use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
 
 #[cfg(feature = "naist-jdic")]
 use jpreprocess::kind::*;
@@ -63,7 +62,7 @@ fn lindera_user_dictionary() -> Result<(), Box<dyn Error>> {
     let user_dictionary =
         IpadicBuilder::new(Box::new(JPreprocessSerializer)).build_user_dict_from_data(&rows)?;
 
-    let jpreprocess = JPreprocess::new(dictionary, Some(user_dictionary));
+    let jpreprocess = JPreprocess::with_dictionaries(dictionary, Some(user_dictionary));
     let njd = jpreprocess.text_to_njd("クーバネティス")?;
 
     assert_eq!(njd.nodes[0].get_string(), "クーバネティス");

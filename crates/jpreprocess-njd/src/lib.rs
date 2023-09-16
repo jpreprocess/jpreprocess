@@ -2,7 +2,7 @@ mod njd_set;
 mod node;
 
 use jpreprocess_core::JPreprocessResult;
-use jpreprocess_dictionary::WordDictionaryConfig;
+use jpreprocess_dictionary::DictionaryFetcher;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
@@ -21,7 +21,7 @@ impl NJD {
 
     pub fn from_tokens(
         tokens: &[Token],
-        dict_config: WordDictionaryConfig,
+        dict_config: &dyn DictionaryFetcher,
     ) -> JPreprocessResult<Self> {
         let mut nodes = Vec::new();
         for token in tokens {

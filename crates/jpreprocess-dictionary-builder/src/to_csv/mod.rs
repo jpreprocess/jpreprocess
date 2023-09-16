@@ -1,5 +1,6 @@
-use crate::{build_dict::WordEntryMap, serializer::DictionarySerializer};
+use crate::build_dict::WordEntryMap;
 use byteorder::{ByteOrder, LittleEndian};
+use jpreprocess_dictionary::DictionarySerializer;
 use lindera_core::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
 use std::collections::BTreeMap;
 
@@ -89,7 +90,7 @@ pub fn words_to_csv(
     let mut result = vec![];
     for (i, word) in words.into_iter().enumerate() {
         let idx = LittleEndian::read_u32(&words_idx_data[i * 4..(i + 1) * 4]) as usize;
-        let deserialized = serializer.deserialize(&words_data[idx..], word)?;
+        let deserialized = serializer.deserialize_with_string(&words_data[idx..], word)?;
         result.push(deserialized);
     }
     Ok(result)
@@ -99,7 +100,9 @@ pub fn words_to_csv(
 mod tests {
     use std::error::Error;
 
-    use crate::{ipadic_builder::IpadicBuilder, serializer::LinderaSerializer};
+    use jpreprocess_dictionary::serializer::lindera::LinderaSerializer;
+
+    use crate::ipadic_builder::IpadicBuilder;
 
     use super::dict_to_csv;
 
