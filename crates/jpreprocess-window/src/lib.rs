@@ -47,15 +47,21 @@ impl<'a, T> IterQuintMut<'a, T> {
             (1, 0) => vec.first_mut().map(Single),
             (1, _) => None,
             (2, 0) => {
-                let [i0, i1] = &mut vec[0..2] else { unreachable!() };
+                let [i0, i1] = &mut vec[0..2] else {
+                    unreachable!()
+                };
                 Some(Double(i0, i1))
             }
             (3, 0) => {
-                let [i0, i1, i2] = &mut vec[0..3] else { unreachable!() };
+                let [i0, i1, i2] = &mut vec[0..3] else {
+                    unreachable!()
+                };
                 Some(Triple(i0, i1, i2))
             }
             (_, 0) => {
-                let [i0, i1, i2,i3] = &mut vec[0..4] else { unreachable!() };
+                let [i0, i1, i2, i3] = &mut vec[0..4] else {
+                    unreachable!()
+                };
                 Some(First(i0, i1, i2, i3))
             }
             (_, t) => match &mut vec[t - 1..] {

@@ -21,10 +21,10 @@ pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
             digits.clear();
         }
 
-        let Some(digit)=digit_parse_str(node.get_string()) else{
-                is_in_seq=false;
-                continue;
-            };
+        let Some(digit) = digit_parse_str(node.get_string()) else {
+            is_in_seq = false;
+            continue;
+        };
 
         if !is_in_seq {
             if matches!(digit, Digit::Digit(_)) {

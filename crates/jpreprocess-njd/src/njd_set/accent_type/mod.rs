@@ -72,9 +72,9 @@ fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_si
     let node_acc = node.get_acc();
     let top_node_acc = top_node.get_acc();
 
-    let Some(rule) = node
-        .get_chain_rule(prev.get_pos())
-        else {return top_node_acc};
+    let Some(rule) = node.get_chain_rule(prev.get_pos()) else {
+        return top_node_acc;
+    };
 
     match rule.accent_type {
         AccentType::F1 => top_node_acc,

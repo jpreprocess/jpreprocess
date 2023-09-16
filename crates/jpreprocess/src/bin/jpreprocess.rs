@@ -59,7 +59,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         user_dictionary,
     })?;
 
-    let njd_texts:Vec<String>=jpreprocess.text_to_njd(&cli.input)?.into();
+    let njd_texts: Vec<String> = jpreprocess.text_to_njd(&cli.input)?.into();
     for line in njd_texts {
         println!("{}", line);
     }
