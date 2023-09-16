@@ -21,15 +21,17 @@ impl NJD {
 
     pub fn from_tokens(
         tokens: &[Token],
-        dict_config: &dyn DictionaryFetcher,
+        fetcher: &dyn DictionaryFetcher,
     ) -> JPreprocessResult<Self> {
-        let mut nodes = Vec::new();
-        for token in tokens {
-            let text = token.text.to_string();
-            let details = dict_config.get_word(token)?;
-
-            nodes.extend(NJDNode::load(&text, details));
-        }
+        let nodes = fetcher
+            .get_word_vectored(tokens)?
+            .into_iter()
+            .zip(tokens)
+            .map(|(word_entry, token)| NJDNode::load(token.text, word_entry))
+            .fold(Vec::new(), |mut acc, curr| {
+                acc.extend(curr);
+                acc
+            });
         Ok(Self { nodes })
     }
 
