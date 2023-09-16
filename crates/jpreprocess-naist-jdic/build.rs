@@ -2,16 +2,16 @@ use std::error::Error;
 
 #[cfg(feature = "naist-jdic")]
 fn main() -> Result<(), Box<dyn Error>> {
-    use jpreprocess_dictionary_builder::{
-        ipadic_builder::IpadicBuilder, serializer::JPreprocessSerializer,
-    };
-    use lindera_core::dictionary_builder::DictionaryBuilder;
     use std::{
         env,
         fs::{copy, create_dir, rename, File},
         io::{self, Cursor, Read, Write},
         path::Path,
     };
+
+    use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
+    use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
+    use lindera_core::dictionary_builder::DictionaryBuilder;
 
     use encoding::{
         all::UTF_8,

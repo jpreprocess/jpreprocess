@@ -489,7 +489,6 @@ version = "0.4.0"
 dependencies = [
  "aho-corasick",
  "anyhow",
- "bincode",
  "lindera-core",
  "lindera-tokenizer",
  "once_cell",
@@ -509,7 +508,6 @@ dependencies = [
  "lindera-core",
  "lindera-ipadic-builder",
  "lindera-tokenizer",
- "once_cell",
  "serde",
 ]
 
@@ -544,13 +542,11 @@ dependencies = [
 name = "jpreprocess-naist-jdic"
 version = "0.4.0"
 dependencies = [
- "bincode",
- "byteorder",
  "encoding",
  "flate2",
+ "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
  "lindera-core",
- "once_cell",
  "tar",
  "ureq",
 ]
@@ -564,7 +560,6 @@ dependencies = [
  "jpreprocess-dictionary",
  "jpreprocess-window",
  "lindera-tokenizer",
- "once_cell",
  "phf",
 ]
 
