@@ -41,6 +41,8 @@ jobs:
 
     - name: Run Clippy
       run: cargo clippy --all-targets
+    - name: Run Format Check
+      run: cargo fmt --check
 
   check-msrv:
     runs-on: ubuntu-latest

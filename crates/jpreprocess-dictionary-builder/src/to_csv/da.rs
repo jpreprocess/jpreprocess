@@ -4,7 +4,9 @@ pub struct DoubleArrayParser<'a>(pub &'a [u8]);
 
 impl DoubleArrayParser<'_> {
     pub fn inverse_da(&self) -> Vec<(String, u32)> {
-        let Some(unit) = self.get_unit(0) else {return vec![]};
+        let Some(unit) = self.get_unit(0) else {
+            return vec![];
+        };
         self.dfs(0, unit.offset())
             .into_iter()
             .map(|(s, id)| (String::from_utf8(s).unwrap(), id))
@@ -21,7 +23,9 @@ impl DoubleArrayParser<'_> {
                     assert!(!unit.is_leaf());
                     if unit.has_leaf() {
                         let gc_pos = (unit.offset() ^ node_pos as u32) as UnitID;
-                        let Some(gc_unit) = self.get_unit(gc_pos) else {continue};
+                        let Some(gc_unit) = self.get_unit(gc_pos) else {
+                            continue;
+                        };
                         keyset.push((vec![c as u8], gc_unit.value()))
                     }
                     keyset.extend(self.dfs(node_pos, unit.offset()).into_iter().map(
