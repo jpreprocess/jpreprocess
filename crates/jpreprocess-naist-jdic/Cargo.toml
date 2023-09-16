@@ -16,10 +16,6 @@ documentation = "https://docs.rs/jpreprocess-naist-jdic"
 naist-jdic = ["encoding", "flate2", "tar", "ureq"]
 
 [dependencies]
-bincode = "1.3.3"
-byteorder = "1.4.3"
-once_cell = "1.18.0"
-
 lindera-core = { version = "0.27.1" }
 
 [build-dependencies]
@@ -30,4 +26,5 @@ ureq = { version = "2.7.1", default-features = false, features = ["tls"], option
 
 lindera-core = { version = "0.27.1" }
 
+jpreprocess-dictionary.workspace = true
 jpreprocess-dictionary-builder.workspace = true
