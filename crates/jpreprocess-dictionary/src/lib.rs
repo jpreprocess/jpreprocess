@@ -3,8 +3,7 @@ use lindera_core::LinderaResult;
 use lindera_tokenizer::token::Token;
 
 pub mod fetcher;
-pub mod jpreprocess;
-pub mod lindera;
+pub mod serializer;
 pub mod store;
 
 pub trait DictionaryFetcher {

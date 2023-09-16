@@ -2,8 +2,8 @@ use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPrep
 use lindera_tokenizer::token::Token;
 
 use super::{
-    jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionaryFetcher,
-    DictionarySerializer, DictionaryStore,
+    serializer::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer},
+    DictionaryFetcher, DictionarySerializer, DictionaryStore,
 };
 
 pub struct WordDictionaryConfig {

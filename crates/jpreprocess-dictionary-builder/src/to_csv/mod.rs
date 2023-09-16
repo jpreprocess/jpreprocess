@@ -100,7 +100,7 @@ pub fn words_to_csv(
 mod tests {
     use std::error::Error;
 
-    use jpreprocess_dictionary::lindera::LinderaSerializer;
+    use jpreprocess_dictionary::serializer::lindera::LinderaSerializer;
 
     use crate::ipadic_builder::IpadicBuilder;
 

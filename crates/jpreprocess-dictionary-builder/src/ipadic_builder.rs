@@ -7,7 +7,7 @@ use std::{
     u32,
 };
 
-use jpreprocess_dictionary::{lindera::LinderaSerializer, DictionarySerializer};
+use jpreprocess_dictionary::{serializer::lindera::LinderaSerializer, DictionarySerializer};
 use rayon::prelude::*;
 
 use byteorder::{LittleEndian, WriteBytesExt};

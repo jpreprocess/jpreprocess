@@ -2,7 +2,7 @@ use crate::{DictionarySerializer, DictionaryStore};
 use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
-use super::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer};
+use super::serializer::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer};
 
 impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
