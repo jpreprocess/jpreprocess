@@ -27,11 +27,8 @@ impl NJD {
             .get_word_vectored(tokens)?
             .into_iter()
             .zip(tokens)
-            .map(|(word_entry, token)| NJDNode::load(token.text, word_entry))
-            .fold(Vec::new(), |mut acc, curr| {
-                acc.extend(curr);
-                acc
-            });
+            .flat_map(|(word_entry, token)| NJDNode::load(token.text, word_entry))
+            .collect();
         Ok(Self { nodes })
     }
 
