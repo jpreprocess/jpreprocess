@@ -8,6 +8,9 @@ pub mod store;
 
 pub trait DictionaryFetcher {
     fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry>;
+    fn get_word_vectored(&self, tokens: &[Token]) -> JPreprocessResult<Vec<WordEntry>> {
+        tokens.iter().map(|token| self.get_word(token)).collect()
+    }
 }
 
 pub trait DictionaryStore<'a> {
