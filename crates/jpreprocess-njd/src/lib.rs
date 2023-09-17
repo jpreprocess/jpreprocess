@@ -19,9 +19,9 @@ impl NJD {
         self.nodes.retain(|node| !node.get_pron().is_empty())
     }
 
-    pub fn from_tokens(
+    pub fn from_tokens<S: DictionaryFetcher>(
         tokens: &[Token],
-        fetcher: &dyn DictionaryFetcher,
+        fetcher: &S,
     ) -> JPreprocessResult<Self> {
         let nodes = fetcher
             .get_word_vectored(tokens)?
