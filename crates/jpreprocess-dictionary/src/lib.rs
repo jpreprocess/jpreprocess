@@ -45,3 +45,26 @@ pub trait DictionarySerializer {
     // For dictionary restorer
     fn deserialize_with_string(&self, data: &[u8], string: String) -> LinderaResult<String>;
 }
+impl<T> DictionarySerializer for Box<T>
+where
+    T: DictionarySerializer + ?Sized,
+{
+    fn identifier(&self) -> String {
+        self.as_ref().identifier()
+    }
+    fn serialize(&self, row: &[String]) -> LinderaResult<Vec<u8>> {
+        self.as_ref().serialize(row)
+    }
+    fn serialize_simple(&self, row: &[String]) -> LinderaResult<Vec<u8>> {
+        self.as_ref().serialize_simple(row)
+    }
+    fn deserialize(&self, data: &[u8]) -> JPreprocessResult<WordEntry> {
+        self.as_ref().deserialize(data)
+    }
+    fn deserialize_debug(&self, data: &[u8]) -> String {
+        self.as_ref().deserialize_debug(data)
+    }
+    fn deserialize_with_string(&self, data: &[u8], string: String) -> LinderaResult<String> {
+        self.as_ref().deserialize_with_string(data, string)
+    }
+}

@@ -1,7 +1,6 @@
 use std::{
     fs::{self, File},
     io::{self, Write},
-    ops::Deref,
     path::{Path, PathBuf},
     str::FromStr,
     u32,
@@ -55,7 +54,7 @@ impl IpadicBuilder {
         );
 
         let (words_idx_buffer, words_buffer) =
-            build_words(self.serializer.deref(), normalized_rows, is_system)?;
+            build_words(&self.serializer, normalized_rows, is_system)?;
 
         write(&words_buffer, &mut wtr_words)?;
         write(&words_idx_buffer, &mut wtr_words_idx)?;
@@ -74,8 +73,7 @@ impl IpadicBuilder {
     ) -> LinderaResult<UserDictionary> {
         let mut normalized_rows: Vec<Vec<String>> = normalize_rows(rows);
         normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
-        let (words_idx_data, words_data) =
-            build_words(self.serializer.deref(), &normalized_rows, false)?;
+        let (words_idx_data, words_data) = build_words(&self.serializer, &normalized_rows, false)?;
         let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
         Ok(UserDictionary {
             dict,
@@ -338,8 +336,7 @@ impl DictionaryBuilder for IpadicBuilder {
 
         let mut normalized_rows: Vec<Vec<String>> = normalize_rows(&rows);
         normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
-        let (words_idx_data, words_data) =
-            build_words(self.serializer.deref(), &normalized_rows, false)?;
+        let (words_idx_data, words_data) = build_words(&self.serializer, &normalized_rows, false)?;
         let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
 
         Ok(UserDictionary {

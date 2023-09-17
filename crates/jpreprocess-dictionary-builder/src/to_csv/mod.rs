@@ -12,11 +12,11 @@ mod da;
 ///
 /// The third column (right_id) cannot be recovered
 /// because it is already lost while building the dictionary.
-pub fn dict_to_csv(
+pub fn dict_to_csv<S: DictionarySerializer>(
     prefix_dict: &PrefixDict,
     words_idx_data: &[u8],
     words_data: &[u8],
-    serializer: &dyn DictionarySerializer,
+    serializer: &S,
 ) -> LinderaResult<Vec<String>> {
     let word_entry_map = inverse_prefix_dict(prefix_dict, true);
 
@@ -78,11 +78,11 @@ pub fn inverse_prefix_dict(prefix_dict: &PrefixDict, is_system: bool) -> WordEnt
 ///
 /// Note that some data (e.g. orig) is already lost in dictionary build process
 /// if jpreprocess serlializer is used.
-pub fn words_to_csv(
+pub fn words_to_csv<S: DictionarySerializer>(
     words_idx_data: &[u8],
     words_data: &[u8],
     words: Vec<String>,
-    serializer: &dyn DictionarySerializer,
+    serializer: &S,
 ) -> LinderaResult<Vec<String>> {
     let words_count = words_idx_data.len() / 4;
     assert_eq!(words_count, words.len());
