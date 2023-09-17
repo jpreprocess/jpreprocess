@@ -12,11 +12,36 @@ pub trait DictionaryFetcher {
         tokens.iter().map(|token| self.get_word(token)).collect()
     }
 }
+impl<T> DictionaryFetcher for T
+where
+    T: AsRef<dyn DictionaryFetcher>,
+{
+    fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
+        self.as_ref().get_word(token)
+    }
+    fn get_word_vectored(&self, tokens: &[Token]) -> JPreprocessResult<Vec<WordEntry>> {
+        self.as_ref().get_word_vectored(tokens)
+    }
+}
 
 pub trait DictionaryStore<'a> {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]>;
     fn identifier(&self) -> Option<String>;
     fn serlializer_hint(&self) -> Box<dyn DictionarySerializer>;
+}
+impl<'a, T> DictionaryStore<'a> for T
+where
+    T: AsRef<dyn DictionaryStore<'a>>,
+{
+    fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
+        self.as_ref().get_bytes(id)
+    }
+    fn identifier(&self) -> Option<String> {
+        self.as_ref().identifier()
+    }
+    fn serlializer_hint(&self) -> Box<dyn DictionarySerializer> {
+        self.as_ref().serlializer_hint()
+    }
 }
 
 pub trait DictionarySerializer {
