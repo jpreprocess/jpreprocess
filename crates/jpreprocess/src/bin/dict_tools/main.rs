@@ -1,13 +1,12 @@
-use std::{error::Error, fs::File, io::Write, ops::Deref, path::PathBuf};
+use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
+
 use jpreprocess::SystemDictionaryConfig;
 use jpreprocess_core::error::JPreprocessErrorKind;
-use jpreprocess_dictionary::{
-    jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionarySerializer,
-    DictionaryStore,
-};
+use jpreprocess_dictionary::{fetcher::WordDictionaryMode, DictionaryStore};
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
+
 use lindera_core::dictionary_builder::DictionaryBuilder;
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 
@@ -67,6 +66,14 @@ enum Serializer {
     /// Build jpreprocess dictionary
     Jpreprocess,
 }
+impl Serializer {
+    pub fn into_mode(self) -> WordDictionaryMode {
+        match self {
+            Self::Lindera => WordDictionaryMode::Lindera,
+            Self::Jpreprocess => WordDictionaryMode::JPreprocess,
+        }
+    }
+}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -114,14 +121,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Commands::Build {
             user,
-            serializer: serlializer,
+            serializer: serializer_config,
             input,
             output,
         } => {
-            let builder = IpadicBuilder::new(match serlializer {
-                Serializer::Lindera => Box::new(LinderaSerializer),
-                Serializer::Jpreprocess => Box::new(JPreprocessSerializer),
-            });
+            let builder = IpadicBuilder::new(serializer_config.into_mode().into_serializer());
 
             if user {
                 println!("Building user dictionary...");
@@ -162,15 +166,15 @@ fn main() -> Result<(), Box<dyn Error>> {
             };
             println!("Successfully loaded source dictionary.");
 
-            let serializer: Box<dyn DictionarySerializer> = match serializer_config {
-                Serializer::Lindera => Box::new(LinderaSerializer),
-                Serializer::Jpreprocess => Box::new(JPreprocessSerializer),
-            };
-
             let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
 
             println!("Converting dictionary csv...");
-            let csv = dict_to_csv(prefix_dict, words_idx_data, words_data, serializer.deref())?;
+            let csv = dict_to_csv(
+                prefix_dict,
+                words_idx_data,
+                words_data,
+                &serializer_config.into_mode().into_serializer(),
+            )?;
             println!("done.");
 
             println!("Writing csv file...");
