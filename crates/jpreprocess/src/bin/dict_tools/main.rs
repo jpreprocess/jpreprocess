@@ -24,6 +24,7 @@ struct Cli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// Display detailed information on a dictionary
     Inspect {
         /// The Word id to display
         #[arg(short, long)]
@@ -31,6 +32,7 @@ enum Commands {
 
         input: PathBuf,
     },
+    /// Build a dictionary for lindera or jpreprocess
     Build {
         /// User dictionary
         #[arg(short, long)]
@@ -44,6 +46,7 @@ enum Commands {
         /// For user dictionary, the parent directory of the output file should not exist.
         output: PathBuf,
     },
+    /// Restore the csv file used for building the dictionary
     Csv {
         /// User dictionary
         #[arg(short, long)]
