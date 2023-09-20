@@ -135,8 +135,8 @@ impl WordEntryWithString {
     }
 }
 
-pub fn build_words(
-    serializer: &(dyn DictionarySerializer + Send + Sync),
+pub fn build_words<S: DictionarySerializer + Send + Sync>(
+    serializer: &S,
     rows: &Vec<Vec<String>>,
     is_system: bool,
 ) -> LinderaResult<(Vec<u8>, Vec<u8>)> {

@@ -15,7 +15,7 @@ impl WordDictionaryConfig {
     pub fn new(system: WordDictionaryMode, user: Option<WordDictionaryMode>) -> Self {
         Self {
             system: system.into_serializer(),
-            user: user.map(WordDictionaryMode::into_serializer),
+            user: user.map(|user| user.into_serializer() as Box<dyn DictionarySerializer>),
         }
     }
 }
@@ -55,7 +55,7 @@ pub enum WordDictionaryMode {
 }
 
 impl WordDictionaryMode {
-    fn into_serializer(self) -> Box<dyn DictionarySerializer> {
+    pub fn into_serializer(self) -> Box<dyn DictionarySerializer + Send + Sync> {
         match self {
             Self::Lindera => Box::new(LinderaSerializer),
             Self::JPreprocess => Box::new(JPreprocessSerializer),
