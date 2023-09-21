@@ -15,10 +15,10 @@ categories = ["text-processing"]
 rust-version = "1.65.0"
 
 [workspace.dependencies]
-jpreprocess-core = { path = "crates/jpreprocess-core" }
-jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary" }
-jpreprocess-dictionary-builder = { path = "crates/jpreprocess-dictionary-builder" }
-jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon" }
-jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic" }
-jpreprocess-njd = { path = "crates/jpreprocess-njd" }
-jpreprocess-window = { path = "crates/jpreprocess-window" }
+jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.5.0" }
+jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.5.0" }
+jpreprocess-dictionary-builder = { path = "crates/jpreprocess-dictionary-builder", version = "0.5.0" }
+jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon", version = "0.5.0" }
+jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.5.0" }
+jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.5.0" }
+jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.5.0" }
