@@ -10,19 +10,19 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(typescript_custom_section)]
 const TYPESCRIPT: &'static str = r#"
 interface Dictionary {
-    dict_da: Uint8Array,
-    dict_vals: Uint8Array,
-    cost_matrix: Uint8Array,
-    char_definitions: Uint8Array,
-    unknown_dictionary: Uint8Array,
-    words_idx_data: Uint8Array,
-    words_data: Uint8Array,
+  dict_da: Uint8Array,
+  dict_vals: Uint8Array,
+  cost_matrix: Uint8Array,
+  char_definitions: Uint8Array,
+  unknown_dictionary: Uint8Array,
+  words_idx_data: Uint8Array,
+  words_data: Uint8Array,
 }
 interface UserDictionary {
-    dict_da: Uint8Array,
-    dict_vals: Uint8Array,
-    words_idx_data: Uint8Array,
-    words_data: Uint8Array,
+  dict_da: Uint8Array,
+  dict_vals: Uint8Array,
+  words_idx_data: Uint8Array,
+  words_data: Uint8Array,
 }
 "#;
 
