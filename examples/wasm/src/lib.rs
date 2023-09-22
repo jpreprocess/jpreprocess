@@ -32,16 +32,18 @@ struct Dictionary {
     words_data: Vec<u8>,
 }
 
-impl From<Dictionary> for lindera_core::dictionary::Dictionary {
-    fn from(value: Dictionary) -> Self {
-        Self {
+impl TryFrom<Dictionary> for lindera_core::dictionary::Dictionary {
+    type Error = lindera_core::error::LinderaError;
+    fn try_from(value: Dictionary) -> Result<Self, Self::Error> {
+        let this = Self {
             dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
             cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
-            char_definitions: CharacterDefinitions::load(&value.char_definitions).unwrap(),
-            unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary).unwrap(),
+            char_definitions: CharacterDefinitions::load(&value.char_definitions)?,
+            unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
             words_idx_data: Cow::Owned(value.words_idx_data),
             words_data: Cow::Owned(value.words_data),
-        }
+        };
+        Ok(this)
     }
 }
 
@@ -53,17 +55,23 @@ extern "C" {
     pub type IVecString;
 }
 
-fn vecstring2js(input: Vec<String>) -> IVecString {
-    let jsv = js_sys::Array::from_iter(input.into_iter().map(js_sys::JsString::from));
-    IVecString { obj: jsv.into() }
+// TODO: Remove this when wasm-bindgen supports Vec<String> as function return type
+impl From<Vec<String>> for IVecString {
+    fn from(value: Vec<String>) -> Self {
+        let jsv = js_sys::Array::from_iter(value.into_iter().map(js_sys::JsString::from));
+        IVecString { obj: jsv.into() }
+    }
 }
-fn js2vecstring(input: IVecString) -> Vec<String> {
-    let array = js_sys::Array::from(&input.obj);
-    array
-        .iter()
-        .map(|elem| js_sys::JsString::from(elem))
-        .filter_map(|jsstr| jsstr.as_string())
-        .collect()
+// TODO: Remove this when wasm-bindgen supports Vec<String> as function argument
+impl From<IVecString> for Vec<String> {
+    fn from(value: IVecString) -> Self {
+        let array = js_sys::Array::from(&value.obj);
+        array
+            .iter()
+            .map(js_sys::JsString::from)
+            .filter_map(|jsstr| jsstr.as_string())
+            .collect()
+    }
 }
 
 #[wasm_bindgen]
@@ -76,30 +84,28 @@ impl JPreprocess {
     pub fn new(system_dictionary: IDictionary) -> Result<JPreprocess, JsValue> {
         let sysdic: Dictionary = serde_wasm_bindgen::from_value(system_dictionary.obj)?;
         Ok(Self {
-            inner: jpreprocess::JPreprocess::with_dictionaries(sysdic.into(), None),
+            inner: jpreprocess::JPreprocess::with_dictionaries(
+                sysdic.try_into().map_err(JsError::from)?,
+                None,
+            ),
         })
     }
     #[wasm_bindgen]
     pub fn run_frontend(&self, text: &str) -> Result<IVecString, JsValue> {
-        let r = self
-            .inner
-            .run_frontend(text)
-            .map_err(|err| JsError::from(err))?;
-
-        Ok(vecstring2js(r))
+        let r = self.inner.run_frontend(text).map_err(JsError::from)?;
+        Ok(r.into())
     }
     #[wasm_bindgen]
     pub fn make_label(&self, njd_features: IVecString) -> IVecString {
-        let r = self.inner.make_label(js2vecstring(njd_features));
-        vecstring2js(r)
+        let r = self.inner.make_label(njd_features.into());
+        r.into()
     }
     #[wasm_bindgen]
     pub fn extract_fullcontext(&self, text: &str) -> Result<IVecString, JsValue> {
         let r = self
             .inner
             .extract_fullcontext(text)
-            .map_err(|err| JsError::from(err))?;
-
-        Ok(vecstring2js(r))
+            .map_err(JsError::from)?;
+        Ok(r.into())
     }
 }
