@@ -18,11 +18,17 @@ interface Dictionary {
     words_idx_data: Uint8Array,
     words_data: Uint8Array,
 }
+interface UserDictionary {
+    dict_da: Uint8Array,
+    dict_vals: Uint8Array,
+    words_idx_data: Uint8Array,
+    words_data: Uint8Array,
+}
 type VecString = string[];
 "#;
 
 #[derive(Serialize, Deserialize)]
-struct Dictionary {
+struct JsDictionary {
     dict_da: Vec<u8>,
     dict_vals: Vec<u8>,
     cost_matrix: Vec<u8>,
@@ -32,9 +38,9 @@ struct Dictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<Dictionary> for lindera_core::dictionary::Dictionary {
+impl TryFrom<JsDictionary> for lindera_core::dictionary::Dictionary {
     type Error = lindera_core::error::LinderaError;
-    fn try_from(value: Dictionary) -> Result<Self, Self::Error> {
+    fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
             cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
@@ -47,10 +53,32 @@ impl TryFrom<Dictionary> for lindera_core::dictionary::Dictionary {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+struct JsUserDictionary {
+    dict_da: Vec<u8>,
+    dict_vals: Vec<u8>,
+    words_idx_data: Vec<u8>,
+    words_data: Vec<u8>,
+}
+
+impl TryFrom<JsUserDictionary> for lindera_core::dictionary::UserDictionary {
+    type Error = lindera_core::error::LinderaError;
+    fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
+        let this = Self {
+            dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
+            words_idx_data: value.words_idx_data,
+            words_data: value.words_data,
+        };
+        Ok(this)
+    }
+}
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(typescript_type = "Dictionary")]
     pub type IDictionary;
+    #[wasm_bindgen(typescript_type = "UserDictionary")]
+    pub type IUserDictionary;
     #[wasm_bindgen(typescript_type = "VecString")]
     pub type IVecString;
 }
@@ -81,13 +109,23 @@ pub struct JPreprocess {
 #[wasm_bindgen]
 impl JPreprocess {
     #[wasm_bindgen(constructor)]
-    pub fn new(system_dictionary: IDictionary) -> Result<JPreprocess, JsValue> {
-        let sysdic: Dictionary = serde_wasm_bindgen::from_value(system_dictionary.obj)?;
+    pub fn new(
+        system_dictionary: IDictionary,
+        user_dictionary: Option<IUserDictionary>,
+    ) -> Result<JPreprocess, JsValue> {
+        let dictionary = {
+            let dict: JsDictionary = serde_wasm_bindgen::from_value(system_dictionary.obj)?;
+            dict.try_into().map_err(JsError::from)?
+        };
+        let user_dictionary = if let Some(user_dictionary) = user_dictionary {
+            let dict: JsUserDictionary = serde_wasm_bindgen::from_value(user_dictionary.obj)?;
+            Some(dict.try_into().map_err(JsError::from)?)
+        } else {
+            None
+        };
+
         Ok(Self {
-            inner: jpreprocess::JPreprocess::with_dictionaries(
-                sysdic.try_into().map_err(JsError::from)?,
-                None,
-            ),
+            inner: jpreprocess::JPreprocess::with_dictionaries(dictionary, user_dictionary),
         })
     }
     #[wasm_bindgen]
