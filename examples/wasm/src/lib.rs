@@ -24,7 +24,6 @@ interface UserDictionary {
     words_idx_data: Uint8Array,
     words_data: Uint8Array,
 }
-type VecString = string[];
 "#;
 
 #[derive(Serialize, Deserialize)]
@@ -79,7 +78,7 @@ extern "C" {
     pub type IDictionary;
     #[wasm_bindgen(typescript_type = "UserDictionary")]
     pub type IUserDictionary;
-    #[wasm_bindgen(typescript_type = "VecString")]
+    #[wasm_bindgen(typescript_type = "string[]")]
     pub type IVecString;
 }
 
