@@ -364,6 +364,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "example-simple"
+version = "0.5.0"
+dependencies = [
+ "jpreprocess",
+]
+
+
+[[package]]
 name = "filetime"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
