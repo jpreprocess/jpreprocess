@@ -5,9 +5,9 @@ Example of using jpreprocess from WebAssembly.
 ## Usage
 
 1. Install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
-2. Go to `examples/wasm` directory
+2. Go to `examples/example-wasm` directory
    ```bash
-   cd examples/wasm
+   cd examples/example-wasm
    ```
 3. Build wasm package
    ```bash
