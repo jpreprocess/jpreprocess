@@ -55,11 +55,32 @@ jobs:
           toolchain: stable
           targets: wasm32-unknown-unknown
 
+    - name: wasm-pack
+      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@e207df5d269b42b69c8bc5101da26f7d31feddb4 # v2.6.2
 
-    - name: WASM
-      run: cargo build --target wasm32-unknown-unknown --verbose
+    - name: Build
+      run: |
+        cd examples/example-wasm
+        wasm-pack build --target nodejs
+
+    - uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+      with:
+        version: 8
+
+    - uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+      with:
+        node-version: 18
+        cache: 'pnpm'
+        cache-dependency-path: examples/example-wasm/js/pnpm-lock.yaml
+
+    - name: Test js
+      run: |
+        cd examples/example-wasm/js
+        pnpm i
+        pnpm test
 
   check-msrv:
     runs-on: ubuntu-latest

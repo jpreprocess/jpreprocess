@@ -1,7 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/*"
+  "crates/*",
+  "examples/*",
 ]
 
 [workspace.package]
@@ -15,6 +16,8 @@ categories = ["text-processing"]
 rust-version = "1.65.0"
 
 [workspace.dependencies]
+jpreprocess = { path = "crates/jpreprocess", version = "0.5.0" }
+
 jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.5.0" }
 jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.5.0" }
 jpreprocess-dictionary-builder = { path = "crates/jpreprocess-dictionary-builder", version = "0.5.0" }

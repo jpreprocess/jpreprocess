@@ -1,0 +1,20 @@
+{
+  "name": "example-wasm-js",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "tsc && node dist/test.js"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "example-wasm": "file:../pkg"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.3",
+    "typescript": "^5.2.2"
+  }
+}
