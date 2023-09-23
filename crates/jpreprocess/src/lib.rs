@@ -65,7 +65,12 @@ pub struct JPreprocess {
 }
 
 impl JPreprocess {
-    /// Loads the dictionary.
+    /// Loads the dictionary from JPreprocessConfig.
+    ///
+    /// This supports importing files and built-in dictionary (needs feature).
+    /// If you need to import from data, please use [`with_dictionaries`] instead.
+    ///
+    /// [`with_dictionaries`]: #method.with_dictionaries
     ///
     /// ## Example 1: Load from file
     ///
@@ -116,7 +121,7 @@ impl JPreprocess {
         Ok(Self::with_dictionaries(dictionary, user_dictionary))
     }
 
-    /// Creates JPreprocess with provided dictionaries.
+    /// Creates JPreprocess with provided dictionary data.
     pub fn with_dictionaries(
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,

@@ -53,6 +53,8 @@ assert_eq!(
 );
 ```
 
+Other examples can be found at [GitHub](https://github.com/jpreprocess/jpreprocess/tree/main/examples).
+
 ## Copyrights
 
 This software includes source code from:
