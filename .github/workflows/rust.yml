@@ -78,7 +78,7 @@ jobs:
 
     - name: Test js
       run: |
-        cd js
+        cd examples/example-wasm/js
         pnpm i
         pnpm test
 
