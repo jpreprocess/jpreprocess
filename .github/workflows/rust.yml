@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@e207df5d269b42b69c8bc5101da26f7d31feddb4 # v2.6.2
+      uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43 # v2.7.0
 
     - name: setup integration test
       working-directory: crates/jpreprocess/tests
@@ -59,7 +59,7 @@ jobs:
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@e207df5d269b42b69c8bc5101da26f7d31feddb4 # v2.6.2
+      uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43 # v2.7.0
 
     - name: Build
       run: |
@@ -97,7 +97,7 @@ jobs:
           toolchain: ${{ steps.msrv.outputs.msrv }}
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@e207df5d269b42b69c8bc5101da26f7d31feddb4 # v2.6.2
+      uses: Swatinem/rust-cache@a95ba195448af2da9b00fb742d14ffaaf3c21f43 # v2.7.0
 
     - name: Run test
       run: cargo test --verbose
