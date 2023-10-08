@@ -148,7 +148,7 @@ impl DigitSequence {
 
             if *digit == 0 {
                 let node = &mut njd.nodes[nodes_index];
-                node.unset_pron();
+                node.reset();
                 node.set_acc(0);
                 node.set_mora_size(0);
             } else {

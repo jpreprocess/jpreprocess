@@ -29,7 +29,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             }
 
             if pron.is_empty() {
-                node.unset_pron();
+                node.reset();
                 node.unset_read();
             } else {
                 let read_string = pron.to_pure_string();

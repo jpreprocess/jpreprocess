@@ -231,7 +231,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
             if next.get_string() == rule::NIN {
                 if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);
-                    next.unset_pron();
+                    next.reset();
                 }
             }
             /* the day of month */
@@ -240,15 +240,15 @@ pub fn njd_set_digit(njd: &mut NJD) {
                     && node.get_string() == rule::ONE
                 {
                     *node = NJDNode::new_single(rule::TSUITACHI);
-                    next.unset_pron();
+                    next.reset();
                 } else if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);
-                    next.unset_pron();
+                    next.reset();
                 }
             } else if next.get_string() == rule::NICHIKAN {
                 if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
                     *node = NJDNode::new_single(new_node_s);
-                    next.unset_pron();
+                    next.reset();
                 }
             }
         }
@@ -312,12 +312,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
             match unset {
                 UnsetPattern::None => (),
                 UnsetPattern::Nx1Nx2 => {
-                    nx1.unset_pron();
-                    nx2.unset_pron();
+                    nx1.reset();
+                    nx2.reset();
                 }
                 UnsetPattern::Nx2Nx3 => {
-                    nx2.unset_pron();
-                    nx3.as_mut().unwrap().unset_pron();
+                    nx2.reset();
+                    nx3.as_mut().unwrap().reset();
                 }
             }
         }
