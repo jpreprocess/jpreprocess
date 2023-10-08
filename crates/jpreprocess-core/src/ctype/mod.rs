@@ -25,7 +25,7 @@ pub use sa_irregular::*;
 pub use special::*;
 pub use upper_two::*;
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用
 pub enum CType {
     /// カ変
@@ -54,6 +54,7 @@ pub enum CType {
     Old(Old),
 
     /// \*
+    #[default]
     None,
 }
 
