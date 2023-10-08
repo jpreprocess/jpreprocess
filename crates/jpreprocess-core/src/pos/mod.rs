@@ -13,7 +13,7 @@ use crate::{error::JPreprocessErrorKind, JPreprocessResult};
 
 pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 品詞
 pub enum POS {
     /// フィラー
@@ -45,6 +45,7 @@ pub enum POS {
     Others,
 
     /// 不明
+    #[default]
     Unknown,
 }
 

@@ -3,7 +3,7 @@ use std::{fmt::Display, str::FromStr};
 
 use crate::{error::JPreprocessErrorKind, JPreprocessError};
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用形
 pub enum CForm {
     /// ガル接続
@@ -62,6 +62,7 @@ pub enum CForm {
     Renyou,
 
     /// \*
+    #[default]
     None,
 }
 
