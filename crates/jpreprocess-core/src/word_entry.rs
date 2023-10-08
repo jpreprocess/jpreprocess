@@ -1,7 +1,4 @@
-use crate::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation,
-    word_details::WordDetails, JPreprocessResult,
-};
+use crate::{pos::*, word_details::WordDetails, JPreprocessResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -14,14 +11,7 @@ impl Default for WordEntry {
     fn default() -> Self {
         Self::Single(WordDetails {
             pos: POS::Meishi(Meishi::None),
-            ctype: CType::None,
-            cform: CForm::None,
-            read: None,
-            pron: Pronunciation::default(),
-            acc: 0,
-            mora_size: 0,
-            chain_rule: ChainRules::default(),
-            chain_flag: None,
+            ..Default::default()
         })
     }
 }
