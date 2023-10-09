@@ -79,7 +79,7 @@ mod tests {
     fn serialize() {
         let serlializer = JPreprocessSerializer;
         let input_str = "名詞,一般,*,*,*,*,おき火,オキビ,オキビ,0/3,C2,-1";
-        let input: Vec<String> = input_str.split(",").map(str::to_string).collect();
+        let input: Vec<String> = input_str.split(',').map(str::to_string).collect();
         let bytes = serlializer.serialize(&input).unwrap();
         assert_eq!(&bytes, OKIBI.as_slice());
 

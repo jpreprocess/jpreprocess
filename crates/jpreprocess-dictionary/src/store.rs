@@ -39,12 +39,12 @@ fn detect_dictionary(words_idx_data: &[u8], words_data: &[u8]) -> Box<dyn Dictio
     use super::serializer::{jpreprocess, lindera};
 
     if let Some(metadata) = get_metadata(words_idx_data, words_data) {
-        let segments: Vec<&str> = metadata.split(" ").collect();
-        match segments.as_slice() {
-            &["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
+        let segments: Vec<&str> = metadata.split(' ').collect();
+        match *segments.as_slice() {
+            ["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
                 return Box::new(jpreprocess::legacy_0_5_1::JPreprocessSerializer)
             }
-            &["JPreprocess", ..] => return Box::new(jpreprocess::JPreprocessSerializer),
+            ["JPreprocess", ..] => return Box::new(jpreprocess::JPreprocessSerializer),
             _ => (),
         }
     }
