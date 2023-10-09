@@ -508,6 +508,7 @@ dependencies = [
  "lindera-core",
  "lindera-ipadic-builder",
  "lindera-tokenizer",
+ "once_cell",
  "serde",
 ]
 
