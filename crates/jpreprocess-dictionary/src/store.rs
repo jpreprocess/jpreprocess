@@ -41,6 +41,13 @@ fn detect_dictionary(words_idx_data: &[u8], words_data: &[u8]) -> Box<dyn Dictio
     if let Some(metadata) = get_metadata(words_idx_data, words_data) {
         let segments: Vec<&str> = metadata.split(' ').collect();
         match *segments.as_slice() {
+            ["JPreprocess", "v0.1.0" | "v0.1.1" | "v0.2.0"] => {
+                panic!(concat!(
+                    "Incompatible Dictionary! ",
+                    "Dictionaries built with JPreprocess versions before v0.3.0 ",
+                    "are not compatible with this version of JPreprocess."
+                ))
+            }
             ["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
                 return Box::new(jpreprocess::legacy_0_5_1::JPreprocessSerializer)
             }
