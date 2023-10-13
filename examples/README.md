@@ -1,9 +1,9 @@
 # Examples
 
-# example-simple
+## example-simple
 
 Simple example of binary executable using jpreprocess.
 
-# example-wasm
+## example-wasm
 
 Example of using jpreprocess from WebAssembly.
