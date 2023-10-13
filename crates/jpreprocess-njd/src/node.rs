@@ -67,6 +67,10 @@ impl NJDNode {
         self.get_pron_mut().transfer_from(&node.details.pron);
         node.reset();
     }
+    pub fn reset(&mut self) {
+        self.string.clear();
+        self.details = WordDetails::default();
+    }
 
     pub fn get_chain_flag(&self) -> Option<bool> {
         self.details.chain_flag
@@ -105,7 +109,6 @@ impl NJDNode {
     pub fn replace_string(&mut self, new_string: &str) {
         self.string = new_string.to_string();
     }
-    pub fn ensure_orig(&mut self) {}
 
     pub fn get_read(&self) -> Option<&str> {
         self.details.read.as_deref()
@@ -148,11 +151,6 @@ impl NJDNode {
     }
     pub fn set_pron(&mut self, pron: Pronunciation) {
         self.details.pron = pron;
-    }
-
-    pub fn reset(&mut self) {
-        self.string = "".to_string();
-        self.details = WordDetails::default();
     }
 }
 
