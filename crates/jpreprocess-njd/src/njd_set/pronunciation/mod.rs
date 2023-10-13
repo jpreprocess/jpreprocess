@@ -30,13 +30,11 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
 
             if pron.is_empty() {
                 node.reset();
-                node.unset_read();
             } else {
                 let read_string = pron.to_pure_string();
                 node.set_pron(pron);
                 node.set_read(&read_string);
             }
-            node.ensure_orig();
         }
     }
 
