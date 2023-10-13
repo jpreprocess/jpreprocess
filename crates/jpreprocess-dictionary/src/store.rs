@@ -2,8 +2,6 @@ use crate::{DictionarySerializer, DictionaryStore};
 use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
-use super::serializer::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer};
-
 impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
         get_bytes(id, &self.words_idx_data, &self.words_data)
@@ -38,12 +36,26 @@ fn get_metadata(words_idx_data: &[u8], words_data: &[u8]) -> Option<String> {
 }
 
 fn detect_dictionary(words_idx_data: &[u8], words_data: &[u8]) -> Box<dyn DictionarySerializer> {
+    use super::serializer::{jpreprocess, lindera};
+
     if let Some(metadata) = get_metadata(words_idx_data, words_data) {
-        if metadata.starts_with("JPreprocess") {
-            return Box::new(JPreprocessSerializer);
+        let segments: Vec<&str> = metadata.split(' ').collect();
+        match *segments.as_slice() {
+            ["JPreprocess", "v0.1.0" | "v0.1.1" | "v0.2.0"] => {
+                panic!(concat!(
+                    "Incompatible Dictionary! ",
+                    "Dictionaries built with JPreprocess versions before v0.3.0 ",
+                    "are not compatible with this version of JPreprocess."
+                ))
+            }
+            ["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
+                return Box::new(jpreprocess::legacy_0_5_1::JPreprocessSerializer)
+            }
+            ["JPreprocess", ..] => return Box::new(jpreprocess::JPreprocessSerializer),
+            _ => (),
         }
     }
-    Box::new(LinderaSerializer)
+    Box::new(lindera::LinderaSerializer)
 }
 
 fn get_bytes<'a>(
