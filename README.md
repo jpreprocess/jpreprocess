@@ -13,8 +13,9 @@
   - たとえば「特殊助動詞」や紛らわしい2,2,3桁区切りの数字の読み方は，OpenJTalkと異なります．
   - 新しい機能の追加を排除するものではありませんが，
     オプションやバージョン，feature等でOpenJTalkと同じ出力を得る手段が残るようにしたいと考えています．
-- HTS Engineは実装しない
+- このリポジトリではHTS Engineは扱わない
   - フルコンテキストラベルの生成までをサポートしますが，その先はこのリポジトリの範囲外とします．
+  - HTS EngineのBindingであれば[jpreprocess/htsengine-rs](https://github.com/jpreprocess/htsengine-rs)にあります．
 
 ## Crates
 
