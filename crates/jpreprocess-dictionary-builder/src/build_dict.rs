@@ -60,7 +60,7 @@ pub fn build_word_entry_map(
     for entry in entries {
         word_entry_map
             .entry(entry.surface)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(entry.word_entry);
     }
 
