@@ -100,4 +100,6 @@ jobs:
       uses: Swatinem/rust-cache@3cf7f8cc28d1b4e7d01e3783be10a97d55d483c8 # v2.7.1
 
     - name: Run test
-      run: cargo test --verbose
+      run: |
+        cargo --version; rustc --version;
+        cargo test --verbose
