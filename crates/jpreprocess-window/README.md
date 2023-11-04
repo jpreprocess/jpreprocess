@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-window = "0.6.0"
+jpreprocess-window = "0.6.1"
 ```
 
 ## License
