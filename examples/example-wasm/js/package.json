@@ -14,7 +14,7 @@
     "example-wasm": "file:../pkg"
   },
   "devDependencies": {
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.8.10",
     "typescript": "^5.2.2"
   }
 }
