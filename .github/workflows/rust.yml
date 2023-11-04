@@ -72,7 +72,7 @@ jobs:
 
     - uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
       with:
-        node-version: 18
+        node-version: 20
         cache: 'pnpm'
         cache-dependency-path: examples/example-wasm/js/pnpm-lock.yaml
 
@@ -98,6 +98,11 @@ jobs:
 
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@3cf7f8cc28d1b4e7d01e3783be10a97d55d483c8 # v2.7.1
+
+    - name: Print version
+      run: |
+        cargo --version
+        rustc --version
 
     - name: Run test
       run: cargo test --verbose
