@@ -4,6 +4,7 @@ use crate::limit::Limit;
 
 use super::*;
 
+#[derive(Clone, Debug)]
 pub struct Utterance {
     pub breath_groups: Vec<BreathGroup>,
 }

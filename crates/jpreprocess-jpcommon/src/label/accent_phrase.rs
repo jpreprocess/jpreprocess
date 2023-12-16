@@ -4,6 +4,7 @@ use crate::limit::Limit;
 
 use super::*;
 
+#[derive(Clone, Debug)]
 pub struct AccentPhrase {
     accent: usize,
     is_interrogative: bool,
