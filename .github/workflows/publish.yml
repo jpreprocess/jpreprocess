@@ -57,16 +57,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
+      - uses: dtolnay/rust-toolchain@439cf607258077187679211f12aa6f19af4a0af7 # master
         with:
           toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
-      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
-        with:
-          command: build
-          args: --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }}
-          use-cross: true
+          targets: ${{ matrix.target }}
+      - run: cargo build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }}
 
       - run: |
           zip --junk-paths ${{ matrix.target }}-${{ matrix.feature }}.zip target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe}
