@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-jpcommon = "0.6.2"
+jpreprocess-jpcommon = "0.6.3"
 ```
 
 ## Copyrights
