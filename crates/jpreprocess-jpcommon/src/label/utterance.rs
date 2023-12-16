@@ -43,7 +43,9 @@ impl From<&[NJDNode]> for Utterance {
                 }
             }
             if node.get_pron().is_touten() || node.get_pron().is_question() {
-                breath_groups.push(BreathGroup::new(accent_phrases));
+                if !accent_phrases.is_empty() {
+                    breath_groups.push(BreathGroup::new(accent_phrases));
+                }
                 accent_phrases = Vec::new();
                 continue;
             }
@@ -52,6 +54,7 @@ impl From<&[NJDNode]> for Utterance {
                 if let Some(accent_phrase) = accent_phrases.last_mut() {
                     accent_phrase.push_node(node);
                 } else {
+                    accent_phrases.push(AccentPhrase::new(node));
                     eprintln!("WARN: First mora cannot be chained.");
                 }
             } else {
