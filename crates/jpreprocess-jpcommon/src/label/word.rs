@@ -4,6 +4,8 @@ use jpreprocess_njd::NJDNode;
 
 use crate::word_attr::*;
 
+
+#[derive(Clone, Debug)]
 pub struct Word {
     pos: Option<u8>,
     ctype: Option<u8>,

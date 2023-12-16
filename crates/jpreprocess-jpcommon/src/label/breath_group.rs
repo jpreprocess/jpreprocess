@@ -2,6 +2,8 @@ use crate::limit::Limit;
 
 use super::*;
 
+
+#[derive(Clone, Debug)]
 pub struct BreathGroup {
     pub accent_phrases: Vec<AccentPhrase>,
 }
