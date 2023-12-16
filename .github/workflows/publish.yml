@@ -61,7 +61,9 @@ jobs:
         with:
           toolchain: stable
           targets: ${{ matrix.target }}
-      - run: cargo build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }}
+      - run: |
+          cargo install cross
+          cross build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }}
 
       - run: |
           zip --junk-paths ${{ matrix.target }}-${{ matrix.feature }}.zip target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe}
