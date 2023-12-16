@@ -448,4 +448,25 @@ mod tests {
             assert_eq!(v[i].1.as_str(), features[i]);
         }
     }
+
+    #[test]
+    fn generate_weird_sake() {
+        let njd = vec![
+            NJDNode::new_single("――,記号,*,*,*,*,*,――,、,、,0/0,*,-1"),
+            NJDNode::new_single("酒,名詞,接尾,一般,*,*,*,酒,シュ,シュ,0/1,C3,1"),
+        ];
+        let utterance = Utterance::from(njd.as_slice());
+        let v = utterance_to_phoneme_vec(&utterance);
+        let phonemes = ["sil", "sh", "u", "sil"];
+        let features = [
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:1_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:1_1/K:1+1-1",
+            "/A:0+1+1/B:xx-xx_xx/C:15_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:1_1#0_xx@1_1|1_1/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-1@1+1&1-1|1+1/J:xx_xx/K:1+1-1",
+            "/A:0+1+1/B:xx-xx_xx/C:15_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:1_1#0_xx@1_1|1_1/G:xx_xx%xx_xx_xx/H:xx_xx/I:1-1@1+1&1-1|1+1/J:xx_xx/K:1+1-1",
+            "/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:1_1!0_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:xx_xx%xx_xx_xx/H:1_1/I:xx-xx@xx+xx&xx-xx|xx+xx/J:xx_xx/K:1+1-1",
+        ];
+        for i in 0..4 {
+            assert_eq!(v[i].0.as_str(), phonemes[i]);
+            assert_eq!(v[i].1.as_str(), features[i]);
+        }
+    }
 }
