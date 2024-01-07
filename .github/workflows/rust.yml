@@ -50,7 +50,7 @@ jobs:
     - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@439cf607258077187679211f12aa6f19af4a0af7 # master
+      uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248 # master
       with:
           toolchain: stable
           targets: wasm32-unknown-unknown
@@ -92,7 +92,7 @@ jobs:
       run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@439cf607258077187679211f12aa6f19af4a0af7 # master
+      uses: dtolnay/rust-toolchain@be73d7920c329f220ce78e0234b8f96b7ae60248 # master
       with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
 
