@@ -15,13 +15,13 @@ documentation = "https://docs.rs/jpreprocess-dictionary"
 [dependencies]
 bincode = "1.3.3"
 byteorder = "1.5.0"
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 once_cell = "1.19.0"
 
-lindera-core = { version = "0.27.1" }
-lindera-ipadic-builder = { version = "0.27.1" }
+lindera-core = { version = "0.27.2" }
+lindera-ipadic-builder = { version = "0.27.2" }
 lindera-tokenizer = { version = "0.27" }
 
-serde = { version = "1.0.193" }
+serde = { version = "1.0.195" }
 
 jpreprocess-core.workspace = true
