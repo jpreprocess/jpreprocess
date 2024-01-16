@@ -13,43 +13,6 @@ pub struct Word {
 }
 
 impl Word {
-    pub fn to_b(&self) -> String {
-        format!(
-            "/B:{}-{}_{}",
-            Self::format_id(self.pos, true),
-            Self::format_id(self.ctype, false),
-            Self::format_id(self.cform, false)
-        )
-    }
-    pub fn to_c(&self) -> String {
-        format!(
-            "/C:{}_{}+{}",
-            Self::format_id(self.pos, true),
-            Self::format_id(self.ctype, false),
-            Self::format_id(self.cform, false)
-        )
-    }
-    pub fn to_d(&self) -> String {
-        format!(
-            "/D:{}+{}_{}",
-            Self::format_id(self.pos, true),
-            Self::format_id(self.ctype, false),
-            Self::format_id(self.cform, false)
-        )
-    }
-
-    fn format_id(id: Option<u8>, is_long: bool) -> String {
-        if let Some(id) = id {
-            if is_long {
-                format!("{:0>2}", id)
-            } else {
-                format!("{:0>1}", id)
-            }
-        } else {
-            "xx".to_string()
-        }
-    }
-
     pub fn count_mora(&self) -> usize {
         self.moras.mora_size()
     }
@@ -62,6 +25,16 @@ impl From<&NJDNode> for Word {
             ctype: ctype_to_id(njdnode.get_ctype()),
             cform: cform_to_id(njdnode.get_cform()),
             moras: njdnode.get_pron().clone(),
+        }
+    }
+}
+
+impl Into<jlabel::Word> for &Word {
+    fn into(self) -> jlabel::Word {
+        jlabel::Word {
+            pos: self.pos,
+            ctype: self.ctype,
+            cform: self.cform,
         }
     }
 }

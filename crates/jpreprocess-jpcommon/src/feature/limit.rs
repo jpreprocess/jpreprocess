@@ -9,20 +9,20 @@ pub enum Limit {
     LL,
 }
 impl Limit {
-    pub fn ulimit(self, value: usize) -> usize {
+    pub fn ulimit(self, value: usize) -> u8 {
         match self {
-            Self::S => Self::clamp(value, 1, 19),
-            Self::M => Self::clamp(value, 1, 49),
-            Self::L => Self::clamp(value, 1, 99),
-            Self::LL => Self::clamp(value, 1, 199),
+            Self::S => Self::clamp(value, 1, 19) as u8,
+            Self::M => Self::clamp(value, 1, 49) as u8,
+            Self::L => Self::clamp(value, 1, 99) as u8,
+            Self::LL => Self::clamp(value, 1, 199) as u8,
         }
     }
-    pub fn ilimit(self, value: isize) -> isize {
+    pub fn ilimit(self, value: isize) -> i8 {
         match self {
-            Self::S => Self::clamp(value, -19, 19),
-            Self::M => Self::clamp(value, -49, 49),
-            Self::L => Self::clamp(value, -99, 99),
-            Self::LL => Self::clamp(value, -199, 199),
+            Self::S => Self::clamp(value, -19, 19) as i8,
+            Self::M => Self::clamp(value, -49, 49) as i8,
+            Self::L => Self::clamp(value, -99, 99) as i8,
+            Self::LL => Self::clamp(value, -199, 199) as i8,
         }
     }
     fn clamp<T>(value: T, lower_bound: T, upper_bound: T) -> T

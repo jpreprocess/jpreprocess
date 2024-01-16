@@ -12,12 +12,11 @@ impl BreathGroup {
         Self { accent_phrases }
     }
 
-    pub fn to_h(&self) -> String {
-        format!(
-            "/H:{}_{}",
-            Limit::M.ulimit(self.count_accent_phrase()),
-            Limit::L.ulimit(self.count_mora())
-        )
+    pub fn to_h(&self) -> jlabel::BreathGroupPrevNext {
+        jlabel::BreathGroupPrevNext {
+            accent_phrase_count: Limit::M.ulimit(self.count_accent_phrase()),
+            mora_count: Limit::L.ulimit(self.count_mora()),
+        }
     }
     pub fn to_i(
         &self,
@@ -27,25 +26,26 @@ impl BreathGroup {
         accent_phrase_index_in_utterance: usize,
         mora_count_in_utterance: usize,
         mora_index_in_utterance: usize,
-    ) -> String {
-        format!(
-            "/I:{}-{}@{}+{}&{}-{}|{}+{}",
-            Limit::M.ulimit(self.count_accent_phrase()),
-            Limit::L.ulimit(self.count_mora()),
-            Limit::S.ulimit(breath_group_index_in_utterance + 1),
-            Limit::S.ulimit(breath_group_count_in_utterance - breath_group_index_in_utterance),
-            Limit::M.ulimit(accent_phrase_index_in_utterance + 1),
-            Limit::M.ulimit(accent_phrase_count_in_utterance - accent_phrase_index_in_utterance),
-            Limit::LL.ulimit(mora_index_in_utterance + 1),
-            Limit::LL.ulimit(mora_count_in_utterance - mora_index_in_utterance),
-        )
+    ) -> jlabel::BreathGroupCurrent {
+        jlabel::BreathGroupCurrent {
+            accent_phrase_count: Limit::M.ulimit(self.count_accent_phrase()),
+            mora_count: Limit::L.ulimit(self.count_mora()),
+            breath_group_position_forward: Limit::S.ulimit(breath_group_index_in_utterance + 1),
+            breath_group_position_backward: Limit::S
+                .ulimit(breath_group_count_in_utterance - breath_group_index_in_utterance),
+            accent_phrase_position_forward: Limit::M.ulimit(accent_phrase_index_in_utterance + 1),
+            accent_phrase_position_backward: Limit::M
+                .ulimit(accent_phrase_count_in_utterance - accent_phrase_index_in_utterance),
+            mora_position_forward: Limit::LL.ulimit(mora_index_in_utterance + 1),
+            mora_position_backward: Limit::LL
+                .ulimit(mora_count_in_utterance - mora_index_in_utterance),
+        }
     }
-    pub fn to_j(&self) -> String {
-        format!(
-            "/J:{}_{}",
-            Limit::M.ulimit(self.count_accent_phrase()),
-            Limit::L.ulimit(self.count_mora())
-        )
+    pub fn to_j(&self) -> jlabel::BreathGroupPrevNext {
+        jlabel::BreathGroupPrevNext {
+            accent_phrase_count: Limit::M.ulimit(self.count_accent_phrase()),
+            mora_count: Limit::L.ulimit(self.count_mora()),
+        }
     }
 
     pub fn count_accent_phrase(&self) -> usize {

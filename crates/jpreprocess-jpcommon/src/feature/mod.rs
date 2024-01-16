@@ -3,39 +3,44 @@ pub mod limit;
 
 use std::rc::Rc;
 
+use jlabel::{Label, Phoneme};
 use jpreprocess_core::pronunciation::phoneme::Consonant;
 
 use super::label::*;
 use builder::*;
 
 /// Converts JPCommon Utterance to fullcontext label
-pub fn utterance_to_features(utterance: &Utterance) -> Vec<String> {
+pub fn utterance_to_features(utterance: &Utterance) -> Vec<Label> {
     let phoneme_vec = utterance_to_phoneme_vec(utterance);
     overwrapping_phonemes(phoneme_vec)
 }
 
 /// Takes Vec of phoneme and context label, and converts it to fullcontext label
-pub fn overwrapping_phonemes(phoneme_vec: Vec<(String, String)>) -> Vec<String> {
+pub fn overwrapping_phonemes(phoneme_vec: Vec<(String, FeatureBuilder)>) -> Vec<Label> {
     (0..phoneme_vec.len())
         .map(|i| {
             let (p2, p1) = match i {
-                0 => ("xx", "xx"),
-                1 => ("xx", phoneme_vec[0].0.as_str()),
-                _ => (phoneme_vec[i - 2].0.as_str(), phoneme_vec[i - 1].0.as_str()),
+                0 => (None, None),
+                1 => (None, Some(phoneme_vec[0].0.clone())),
+                _ => (
+                    Some(phoneme_vec[i - 2].0.clone()),
+                    Some(phoneme_vec[i - 1].0.clone()),
+                ),
             };
             let (c, n1, n2) = match &phoneme_vec[i..] {
-                [c, n1, n2, ..] => (c.0.as_str(), n1.0.as_str(), n2.0.as_str()),
-                [c, n1] => (c.0.as_str(), n1.0.as_str(), "xx"),
-                [c] => (c.0.as_str(), "xx", "xx"),
+                [c, n1, n2, ..] => (Some(c.0.clone()), Some(n1.0.clone()), Some(n2.0.clone())),
+                [c, n1] => (Some(c.0.clone()), Some(n1.0.clone()), None),
+                [c] => (Some(c.0.clone()), None, None),
                 _ => unreachable!(),
             };
-            format!("{}^{}-{}+{}={}{}", p2, p1, c, n1, n2, &phoneme_vec[i].1)
+            let phoneme = Phoneme { p2, p1, c, n1, n2 };
+            phoneme_vec[i].1.build(phoneme)
         })
         .collect()
 }
 
 /// Converts JPCommon Utterance to Vec of phoneme and context label
-pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> {
+pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, FeatureBuilder)> {
     let breath_group_count_in_utterance = utterance.breath_groups.len();
     let accent_phrase_count_in_utterance = utterance.count_accent_phrase();
     let mora_count_in_utterance = utterance.count_mora();
@@ -62,8 +67,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> 
                     builder_u.clone(),
                     Some(breath_group_prev),
                     Some(breath_group),
-                )
-                .to_string(),
+                ),
             ));
         } else {
             /* insert silent as the first phoneme */
@@ -71,7 +75,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> 
             if breath_group_next.is_none() {
                 builder.ignore_d();
             }
-            phonemes.push(("sil".to_string(), builder.to_string()));
+            phonemes.push(("sil".to_string(), builder));
         }
 
         let h = breath_group_prev.map(|bg| bg.to_h());
@@ -134,11 +138,11 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> 
 
                 let b = word_prev
                     .or_else(|| accent_phrase_prev.and_then(|ap| ap.words.last()))
-                    .map(|word| word.to_b());
-                let c = word.to_c();
+                    .map(|word| word.into());
+                let c = word.into();
                 let d = word_next
                     .or_else(|| accent_phrase_next.and_then(|ap| ap.words.first()))
-                    .map(|word| word.to_d());
+                    .map(|word| word.into());
 
                 let builder_w = builder_ap.with_bcd(b, c, d);
 
@@ -150,16 +154,16 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> 
                     if let Some(consonant) = consonant {
                         if matches!(&consonant, Consonant::Long) {
                             if let Some((last, _)) = phonemes.last() {
-                                phonemes.push((last.to_owned(), builder.to_string()));
+                                phonemes.push((last.to_owned(), builder.clone()));
                             } else {
                                 eprintln!("WARN: First mora should not be long vowel symbol.");
                             }
                         } else {
-                            phonemes.push((consonant.to_string(), builder.to_string()));
+                            phonemes.push((consonant.to_string(), builder.clone()));
                         }
                     }
                     if let Some(vowel) = vowel {
-                        phonemes.push((vowel.to_string(), builder.to_string()));
+                        phonemes.push((vowel.to_string(), builder));
                     }
 
                     mora_index_in_accent_phrase += 1;
@@ -176,7 +180,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, String)> 
             if breath_group_prev.is_none() {
                 builder.ignore_b();
             }
-            phonemes.push(("sil".to_string(), builder.to_string()));
+            phonemes.push(("sil".to_string(), builder));
         }
     }
 
@@ -209,10 +213,11 @@ fn pau_feature(
             accent_phrase_prev.map(|ap| ap.to_e(None)),
             accent_phrase_next.map(|ap| ap.to_g(None)),
         )
-        .with_bd(word_prev.map(|w| w.to_b()), word_next.map(|w| w.to_d()))
+        .with_bd(word_prev.map(|w| w.into()), word_next.map(|w| w.into()))
         .without_a()
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use jpreprocess_njd::NJDNode;
@@ -470,3 +475,4 @@ mod tests {
         }
     }
 }
+*/

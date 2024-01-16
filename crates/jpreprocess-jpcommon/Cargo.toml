@@ -13,5 +13,6 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-jpcommon"
 
 [dependencies]
+jlabel = { git = "https://github.com/jpreprocess/jlabel.git", branch = "publish-structs" }
 jpreprocess-core.workspace = true
 jpreprocess-njd.workspace = true
