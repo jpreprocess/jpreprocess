@@ -329,16 +329,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "env_filter"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a009aa4810eb158359dda09d0c87378e4bbb89b5a801f016885a4707ba24f7ea"
-dependencies = [
- "log",
- "regex",
-]
-
-[[package]]
 name = "env_logger"
 version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -349,19 +339,6 @@ dependencies = [
  "log",
  "regex",
  "termcolor",
-]
-
-[[package]]
-name = "env_logger"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05e7cf40684ae96ade6232ed84582f40ce0a66efcd43a5117aef610534f8e0b8"
-dependencies = [
- "anstream",
- "anstyle",
- "env_filter",
- "humantime",
- "log",
 ]
 
 [[package]]
@@ -541,7 +518,6 @@ dependencies = [
  "bincode",
  "byteorder",
  "csv",
- "env_logger 0.11.1",
  "glob",
  "jpreprocess-core",
  "jpreprocess-dictionary",
@@ -615,7 +591,7 @@ dependencies = [
  "byteorder",
  "csv",
  "encoding",
- "env_logger 0.10.1",
+ "env_logger",
  "glob",
  "lindera-core",
  "lindera-decompress",
@@ -681,7 +657,7 @@ dependencies = [
  "csv",
  "encoding_rs",
  "encoding_rs_io",
- "env_logger 0.10.1",
+ "env_logger",
  "glob",
  "lindera-core",
  "lindera-decompress",
@@ -702,7 +678,7 @@ dependencies = [
  "csv",
  "encoding_rs",
  "encoding_rs_io",
- "env_logger 0.10.1",
+ "env_logger",
  "glob",
  "lindera-core",
  "lindera-decompress",
@@ -722,7 +698,7 @@ dependencies = [
  "byteorder",
  "csv",
  "encoding",
- "env_logger 0.10.1",
+ "env_logger",
  "glob",
  "lindera-core",
  "lindera-decompress",
@@ -756,7 +732,7 @@ dependencies = [
  "byteorder",
  "csv",
  "encoding",
- "env_logger 0.10.1",
+ "env_logger",
  "glob",
  "lindera-core",
  "lindera-decompress",
