@@ -16,7 +16,7 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
 
         {
             let (top_node, prev, current, next) = if i == 0 {
-                (None, None, njd.nodes.get(0).unwrap(), njd.nodes.get(1))
+                (None, None, njd.nodes.first().unwrap(), njd.nodes.get(1))
             } else {
                 let top_node = top_node_i.and_then(|i| njd.nodes.get(i));
                 (

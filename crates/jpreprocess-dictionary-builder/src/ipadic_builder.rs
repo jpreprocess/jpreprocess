@@ -72,7 +72,7 @@ impl IpadicBuilder {
         rows: &Vec<Vec<&str>>,
     ) -> LinderaResult<UserDictionary> {
         let mut normalized_rows: Vec<Vec<String>> = normalize_rows(rows);
-        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        normalized_rows.par_sort_by_key(|row| row.first().map(|s| s.to_string()));
         let (words_idx_data, words_data) = build_words(&self.serializer, &normalized_rows, false)?;
         let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
         Ok(UserDictionary {
@@ -233,7 +233,7 @@ impl DictionaryBuilder for IpadicBuilder {
 
         let mut normalized_rows: Vec<Vec<String>> = normalize_rows(&rows);
 
-        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        normalized_rows.par_sort_by_key(|row| row.first().map(|s| s.to_string()));
 
         let wtr_da_path = output_dir.join(Path::new("dict.da"));
         let mut wtr_da = io::BufWriter::new(
@@ -335,7 +335,7 @@ impl DictionaryBuilder for IpadicBuilder {
         }
 
         let mut normalized_rows: Vec<Vec<String>> = normalize_rows(&rows);
-        normalized_rows.par_sort_by_key(|row| row.get(0).map(|s| s.to_string()));
+        normalized_rows.par_sort_by_key(|row| row.first().map(|s| s.to_string()));
         let (words_idx_data, words_data) = build_words(&self.serializer, &normalized_rows, false)?;
         let dict = build_prefix_dict(build_word_entry_map(&normalized_rows, false)?, false)?;
 
