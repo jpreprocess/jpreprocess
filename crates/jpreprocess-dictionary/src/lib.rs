@@ -6,7 +6,7 @@ pub mod fetcher;
 pub mod serializer;
 pub mod store;
 
-pub trait DictionaryFetcher {
+pub trait DictionaryFetcher: Send {
     fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry>;
     fn get_word_vectored(&self, tokens: &[Token]) -> JPreprocessResult<Vec<WordEntry>> {
         tokens.iter().map(|token| self.get_word(token)).collect()
@@ -14,7 +14,7 @@ pub trait DictionaryFetcher {
 }
 impl<T> DictionaryFetcher for T
 where
-    T: AsRef<dyn DictionaryFetcher>,
+    T: AsRef<dyn DictionaryFetcher> + Send,
 {
     fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
         self.as_ref().get_word(token)
@@ -44,7 +44,7 @@ where
     }
 }
 
-pub trait DictionarySerializer {
+pub trait DictionarySerializer: Send {
     // For dictionary builder
     fn identifier(&self) -> String;
     fn serialize(&self, row: &[String]) -> LinderaResult<Vec<u8>>;
