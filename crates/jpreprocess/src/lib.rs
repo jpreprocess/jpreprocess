@@ -46,10 +46,11 @@ pub use dictionary::*;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
+pub use jpreprocess_dictionary::default::DefaultFetcher;
 pub use jpreprocess_njd::NJD;
 
 use jpreprocess_core::*;
-use jpreprocess_dictionary::{default::DefaultFetcher, DictionaryFetcher};
+use jpreprocess_dictionary::DictionaryFetcher;
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
@@ -59,12 +60,12 @@ pub struct JPreprocessConfig {
     pub user_dictionary: Option<UserDictionaryConfig>,
 }
 
-pub struct JPreprocess {
+pub struct JPreprocess<F: DictionaryFetcher> {
     tokenizer: Tokenizer,
-    dictionary_fetcher: Box<dyn DictionaryFetcher>,
+    dictionary_fetcher: F,
 }
 
-impl JPreprocess {
+impl JPreprocess<DefaultFetcher> {
     /// Loads the dictionary from JPreprocessConfig.
     ///
     /// This supports importing files and built-in dictionary (needs feature).
@@ -129,16 +130,18 @@ impl JPreprocess {
         let dictionary_fetcher =
             DefaultFetcher::from_dictionaries(&dictionary, user_dictionary.as_ref());
 
-        Self::with_dictionary_fetcher(dictionary, user_dictionary, Box::new(dictionary_fetcher))
+        Self::with_dictionary_fetcher(dictionary, user_dictionary, dictionary_fetcher)
     }
+}
 
+impl<F: DictionaryFetcher> JPreprocess<F> {
     /// Creates JPreprocess with provided dictionary fetcher.
     ///
     /// Note: I'm not sure if this is useful for someone. If you need this, please create an issue.
     fn with_dictionary_fetcher(
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
-        dictionary_fetcher: Box<dyn DictionaryFetcher>,
+        dictionary_fetcher: F,
     ) -> Self {
         let tokenizer = Tokenizer::new(
             dictionary,
@@ -228,5 +231,18 @@ impl JPreprocess {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use jpreprocess_dictionary::default::DefaultFetcher;
+
+    use crate::JPreprocess;
+
+    #[test]
+    fn multithread() {
+        fn tester<T: Send + Sync>() {}
+        tester::<JPreprocess<DefaultFetcher>>();
     }
 }
