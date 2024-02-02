@@ -6,6 +6,10 @@ use super::{
     DictionaryFetcher, DictionarySerializer, DictionaryStore,
 };
 
+/// Default [`DictionaryFetcher`] of JPreprocess.
+///
+/// Holds the dictionary mode of both system and user dictionary,
+/// and routes Token to either dictionary.
 pub struct DefaultFetcher {
     pub system: WordDictionaryMode,
     pub user: Option<WordDictionaryMode>,
@@ -57,6 +61,7 @@ impl DictionaryFetcher for DefaultFetcher {
     }
 }
 
+/// Dictionary serialization/deserialization mode.
 #[derive(Clone, Copy, Debug)]
 pub enum WordDictionaryMode {
     Lindera,
