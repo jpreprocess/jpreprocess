@@ -152,16 +152,6 @@ impl JPreprocess {
         }
     }
 
-    /// Alias of [`with_dictionaries`].
-    ///
-    /// Note: `new` before v0.2.0 has moved to `from_config`.
-    ///
-    /// [`with_dictionaries`]: #method.with_dictionaries
-    #[deprecated(since = "0.5.0", note = "please use `with_dictionaries` instead")]
-    pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
-        Self::with_dictionaries(dictionary, user_dictionary)
-    }
-
     /// Tokenize input text and return NJD.
     ///
     /// Useful for customizing text processing.
