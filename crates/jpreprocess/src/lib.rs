@@ -130,18 +130,16 @@ impl JPreprocess<DefaultFetcher> {
         let dictionary_fetcher =
             DefaultFetcher::from_dictionaries(&dictionary, user_dictionary.as_ref());
 
-        Self::with_dictionary_fetcher(dictionary, user_dictionary, dictionary_fetcher)
+        Self::with_dictionary_fetcher(dictionary_fetcher, dictionary, user_dictionary)
     }
 }
 
 impl<F: DictionaryFetcher> JPreprocess<F> {
     /// Creates JPreprocess with provided dictionary fetcher.
-    ///
-    /// Note: I'm not sure if this is useful for someone. If you need this, please create an issue.
-    fn with_dictionary_fetcher(
+    pub fn with_dictionary_fetcher(
+        dictionary_fetcher: F,
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
-        dictionary_fetcher: F,
     ) -> Self {
         let tokenizer = Tokenizer::new(
             dictionary,
