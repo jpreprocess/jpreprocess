@@ -45,14 +45,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
     };
 
-    let user_dictionary = if let Some(user_dict) = cli.user_dictionary {
-        Some(UserDictionaryConfig {
-            path: user_dict,
-            kind: Some(lindera_dictionary::DictionaryKind::IPADIC),
-        })
-    } else {
-        None
-    };
+    let user_dictionary = cli.user_dictionary.map(|user_dict| UserDictionaryConfig {
+        path: user_dict,
+        kind: Some(lindera_dictionary::DictionaryKind::IPADIC),
+    });
 
     let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
         dictionary,

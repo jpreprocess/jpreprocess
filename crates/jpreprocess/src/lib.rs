@@ -49,7 +49,7 @@ pub use jpreprocess_core::error;
 pub use jpreprocess_njd::NJD;
 
 use jpreprocess_core::*;
-use jpreprocess_dictionary::{fetcher::WordDictionaryConfig, DictionaryFetcher, DictionaryStore};
+use jpreprocess_dictionary::{default::DefaultFetcher, DictionaryFetcher};
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
@@ -126,12 +126,8 @@ impl JPreprocess {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
-        let dictionary_fetcher = WordDictionaryConfig {
-            system: dictionary.serlializer_hint(),
-            user: user_dictionary
-                .as_ref()
-                .map(DictionaryStore::serlializer_hint),
-        };
+        let dictionary_fetcher =
+            DefaultFetcher::from_dictionaries(&dictionary, user_dictionary.as_ref());
 
         Self::with_dictionary_fetcher(dictionary, user_dictionary, Box::new(dictionary_fetcher))
     }

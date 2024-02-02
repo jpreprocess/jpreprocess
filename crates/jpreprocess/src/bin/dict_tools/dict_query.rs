@@ -1,5 +1,5 @@
 use jpreprocess_core::JPreprocessResult;
-use jpreprocess_dictionary::DictionaryStore;
+use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
 use lindera_core::{
     dictionary::{Dictionary, UserDictionary},
     prefix_dict::PrefixDict,
@@ -17,6 +17,12 @@ impl QueryDict {
             Self::User(dict) => (&dict.dict, &dict.words_idx_data, &dict.words_data),
         }
     }
+    pub fn mode(&self) -> WordDictionaryMode {
+        match self {
+            Self::System(dict) => WordDictionaryMode::from_metadata(dict.identifier()),
+            Self::User(dict) => WordDictionaryMode::from_metadata(dict.identifier()),
+        }
+    }
 }
 
 impl<'a> DictionaryStore<'a> for QueryDict {
@@ -30,12 +36,6 @@ impl<'a> DictionaryStore<'a> for QueryDict {
         match self {
             Self::System(dict) => dict.identifier(),
             Self::User(dict) => dict.identifier(),
-        }
-    }
-    fn serlializer_hint(&self) -> Box<dyn jpreprocess_dictionary::DictionarySerializer> {
-        match self {
-            Self::System(dict) => dict.serlializer_hint(),
-            Self::User(dict) => dict.serlializer_hint(),
         }
     }
 }
