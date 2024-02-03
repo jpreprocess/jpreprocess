@@ -1,6 +1,6 @@
 # jpreprocess
 
-日本語文を解析し、音声合成エンジンに渡せる形式に変換します．
+日本語文を解析し，フルコンテキストラベルを生成します．
 
 [OpenJTalk](http://open-jtalk.sourceforge.net/)の前処理部分(HTS Engine以外)をRustで書き直したものです．
 
@@ -8,14 +8,14 @@
 
 - OpenJTalkの構造をそのまま移すのではなく，できるだけ読みやすく，書きやすい構造に
 - 独自の辞書形式により辞書ファイルのサイズを削減しつつ，従来の「すべての情報を文字列で持つ」辞書も使える
-  - どちらもMecab辞書自体とは互換性がありませんが，Mecab辞書用のCSVファイルを使って辞書を生成できます．
-- 一部のバグと思われる機能を除き，OpenJTalkと全く同じ出力(JPCommon)を得ることができる
+  - どちらもMecab辞書自体とは互換性がありませんが，Mecab辞書の構築に使うのと同様のCSVファイルを使って辞書を生成できます．
+- 一部のバグと思われる機能を除き，OpenJTalkと全く同じ出力（フルコンテキストラベル）を得ることができる
   - たとえば「特殊助動詞」や紛らわしい2,2,3桁区切りの数字の読み方は，OpenJTalkと異なります．
   - 新しい機能の追加を排除するものではありませんが，
     オプションやバージョン，feature等でOpenJTalkと同じ出力を得る手段が残るようにしたいと考えています．
 - このリポジトリではHTS Engineは扱わない
   - フルコンテキストラベルの生成までをサポートしますが，その先はこのリポジトリの範囲外とします．
-  - HTS EngineのBindingであれば[jpreprocess/htsengine-rs](https://github.com/jpreprocess/htsengine-rs)にあります．
+  - HTS EngineをRustで書き直すプロジェクトは[jpreprocess/jbonsai](https://github.com/jpreprocess/jbonsai)にあります．
 
 ## Crates
 
@@ -66,15 +66,19 @@ assert_eq!(
 
 jpreprocess-dictionary-builderで生成される単語辞書をメモリ上に読み込み，単語を検索できるようにします．
 
+この際，辞書の形式を自動で判別します．
+
 ### jpreprocess-dictionary-builder
 
-元となる辞書はMecab同様のcsv形式ですが，[Lindera](https://github.com/lindera-morphology/lindera)で高速に解析できるよう，事前に専用の辞書を生成します．
-Linderaの[lindera-ipadic-builder](https://crates.io/crates/lindera-ipadic-builder)が元になっていますが，
-jpreprocess-dictionary-builderは文字列のパースも事前に行い，JPreprocessで直接処理できる辞書(`jpreprocess.words`，`jpreprocess.wordsidx`)を生成します．
+元となる辞書はMecab同様のcsv形式ですが，[Lindera](https://github.com/lindera-morphology/lindera)で高速に解析できるよう，
+事前に専用の辞書を生成する必要があります．
+
+Linderaの[lindera-ipadic-builder](https://crates.io/crates/lindera-ipadic-builder)を元にして作られていますが，
+jpreprocess-dictionary-builderは文字列のパースも事前に行い，JPreprocessで直接処理できる辞書（JPreprocess辞書）を生成できます．
 
 ### jpreprocess-naist-jdic
 
-OpenJTalkに同梱されていた辞書を用いて，JPreprocess/Lindera用の辞書を生成します．
+OpenJTalkに同梱されていた辞書を用いて，JPreprocessまたはLindera用の辞書を生成します．
 なお，このクレートはビルドに数分かかります．
 
 ### jpreprocess-njd
@@ -86,7 +90,7 @@ OpenJTalkでいうNJDNode，NJDの構造を定義し，NJDに対する変換処�
 
 ### jpreprocess-jpcommon
 
-OpenJTalkでいうJPCommonLabelの構造を定義し，NJDからJPCommon，さらにJPCommonから文字列への変換を行います．
+OpenJTalkでいうJPCommonLabelの構造を定義し，NJDからJPCommon，さらにJPCommonからフルコンテキストラベルへの変換を行います．
 
 ### jpreprocess-window
 
