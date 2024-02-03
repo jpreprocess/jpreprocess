@@ -11,8 +11,8 @@ use super::{
 /// Holds the dictionary mode of both system and user dictionary,
 /// and routes Token to either dictionary.
 pub struct DefaultFetcher {
-    pub system: WordDictionaryMode,
-    pub user: Option<WordDictionaryMode>,
+    system: WordDictionaryMode,
+    user: Option<WordDictionaryMode>,
 }
 
 impl DefaultFetcher {
