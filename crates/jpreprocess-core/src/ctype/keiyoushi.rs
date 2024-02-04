@@ -11,8 +11,8 @@ pub enum Keiyoushi {
     Auo,
     /// イ段
     I,
-    // /// イイ
-    // Ii,
+    /// イイ
+    Ii,
 }
 
 impl FromStr for Keiyoushi {
@@ -21,6 +21,7 @@ impl FromStr for Keiyoushi {
         match s {
             "アウオ段" => Ok(Self::Auo),
             "イ段" => Ok(Self::I),
+            "イイ" => Ok(Self::Ii),
             _ => Err(JPreprocessErrorKind::CTypeParseError
                 .with_error(anyhow::anyhow!("Parse failed in Keiyoushi"))),
         }
@@ -32,6 +33,7 @@ impl Display for Keiyoushi {
         f.write_str(match &self {
             Self::Auo => "アウオ段",
             Self::I => "イ段",
+            Self::Ii => "イイ",
         })
     }
 }
