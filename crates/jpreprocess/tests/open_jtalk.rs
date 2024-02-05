@@ -78,7 +78,7 @@ fn test_one(input_text: &'static str) {
     }
 
     for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
-        assert_eq!(node, ans);
+        assert_eq!(&node.to_string(), ans);
     }
 }
 

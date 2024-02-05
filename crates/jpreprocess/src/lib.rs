@@ -227,7 +227,7 @@ impl JPreprocess {
     /// Generate jpcommon features from NJD features(returned by [`run_frontend`]).
     ///
     /// [`run_frontend`]: #method.run_frontend
-    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<String> {
+    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<jlabel::Label> {
         let njd = NJD::from_strings(njd_features);
         jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
     }
@@ -238,7 +238,7 @@ impl JPreprocess {
     ///
     /// [`run_frontend`]: #method.run_frontend
     /// [`make_label`]: #method.make_label
-    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<String>> {
+    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
