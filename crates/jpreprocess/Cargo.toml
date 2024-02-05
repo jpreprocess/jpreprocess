@@ -32,6 +32,7 @@ lindera-dictionary = { version = "0.27" }
 phf = { version = "0.11", features = ["macros"] }
 anyhow = "1.0.79"
 
+jlabel.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true

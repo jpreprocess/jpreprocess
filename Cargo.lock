@@ -465,8 +465,9 @@ checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
 name = "jlabel"
-version = "0.1.0"
-source = "git+https://github.com/jpreprocess/jlabel.git?branch=publish-structs#59e4c7ee2af21ff1ff35e9247f8ef83695b3fe2d"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc54eb5f2fe65b2354840440a5cb464f22ea658690454a64cdbd7da73cda80e9"
 dependencies = [
  "thiserror",
 ]
@@ -477,6 +478,7 @@ version = "0.6.3"
 dependencies = [
  "anyhow",
  "clap",
+ "jlabel",
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
