@@ -217,7 +217,6 @@ fn pau_feature(
         .without_a()
 }
 
-/*
 #[cfg(test)]
 mod tests {
     use jpreprocess_njd::NJDNode;
@@ -229,10 +228,10 @@ mod tests {
         let features = overwrapping_phonemes(
             ["sil", "b", "o", "N", "s", "a", "i", "sil"]
                 .iter()
-                .map(|phoneme| (phoneme.to_string(), "".to_string()))
+                .map(|phoneme| (phoneme.to_string(), FeatureBuilder::dummy()))
                 .collect(),
         );
-        let features_answer = [
+        let phoneme_answer = [
             "xx^xx-sil+b=o",
             "xx^sil-b+o=N",
             "sil^b-o+N=s",
@@ -243,7 +242,9 @@ mod tests {
             "a^i-sil+xx=xx",
         ];
         for i in 0..8 {
-            assert_eq!(features[i].as_str(), features_answer[i]);
+            let s = features[i].to_string();
+            let (phoneme, _) = s.split_once('/').unwrap();
+            assert_eq!(phoneme, phoneme_answer[i]);
         }
     }
 
@@ -267,7 +268,7 @@ mod tests {
         ];
         for i in 0..8 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 
@@ -292,7 +293,7 @@ mod tests {
         ];
         for i in 0..8 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 
@@ -338,7 +339,7 @@ mod tests {
         ];
         for i in 0..21 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 
@@ -413,7 +414,7 @@ mod tests {
         ];
         for i in 0..41 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 
@@ -450,7 +451,7 @@ mod tests {
         ];
         for i in 0..17 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 
@@ -471,8 +472,7 @@ mod tests {
         ];
         for i in 0..4 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(v[i].1.as_str(), features[i]);
+            assert_eq!(&v[i].1.to_string(), features[i]);
         }
     }
 }
-*/

@@ -201,4 +201,31 @@ impl FeatureBuilder {
             utterance: self.word.accent_phrase.breath_group.utterance.k.clone(),
         }
     }
+
+    #[cfg(test)]
+    pub fn dummy() -> Self {
+        let utterance = FeatureBuilderUtterance::new(Utterance {
+            breath_group_count: 0,
+            accent_phrase_count: 0,
+            mora_count: 0,
+        });
+        let breath_group = utterance.with_hj(None, None);
+        let accent_phrase = breath_group.with_eg(None, None);
+        let word = accent_phrase.with_bd(None, None);
+        word.without_a()
+    }
+
+    #[cfg(test)]
+    pub fn to_string(&self) -> String {
+        let phoneme = Phoneme {
+            p2: None,
+            p1: None,
+            c: None,
+            n1: None,
+            n2: None,
+        };
+        let label = self.build(phoneme).to_string();
+        let (_, feature) = label.split_at(14);
+        feature.to_string()
+    }
 }
