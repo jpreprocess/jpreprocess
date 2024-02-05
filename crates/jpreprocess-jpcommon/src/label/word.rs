@@ -29,12 +29,12 @@ impl From<&NJDNode> for Word {
     }
 }
 
-impl Into<jlabel::Word> for &Word {
-    fn into(self) -> jlabel::Word {
+impl From<&Word> for jlabel::Word {
+    fn from(val: &Word) -> Self {
         jlabel::Word {
-            pos: self.pos,
-            ctype: self.ctype,
-            cform: self.cform,
+            pos: val.pos,
+            ctype: val.ctype,
+            cform: val.cform,
         }
     }
 }
