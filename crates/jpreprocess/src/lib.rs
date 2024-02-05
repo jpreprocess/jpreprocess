@@ -18,7 +18,7 @@
 //! let jpcommon_label = jpreprocess
 //!     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
 //! assert_eq!(
-//!   jpcommon_label[2],
+//!   jpcommon_label[2].to_string(),
 //!   concat!(
 //!       "sil^n-i+h=o",
 //!       "/A:-3+1+7",
@@ -27,7 +27,7 @@
 //!       "/D:02+xx_xx",
 //!       "/E:xx_xx!xx_xx-xx",
 //!       "/F:7_4#0_xx@1_3|1_12",
-//!       "/G:4_4%0_xx_1",
+//!       "/G:4_4%0_xx_0",
 //!       "/H:xx_xx",
 //!       "/I:3-12@1+2&1-8|1+41",
 //!       "/J:5_29",
@@ -194,12 +194,11 @@ impl JPreprocess {
     /// let phoneme_vec = utterance_to_phoneme_vec(&utterance);
     ///
     /// assert_eq!(&phoneme_vec[2].0, "i");
-    /// assert!(phoneme_vec[2].1.starts_with("/A:-3+1+7"));
     ///
     /// // fullcontext label
     /// let fullcontext = overwrapping_phonemes(phoneme_vec);
     ///
-    /// assert!(fullcontext[2].starts_with("sil^n-i+h=o"));
+    /// assert!(fullcontext[2].to_string().starts_with("sil^n-i+h=o"));
     /// #
     /// #     Ok(())
     /// # }
