@@ -1,12 +1,12 @@
 #[cfg(not(target_family = "wasm"))]
-mod lru_fetcher;
+mod storage_fetcher;
 
 #[cfg(not(target_family = "wasm"))]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     use jpreprocess::*;
     use std::path::PathBuf;
 
-    use crate::lru_fetcher::LruFetcher;
+    use crate::storage_fetcher::StorageFetcher;
 
     let path = match std::env::args().nth(1).map(PathBuf::from) {
         Some(s) if s.is_dir() => s,
@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let fetcher = LruFetcher::new(&path)?;
+    let fetcher = StorageFetcher::new(&path)?;
     let dictionary = SystemDictionaryConfig::File(path).load()?;
 
     let jpreprocess = JPreprocess::with_dictionary_fetcher(fetcher, dictionary, None);
