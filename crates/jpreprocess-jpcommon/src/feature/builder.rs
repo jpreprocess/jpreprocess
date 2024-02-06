@@ -189,9 +189,9 @@ impl FeatureBuilder {
         Label {
             phoneme,
             mora: self.a.clone(),
-            word_prev: self.word.b.clone(),
+            word_prev: self.is_b_valid.then_some(()).and(self.word.b.clone()),
             word_curr: self.word.c.clone(),
-            word_next: self.word.d.clone(),
+            word_next: self.is_d_valid.then_some(()).and(self.word.d.clone()),
             accent_phrase_prev: self.word.accent_phrase.e.clone(),
             accent_phrase_curr: self.word.accent_phrase.f.clone(),
             accent_phrase_next: self.word.accent_phrase.g.clone(),
