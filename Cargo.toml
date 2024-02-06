@@ -26,4 +26,4 @@ jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.
 jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.6.3" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.6.3" }
 
-jlabel = "0.1.0"
+jlabel = "0.1.2"

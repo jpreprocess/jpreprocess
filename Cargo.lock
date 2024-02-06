@@ -465,9 +465,9 @@ checksum = "af150ab688ff2122fcef229be89cb50dd66af9e01a4ff320cc137eecc9bacc38"
 
 [[package]]
 name = "jlabel"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc54eb5f2fe65b2354840440a5cb464f22ea658690454a64cdbd7da73cda80e9"
+checksum = "1f040b22c55628977296069dbf8635be49cc510999c048a1f1bdb56d00983148"
 dependencies = [
  "thiserror",
 ]
