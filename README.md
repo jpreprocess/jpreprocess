@@ -78,7 +78,7 @@ jpreprocess-dictionary-builderは文字列のパースも事前に行い，JPrep
 
 ### jpreprocess-naist-jdic
 
-OpenJTalkに同梱されていた辞書を用いて，JPreprocessまたはLindera用の辞書を生成します．
+OpenJTalkに同梱されていた辞書を用いて，JPreprocess用の辞書を生成します．
 なお，このクレートはビルドに数分かかります．
 
 ### jpreprocess-njd
