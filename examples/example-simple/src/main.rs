@@ -18,7 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut text = String::new();
     while std::io::stdin().read_line(&mut text).is_ok() {
         let jpcommon_label = jpreprocess.extract_fullcontext(&text)?;
-        println!("{}", jpcommon_label.join("\n"))
+        println!("{}", jpcommon_label.join("\n"));
+        text.clear();
     }
 
     Ok(())
