@@ -82,7 +82,8 @@ impl CachedStorage {
     fn get_bytes(&mut self, index: u32) -> Result<Vec<u8>, std::io::Error> {
         let (start, end) = self.read_u32_range(index)?;
 
-        self.words_file.seek(std::io::SeekFrom::Start(start as u64))?;
+        self.words_file
+            .seek(std::io::SeekFrom::Start(start as u64))?;
         if let Some(end) = end {
             let mut word_buf = vec![0u8; (end - start) as usize];
             self.words_file.read_exact(&mut word_buf)?;
