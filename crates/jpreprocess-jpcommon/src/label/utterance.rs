@@ -10,13 +10,18 @@ pub struct Utterance {
 }
 
 impl Utterance {
-    pub fn to_k(&self) -> String {
+    pub fn to_k(&self) -> jlabel::Utterance {
         format!(
             "/K:{}+{}-{}",
             Limit::S.ulimit(self.breath_groups.len()),
             Limit::M.ulimit(self.count_accent_phrase()),
             Limit::LL.ulimit(self.count_mora())
-        )
+        );
+        jlabel::Utterance {
+            breath_group_count: Limit::S.ulimit(self.breath_groups.len()),
+            accent_phrase_count: Limit::M.ulimit(self.count_accent_phrase()),
+            mora_count: Limit::LL.ulimit(self.count_mora()),
+        }
     }
 
     pub fn count_accent_phrase(&self) -> usize {

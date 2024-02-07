@@ -29,23 +29,18 @@ impl AccentPhrase {
         self.is_interrogative = true;
     }
 
-    pub fn to_e(&self, is_prev_pause: Option<bool>) -> String {
+    pub fn to_e(&self, is_prev_pause: Option<bool>) -> jlabel::AccentPhrasePrevNext {
         let mora_count = self.count_mora();
-        format!(
-            "/E:{}_{}!{}_xx-{}",
-            Limit::M.ulimit(mora_count),
-            Limit::M.ulimit(if self.accent == 0 {
+        jlabel::AccentPhrasePrevNext {
+            mora_count: Limit::M.ulimit(mora_count),
+            accent_position: Limit::M.ulimit(if self.accent == 0 {
                 mora_count
             } else {
                 self.accent
             }),
-            if self.is_interrogative { 1 } else { 0 },
-            match is_prev_pause {
-                Some(false) => "1",
-                Some(true) => "0",
-                None => "xx",
-            }
-        )
+            is_interrogative: self.is_interrogative,
+            is_pause_insertion: is_prev_pause,
+        }
     }
     pub fn to_f(
         &self,
@@ -53,44 +48,40 @@ impl AccentPhrase {
         accent_phrase_index_in_breath_group: usize,
         mora_count_in_breath_group: usize,
         mora_index_in_breath_group: usize,
-    ) -> String {
+    ) -> jlabel::AccentPhraseCurrent {
         let mora_count = self.count_mora();
-        format!(
-            "/F:{}_{}#{}_xx@{}_{}|{}_{}",
-            Limit::M.ulimit(mora_count),
-            Limit::M.ulimit(if self.accent == 0 {
+        jlabel::AccentPhraseCurrent {
+            mora_count: Limit::M.ulimit(mora_count),
+            accent_position: Limit::M.ulimit(if self.accent == 0 {
                 mora_count
             } else {
                 self.accent
             }),
-            if self.is_interrogative { 1 } else { 0 },
-            Limit::M.ulimit(accent_phrase_index_in_breath_group + 1),
-            Limit::M
+            is_interrogative: self.is_interrogative,
+            accent_phrase_position_forward: Limit::M
+                .ulimit(accent_phrase_index_in_breath_group + 1),
+            accent_phrase_position_backward: Limit::M
                 .ulimit(accent_phrase_count_in_breath_group - accent_phrase_index_in_breath_group),
-            Limit::L.ulimit(mora_index_in_breath_group + 1),
-            Limit::L.ulimit(mora_count_in_breath_group - mora_index_in_breath_group),
-        )
+            mora_position_forward: Limit::L.ulimit(mora_index_in_breath_group + 1),
+            mora_position_backward: Limit::L
+                .ulimit(mora_count_in_breath_group - mora_index_in_breath_group),
+        }
     }
-    pub fn to_g(&self, is_next_pause: Option<bool>) -> String {
+    pub fn to_g(&self, is_next_pause: Option<bool>) -> jlabel::AccentPhrasePrevNext {
         let mora_count = self.count_mora();
-        format!(
-            "/G:{}_{}%{}_xx_{}",
-            Limit::M.ulimit(mora_count),
-            Limit::M.ulimit(if self.accent == 0 {
+        jlabel::AccentPhrasePrevNext {
+            mora_count: Limit::M.ulimit(mora_count),
+            accent_position: Limit::M.ulimit(if self.accent == 0 {
                 mora_count
             } else {
                 self.accent
             }),
-            if self.is_interrogative { 1 } else { 0 },
-            match is_next_pause {
-                Some(false) => "1",
-                Some(true) => "0",
-                None => "xx",
-            }
-        )
+            is_interrogative: self.is_interrogative,
+            is_pause_insertion: is_next_pause,
+        }
     }
 
-    pub fn generate_mora_a(&self) -> Vec<String> {
+    pub fn generate_mora_a(&self) -> Vec<jlabel::Mora> {
         let mora_count = self.count_mora();
         let accent = if self.accent == 0 {
             mora_count
@@ -98,13 +89,11 @@ impl AccentPhrase {
             self.accent
         };
         (0..mora_count)
-            .map(|mora_index| {
-                format!(
-                    "/A:{}+{}+{}",
-                    Limit::M.ilimit(mora_index as isize - accent as isize + 1),
-                    Limit::M.ulimit(mora_index + 1),
-                    Limit::M.ulimit(mora_count - mora_index)
-                )
+            .map(|mora_index| jlabel::Mora {
+                relative_accent_position: Limit::M
+                    .ilimit(mora_index as isize - accent as isize + 1),
+                position_forward: Limit::M.ulimit(mora_index + 1),
+                position_backward: Limit::M.ulimit(mora_count - mora_index),
             })
             .collect()
     }
