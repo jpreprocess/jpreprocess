@@ -268,7 +268,7 @@ mod tests {
         ];
         for i in 0..8 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 
@@ -293,7 +293,7 @@ mod tests {
         ];
         for i in 0..8 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 
@@ -339,7 +339,7 @@ mod tests {
         ];
         for i in 0..21 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 
@@ -414,7 +414,7 @@ mod tests {
         ];
         for i in 0..41 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 
@@ -451,7 +451,7 @@ mod tests {
         ];
         for i in 0..17 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 
@@ -472,7 +472,7 @@ mod tests {
         ];
         for i in 0..4 {
             assert_eq!(v[i].0.as_str(), phonemes[i]);
-            assert_eq!(&v[i].1.to_string(), features[i]);
+            assert_eq!(&v[i].1.to_string_without_phoneme(), features[i]);
         }
     }
 }

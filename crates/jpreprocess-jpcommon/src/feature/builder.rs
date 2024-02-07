@@ -216,7 +216,7 @@ impl FeatureBuilder {
     }
 
     #[cfg(test)]
-    pub fn to_string(&self) -> String {
+    pub fn to_string_without_phoneme(&self) -> String {
         let phoneme = Phoneme {
             p2: None,
             p1: None,
