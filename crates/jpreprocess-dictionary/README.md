@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-dictionary = "0.6.3"
+jpreprocess-dictionary = "0.7.0"
 ```
 
 ## License
