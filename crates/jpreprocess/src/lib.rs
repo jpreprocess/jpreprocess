@@ -18,7 +18,7 @@
 //! let jpcommon_label = jpreprocess
 //!     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
 //! assert_eq!(
-//!   jpcommon_label[2],
+//!   jpcommon_label[2].to_string(),
 //!   concat!(
 //!       "sil^n-i+h=o",
 //!       "/A:-3+1+7",
@@ -181,12 +181,11 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// let phoneme_vec = utterance_to_phoneme_vec(&utterance);
     ///
     /// assert_eq!(&phoneme_vec[2].0, "i");
-    /// assert!(phoneme_vec[2].1.starts_with("/A:-3+1+7"));
     ///
     /// // fullcontext label
     /// let fullcontext = overwrapping_phonemes(phoneme_vec);
     ///
-    /// assert!(fullcontext[2].starts_with("sil^n-i+h=o"));
+    /// assert!(fullcontext[2].to_string().starts_with("sil^n-i+h=o"));
     /// #
     /// #     Ok(())
     /// # }
@@ -214,7 +213,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// Generate jpcommon features from NJD features(returned by [`run_frontend`]).
     ///
     /// [`run_frontend`]: #method.run_frontend
-    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<String> {
+    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<jlabel::Label> {
         let njd = NJD::from_strings(njd_features);
         jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
     }
@@ -225,7 +224,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     ///
     /// [`run_frontend`]: #method.run_frontend
     /// [`make_label`]: #method.make_label
-    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<String>> {
+    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))

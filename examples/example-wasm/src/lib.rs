@@ -83,9 +83,9 @@ extern "C" {
 }
 
 // TODO: Remove this when wasm-bindgen supports Vec<String> as function return type
-impl From<Vec<String>> for IVecString {
-    fn from(value: Vec<String>) -> Self {
-        let jsv = js_sys::Array::from_iter(value.into_iter().map(js_sys::JsString::from));
+impl<T: ToString> From<Vec<T>> for IVecString {
+    fn from(value: Vec<T>) -> Self {
+        let jsv = js_sys::Array::from_iter(value.into_iter().map(|v| JsValue::from(v.to_string())));
         IVecString { obj: jsv.into() }
     }
 }

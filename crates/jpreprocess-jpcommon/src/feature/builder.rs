@@ -1,22 +1,16 @@
-use std::{fmt::Display, rc::Rc};
+use std::rc::Rc;
 
-const DEFAULT_A: &str = "/A:xx+xx+xx";
-const DEFAULT_B: &str = "/B:xx-xx_xx";
-const DEFAULT_C: &str = "/C:xx_xx+xx";
-const DEFAULT_D: &str = "/D:xx+xx_xx";
-const DEFAULT_E: &str = "/E:xx_xx!xx_xx-xx";
-const DEFAULT_F: &str = "/F:xx_xx#xx_xx@xx_xx|xx_xx";
-const DEFAULT_G: &str = "/G:xx_xx%xx_xx_xx";
-const DEFAULT_H: &str = "/H:xx_xx";
-const DEFAULT_I: &str = "/I:xx-xx@xx+xx&xx-xx|xx+xx";
-const DEFAULT_J: &str = "/J:xx_xx";
+use jlabel::{
+    AccentPhraseCurrent, AccentPhrasePrevNext, BreathGroupCurrent, BreathGroupPrevNext, Label,
+    Mora, Phoneme, Utterance, Word,
+};
 
 pub struct FeatureBuilderUtterance {
-    k: String,
+    k: Utterance,
 }
 
 impl FeatureBuilderUtterance {
-    pub fn new(k: String) -> Rc<Self> {
+    pub fn new(k: Utterance) -> Rc<Self> {
         Rc::new(Self { k })
     }
 }
@@ -24,19 +18,23 @@ impl FeatureBuilderUtterance {
 pub trait TFeatureBuilderUtterance {
     fn with_hij(
         &self,
-        h: Option<String>,
-        i: String,
-        j: Option<String>,
+        h: Option<BreathGroupPrevNext>,
+        i: BreathGroupCurrent,
+        j: Option<BreathGroupPrevNext>,
     ) -> Rc<FeatureBuilderBreathGroup>;
-    fn with_hj(&self, h: Option<String>, j: Option<String>) -> Rc<FeatureBuilderBreathGroup>;
+    fn with_hj(
+        &self,
+        h: Option<BreathGroupPrevNext>,
+        j: Option<BreathGroupPrevNext>,
+    ) -> Rc<FeatureBuilderBreathGroup>;
 }
 
 impl TFeatureBuilderUtterance for Rc<FeatureBuilderUtterance> {
     fn with_hij(
         &self,
-        h: Option<String>,
-        i: String,
-        j: Option<String>,
+        h: Option<BreathGroupPrevNext>,
+        i: BreathGroupCurrent,
+        j: Option<BreathGroupPrevNext>,
     ) -> Rc<FeatureBuilderBreathGroup> {
         Rc::new(FeatureBuilderBreathGroup {
             utterance: self.clone(),
@@ -45,7 +43,11 @@ impl TFeatureBuilderUtterance for Rc<FeatureBuilderUtterance> {
             j,
         })
     }
-    fn with_hj(&self, h: Option<String>, j: Option<String>) -> Rc<FeatureBuilderBreathGroup> {
+    fn with_hj(
+        &self,
+        h: Option<BreathGroupPrevNext>,
+        j: Option<BreathGroupPrevNext>,
+    ) -> Rc<FeatureBuilderBreathGroup> {
         Rc::new(FeatureBuilderBreathGroup {
             utterance: self.clone(),
             h,
@@ -57,27 +59,31 @@ impl TFeatureBuilderUtterance for Rc<FeatureBuilderUtterance> {
 
 pub struct FeatureBuilderBreathGroup {
     utterance: Rc<FeatureBuilderUtterance>,
-    h: Option<String>,
-    i: Option<String>,
-    j: Option<String>,
+    h: Option<BreathGroupPrevNext>,
+    i: Option<BreathGroupCurrent>,
+    j: Option<BreathGroupPrevNext>,
 }
 
 pub trait TFeatureBuilderBreathGroup {
     fn with_efg(
         &self,
-        e: Option<String>,
-        f: String,
-        g: Option<String>,
+        e: Option<AccentPhrasePrevNext>,
+        f: AccentPhraseCurrent,
+        g: Option<AccentPhrasePrevNext>,
     ) -> Rc<FeatureBuilderAccentPhrase>;
-    fn with_eg(&self, e: Option<String>, g: Option<String>) -> Rc<FeatureBuilderAccentPhrase>;
+    fn with_eg(
+        &self,
+        e: Option<AccentPhrasePrevNext>,
+        g: Option<AccentPhrasePrevNext>,
+    ) -> Rc<FeatureBuilderAccentPhrase>;
 }
 
 impl TFeatureBuilderBreathGroup for Rc<FeatureBuilderBreathGroup> {
     fn with_efg(
         &self,
-        e: Option<String>,
-        f: String,
-        g: Option<String>,
+        e: Option<AccentPhrasePrevNext>,
+        f: AccentPhraseCurrent,
+        g: Option<AccentPhrasePrevNext>,
     ) -> Rc<FeatureBuilderAccentPhrase> {
         Rc::new(FeatureBuilderAccentPhrase {
             breath_group: self.clone(),
@@ -86,7 +92,11 @@ impl TFeatureBuilderBreathGroup for Rc<FeatureBuilderBreathGroup> {
             g,
         })
     }
-    fn with_eg(&self, e: Option<String>, g: Option<String>) -> Rc<FeatureBuilderAccentPhrase> {
+    fn with_eg(
+        &self,
+        e: Option<AccentPhrasePrevNext>,
+        g: Option<AccentPhrasePrevNext>,
+    ) -> Rc<FeatureBuilderAccentPhrase> {
         Rc::new(FeatureBuilderAccentPhrase {
             breath_group: self.clone(),
             e,
@@ -98,18 +108,18 @@ impl TFeatureBuilderBreathGroup for Rc<FeatureBuilderBreathGroup> {
 
 pub struct FeatureBuilderAccentPhrase {
     breath_group: Rc<FeatureBuilderBreathGroup>,
-    e: Option<String>,
-    f: Option<String>,
-    g: Option<String>,
+    e: Option<AccentPhrasePrevNext>,
+    f: Option<AccentPhraseCurrent>,
+    g: Option<AccentPhrasePrevNext>,
 }
 
 pub trait TFeatureBuilderAccentPhrase {
-    fn with_bcd(&self, b: Option<String>, c: String, d: Option<String>) -> Rc<FeatureBuilderWord>;
-    fn with_bd(&self, b: Option<String>, d: Option<String>) -> Rc<FeatureBuilderWord>;
+    fn with_bcd(&self, b: Option<Word>, c: Word, d: Option<Word>) -> Rc<FeatureBuilderWord>;
+    fn with_bd(&self, b: Option<Word>, d: Option<Word>) -> Rc<FeatureBuilderWord>;
 }
 
 impl TFeatureBuilderAccentPhrase for Rc<FeatureBuilderAccentPhrase> {
-    fn with_bcd(&self, b: Option<String>, c: String, d: Option<String>) -> Rc<FeatureBuilderWord> {
+    fn with_bcd(&self, b: Option<Word>, c: Word, d: Option<Word>) -> Rc<FeatureBuilderWord> {
         Rc::new(FeatureBuilderWord {
             accent_phrase: self.clone(),
             b,
@@ -117,7 +127,7 @@ impl TFeatureBuilderAccentPhrase for Rc<FeatureBuilderAccentPhrase> {
             d,
         })
     }
-    fn with_bd(&self, b: Option<String>, d: Option<String>) -> Rc<FeatureBuilderWord> {
+    fn with_bd(&self, b: Option<Word>, d: Option<Word>) -> Rc<FeatureBuilderWord> {
         Rc::new(FeatureBuilderWord {
             accent_phrase: self.clone(),
             b,
@@ -129,18 +139,18 @@ impl TFeatureBuilderAccentPhrase for Rc<FeatureBuilderAccentPhrase> {
 
 pub struct FeatureBuilderWord {
     accent_phrase: Rc<FeatureBuilderAccentPhrase>,
-    b: Option<String>,
-    c: Option<String>,
-    d: Option<String>,
+    b: Option<Word>,
+    c: Option<Word>,
+    d: Option<Word>,
 }
 
 pub trait TFeatureBuilderWord {
-    fn with_a(&self, a: String) -> FeatureBuilder;
+    fn with_a(&self, a: Mora) -> FeatureBuilder;
     fn without_a(&self) -> FeatureBuilder;
 }
 
 impl TFeatureBuilderWord for Rc<FeatureBuilderWord> {
-    fn with_a(&self, a: String) -> FeatureBuilder {
+    fn with_a(&self, a: Mora) -> FeatureBuilder {
         FeatureBuilder {
             word: self.clone(),
             a: Some(a),
@@ -158,9 +168,10 @@ impl TFeatureBuilderWord for Rc<FeatureBuilderWord> {
     }
 }
 
+#[derive(Clone)]
 pub struct FeatureBuilder {
     word: Rc<FeatureBuilderWord>,
-    a: Option<String>,
+    a: Option<Mora>,
     is_b_valid: bool,
     is_d_valid: bool,
 }
@@ -174,41 +185,47 @@ impl FeatureBuilder {
         self.is_d_valid = false;
     }
 
-    fn mask_property(prop: Option<&String>, is_valid: bool) -> Option<&String> {
-        if is_valid {
-            prop
-        } else {
-            None
+    pub fn build(&self, phoneme: Phoneme) -> Label {
+        Label {
+            phoneme,
+            mora: self.a.clone(),
+            word_prev: self.is_b_valid.then_some(()).and(self.word.b.clone()),
+            word_curr: self.word.c.clone(),
+            word_next: self.is_d_valid.then_some(()).and(self.word.d.clone()),
+            accent_phrase_prev: self.word.accent_phrase.e.clone(),
+            accent_phrase_curr: self.word.accent_phrase.f.clone(),
+            accent_phrase_next: self.word.accent_phrase.g.clone(),
+            breath_group_prev: self.word.accent_phrase.breath_group.h.clone(),
+            breath_group_curr: self.word.accent_phrase.breath_group.i.clone(),
+            breath_group_next: self.word.accent_phrase.breath_group.j.clone(),
+            utterance: self.word.accent_phrase.breath_group.utterance.k.clone(),
         }
     }
-    fn apply_default<'a>(prop: Option<&'a String>, default: &'static str) -> &'a str {
-        prop.map(|s| s.as_str()).unwrap_or(default)
-    }
-}
 
-impl Display for FeatureBuilder {
-    /* generate feature string */
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}{}{}{}{}{}{}{}{}{}{}",
-            Self::apply_default(self.a.as_ref(), DEFAULT_A),
-            Self::apply_default(
-                Self::mask_property(self.word.b.as_ref(), self.is_b_valid),
-                DEFAULT_B
-            ),
-            Self::apply_default(self.word.c.as_ref(), DEFAULT_C),
-            Self::apply_default(
-                Self::mask_property(self.word.d.as_ref(), self.is_d_valid),
-                DEFAULT_D
-            ),
-            Self::apply_default(self.word.accent_phrase.e.as_ref(), DEFAULT_E),
-            Self::apply_default(self.word.accent_phrase.f.as_ref(), DEFAULT_F),
-            Self::apply_default(self.word.accent_phrase.g.as_ref(), DEFAULT_G),
-            Self::apply_default(self.word.accent_phrase.breath_group.h.as_ref(), DEFAULT_H),
-            Self::apply_default(self.word.accent_phrase.breath_group.i.as_ref(), DEFAULT_I),
-            Self::apply_default(self.word.accent_phrase.breath_group.j.as_ref(), DEFAULT_J),
-            self.word.accent_phrase.breath_group.utterance.k,
-        )
+    #[cfg(test)]
+    pub fn dummy() -> Self {
+        let utterance = FeatureBuilderUtterance::new(Utterance {
+            breath_group_count: 0,
+            accent_phrase_count: 0,
+            mora_count: 0,
+        });
+        let breath_group = utterance.with_hj(None, None);
+        let accent_phrase = breath_group.with_eg(None, None);
+        let word = accent_phrase.with_bd(None, None);
+        word.without_a()
+    }
+
+    #[cfg(test)]
+    pub fn to_string_without_phoneme(&self) -> String {
+        let phoneme = Phoneme {
+            p2: None,
+            p1: None,
+            c: None,
+            n1: None,
+            n2: None,
+        };
+        let label = self.build(phoneme).to_string();
+        let (_, feature) = label.split_at(14);
+        feature.to_string()
     }
 }
