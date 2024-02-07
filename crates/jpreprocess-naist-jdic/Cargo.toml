@@ -22,7 +22,7 @@ lindera-core = { version = "0.27.2" }
 encoding = { version = "0.2.33", optional = true }
 flate2 = { version = "1.0.28", optional = true }
 tar = { version = "0.4.40", optional = true }
-ureq = { version = "2.9.1", default-features = false, features = ["tls"], optional = true }
+ureq = { version = "2.9.4", default-features = false, features = ["tls"], optional = true }
 
 lindera-core = { version = "0.27.2" }
 

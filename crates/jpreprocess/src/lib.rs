@@ -46,10 +46,11 @@ pub use dictionary::*;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
+pub use jpreprocess_dictionary::default::DefaultFetcher;
 pub use jpreprocess_njd::NJD;
 
 use jpreprocess_core::*;
-use jpreprocess_dictionary::{fetcher::WordDictionaryConfig, DictionaryFetcher, DictionaryStore};
+use jpreprocess_dictionary::DictionaryFetcher;
 use lindera_core::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
@@ -59,12 +60,12 @@ pub struct JPreprocessConfig {
     pub user_dictionary: Option<UserDictionaryConfig>,
 }
 
-pub struct JPreprocess {
+pub struct JPreprocess<F: DictionaryFetcher> {
     tokenizer: Tokenizer,
-    dictionary_fetcher: Box<dyn DictionaryFetcher>,
+    dictionary_fetcher: F,
 }
 
-impl JPreprocess {
+impl JPreprocess<DefaultFetcher> {
     /// Loads the dictionary from JPreprocessConfig.
     ///
     /// This supports importing files and built-in dictionary (needs feature).
@@ -126,23 +127,19 @@ impl JPreprocess {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
-        let dictionary_fetcher = WordDictionaryConfig {
-            system: dictionary.serlializer_hint(),
-            user: user_dictionary
-                .as_ref()
-                .map(DictionaryStore::serlializer_hint),
-        };
+        let dictionary_fetcher =
+            DefaultFetcher::from_dictionaries(&dictionary, user_dictionary.as_ref());
 
-        Self::with_dictionary_fetcher(dictionary, user_dictionary, Box::new(dictionary_fetcher))
+        Self::with_dictionary_fetcher(dictionary_fetcher, dictionary, user_dictionary)
     }
+}
 
+impl<F: DictionaryFetcher> JPreprocess<F> {
     /// Creates JPreprocess with provided dictionary fetcher.
-    ///
-    /// Note: I'm not sure if this is useful for someone. If you need this, please create an issue.
-    fn with_dictionary_fetcher(
+    pub fn with_dictionary_fetcher(
+        dictionary_fetcher: F,
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
-        dictionary_fetcher: Box<dyn DictionaryFetcher>,
     ) -> Self {
         let tokenizer = Tokenizer::new(
             dictionary,
@@ -154,16 +151,6 @@ impl JPreprocess {
             tokenizer,
             dictionary_fetcher,
         }
-    }
-
-    /// Alias of [`with_dictionaries`].
-    ///
-    /// Note: `new` before v0.2.0 has moved to `from_config`.
-    ///
-    /// [`with_dictionaries`]: #method.with_dictionaries
-    #[deprecated(since = "0.5.0", note = "please use `with_dictionaries` instead")]
-    pub fn new(dictionary: Dictionary, user_dictionary: Option<UserDictionary>) -> Self {
-        Self::with_dictionaries(dictionary, user_dictionary)
     }
 
     /// Tokenize input text and return NJD.
@@ -241,5 +228,18 @@ impl JPreprocess {
         let mut njd = Self::text_to_njd(self, text)?;
         njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use jpreprocess_dictionary::default::DefaultFetcher;
+
+    use crate::JPreprocess;
+
+    #[test]
+    fn multithread() {
+        fn tester<T: Send + Sync>() {}
+        tester::<JPreprocess<DefaultFetcher>>();
     }
 }

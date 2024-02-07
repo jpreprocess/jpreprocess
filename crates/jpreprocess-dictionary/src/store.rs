@@ -1,4 +1,4 @@
-use crate::{DictionarySerializer, DictionaryStore};
+use crate::DictionaryStore;
 use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
 
@@ -9,9 +9,6 @@ impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
     fn identifier(&self) -> Option<String> {
         get_metadata(&self.words_idx_data, &self.words_data)
     }
-    fn serlializer_hint(&self) -> Box<dyn DictionarySerializer> {
-        detect_dictionary(&self.words_idx_data, &self.words_data)
-    }
 }
 
 impl<'a> DictionaryStore<'a> for lindera_core::dictionary::UserDictionary {
@@ -20,9 +17,6 @@ impl<'a> DictionaryStore<'a> for lindera_core::dictionary::UserDictionary {
     }
     fn identifier(&self) -> Option<String> {
         get_metadata(&self.words_idx_data, &self.words_data)
-    }
-    fn serlializer_hint(&self) -> Box<dyn DictionarySerializer> {
-        detect_dictionary(&self.words_idx_data, &self.words_data)
     }
 }
 
@@ -33,29 +27,6 @@ fn get_metadata(words_idx_data: &[u8], words_data: &[u8]) -> Option<String> {
     }
 
     String::from_utf8(words_data[0..metadata_end].to_vec()).ok()
-}
-
-fn detect_dictionary(words_idx_data: &[u8], words_data: &[u8]) -> Box<dyn DictionarySerializer> {
-    use super::serializer::{jpreprocess, lindera};
-
-    if let Some(metadata) = get_metadata(words_idx_data, words_data) {
-        let segments: Vec<&str> = metadata.split(' ').collect();
-        match *segments.as_slice() {
-            ["JPreprocess", "v0.1.0" | "v0.1.1" | "v0.2.0"] => {
-                panic!(concat!(
-                    "Incompatible Dictionary! ",
-                    "Dictionaries built with JPreprocess versions before v0.3.0 ",
-                    "are not compatible with this version of JPreprocess."
-                ))
-            }
-            ["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
-                return Box::new(jpreprocess::legacy_0_5_1::JPreprocessSerializer)
-            }
-            ["JPreprocess", ..] => return Box::new(jpreprocess::JPreprocessSerializer),
-            _ => (),
-        }
-    }
-    Box::new(lindera::LinderaSerializer)
 }
 
 fn get_bytes<'a>(

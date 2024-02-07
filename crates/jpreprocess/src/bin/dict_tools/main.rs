@@ -4,7 +4,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 
 use jpreprocess::SystemDictionaryConfig;
 use jpreprocess_core::error::JPreprocessErrorKind;
-use jpreprocess_dictionary::{fetcher::WordDictionaryMode, DictionaryStore};
+use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 
 use lindera_core::dictionary_builder::DictionaryBuilder;
@@ -117,7 +117,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             return Ok(());
                         }
                     };
-                    let message = dict.serlializer_hint().deserialize_debug(word_bin);
+                    let message = dict.mode().into_serializer().deserialize_debug(word_bin);
                     println!("{}", message);
                 }
             }

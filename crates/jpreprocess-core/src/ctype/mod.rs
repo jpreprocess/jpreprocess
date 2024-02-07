@@ -61,10 +61,7 @@ pub enum CType {
 impl FromStr for CType {
     type Err = JPreprocessError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (major, minor) = s
-            .split_once('・')
-            .map(|(major, minor)| (major, minor))
-            .unwrap_or((s, ""));
+        let (major, minor) = s.split_once('・').unwrap_or((s, ""));
         match major {
             "カ変" => Ok(Self::KaIrregular(KaIrregular::from_str(minor)?)),
             "サ変" => Ok(Self::SaIrregular(SaIrregular::from_str(minor)?)),
