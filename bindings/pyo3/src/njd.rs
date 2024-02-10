@@ -1,13 +1,17 @@
 use std::str::FromStr;
 
-use dict_derive::{FromPyObject, IntoPyObject};
 use jpreprocess_core::{
     accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
     word_details::WordDetails, word_entry::WordEntry, JPreprocessError,
 };
 use jpreprocess_njd::NJDNode;
+use pyo3::prelude::*;
+use pythonize::{depythonize, pythonize};
+use serde::{Deserialize, Serialize};
 
-#[derive(FromPyObject, IntoPyObject)]
+use crate::into_runtime_error;
+
+#[derive(Serialize, Deserialize)]
 pub struct NjdObject {
     string: String,
     pos: String,
@@ -84,5 +88,17 @@ impl TryFrom<NjdObject> for NJDNode {
         };
         let node = NJDNode::load(&value.string, WordEntry::Single(details));
         Ok(node[0].to_owned())
+    }
+}
+
+impl IntoPy<PyObject> for NjdObject {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        pythonize(py, &self).expect("Failed to pythonize")
+    }
+}
+
+impl<'a> FromPyObject<'a> for NjdObject {
+    fn extract(ob: &'a pyo3::prelude::PyAny) -> pyo3::prelude::PyResult<Self> {
+        depythonize(ob).map_err(into_runtime_error)
     }
 }

@@ -16,7 +16,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = "0.20.0"
-dict_derive = "0.5.0"
+pythonize = "0.20.0"
+serde = "1.0"
 
 jpreprocess.workspace = true
 jpreprocess-core.workspace = true

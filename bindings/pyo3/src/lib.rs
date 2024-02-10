@@ -47,7 +47,7 @@ impl StringOrArray {
     }
 }
 
-fn into_runtime_error<E: ToString>(err: E) -> PyErr {
+pub fn into_runtime_error<E: ToString>(err: E) -> PyErr {
     PyRuntimeError::new_err(err.to_string())
 }
 
