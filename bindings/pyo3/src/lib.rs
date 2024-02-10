@@ -1,5 +1,7 @@
-mod njd;
+mod structs;
+use structs::*;
 
+use pyo3::{exceptions::PyRuntimeError, prelude::*};
 use std::path::PathBuf;
 
 use ::jpreprocess::{
@@ -9,42 +11,12 @@ use ::jpreprocess::{
 use jpreprocess_core::pos::POS;
 use jpreprocess_jpcommon::njdnodes_to_features;
 use jpreprocess_njd::NJDNode;
-use njd::NjdObject;
-use pyo3::{exceptions::PyRuntimeError, prelude::*};
 
 #[pymodule]
 fn jpreprocess(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<JPreprocessPyBinding>()?;
     m.add("JPREPROCESS_VERSION", env!("CARGO_PKG_VERSION"))?;
     Ok(())
-}
-
-#[derive(FromPyObject)]
-enum StringOrArray {
-    #[pyo3(transparent, annotation = "str")]
-    String(String),
-    #[pyo3(transparent, annotation = "list[str]")]
-    Array(Vec<String>),
-}
-impl IntoPy<PyObject> for StringOrArray {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.to_object(py)
-    }
-}
-impl ToPyObject for StringOrArray {
-    fn to_object(&self, py: Python<'_>) -> PyObject {
-        match self {
-            Self::String(s) => s.to_object(py),
-            Self::Array(arr) => arr.to_object(py),
-        }
-    }
-}
-impl StringOrArray {
-    pub(crate) fn join(&mut self) {
-        if let Self::Array(array) = self {
-            *self = Self::String(array.join(""));
-        }
-    }
 }
 
 pub fn into_runtime_error<E: ToString>(err: E) -> PyErr {

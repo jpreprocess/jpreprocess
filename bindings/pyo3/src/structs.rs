@@ -11,6 +11,34 @@ use serde::{Deserialize, Serialize};
 
 use crate::into_runtime_error;
 
+#[derive(FromPyObject)]
+pub enum StringOrArray {
+    #[pyo3(transparent, annotation = "str")]
+    String(String),
+    #[pyo3(transparent, annotation = "list[str]")]
+    Array(Vec<String>),
+}
+impl IntoPy<PyObject> for StringOrArray {
+    fn into_py(self, py: Python<'_>) -> PyObject {
+        self.to_object(py)
+    }
+}
+impl ToPyObject for StringOrArray {
+    fn to_object(&self, py: Python<'_>) -> PyObject {
+        match self {
+            Self::String(s) => s.to_object(py),
+            Self::Array(arr) => arr.to_object(py),
+        }
+    }
+}
+impl StringOrArray {
+    pub(crate) fn join(&mut self) {
+        if let Self::Array(array) = self {
+            *self = Self::String(array.join(""));
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct NjdObject {
     string: String,
