@@ -32,9 +32,9 @@ impl ToPyObject for StringOrArray {
     }
 }
 impl StringOrArray {
-    pub(crate) fn join(&mut self) {
+    pub(crate) fn join(&mut self, sep: &'static str) {
         if let Self::Array(array) = self {
-            *self = Self::String(array.join(""));
+            *self = Self::String(array.join(sep));
         }
     }
 }

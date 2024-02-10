@@ -71,15 +71,6 @@ impl JPreprocessPyBinding {
         let join = join.unwrap_or(true);
 
         let prons = if kana {
-            let labels = self
-                .inner
-                .extract_fullcontext(text)
-                .map_err(into_runtime_error)?;
-            labels
-                .into_iter()
-                .map(|label| label.phoneme.c.unwrap())
-                .collect()
-        } else {
             let mut njd = self.inner.text_to_njd(text).map_err(into_runtime_error)?;
             njd.preprocess();
             njd.nodes
@@ -94,10 +85,22 @@ impl JPreprocessPyBinding {
                     p
                 })
                 .collect()
+        } else {
+            let labels = self
+                .inner
+                .extract_fullcontext(text)
+                .map_err(into_runtime_error)?;
+            let label_len = labels.len();
+            labels
+                .into_iter()
+                .skip(1)
+                .take(label_len - 2)
+                .map(|label| label.phoneme.c.unwrap())
+                .collect()
         };
         let mut result = StringOrArray::Array(prons);
         if join {
-            result.join();
+            result.join(if kana { "" } else { " " });
         }
         Ok(result)
     }
