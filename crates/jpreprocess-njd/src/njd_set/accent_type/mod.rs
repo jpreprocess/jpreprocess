@@ -72,7 +72,7 @@ fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_si
     let node_acc = node.get_acc();
     let top_node_acc = top_node.get_acc();
 
-    let Some(rule) = node.get_chain_rule(prev.get_pos()) else {
+    let Some(rule) = node.get_chain_rule().get_rule(prev.get_pos()) else {
         return top_node_acc;
     };
 
