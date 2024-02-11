@@ -15,7 +15,7 @@ use jpreprocess_njd::NJDNode;
 #[pymodule]
 fn jpreprocess(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<JPreprocessPyBinding>()?;
-    m.add("JPREPROCESS_VERSION", env!("CARGO_PKG_VERSION"))?;
+    m.add("VERSION", env!("CARGO_PKG_VERSION"))?;
     Ok(())
 }
 

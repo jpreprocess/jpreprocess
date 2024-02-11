@@ -1,8 +1,8 @@
 [package]
 name = "jpreprocess-pyo3"
 edition = "2021"
+version = "0.1.0"
 
-version.workspace = true
 description.workspace = true
 license.workspace = true
 repository.workspace = true
