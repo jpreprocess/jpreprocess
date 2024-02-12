@@ -1,17 +1,14 @@
-mod lut1;
-mod lut2;
-mod lut3;
-mod lut_conversion;
+mod lut;
 mod rule;
 
 mod digit_sequence;
 
 use crate::{digit::rule::is_period, NJDNode, NJD};
-use jpreprocess_core::pos::*;
 
+use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType};
+use self::lut::{find_digit_pron_conv, find_numerative_pron_conv, lut1, lut2, lut3, DigitType};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;

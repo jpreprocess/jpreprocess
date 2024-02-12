@@ -1,3 +1,7 @@
+pub mod lut1;
+pub mod lut2;
+pub mod lut3;
+
 use phf::{Map, Set};
 
 pub enum DigitType {

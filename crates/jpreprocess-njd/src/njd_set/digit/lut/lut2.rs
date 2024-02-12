@@ -1,4 +1,4 @@
-use crate::njd_set::digit::lut_conversion::*;
+use super::*;
 use phf::{phf_map, phf_set};
 
 pub const CONVERSION_TABLE: [(Keys, NumerativeLUT); 5] = [
