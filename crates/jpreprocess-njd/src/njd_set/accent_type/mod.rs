@@ -1,7 +1,24 @@
-mod rule;
+pub const ICHI: &str = "一";
+pub const NI: &str = "二";
+pub const SAN: &str = "三";
+pub const YON: &str = "四";
+pub const GO: &str = "五";
+pub const ROKU: &str = "六";
+pub const NANA: &str = "七";
+pub const HACHI: &str = "八";
+pub const KYUU: &str = "九";
+pub const JYUU: &str = "十";
+pub const HYAKU: &str = "百";
+pub const SEN: &str = "千";
+pub const MAN: &str = "万";
+pub const OKU: &str = "億";
+pub const CHOU: &str = "兆";
+pub const NAN: &str = "何";
+pub const IKU: &str = "幾";
+
+use jpreprocess_core::accent_rule::AccentType;
 
 use crate::{NJDNode, NJD};
-use jpreprocess_core::accent_rule::AccentType;
 
 pub fn njd_set_accent_type(njd: &mut NJD) {
     if njd.nodes.is_empty() {
@@ -46,7 +63,7 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
                 prev_acc = calc_digit_acc(prev.unwrap(), current, next);
             }
 
-            if current.get_string() == rule::JYUU
+            if current.get_string() == JYUU
                 && !matches!(current.get_chain_flag(), Some(d) if d)
                 && next.map(|n| n.get_pos().is_kazu()).unwrap_or(false)
             {
@@ -103,36 +120,26 @@ fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> 
     let next_str = next.map(|node| node.get_string());
     match (prev_str, current_str, next_str) {
         (
-            rule::GO | rule::ROKU | rule::HACHI,
-            rule::JYUU,
-            Some(
-                rule::ICHI
-                | rule::NI
-                | rule::SAN
-                | rule::YON
-                | rule::GO
-                | rule::ROKU
-                | rule::NANA
-                | rule::HACHI
-                | rule::KYUU,
-            ),
+            GO | ROKU | HACHI,
+            JYUU,
+            Some(ICHI | NI | SAN | YON | GO | ROKU | NANA | HACHI | KYUU),
         ) => Some(0),
-        // (rule::SAN | rule::YON | rule::KYUU | rule::NAN | rule::SUU, rule::JYUU, _) => Some(1),
-        (_, rule::JYUU, _) => Some(1),
+        // (SAN | YON | KYUU | NAN | SUU, JYUU, _) => Some(1),
+        (_, JYUU, _) => Some(1),
 
-        (rule::NANA, rule::HYAKU, _) => Some(2),
-        (rule::SAN | rule::YON | rule::KYUU | rule::NAN, rule::HYAKU, _) => Some(1),
-        (_, rule::HYAKU, _) => Some(prev.get_mora_size() + current.get_mora_size()),
+        (NANA, HYAKU, _) => Some(2),
+        (SAN | YON | KYUU | NAN, HYAKU, _) => Some(1),
+        (_, HYAKU, _) => Some(prev.get_mora_size() + current.get_mora_size()),
 
-        (_, rule::SEN, _) => Some(prev.get_mora_size() + 1),
+        (_, SEN, _) => Some(prev.get_mora_size() + 1),
 
-        (_, rule::MAN, _) => Some(prev.get_mora_size() + 1),
+        (_, MAN, _) => Some(prev.get_mora_size() + 1),
 
-        (rule::ICHI | rule::ROKU | rule::NANA | rule::HACHI | rule::IKU, rule::OKU, _) => Some(2),
-        (_, rule::OKU, _) => Some(1),
+        (ICHI | ROKU | NANA | HACHI | IKU, OKU, _) => Some(2),
+        (_, OKU, _) => Some(1),
 
-        (rule::ROKU | rule::NANA, rule::CHOU, _) => Some(2),
-        (_, rule::CHOU, _) => Some(1),
+        (ROKU | NANA, CHOU, _) => Some(2),
+        (_, CHOU, _) => Some(1),
 
         _ => None,
     }
