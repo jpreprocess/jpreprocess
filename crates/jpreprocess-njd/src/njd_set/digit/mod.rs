@@ -6,7 +6,7 @@ mod rule;
 
 mod digit_sequence;
 
-use crate::{NJDNode, NJD};
+use crate::{digit::rule::is_period, NJDNode, NJD};
 use jpreprocess_core::pos::*;
 
 use jpreprocess_window::*;
@@ -328,14 +328,10 @@ pub fn njd_set_digit(njd: &mut NJD) {
 
 fn normalize_digit(node: &mut NJDNode) -> bool {
     if node.get_string() != "*" && node.get_pos().is_kazu() {
-        if let Some(replace) = rule::NUMERAL_LIST1.get(node.get_string()) {
+        if let Some(replace) = rule::DIGIT_NORMALIZE.get(node.get_string()) {
             node.replace_string(replace);
             return true;
         }
     }
     false
-}
-
-fn is_period(s: &str) -> bool {
-    matches!(s, rule::TEN1 | rule::TEN2)
 }

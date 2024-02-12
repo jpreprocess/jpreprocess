@@ -1,7 +1,10 @@
 use phf::{phf_map, Map};
 
-pub const TEN1: &str = "．";
-pub const TEN2: &str = "・";
+pub fn is_period(s: &str) -> bool {
+    s == "．" || s == "・"
+}
+
+
 pub const TEN_FEATURE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1";
 pub const ZERO1: &str = "〇";
 pub const ZERO2: &str = "０";
@@ -11,10 +14,12 @@ pub const TWO_BEFORE_DP: &str = "ニー";
 pub const FIVE: &str = "五";
 pub const FIVE_BEFORE_DP: &str = "ゴー";
 pub const SIX: &str = "六";
+
 pub const NIN: &str = "人";
 pub const GATSU: &str = "月";
 pub const NICHI: &str = "日";
 pub const NICHIKAN: &str = "日間";
+
 pub const ONE: &str = "一";
 pub const TSUITACHI: &str = "一日,名詞,副詞可能,*,*,*,*,一日,ツイタチ,ツイタチ,4/4,*";
 pub const FOUR: &str = "四";
@@ -28,7 +33,7 @@ pub const YOKKAKAN: &str = "四日間,名詞,副詞可能,*,*,*,*,四日間,ヨ�
 pub const HATSUKA: &str = "二十日,名詞,副詞可能,*,*,*,*,二十日,ハツカ,ハツカ,0/3,*";
 pub const HATSUKAKAN: &str = "二十日間,名詞,副詞可能,*,*,*,*,二十日間,ハツカカン,ハツカカン,3/5,*";
 
-pub const NUMERAL_LIST1: Map<&'static str, &'static str> = phf_map! {
+pub const DIGIT_NORMALIZE: Map<&'static str, &'static str> = phf_map! {
    "○" => "〇",
    "１" => "一",
    "２" => "二",
