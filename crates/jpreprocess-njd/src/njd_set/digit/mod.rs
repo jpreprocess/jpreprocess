@@ -8,7 +8,7 @@ use crate::{digit::rule::is_period, NJDNode, NJD};
 use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut::{find_digit_pron_conv, find_numerative_pron_conv, lut1, lut2, lut3, DigitType};
+use self::lut::{class1, class2, class3, find_pron_conv, list, DigitType};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
@@ -109,8 +109,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 _ => continue,
             }
             /* convert digit pron */
-            if let Some(lut1_conversion) = find_digit_pron_conv(
-                &lut1::CONVERSION_TABLE,
+            if let Some(lut1_conversion) = find_pron_conv(
+                &class1::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -119,8 +119,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_mora_size(lut1_conversion.2);
             }
             /* convert numerative pron */
-            match find_numerative_pron_conv(
-                &lut2::CONVERSION_TABLE,
+            match find_pron_conv(
+                &class2::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -150,19 +150,19 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 continue;
             }
             if node.get_pos().is_kazu() && !node.get_string().is_empty() {
-                if lut3::NUMERAL_LIST4.contains(prev.get_string())
-                    && lut3::NUMERAL_LIST5.contains(node.get_string())
+                if list::NUMERAL_LIST4.contains(prev.get_string())
+                    && list::NUMERAL_LIST5.contains(node.get_string())
                 {
                     prev.set_chain_flag(false);
                     node.set_chain_flag(true);
-                } else if lut3::NUMERAL_LIST5.contains(prev.get_string())
-                    && lut3::NUMERAL_LIST4.contains(node.get_string())
+                } else if list::NUMERAL_LIST5.contains(prev.get_string())
+                    && list::NUMERAL_LIST4.contains(node.get_string())
                 {
                     node.set_chain_flag(false);
                 }
             }
-            if let Some(lut3_conversion) = find_digit_pron_conv(
-                &lut3::DIGIT_CONVERSION_TABLE,
+            if let Some(lut3_conversion) = find_pron_conv(
+                &list::DIGIT_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -170,8 +170,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_acc(lut3_conversion.1);
                 prev.set_mora_size(lut3_conversion.2);
             }
-            match find_numerative_pron_conv(
-                &lut3::NUMERATIVE_CONVERSION_TABLE,
+            match find_pron_conv(
+                &list::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -214,10 +214,10 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 _ => continue,
             };
             /* convert class3 */
-            if rule::NUMERATIVE_CLASS3
+            if class3::NUMERATIVE_CLASS3
                 .contains(&(next.get_string(), next.get_read().unwrap_or("*")))
             {
-                if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
+                if let Some(conversion) = class3::CONV_TABLE3.get(node.get_string()) {
                     node.set_read(conversion.0);
                     node.set_pron_by_str(conversion.0);
                     node.set_acc(conversion.1);

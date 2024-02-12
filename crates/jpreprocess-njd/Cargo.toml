@@ -14,6 +14,8 @@ documentation = "https://docs.rs/jpreprocess-njd"
 
 [dependencies]
 phf = { version = "0.11", features = ["macros"] }
+phf_shared = "0.11"
+
 lindera-tokenizer = { version = "0.27" }
 aho-corasick = "1.1"
 
