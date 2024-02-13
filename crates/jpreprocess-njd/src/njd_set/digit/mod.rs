@@ -9,7 +9,7 @@ use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
 use self::lut::{
-    class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, DigitType,
+    class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
 };
 
 pub fn njd_set_digit(njd: &mut NJD) {
@@ -215,6 +215,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => (),
                 _ => continue,
             };
+
             /* convert class3 */
             if let Some(conversion) = find_pron_conv_map(
                 &class3::CONVERSION_TABLE,
@@ -227,29 +228,23 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.set_acc(conversion.1);
                 node.set_mora_size(conversion.2);
             }
-            /* person */
-            if next.get_string() == rule::NIN {
-                if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
-                    *node = NJDNode::new_single(new_node_s);
-                    next.reset();
-                }
-            }
-            /* the day of month */
-            if next.get_string() == rule::NICHI && !node.get_string().is_empty() {
-                if matches!(prev,Some(p) if p.get_string().contains(rule::GATSU))
+
+            /* person and the day of month */
+            if let Some(new_node_s) = find_pron_conv_set(
+                &others::CONVERSION_TABLE,
+                next.get_string(),
+                node.get_string(),
+            ) {
+                if matches!(prev, Some(p) if p.get_string().contains(rule::GATSU))
                     && node.get_string() == rule::ONE
+                    && next.get_string() == rule::NICHI
                 {
                     *node = NJDNode::new_single(rule::TSUITACHI);
-                    next.reset();
-                } else if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
+                } else {
                     *node = NJDNode::new_single(new_node_s);
-                    next.reset();
                 }
-            } else if next.get_string() == rule::NICHIKAN {
-                if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
-                    *node = NJDNode::new_single(new_node_s);
-                    next.reset();
-                }
+
+                next.reset();
             }
         }
     }
