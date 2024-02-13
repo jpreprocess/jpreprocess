@@ -57,3 +57,29 @@ const DIGIT_NORMALIZE: Map<&'static str, &'static str> = phf_map! {
    "しち" => "七",
    "く" => "九"
 };
+
+#[derive(Debug)]
+pub enum Digit {
+    Digit(u8),
+    Comma,
+}
+
+impl Digit {
+    // FIXME: move this to FromStr trait
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "一" => Some(Self::Digit(1)),
+            "二" => Some(Self::Digit(2)),
+            "三" => Some(Self::Digit(3)),
+            "四" => Some(Self::Digit(4)),
+            "五" => Some(Self::Digit(5)),
+            "六" => Some(Self::Digit(6)),
+            "七" => Some(Self::Digit(7)),
+            "八" => Some(Self::Digit(8)),
+            "九" => Some(Self::Digit(9)),
+            "〇" | "０" => Some(Self::Digit(0)),
+            "，" => Some(Self::Comma),
+            _ => None,
+        }
+    }
+}

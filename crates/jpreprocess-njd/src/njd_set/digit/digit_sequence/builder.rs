@@ -1,12 +1,6 @@
-use crate::NJD;
+use crate::{digit::standard::Digit, NJD};
 
 use super::DigitSequence;
-
-#[derive(Debug)]
-enum Digit {
-    Digit(u8),
-    Comma,
-}
 
 pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
     let mut result = Vec::new();
@@ -21,7 +15,7 @@ pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
             digits.clear();
         }
 
-        let Some(digit) = digit_parse_str(node.get_string()) else {
+        let Some(digit) = Digit::from_str(node.get_string()) else {
             is_in_seq = false;
             continue;
         };
@@ -46,22 +40,6 @@ pub fn from_njd(njd: &NJD) -> Vec<DigitSequence> {
         seq.estimate_numerical_reading(njd);
     }
     result
-}
-fn digit_parse_str(s: &str) -> Option<Digit> {
-    match s {
-        "一" => Some(Digit::Digit(1)),
-        "二" => Some(Digit::Digit(2)),
-        "三" => Some(Digit::Digit(3)),
-        "四" => Some(Digit::Digit(4)),
-        "五" => Some(Digit::Digit(5)),
-        "六" => Some(Digit::Digit(6)),
-        "七" => Some(Digit::Digit(7)),
-        "八" => Some(Digit::Digit(8)),
-        "九" => Some(Digit::Digit(9)),
-        "〇" | "０" => Some(Digit::Digit(0)),
-        "，" => Some(Digit::Comma),
-        _ => None,
-    }
 }
 
 fn trim_digits(digits: &mut Vec<Digit>) {
