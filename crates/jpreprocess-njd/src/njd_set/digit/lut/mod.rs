@@ -1,7 +1,7 @@
 pub mod class1;
 pub mod class2;
 pub mod class3;
-pub mod list;
+pub mod numeral;
 
 use phf::{Map, Set};
 

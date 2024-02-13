@@ -8,7 +8,7 @@ use crate::{digit::rule::is_period, NJDNode, NJD};
 use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut::{class1, class2, class3, find_pron_conv_map, find_pron_conv_set, list, DigitType};
+use self::lut::{class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, DigitType};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
@@ -150,19 +150,19 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 continue;
             }
             if node.get_pos().is_kazu() && !node.get_string().is_empty() {
-                if list::NUMERAL_LIST4.contains(prev.get_string())
-                    && list::NUMERAL_LIST5.contains(node.get_string())
+                if numeral::NUMERAL_LIST4.contains(prev.get_string())
+                    && numeral::NUMERAL_LIST5.contains(node.get_string())
                 {
                     prev.set_chain_flag(false);
                     node.set_chain_flag(true);
-                } else if list::NUMERAL_LIST5.contains(prev.get_string())
-                    && list::NUMERAL_LIST4.contains(node.get_string())
+                } else if numeral::NUMERAL_LIST5.contains(prev.get_string())
+                    && numeral::NUMERAL_LIST4.contains(node.get_string())
                 {
                     node.set_chain_flag(false);
                 }
             }
             if let Some(lut3_conversion) = find_pron_conv_set(
-                &list::DIGIT_CONVERSION_TABLE,
+                &numeral::DIGIT_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -171,7 +171,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_mora_size(lut3_conversion.2);
             }
             match find_pron_conv_set(
-                &list::NUMERATIVE_CONVERSION_TABLE,
+                &numeral::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
