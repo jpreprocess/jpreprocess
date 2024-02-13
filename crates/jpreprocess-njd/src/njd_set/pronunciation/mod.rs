@@ -2,7 +2,13 @@ use std::str::FromStr;
 
 use crate::NJD;
 
-mod rule;
+pub const CHOUON: &str = "ー";
+
+pub const QUESTION: &str = "？";
+pub const DESU_STR: &str = "です";
+pub const MASU_STR: &str = "ます";
+pub const DESU_PRON: &str = "デス";
+pub const MASU_PRON: &str = "マス";
 
 use jpreprocess_core::{
     pos::*,
@@ -82,12 +88,12 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 && matches!(node.get_pos(), POS::Doushi(_) | POS::Jodoushi)
                 && node.get_mora_size() > 0
             {
-                next.set_pron_by_str(rule::CHOUON);
+                next.set_pron_by_str(CHOUON);
             }
-            if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == rule::QUESTION {
+            if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == QUESTION {
                 match node.get_string() {
-                    rule::DESU_STR => node.set_pron_by_str(rule::DESU_PRON),
-                    rule::MASU_STR => node.set_pron_by_str(rule::MASU_PRON),
+                    DESU_STR => node.set_pron_by_str(DESU_PRON),
+                    MASU_STR => node.set_pron_by_str(MASU_PRON),
                     _ => (),
                 }
             }

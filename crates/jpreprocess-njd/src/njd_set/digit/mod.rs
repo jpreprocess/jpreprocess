@@ -1,17 +1,19 @@
-mod lut1;
-mod lut2;
-mod lut3;
-mod lut_conversion;
-mod rule;
+mod lut;
+mod symbols;
 
 mod digit_sequence;
 
 use crate::{NJDNode, NJD};
-use jpreprocess_core::pos::*;
 
+use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut_conversion::{find_digit_pron_conv, find_numerative_pron_conv, DigitType};
+use self::{
+    lut::{
+        class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
+    },
+    symbols::{is_period, normalize_digit},
+};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;
@@ -112,8 +114,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 _ => continue,
             }
             /* convert digit pron */
-            if let Some(lut1_conversion) = find_digit_pron_conv(
-                &lut1::CONVERSION_TABLE,
+            if let Some(lut1_conversion) = find_pron_conv_set(
+                &class1::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -122,8 +124,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_mora_size(lut1_conversion.2);
             }
             /* convert numerative pron */
-            match find_numerative_pron_conv(
-                &lut2::CONVERSION_TABLE,
+            match find_pron_conv_set(
+                &class2::CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -153,19 +155,19 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 continue;
             }
             if node.get_pos().is_kazu() && !node.get_string().is_empty() {
-                if lut3::NUMERAL_LIST4.contains(prev.get_string())
-                    && lut3::NUMERAL_LIST5.contains(node.get_string())
+                if numeral::NUMERAL_LIST4.contains(prev.get_string())
+                    && numeral::NUMERAL_LIST5.contains(node.get_string())
                 {
                     prev.set_chain_flag(false);
                     node.set_chain_flag(true);
-                } else if lut3::NUMERAL_LIST5.contains(prev.get_string())
-                    && lut3::NUMERAL_LIST4.contains(node.get_string())
+                } else if numeral::NUMERAL_LIST5.contains(prev.get_string())
+                    && numeral::NUMERAL_LIST4.contains(node.get_string())
                 {
                     node.set_chain_flag(false);
                 }
             }
-            if let Some(lut3_conversion) = find_digit_pron_conv(
-                &lut3::DIGIT_CONVERSION_TABLE,
+            if let Some(lut3_conversion) = find_pron_conv_set(
+                &numeral::DIGIT_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -173,8 +175,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 prev.set_acc(lut3_conversion.1);
                 prev.set_mora_size(lut3_conversion.2);
             }
-            match find_numerative_pron_conv(
-                &lut3::NUMERATIVE_CONVERSION_TABLE,
+            match find_pron_conv_set(
+                &numeral::NUMERATIVE_CONVERSION_TABLE,
                 node.get_string(),
                 prev.get_string(),
             ) {
@@ -216,40 +218,36 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 POS::Meishi(Meishi::Setsubi(Setsubi::Josuushi)) => (),
                 _ => continue,
             };
+
             /* convert class3 */
-            if rule::NUMERATIVE_CLASS3
-                .contains(&(next.get_string(), next.get_read().unwrap_or("*")))
-            {
-                if let Some(conversion) = rule::CONV_TABLE3.get(node.get_string()) {
-                    node.set_read(conversion.0);
-                    node.set_pron_by_str(conversion.0);
-                    node.set_acc(conversion.1);
-                    node.set_mora_size(conversion.2);
-                }
+            if let Some(conversion) = find_pron_conv_map(
+                &class3::CONVERSION_TABLE,
+                next.get_string(),
+                next.get_read().unwrap_or("*"),
+                node.get_string(),
+            ) {
+                node.set_read(conversion.0);
+                node.set_pron_by_str(conversion.0);
+                node.set_acc(conversion.1);
+                node.set_mora_size(conversion.2);
             }
-            /* person */
-            if next.get_string() == rule::NIN {
-                if let Some(new_node_s) = rule::CONV_TABLE4.get(node.get_string()) {
-                    *node = NJDNode::new_single(new_node_s);
-                    next.reset();
-                }
-            }
-            /* the day of month */
-            if next.get_string() == rule::NICHI && !node.get_string().is_empty() {
-                if matches!(prev,Some(p) if p.get_string().contains(rule::GATSU))
+
+            /* person and the day of month */
+            if let Some(new_node_s) = find_pron_conv_set(
+                &others::CONVERSION_TABLE,
+                next.get_string(),
+                node.get_string(),
+            ) {
+                if matches!(prev, Some(p) if p.get_string().contains(rule::GATSU))
                     && node.get_string() == rule::ONE
+                    && next.get_string() == rule::NICHI
                 {
                     *node = NJDNode::new_single(rule::TSUITACHI);
-                    next.reset();
-                } else if let Some(new_node_s) = rule::CONV_TABLE5.get(node.get_string()) {
+                } else {
                     *node = NJDNode::new_single(new_node_s);
-                    next.reset();
                 }
-            } else if next.get_string() == rule::NICHIKAN {
-                if let Some(new_node_s) = rule::CONV_TABLE6.get(node.get_string()) {
-                    *node = NJDNode::new_single(new_node_s);
-                    next.reset();
-                }
+
+                next.reset();
             }
         }
     }
@@ -326,16 +324,33 @@ pub fn njd_set_digit(njd: &mut NJD) {
     njd.remove_silent_node();
 }
 
-fn normalize_digit(node: &mut NJDNode) -> bool {
-    if node.get_string() != "*" && node.get_pos().is_kazu() {
-        if let Some(replace) = rule::NUMERAL_LIST1.get(node.get_string()) {
-            node.replace_string(replace);
-            return true;
-        }
-    }
-    false
-}
+mod rule {
+    pub const TEN_FEATURE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1";
+    pub const ZERO1: &str = "〇";
+    pub const ZERO2: &str = "０";
+    pub const ZERO_BEFORE_DP: &str = "レー";
+    pub const TWO: &str = "二";
+    pub const TWO_BEFORE_DP: &str = "ニー";
+    pub const FIVE: &str = "五";
+    pub const FIVE_BEFORE_DP: &str = "ゴー";
+    pub const SIX: &str = "六";
 
-fn is_period(s: &str) -> bool {
-    matches!(s, rule::TEN1 | rule::TEN2)
+    pub const GATSU: &str = "月";
+    pub const NICHI: &str = "日";
+    pub const NICHIKAN: &str = "日間";
+
+    pub const ONE: &str = "一";
+    pub const TSUITACHI: &str = "一日,名詞,副詞可能,*,*,*,*,一日,ツイタチ,ツイタチ,4/4,*";
+
+    pub const FOUR: &str = "四";
+    pub const TEN: &str = "十";
+    pub const JUYOKKA: &str = "十四日,名詞,副詞可能,*,*,*,*,十四日,ジュウヨッカ,ジューヨッカ,1/5,*";
+    pub const JUYOKKAKAN: &str =
+        "十四日間,名詞,副詞可能,*,*,*,*,十四日間,ジュウヨッカカン,ジューヨッカカン,5/7,*";
+    pub const NIJU: &str = "二十,名詞,副詞可能,*,*,*,*,二十,ニジュウ,ニジュー,1/3,*";
+    pub const YOKKA: &str = "四日,名詞,副詞可能,*,*,*,*,四日,ヨッカ,ヨッカ,0/3,*,0";
+    pub const YOKKAKAN: &str = "四日間,名詞,副詞可能,*,*,*,*,四日間,ヨッカカン,ヨッカカン,3/5,*,0";
+    pub const HATSUKA: &str = "二十日,名詞,副詞可能,*,*,*,*,二十日,ハツカ,ハツカ,0/3,*";
+    pub const HATSUKAKAN: &str =
+        "二十日間,名詞,副詞可能,*,*,*,*,二十日間,ハツカカン,ハツカカン,3/5,*";
 }
