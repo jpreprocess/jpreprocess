@@ -1,5 +1,5 @@
 mod lut;
-mod standard;
+mod symbols;
 
 mod digit_sequence;
 
@@ -12,7 +12,7 @@ use self::{
     lut::{
         class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
     },
-    standard::{is_period, normalize_digit},
+    symbols::{is_period, normalize_digit},
 };
 
 pub fn njd_set_digit(njd: &mut NJD) {

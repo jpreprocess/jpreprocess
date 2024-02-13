@@ -1,4 +1,4 @@
-use crate::{digit::standard::is_period, NJD};
+use crate::{digit::symbols::is_period, NJD};
 use jpreprocess_core::pos::*;
 
 pub const HAIHUN1:&str="―"     /* horizontal bar */;

@@ -1,4 +1,4 @@
-use crate::{digit::standard::Digit, NJD};
+use crate::{digit::symbols::Digit, NJD};
 
 use super::DigitSequence;
 
