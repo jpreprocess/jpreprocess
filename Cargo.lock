@@ -644,7 +644,6 @@ dependencies = [
  "jpreprocess-window",
  "lindera-tokenizer",
  "phf",
- "phf_shared",
 ]
 
 [[package]]
