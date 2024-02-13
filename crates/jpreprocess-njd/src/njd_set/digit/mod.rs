@@ -1,15 +1,18 @@
 mod lut;
-mod rule;
+mod standard;
 
 mod digit_sequence;
 
-use crate::{digit::rule::is_period, NJDNode, NJD};
+use crate::{NJDNode, NJD};
 
 use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut::{
-    class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
+use self::{
+    lut::{
+        class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
+    },
+    standard::{is_period, normalize_digit},
 };
 
 pub fn njd_set_digit(njd: &mut NJD) {
@@ -321,12 +324,33 @@ pub fn njd_set_digit(njd: &mut NJD) {
     njd.remove_silent_node();
 }
 
-fn normalize_digit(node: &mut NJDNode) -> bool {
-    if node.get_string() != "*" && node.get_pos().is_kazu() {
-        if let Some(replace) = rule::DIGIT_NORMALIZE.get(node.get_string()) {
-            node.replace_string(replace);
-            return true;
-        }
-    }
-    false
+mod rule {
+    pub const TEN_FEATURE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1";
+    pub const ZERO1: &str = "〇";
+    pub const ZERO2: &str = "０";
+    pub const ZERO_BEFORE_DP: &str = "レー";
+    pub const TWO: &str = "二";
+    pub const TWO_BEFORE_DP: &str = "ニー";
+    pub const FIVE: &str = "五";
+    pub const FIVE_BEFORE_DP: &str = "ゴー";
+    pub const SIX: &str = "六";
+
+    pub const GATSU: &str = "月";
+    pub const NICHI: &str = "日";
+    pub const NICHIKAN: &str = "日間";
+
+    pub const ONE: &str = "一";
+    pub const TSUITACHI: &str = "一日,名詞,副詞可能,*,*,*,*,一日,ツイタチ,ツイタチ,4/4,*";
+
+    pub const FOUR: &str = "四";
+    pub const TEN: &str = "十";
+    pub const JUYOKKA: &str = "十四日,名詞,副詞可能,*,*,*,*,十四日,ジュウヨッカ,ジューヨッカ,1/5,*";
+    pub const JUYOKKAKAN: &str =
+        "十四日間,名詞,副詞可能,*,*,*,*,十四日間,ジュウヨッカカン,ジューヨッカカン,5/7,*";
+    pub const NIJU: &str = "二十,名詞,副詞可能,*,*,*,*,二十,ニジュウ,ニジュー,1/3,*";
+    pub const YOKKA: &str = "四日,名詞,副詞可能,*,*,*,*,四日,ヨッカ,ヨッカ,0/3,*,0";
+    pub const YOKKAKAN: &str = "四日間,名詞,副詞可能,*,*,*,*,四日間,ヨッカカン,ヨッカカン,3/5,*,0";
+    pub const HATSUKA: &str = "二十日,名詞,副詞可能,*,*,*,*,二十日,ハツカ,ハツカ,0/3,*";
+    pub const HATSUKAKAN: &str =
+        "二十日間,名詞,副詞可能,*,*,*,*,二十日間,ハツカカン,ハツカカン,3/5,*";
 }
