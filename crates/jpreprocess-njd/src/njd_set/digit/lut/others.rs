@@ -1,7 +1,7 @@
 use super::*;
 use phf::{phf_map, phf_set};
 
-pub const CONVERSION_TABLE: [(Keys, Map<&'static str, &'static str>); 3] = [
+pub const CONVERSION_TABLE: [(Keys, Map<&str, &str>); 3] = [
     (NUMERATIVE_CLASS4, CONV_TABLE4),
     (NUMERATIVE_CLASS5, CONV_TABLE5),
     (NUMERATIVE_CLASS6, CONV_TABLE6),
@@ -10,7 +10,7 @@ pub const CONVERSION_TABLE: [(Keys, Map<&'static str, &'static str>); 3] = [
 const NUMERATIVE_CLASS4: Keys = phf_set! {
     "人"
 };
-const CONV_TABLE4: Map<&'static str, &'static str> = phf_map! {
+const CONV_TABLE4: Map<&str, &str> = phf_map! {
    "一"=> "一人,名詞,副詞可能,*,*,*,*,一人,ヒトリ,ヒトリ,2/3,*",
    "二"=> "二人,名詞,副詞可能,*,*,*,*,二人,フタリ,フタリ,3/3,*",
 };
@@ -18,7 +18,7 @@ const CONV_TABLE4: Map<&'static str, &'static str> = phf_map! {
 const NUMERATIVE_CLASS5: Keys = phf_set! {
     "日"
 };
-const CONV_TABLE5: Map<&'static str, &'static str> = phf_map! {
+const CONV_TABLE5: Map<&str, &str> = phf_map! {
    "一"=> "一日,名詞,副詞可能,*,*,*,*,一日,イチニチ,イチニチ,4/4,*",
    "二"=> "二日,名詞,副詞可能,*,*,*,*,二日,フツカ,フツカ,0/3,*",
    "三"=> "三日,名詞,副詞可能,*,*,*,*,三日,ミッカ,ミッカ,0/3,*",
@@ -34,7 +34,7 @@ const CONV_TABLE5: Map<&'static str, &'static str> = phf_map! {
 const NUMERATIVE_CLASS6: Keys = phf_set! {
     "日間"
 };
-const CONV_TABLE6: Map<&'static str, &'static str> = phf_map! {
+const CONV_TABLE6: Map<&str, &str> = phf_map! {
    "一"=> "一日間,名詞,副詞可能,*,*,*,*,一日間,イチニチカン,イチニチカン,4/6,*",
    "二"=> "二日間,名詞,副詞可能,*,*,*,*,二日,フツカカン,フツカカン,3/5,*",
    "三"=> "三日間,名詞,副詞可能,*,*,*,*,三日,ミッカカン,ミッカカン,3/5,*",
