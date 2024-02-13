@@ -8,7 +8,9 @@ use crate::{digit::rule::is_period, NJDNode, NJD};
 use jpreprocess_core::pos::*;
 use jpreprocess_window::*;
 
-use self::lut::{class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, DigitType};
+use self::lut::{
+    class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, DigitType,
+};
 
 pub fn njd_set_digit(njd: &mut NJD) {
     let mut find = false;

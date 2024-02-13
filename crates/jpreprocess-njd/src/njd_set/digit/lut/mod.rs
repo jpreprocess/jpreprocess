@@ -16,6 +16,7 @@ pub type DigitLUT = Map<&'static str, (&'static str, i32, i32)>;
 pub type NumerativeLUT = Map<&'static str, DigitType>;
 
 pub type ConvTable<K, V> = &'static [(K, Map<&'static str, V>)];
+
 pub fn find_pron_conv_set<V: Copy>(
     conversion_table: ConvTable<Set<&str>, V>,
     key1: &str,

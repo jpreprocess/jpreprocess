@@ -1,7 +1,6 @@
 use super::*;
 use phf::phf_map;
 
-
 type Class3Keys = Map<&'static str, &'static [&'static str]>;
 
 pub const CONVERSION_TABLE: [(Class3Keys, DigitLUT); 1] = [(NUMERATIVE_CLASS3, CONV_TABLE3)];
