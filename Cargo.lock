@@ -550,7 +550,6 @@ dependencies = [
 name = "jpreprocess"
 version = "0.7.0"
 dependencies = [
- "anyhow",
  "clap",
  "jlabel",
  "jpreprocess-core",
