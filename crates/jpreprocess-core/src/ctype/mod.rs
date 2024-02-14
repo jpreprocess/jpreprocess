@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
-
 mod five;
 mod four;
 mod ka_irregular;
@@ -24,6 +22,50 @@ pub use one::*;
 pub use sa_irregular::*;
 pub use special::*;
 pub use upper_two::*;
+
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[error("Tried to parse {string}, but failed in {kind}")]
+pub struct CTypeParseError {
+    string: String,
+    kind: CTypeKind,
+}
+impl CTypeParseError {
+    pub(crate) fn new(string: String, kind: CTypeKind) -> Self {
+        Self { string, kind }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum CTypeKind {
+    CTypeMajor,
+    Five,
+    Four,
+    KaIrregular,
+    Keiyoushi,
+    LowerTwo,
+    Old,
+    One,
+    SaIrregular,
+    Special,
+    UpperTwo,
+}
+impl Display for CTypeKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::CTypeMajor => "活用形",
+            Self::Five => "五段",
+            Self::Four => "四段",
+            Self::KaIrregular => "カ変",
+            Self::Keiyoushi => "形容詞",
+            Self::LowerTwo => "下二",
+            Self::Old => "文語",
+            Self::One => "一段",
+            Self::SaIrregular => "サ変",
+            Self::Special => "特殊",
+            Self::UpperTwo => "上二",
+        })
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用
@@ -59,7 +101,7 @@ pub enum CType {
 }
 
 impl FromStr for CType {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let (major, minor) = s.split_once('・').unwrap_or((s, ""));
         match major {
@@ -77,8 +119,7 @@ impl FromStr for CType {
             "文語" => Ok(Self::Old(Old::from_str(minor)?)),
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in CType major"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::CTypeMajor)),
         }
     }
 }

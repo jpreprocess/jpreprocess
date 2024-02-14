@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// カ変
@@ -14,13 +14,12 @@ pub enum KaIrregular {
 }
 
 impl FromStr for KaIrregular {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "クル" => Ok(Self::Katakana),
             "来ル" => Ok(Self::Kanji),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in KaIrregular"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::KaIrregular)),
         }
     }
 }

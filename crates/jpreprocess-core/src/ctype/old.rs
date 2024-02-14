@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 文語
@@ -28,7 +28,7 @@ pub enum Old {
 }
 
 impl FromStr for Old {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ベシ" => Ok(Self::Beshi),
@@ -40,8 +40,7 @@ impl FromStr for Old {
             "ケリ" => Ok(Self::Keri),
             "ル" => Ok(Self::Ru),
             "リ" => Ok(Self::Ri),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in Old"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::Old)),
         }
     }
 }

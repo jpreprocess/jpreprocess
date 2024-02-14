@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use crate::JPreprocessError;
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用形
@@ -114,8 +114,7 @@ impl FromStr for CForm {
 
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessErrorKind::CFormParseError
-                .with_error(anyhow::anyhow!("Parse failed in CForm"))),
+            _ => Err(JPreprocessError::CFormParseError),
         }
     }
 }

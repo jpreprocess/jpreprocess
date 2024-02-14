@@ -1,39 +1,35 @@
 use lindera_core::error::LinderaError;
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
-pub enum JPreprocessErrorKind {
-    Io,
-    WordNotFoundError,
-    DictionaryLoadError,
-    LinderaError,
-    PronunciationParseError,
-    PartOfSpeechParseError,
-    CTypeParseError,
+use crate::{accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError};
+
+#[derive(Debug, thiserror::Error)]
+pub enum JPreprocessError {
+    #[error("Io error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("Failed to fetch word from dictionary: {0}")]
+    DictionaryError(#[from] DictionaryError),
+    #[error("Lindera error: {0}")]
+    LinderaError(#[from] LinderaError),
+    #[error("Failed to parse pronunciation in: {0}")]
+    PronunciationParseError(String),
+    #[error("Failed to parse part of speech (POS): {0}")]
+    PartOfSpeechParseError(#[from] POSParseError),
+    #[error("Failed to parse conjugation type (CType): {0}")]
+    CTypeParseError(#[from] CTypeParseError),
+    #[error("Failed to parse conjugation form (CForm)")]
     CFormParseError,
-    AccentRuleParseError,
+    #[error("Failed to parse accent rule: {0}")]
+    AccentRuleParseError(#[from] AccentRuleParseError),
 }
 
-impl JPreprocessErrorKind {
-    pub fn with_error<E>(self, source: E) -> JPreprocessError
-    where
-        anyhow::Error: From<E>,
-    {
-        JPreprocessError {
-            kind: self,
-            source: From::from(source),
-        }
-    }
-}
-
-#[derive(thiserror::Error, Debug)]
-#[error("JPreprocessError(kind={kind:?}, source={source})")]
-pub struct JPreprocessError {
-    pub kind: JPreprocessErrorKind,
-    source: anyhow::Error,
-}
-
-impl From<LinderaError> for JPreprocessError {
-    fn from(value: LinderaError) -> Self {
-        JPreprocessErrorKind::LinderaError.with_error(value)
-    }
+#[derive(Debug, thiserror::Error)]
+pub enum DictionaryError {
+    #[error("Word with id {0} not found")]
+    IdNotFound(u32),
+    #[error("Failed to decode: {0}")]
+    FailDecode(#[from] Box<bincode::ErrorKind>),
+    #[error("The word is flagged as UserDictionary, but Lindera UserDictionary is empty")]
+    UserDictionaryNotProvided,
+    #[error("The word is flagged as UserDictionary, but UserDictionary mode is not set")]
+    UserDictionaryModeNotSet,
 }

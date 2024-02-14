@@ -7,9 +7,17 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
+use crate::JPreprocessResult;
 
 use super::pos::POS;
+
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+pub enum AccentRuleParseError {
+    #[error("Unknown part of speech (POS) {0}")]
+    UnknownPOS(String),
+    #[error("Unrecognized syntax {0}")]
+    SyntaxError(String),
+}
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new("^((?P<pos>名詞|形容詞|助詞|特殊助動詞|動詞)%)?(?P<accent>[FC][1-5]|P1|P2|P6|P14)?(@(?P<add>[-0-9]+))?$")
@@ -120,15 +128,14 @@ pub enum POSMatch {
 }
 
 impl FromStr for POSMatch {
-    type Err = JPreprocessError;
+    type Err = AccentRuleParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "動詞" => Ok(Self::Doushi),
             "助詞" => Ok(Self::Joshi),
             "形容詞" => Ok(Self::Keiyoushi),
             "名詞" => Ok(Self::Meishi),
-            _ => Err(JPreprocessErrorKind::AccentRuleParseError
-                .with_error(anyhow::anyhow!("Parse failed in POSMatch"))),
+            _ => Err(AccentRuleParseError::UnknownPOS(s.to_string())),
         }
     }
 }
@@ -170,10 +177,9 @@ impl ChainRules {
     }
 
     fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
-        let capture = PARSE_REGEX.captures(rule).ok_or(
-            JPreprocessErrorKind::AccentRuleParseError
-                .with_error(anyhow::anyhow!("accent rule does not match regex")),
-        )?;
+        let capture = PARSE_REGEX
+            .captures(rule)
+            .ok_or(AccentRuleParseError::SyntaxError(rule.to_string()))?;
 
         let pos = {
             if let Some(pos) = capture.name("pos") {

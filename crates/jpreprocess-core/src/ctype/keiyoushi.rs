@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 形容詞
@@ -16,14 +16,13 @@ pub enum Keiyoushi {
 }
 
 impl FromStr for Keiyoushi {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "アウオ段" => Ok(Self::Auo),
             "イ段" => Ok(Self::I),
             "イイ" => Ok(Self::Ii),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in Keiyoushi"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::Keiyoushi)),
         }
     }
 }

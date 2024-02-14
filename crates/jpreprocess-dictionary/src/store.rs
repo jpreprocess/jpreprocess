@@ -1,6 +1,6 @@
 use crate::DictionaryStore;
 use byteorder::{ByteOrder, LittleEndian};
-use jpreprocess_core::{error::JPreprocessErrorKind, JPreprocessResult};
+use jpreprocess_core::{error::DictionaryError, JPreprocessResult};
 
 impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
@@ -36,8 +36,7 @@ fn get_bytes<'a>(
 ) -> JPreprocessResult<&'a [u8]> {
     let start_point = 4 * id as usize;
     if words_idx_data.len() < start_point + 4 {
-        return Err(JPreprocessErrorKind::WordNotFoundError
-            .with_error(anyhow::anyhow!("Word with id {:?} does not exist.", id)));
+        return Err(DictionaryError::IdNotFound(id).into());
     }
 
     let idx = LittleEndian::read_u32(&words_idx_data[start_point..start_point + 4]) as usize;

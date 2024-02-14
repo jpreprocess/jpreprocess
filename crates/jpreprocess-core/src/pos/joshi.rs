@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
+use super::{POSKind, POSParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 助詞
@@ -30,7 +30,7 @@ pub enum Joshi {
 }
 
 impl Joshi {
-    pub fn from_strs(g1: &str, g2: &str) -> JPreprocessResult<Joshi> {
+    pub fn from_strs(g1: &str, g2: &str) -> Result<Joshi, POSParseError> {
         match g1 {
             "格助詞" => KakuJoshi::from_str(g2).map(Self::KakuJoshi),
             "係助詞" => Ok(Self::KakariJoshi),
@@ -43,8 +43,7 @@ impl Joshi {
             "並立助詞" => Ok(Self::HeiritsuJoshi),
             "連体化" => Ok(Self::Rentaika),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Joshi"))),
+            _ => Err(POSParseError::new(1, g1.to_string(), POSKind::Joshi)),
         }
     }
 }
@@ -61,15 +60,14 @@ pub enum KakuJoshi {
 }
 
 impl FromStr for KakuJoshi {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "一般" => Ok(Self::General),
             "引用" => Ok(Self::Quote),
             "連語" => Ok(Self::Rengo),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in KakuJoshi"))),
+            _ => Err(POSParseError::new(2, s.to_string(), POSKind::KakuJoshi)),
         }
     }
 }

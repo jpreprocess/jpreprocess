@@ -6,7 +6,7 @@ use std::{
     sync::Mutex,
 };
 
-use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryFetcher};
 use lindera_tokenizer::token::Token;
 use lru::LruCache;
@@ -70,9 +70,7 @@ impl CachedStorage {
         }
         println!("Word #{} not found in cache", index);
 
-        let bytes = self
-            .get_bytes(index)
-            .map_err(|err| JPreprocessErrorKind::Io.with_error(err))?;
+        let bytes = self.get_bytes(index)?;
         let entry = self.mode.into_serializer().deserialize(&bytes)?;
         self.cache.push(index, entry.clone());
 

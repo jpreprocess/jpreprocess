@@ -570,7 +570,7 @@ name = "jpreprocess-core"
 version = "0.7.0"
 dependencies = [
  "aho-corasick",
- "anyhow",
+ "bincode",
  "lindera-core",
  "lindera-tokenizer",
  "once_cell",

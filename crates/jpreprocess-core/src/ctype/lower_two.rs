@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 下二
@@ -40,7 +40,7 @@ pub enum LowerTwo {
 }
 
 impl FromStr for LowerTwo {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ア行" => Ok(Self::A),
@@ -58,8 +58,7 @@ impl FromStr for LowerTwo {
             "ラ行" => Ok(Self::Ra),
             "ワ行" => Ok(Self::Wa),
             "得" => Ok(Self::Get),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in LowerTwo"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::LowerTwo)),
         }
     }
 }
