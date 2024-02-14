@@ -74,11 +74,7 @@ impl From<NJDNode> for NjdObject {
             pron: value.get_pron().to_string(),
             acc: value.get_acc(),
             mora_size: value.get_mora_size(),
-            // TODO: Fix this
-            chain_rule: value
-                .get_chain_rule(value.get_pos())
-                .map(|c| c.to_string())
-                .unwrap_or("*".to_string()),
+            chain_rule: value.get_chain_rule().to_string(),
             chain_flag: match value.get_chain_flag() {
                 Some(true) => 1,
                 Some(false) => 0,
