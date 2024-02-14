@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError, JPreprocessResult};
+use super::{POSKind, POSParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 名詞
@@ -41,7 +41,7 @@ pub enum Meishi {
 }
 
 impl Meishi {
-    pub fn from_strs(g1: &str, g2: &str, g3: &str) -> JPreprocessResult<Self> {
+    pub fn from_strs(g1: &str, g2: &str, g3: &str) -> Result<Self, POSParseError> {
         match g1 {
             "サ変接続" => Ok(Self::SahenSetsuzoku),
             "ナイ形容詞語幹" => Ok(Self::NaiKeiyoushiGokan),
@@ -59,8 +59,7 @@ impl Meishi {
             "副詞可能" => Ok(Self::FukushiKanou),
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Meishi"))),
+            _ => Err(POSParseError::new(1, g1.to_string(), POSKind::Meishi)),
         }
     }
 }
@@ -102,15 +101,14 @@ pub enum KoyuMeishi {
 }
 
 impl KoyuMeishi {
-    pub fn from_strs(g2: &str, g3: &str) -> JPreprocessResult<Self> {
+    pub fn from_strs(g2: &str, g3: &str) -> Result<Self, POSParseError> {
         match g2 {
             "一般" => Ok(Self::General),
             "人名" => Person::from_str(g3).map(Self::Person),
             "組織" => Ok(Self::Organization),
             "地域" => Region::from_str(g3).map(Self::Region),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in KoyuMeishi"))),
+            _ => Err(POSParseError::new(2, g2.to_string(), POSKind::KoyuMeishi)),
         }
     }
 }
@@ -127,15 +125,14 @@ pub enum Person {
 }
 
 impl FromStr for Person {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "一般" => Ok(Self::General),
             "姓" => Ok(Self::Sei),
             "名" => Ok(Self::Mei),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Person"))),
+            _ => Err(POSParseError::new(3, s.to_string(), POSKind::Person)),
         }
     }
 }
@@ -150,14 +147,13 @@ pub enum Region {
 }
 
 impl FromStr for Region {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "一般" => Ok(Self::General),
             "国" => Ok(Self::Country),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Region"))),
+            _ => Err(POSParseError::new(3, s.to_string(), POSKind::Region)),
         }
     }
 }
@@ -200,7 +196,7 @@ pub enum Setsubi {
 }
 
 impl FromStr for Setsubi {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "サ変接続" => Ok(Self::SahenSetsuzoku),
@@ -213,8 +209,7 @@ impl FromStr for Setsubi {
             "特殊" => Ok(Self::Special),
             "副詞可能" => Ok(Self::FukushiKanou),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Setsubi"))),
+            _ => Err(POSParseError::new(2, s.to_string(), POSKind::MeishiSetsubi)),
         }
     }
 }
@@ -249,14 +244,13 @@ pub enum Daimeishi {
 }
 
 impl FromStr for Daimeishi {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "一般" => Ok(Self::General),
             "縮約" => Ok(Self::Contraction),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Daimeishi"))),
+            _ => Err(POSParseError::new(2, s.to_string(), POSKind::Daimeishi)),
         }
     }
 }
@@ -290,7 +284,7 @@ pub enum MeishiHijiritsu {
 }
 
 impl FromStr for MeishiHijiritsu {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "一般" => Ok(Self::General),
@@ -299,8 +293,11 @@ impl FromStr for MeishiHijiritsu {
             "副詞可能" => Ok(Self::FukushiKanou),
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in MeishiHijiritsu"))),
+            _ => Err(POSParseError::new(
+                2,
+                s.to_string(),
+                POSKind::MeishiHijiritsu,
+            )),
         }
     }
 }

@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{POSKind, POSParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 記号
@@ -28,7 +28,7 @@ pub enum Kigou {
 }
 
 impl FromStr for Kigou {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "*" => Ok(Self::None),
@@ -40,8 +40,7 @@ impl FromStr for Kigou {
             "空白" => Ok(Self::Space),
             "数" => Ok(Self::Kazu),
             "読点" => Ok(Self::Touten),
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Kigou"))),
+            _ => Err(POSParseError::new(1, s.to_string(), POSKind::Kigou)),
         }
     }
 }

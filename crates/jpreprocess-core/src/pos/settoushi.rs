@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{POSKind, POSParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 接頭詞
@@ -18,15 +18,14 @@ pub enum Settoushi {
 }
 
 impl FromStr for Settoushi {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "形容詞接続" => Ok(Self::KeiyoushiSetsuzoku),
             "数接続" => Ok(Self::SuuSetsuzoku),
             "動詞接続" => Ok(Self::DoushiSetsuzoku),
             "名詞接続" => Ok(Self::MeishiSetsuzoku),
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Settoushi"))),
+            _ => Err(POSParseError::new(1, s.to_string(), POSKind::Settoushi)),
         }
     }
 }

@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 特殊
@@ -30,7 +30,7 @@ pub enum Special {
 }
 
 impl FromStr for Special {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ナイ" => Ok(Self::Nai),
@@ -43,8 +43,7 @@ impl FromStr for Special {
             "マス" => Ok(Self::Masu),
             "ヌ" => Ok(Self::Nu),
             "ヤ" => Ok(Self::Ya),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in Special"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::Special)),
         }
     }
 }

@@ -9,9 +9,64 @@ mod kigou;
 mod meishi;
 mod settoushi;
 
-use crate::{error::JPreprocessErrorKind, JPreprocessResult};
-
 pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
+
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[error("Tried to parse {string} (depth: {depth}), but failed in {kind}")]
+pub struct POSParseError {
+    depth: u8,
+    string: String,
+    kind: POSKind,
+}
+impl POSParseError {
+    pub(crate) fn new(depth: u8, string: String, kind: POSKind) -> Self {
+        Self {
+            depth,
+            string,
+            kind,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum POSKind {
+    POSMajor,
+    Kigou,
+    Keiyoushi,
+    Joshi,
+    Settoushi,
+    Doushi,
+    Fukushi,
+    Meishi,
+    KakuJoshi,
+    KoyuMeishi,
+    Person,
+    Region,
+    MeishiSetsubi,
+    Daimeishi,
+    MeishiHijiritsu,
+}
+impl Display for POSKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::POSMajor => "品詞",
+            Self::Kigou => "記号",
+            Self::Keiyoushi => "形容詞",
+            Self::Joshi => "助詞",
+            Self::Settoushi => "接頭詞",
+            Self::Doushi => "動詞",
+            Self::Fukushi => "副詞",
+            Self::Meishi => "名詞",
+            Self::KakuJoshi => "格助詞",
+            Self::KoyuMeishi => "固有名詞",
+            Self::Person => "人名（固有名詞）",
+            Self::Region => "地域（固有名詞）",
+            Self::MeishiSetsubi => "接尾（名詞）",
+            Self::Daimeishi => "代名詞",
+            Self::MeishiHijiritsu => "非自立（名詞）",
+        })
+    }
+}
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 品詞
@@ -50,7 +105,7 @@ pub enum POS {
 }
 
 impl POS {
-    pub fn from_strs(g0: &str, g1: &str, g2: &str, g3: &str) -> JPreprocessResult<Self> {
+    pub fn from_strs(g0: &str, g1: &str, g2: &str, g3: &str) -> Result<Self, POSParseError> {
         match g0 {
             "フィラー" => Ok(Self::Filler),
             "感動詞" => Ok(Self::Kandoushi),
@@ -69,8 +124,7 @@ impl POS {
 
             "*" => Ok(Self::Unknown),
 
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in POS"))),
+            _ => Err(POSParseError::new(0, g0.to_string(), POSKind::POSMajor)),
         }
     }
 

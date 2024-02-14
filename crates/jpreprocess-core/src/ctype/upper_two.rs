@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 上二
@@ -14,13 +14,12 @@ pub enum UpperTwo {
 }
 
 impl FromStr for UpperTwo {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ダ行" => Ok(Self::Da),
             "ハ行" => Ok(Self::Ha),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in UpperTwo"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::UpperTwo)),
         }
     }
 }

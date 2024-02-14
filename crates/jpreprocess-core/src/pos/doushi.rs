@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{POSKind, POSParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 動詞
@@ -16,14 +16,13 @@ pub enum Doushi {
 }
 
 impl FromStr for Doushi {
-    type Err = JPreprocessError;
+    type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "自立" => Ok(Self::Jiritsu),
             "接尾" => Ok(Self::Setsubi),
             "非自立" => Ok(Self::Hijiritsu),
-            _ => Err(JPreprocessErrorKind::PartOfSpeechParseError
-                .with_error(anyhow::anyhow!("Parse failed in Doushi"))),
+            _ => Err(POSParseError::new(1, s.to_string(), POSKind::Doushi)),
         }
     }
 }

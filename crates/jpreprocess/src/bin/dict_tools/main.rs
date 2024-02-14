@@ -3,7 +3,6 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 use clap::{Parser, Subcommand, ValueEnum};
 
 use jpreprocess::SystemDictionaryConfig;
-use jpreprocess_core::error::JPreprocessErrorKind;
 use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 
@@ -113,8 +112,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     let word_bin = match dict.get_bytes(word_id) {
                         Ok(word_bin) => word_bin,
                         Err(err) => {
-                            println!("Error: {:?}", err);
-                            return Ok(());
+                            eprintln!("Error: {:?}", err);
+                            std::process::exit(-1);
                         }
                     };
                     let message = dict.mode().into_serializer().deserialize_debug(word_bin);
@@ -147,13 +146,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             output,
         } => {
             if output.exists() {
-                return Err(Box::new(JPreprocessErrorKind::Io.with_error(
-                    anyhow::anyhow!("The file {} already exists", output.to_str().unwrap()),
-                )));
+                eprintln!("The output directory {:?} already exists!", output);
+                std::process::exit(-1);
             } else if !matches!(output.extension(),Some(s) if s.to_str()==Some("csv")) {
-                return Err(Box::new(JPreprocessErrorKind::Io.with_error(
-                    anyhow::anyhow!("The output file extension must be csv"),
-                )));
+                eprintln!("The output file extension must be csv.");
+                std::process::exit(-1);
             }
 
             println!("Loading dictionary...");

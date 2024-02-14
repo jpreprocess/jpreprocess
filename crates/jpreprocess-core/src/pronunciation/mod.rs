@@ -9,7 +9,7 @@ use std::{fmt::Display, str::FromStr};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use crate::JPreprocessError;
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -96,11 +96,8 @@ impl FromStr for Pronunciation {
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
-                return Err(JPreprocessErrorKind::PronunciationParseError.with_error(
-                    anyhow::anyhow!(format!(
-                        "Unrecognized mora {}",
-                        &s[current_position..match_result.start()]
-                    ),),
+                return Err(JPreprocessError::PronunciationParseError(
+                    s[current_position..match_result.start()].to_string(),
                 ));
             }
 

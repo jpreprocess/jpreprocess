@@ -2,7 +2,7 @@ use std::{fmt::Display, str::FromStr};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{error::JPreprocessErrorKind, JPreprocessError};
+use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// サ変
@@ -16,7 +16,7 @@ pub enum SaIrregular {
 }
 
 impl FromStr for SaIrregular {
-    type Err = JPreprocessError;
+    type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "スル" => Ok(Self::Alone),
@@ -24,8 +24,7 @@ impl FromStr for SaIrregular {
             "－ズル" => Ok(Self::ConjugationZuru),
             "−スル" => Ok(Self::ConjugationSuru),
             "−ズル" => Ok(Self::ConjugationZuru),
-            _ => Err(JPreprocessErrorKind::CTypeParseError
-                .with_error(anyhow::anyhow!("Parse failed in SaIrregular"))),
+            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::SaIrregular)),
         }
     }
 }

@@ -1,4 +1,4 @@
-use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 use lindera_tokenizer::token::Token;
 
 use super::{
@@ -44,19 +44,11 @@ impl DictionaryFetcher for DefaultFetcher {
             user_dict.into_serializer().deserialize(
                 token
                     .user_dictionary
-                    .ok_or(
-                        JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(
-                "The word is flagged as UserDictionary, but Lindera UserDictionary is empty."
-            )),
-                    )?
+                    .ok_or(DictionaryError::UserDictionaryNotProvided)?
                     .get_bytes(token.word_id.0)?,
             )
         } else {
-            Err(
-                JPreprocessErrorKind::WordNotFoundError.with_error(anyhow::anyhow!(
-                    "The word is flagged as UserDictionary, but UserDictionary mode is not set."
-                )),
-            )
+            Err(DictionaryError::UserDictionaryModeNotSet.into())
         }
     }
 }

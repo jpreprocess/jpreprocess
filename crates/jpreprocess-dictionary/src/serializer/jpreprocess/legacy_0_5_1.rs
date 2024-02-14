@@ -11,7 +11,7 @@
 
 use lindera_core::{error::LinderaErrorKind, LinderaResult};
 
-use jpreprocess_core::{error::JPreprocessErrorKind, word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
 use crate::DictionarySerializer;
 
@@ -34,8 +34,7 @@ impl DictionarySerializer for JPreprocessSerializer {
     }
 
     fn deserialize(&self, data: &[u8]) -> JPreprocessResult<WordEntry> {
-        let details: WordEntry = bincode::deserialize(data)
-            .map_err(|err| JPreprocessErrorKind::WordNotFoundError.with_error(err))?;
+        let details: WordEntry = bincode::deserialize(data).map_err(DictionaryError::from)?;
         Ok(details)
     }
     fn deserialize_debug(&self, data: &[u8]) -> String {
