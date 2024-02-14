@@ -179,7 +179,7 @@ impl ChainRules {
     fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
         let capture = PARSE_REGEX
             .captures(rule)
-            .ok_or(AccentRuleParseError::SyntaxError(rule.to_string()))?;
+            .ok_or_else(|| AccentRuleParseError::SyntaxError(rule.to_string()))?;
 
         let pos = {
             if let Some(pos) = capture.name("pos") {
