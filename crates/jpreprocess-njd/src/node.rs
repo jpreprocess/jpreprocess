@@ -123,17 +123,11 @@ impl NJDNode {
         self.details.read = None;
     }
 
-    pub fn get_acc(&self) -> usize {
-        self.details.acc as usize
-    }
     pub fn set_acc(&mut self, acc: usize) {
         self.details.acc = acc as i32;
         self.details.pron.set_accent(acc as usize);
     }
 
-    pub fn get_mora_size(&self) -> usize {
-        self.details.mora_size as usize
-    }
     pub fn set_mora_size(&mut self, mora_size: usize) {
         self.details.mora_size = mora_size as i32;
     }

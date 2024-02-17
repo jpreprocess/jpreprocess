@@ -75,8 +75,8 @@ fn calc_top_node_acc(
     top_node: &NJDNode,
     mora_size: usize,
 ) -> usize {
-    let node_acc = node.get_acc();
-    let top_node_acc = top_node.get_acc();
+    let node_acc = node.get_pron().accent();
+    let top_node_acc = top_node.get_pron().accent();
 
     let Some(rule) = node.get_chain_rule().get_rule(prev.get_pos()) else {
         return top_node_acc;
@@ -120,11 +120,11 @@ fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> 
 
         (NANA, HYAKU, _) => Some(2),
         (SAN | YON | KYUU | NAN, HYAKU, _) => Some(1),
-        (_, HYAKU, _) => Some(prev.get_mora_size() + current.get_mora_size()),
+        (_, HYAKU, _) => Some(prev.get_pron().mora_size() + current.get_pron().mora_size()),
 
-        (_, SEN, _) => Some(prev.get_mora_size() + 1),
+        (_, SEN, _) => Some(prev.get_pron().mora_size() + 1),
 
-        (_, MAN, _) => Some(prev.get_mora_size() + 1),
+        (_, MAN, _) => Some(prev.get_pron().mora_size() + 1),
 
         (ICHI | ROKU | NANA | HACHI | IKU, OKU, _) => Some(2),
         (_, OKU, _) => Some(1),

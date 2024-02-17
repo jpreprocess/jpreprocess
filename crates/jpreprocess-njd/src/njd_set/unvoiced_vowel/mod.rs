@@ -39,7 +39,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             midx = 0;
         }
 
-        let acc = node.get_acc();
+        let acc = node.get_pron().accent();
         let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
