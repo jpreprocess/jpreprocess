@@ -154,6 +154,7 @@ impl NJDNode {
         &mut self.details.pron
     }
     pub fn set_pron(&mut self, pron: Pronunciation) {
+        self.details.acc = pron.accent() as i32;
         self.details.pron = pron;
     }
 }

@@ -4,7 +4,7 @@ mod mora_enum;
 pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
+use std::{borrow::Cow, fmt::Display};
 
 pub use mora::*;
 pub use mora_enum::*;
@@ -19,28 +19,38 @@ pub const QUOTATION: &str = "’";
 macro_rules! pron {
     ([$($x:ident),*],$acc:expr) => {
         {
-            let moras = vec![
-                $(
-                    $crate::pronunciation::Mora {
-                        mora_enum: $crate::pronunciation::MoraEnum::$x,
-                        is_voiced: true,
-                    },
-                )*
-            ];
-            $crate::pronunciation::Pronunciation::new(moras, $acc)
+            $crate::pronunciation::Pronunciation {
+                moras: ::std::borrow::Cow::Borrowed(&[
+                    $(
+                        $crate::pronunciation::Mora {
+                            mora_enum: $crate::pronunciation::MoraEnum::$x,
+                            is_voiced: true,
+                        },
+                    )*
+                ]),
+                accent: $acc,
+            }
         }
     };
 }
 
+/// Pronunciation.
+///
+/// Do not access moras and accent directly unless through [`pron`] macro.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Pronunciation {
-    moras: Vec<Mora>,
-    accent: usize,
+    #[doc(hidden)]
+    pub moras: Cow<'static, [Mora]>,
+    #[doc(hidden)]
+    pub accent: usize,
 }
 
 impl Pronunciation {
     pub fn new(moras: Vec<Mora>, accent: usize) -> Self {
-        Self { moras, accent }
+        Self {
+            moras: Cow::Owned(moras),
+            accent,
+        }
     }
 
     pub fn mora_size(&self) -> usize {
@@ -78,11 +88,13 @@ impl Pronunciation {
             .fold(String::new(), |a, b| a + &b)
     }
 
+    #[inline]
     pub fn moras(&self) -> &[Mora] {
-        self.moras.as_slice()
+        self.moras.as_ref()
     }
+    #[inline]
     pub fn moras_mut(&mut self) -> &mut [Mora] {
-        self.moras.as_mut_slice()
+        self.moras.to_mut()
     }
 
     pub fn accent(&self) -> usize {
@@ -93,7 +105,13 @@ impl Pronunciation {
     }
 
     pub fn transfer_from(&mut self, from: &Self) {
-        self.moras.extend_from_slice(&from.moras);
+        let moras = self
+            .moras()
+            .iter()
+            .chain(from.moras())
+            .map(|mora| mora.clone())
+            .collect::<Vec<_>>();
+        self.moras = Cow::Owned(moras);
     }
 
     pub fn parse(moras: &str, accent: usize) -> JPreprocessResult<Self> {
@@ -102,7 +120,7 @@ impl Pronunciation {
     /// TODO: remove this
     #[doc(hidden)]
     pub fn set_mora_by_str(&mut self, moras: &str) -> JPreprocessResult<()> {
-        self.moras = Self::parse_mora_str(moras)?;
+        self.moras = Cow::Owned(Self::parse_mora_str(moras)?);
         Ok(())
     }
     fn parse_mora_str(s: &str) -> JPreprocessResult<Vec<Mora>> {

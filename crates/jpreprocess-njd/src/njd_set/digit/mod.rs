@@ -119,9 +119,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.get_string(),
                 prev.get_string(),
             ) {
-                prev.set_pron_by_str(lut1_conversion.0);
-                prev.set_acc(lut1_conversion.1);
-                prev.set_mora_size(lut1_conversion.2);
+                prev.set_pron(lut1_conversion.clone());
             }
             /* convert numerative pron */
             match find_pron_conv_set(
@@ -173,9 +171,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.get_string(),
                 prev.get_string(),
             ) {
-                prev.set_pron_by_str(lut3_conversion.0);
-                prev.set_acc(lut3_conversion.1);
-                prev.set_mora_size(lut3_conversion.2);
+                prev.set_pron(lut3_conversion.clone());
             }
             match find_pron_conv_set(
                 &numeral::NUMERATIVE_CONVERSION_TABLE,
@@ -230,10 +226,8 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 next.get_read().unwrap_or("*"),
                 node.get_string(),
             ) {
-                node.set_read(conversion.0);
-                node.set_pron_by_str(conversion.0);
-                node.set_acc(conversion.1);
-                node.set_mora_size(conversion.2);
+                node.set_read(&conversion.to_string());
+                node.set_pron(conversion.clone());
             }
 
             /* person and the day of month */

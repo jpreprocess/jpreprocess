@@ -1,4 +1,5 @@
 use super::*;
+use jpreprocess_core::pron;
 use phf::{phf_map, phf_set};
 
 pub const CONVERSION_TABLE: [(Keys, DigitLUT); 11] = [
@@ -22,7 +23,7 @@ const NUMERATIVE_CLASS1B: Keys = phf_set! {
    "年間", "年生", "年代", "年度", "年版", "年余", "年来", "えん",
 };
 const CONV_TABLE1B: DigitLUT = phf_map! {
-   "四"=> ("ヨ", 0, 1),
+    "四" => pron!([Yo], 0),
 };
 
 const NUMERATIVE_CLASS1C1: Keys = phf_set! {
@@ -32,8 +33,8 @@ const NUMERATIVE_CLASS1C1: Keys = phf_set! {
    "人月", "人前", "人組",
 };
 const CONV_TABLE1C1: DigitLUT = phf_map! {
-   "四"=> ("ヨ", 0, 1),
-   "七"=>("シチ", 1, 2),
+    "四" => pron!([Yo], 0),
+    "七" => pron!([Shi, Chi], 1),
 };
 
 const NUMERATIVE_CLASS1C2: Keys = phf_set! {
@@ -43,9 +44,9 @@ const NUMERATIVE_CLASS1C2: Keys = phf_set! {
    "時限", "時半",
 };
 const CONV_TABLE1C2: DigitLUT = phf_map! {
-   "四"=>("ヨ", 0, 1),
-   "七"=> ("シチ", 1, 2),
-   "九"=> ("ク", 0, 1),
+    "四" => pron!([Yo], 0),
+    "七" => pron!([Shi, Chi], 1),
+    "九" => pron!([Ku], 0),
 };
 
 const NUMERATIVE_CLASS1D: Keys = phf_set! {
@@ -56,15 +57,15 @@ const NUMERATIVE_CLASS1D: Keys = phf_set! {
 };
 const CONV_TABLE1D: DigitLUT = phf_map! {
    /* "四", "ヨッ", "1", "2", *//* modified */
-   "七"=> ("シチ", 1, 2),
-   "九"=> ("ク", 0, 1),
+    "七" => pron!([Shi, Chi], 1),
+    "九" => pron!([Ku], 0),
 };
 
 const NUMERATIVE_CLASS1E: Keys = phf_set! {/* from paper */ "月" /* がつ */};
 const CONV_TABLE1E: DigitLUT = phf_map! {
-   "四"=>("シ", 0, 1),
-   "七"=>("シチ", 1, 2),
-   "九"=>("ク", 0, 1),
+   "四" => pron!([Shi], 0),
+   "七" => pron!([Shi, Chi], 1),
+   "九" => pron!([Ku], 0),
 };
 
 const NUMERATIVE_CLASS1F: Keys = phf_set! {
@@ -72,10 +73,10 @@ const NUMERATIVE_CLASS1F: Keys = phf_set! {
    /* "羽", "把", *//* modified */
 };
 const CONV_TABLE1F: DigitLUT = phf_map! {
-   "六"=> ("ロッ", 1, 2),
-   "八"=> ("ハッ", 1, 2),
-   "十"=> ("ジュッ", 1, 2),
-   "百"=> ("ヒャッ", 1, 2),
+    "六" => pron!([Ro, Xtsu], 1),
+    "八" => pron!([Ha, Xtsu], 1),
+    "十" => pron!([Ju, Xtsu], 1),
+    "百" => pron!([Hya, Xtsu], 1),
 };
 
 const NUMERATIVE_CLASS1G: Keys = phf_set! {
@@ -95,11 +96,11 @@ const NUMERATIVE_CLASS1G: Keys = phf_set! {
    "法", "本立て", "頭身",
 };
 const CONV_TABLE1G: DigitLUT = phf_map! {
-   "一"=> ("イッ", 1, 2),
-   "六"=> ("ロッ", 1, 2),
-   "八"=> ("ハッ", 1, 2),
-   "十"=> ("ジュッ", 1, 2),
-   "百"=> ("ヒャッ", 1, 2),
+   "一" => pron!([I, Xtsu], 1),
+   "六" => pron!([Ro, Xtsu], 1),
+   "八" => pron!([Ha, Xtsu], 1),
+   "十" => pron!([Ju, Xtsu], 1),
+   "百" => pron!([Hya, Xtsu], 1),
 };
 
 const NUMERATIVE_CLASS1H: Keys = phf_set! {
@@ -119,9 +120,9 @@ const NUMERATIVE_CLASS1H: Keys = phf_set! {
    "車種",
 };
 const CONV_TABLE1H: DigitLUT = phf_map! {
-   "一"=> ("イッ", 1, 2),
-   "八"=>("ハッ", 1, 2),
-   "十"=> ("ジュッ", 1, 2),
+    "一" => pron!([I, Xtsu], 1),
+    "八" => pron!([Ha, Xtsu], 1),
+    "十" => pron!([Ju, Xtsu], 1),
 };
 
 const NUMERATIVE_CLASS1I: Keys = phf_set! {
@@ -135,9 +136,9 @@ const NUMERATIVE_CLASS1I: Keys = phf_set! {
    "ケース", "コース", "粁",
 };
 const CONV_TABLE1I: DigitLUT = phf_map! {
-   "六"=> ("ロッ", 1, 2),
-   "十"=> ("ジュッ", 1, 2),
-   "百"=> ("ヒャッ", 1, 2),
+    "六" => pron!([Ro, Xtsu], 1),
+    "十" => pron!([Ju, Xtsu], 1),
+    "百" => pron!([Hya, Xtsu], 1),
 };
 
 const NUMERATIVE_CLASS1J: Keys = phf_set! {
@@ -147,8 +148,8 @@ const NUMERATIVE_CLASS1J: Keys = phf_set! {
    "ｔ", "タル", "テラ", "トライ",
 };
 const CONV_TABLE1J: DigitLUT = phf_map! {
-   "一"=> ("イッ", 1, 2),
-   "十"=> ("ジュッ", 1, 2),
+    "一" => pron!([I, Xtsu], 1),
+    "十" => pron!([Ju, Xtsu], 1),
 };
 
 const NUMERATIVE_CLASS1K: Keys = phf_set! {
@@ -161,5 +162,5 @@ const NUMERATIVE_CLASS1K: Keys = phf_set! {
    "平方メートル", "品目",
 };
 const CONV_TABLE1K: DigitLUT = phf_map! {
-   "十"=>("ジュッ", 1, 2),
+    "十" => pron!([Ju, Xtsu], 1),
 };
