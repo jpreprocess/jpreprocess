@@ -24,7 +24,7 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
     if njd.nodes.is_empty() {
         return;
     }
-    let mut top_node_i: Option<usize> = None;
+    let mut top_node_i = 0;
     let mut mora_size: i32 = 0;
     for i in 0..njd.nodes.len() {
         let mut top_node_acc: Option<i32> = None;
@@ -32,48 +32,32 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
         let mut current_acc: Option<i32> = None;
 
         {
-            let (top_node, prev, current, next) = if i == 0 {
-                (None, None, njd.nodes.first().unwrap(), njd.nodes.get(1))
-            } else {
-                let top_node = top_node_i.and_then(|i| njd.nodes.get(i));
-                (
-                    top_node,
-                    njd.nodes.get(i - 1),
-                    njd.nodes.get(i).unwrap(),
-                    njd.nodes.get(i + 1),
-                )
-            };
+            let (top_node, prev, current, next) = (
+                njd.nodes.get(top_node_i).unwrap(),
+                (i > 0).then(|| njd.nodes.get(i - 1).unwrap()),
+                njd.nodes.get(i).unwrap(),
+                njd.nodes.get(i + 1),
+            );
 
-            if i == 0 || !matches!(current.get_chain_flag(), Some(d) if d) {
-                top_node_i = Some(i);
+            if i == 0 || current.get_chain_flag() != Some(true) {
+                top_node_i = i;
                 mora_size = 0;
-            } else if prev.is_some() && matches!(current.get_chain_flag(), Some(d) if d) {
-                top_node_acc = Some(calc_top_node_acc(
-                    current,
-                    prev.as_ref().unwrap(),
-                    top_node.as_ref().unwrap(),
-                    mora_size,
-                ));
-            }
 
-            if matches!(current.get_chain_flag(), Some(true))
-                && prev.map(|p| p.get_pos().is_kazu()).unwrap_or(false)
-                && current.get_pos().is_kazu()
-            {
-                prev_acc = calc_digit_acc(prev.unwrap(), current, next);
-            }
-
-            if current.get_string() == JYUU
-                && !matches!(current.get_chain_flag(), Some(d) if d)
-                && next.map(|n| n.get_pos().is_kazu()).unwrap_or(false)
-            {
-                current_acc = Some(0);
+                if current.get_string() == JYUU && next.map(|n| n.get_pos().is_kazu()) == Some(true)
+                {
+                    current_acc = Some(0);
+                }
+            } else if let Some(ref prev) = prev {
+                top_node_acc = Some(calc_top_node_acc(current, prev, top_node, mora_size));
+                if prev.get_pos().is_kazu() && current.get_pos().is_kazu() {
+                    prev_acc = calc_digit_acc(prev, current, next);
+                }
             }
 
             mora_size += current.get_mora_size();
         }
 
-        if let (Some(top_node_i), Some(top_node_acc)) = (top_node_i, top_node_acc) {
+        if let Some(top_node_acc) = top_node_acc {
             njd.nodes.get_mut(top_node_i).unwrap().set_acc(top_node_acc);
         }
         if let Some(prev_acc) = prev_acc {
