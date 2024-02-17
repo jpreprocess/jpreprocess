@@ -34,26 +34,28 @@ macro_rules! pron {
 }
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
-pub struct Pronunciation(Vec<Mora>);
+pub struct Pronunciation {
+    moras: Vec<Mora>,
+}
 
 impl Pronunciation {
     pub fn new(moras: Vec<Mora>) -> Self {
-        Self(moras)
+        Self { moras }
     }
 
     pub fn mora_size(&self) -> usize {
-        self.0
+        self.moras
             .iter()
             .filter(|mora| !matches!(mora.mora_enum, MoraEnum::Question | MoraEnum::Touten))
             .count()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.moras.is_empty()
     }
 
     pub fn mora_matches(&self, mora_enum: MoraEnum) -> bool {
-        let Some((first, rest)) = self.0.split_first() else {
+        let Some((first, rest)) = self.moras.split_first() else {
             return false;
         };
         rest.is_empty() && first.mora_enum == mora_enum
@@ -70,21 +72,21 @@ impl Pronunciation {
     }
 
     pub fn to_pure_string(&self) -> String {
-        self.0
+        self.moras
             .iter()
             .map(|mora| mora.to_string())
             .fold(String::new(), |a, b| a + &b)
     }
 
     pub fn moras(&self) -> &[Mora] {
-        self.0.as_slice()
+        self.moras.as_slice()
     }
     pub fn moras_mut(&mut self) -> &mut [Mora] {
-        self.0.as_mut_slice()
+        self.moras.as_mut_slice()
     }
 
     pub fn transfer_from(&mut self, from: &Self) {
-        self.0.extend_from_slice(&from.0);
+        self.moras.extend_from_slice(&from.moras);
     }
 }
 
@@ -92,7 +94,7 @@ impl FromStr for Pronunciation {
     type Err = JPreprocessError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut result = Self(Vec::new());
+        let mut result = Self::new(Vec::new());
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
@@ -103,7 +105,7 @@ impl FromStr for Pronunciation {
 
             let quotation = s[match_result.end()..].starts_with(QUOTATION);
 
-            result.0.extend(
+            result.moras.extend(
                 mora_dict::get_mora_enum(match_result.pattern().as_usize())
                     .into_iter()
                     .map(|mora_enum| Mora {
@@ -118,14 +120,14 @@ impl FromStr for Pronunciation {
             }
         }
 
-        if result.0.is_empty() {
+        if result.moras.is_empty() {
             if s == QUESTION {
-                result.0.push(Mora {
+                result.moras.push(Mora {
                     mora_enum: MoraEnum::Question,
                     is_voiced: true,
                 });
             } else if s != "*" {
-                result.0.push(Mora {
+                result.moras.push(Mora {
                     mora_enum: MoraEnum::Touten,
                     is_voiced: true,
                 });
@@ -139,7 +141,7 @@ impl Display for Pronunciation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(
             &self
-                .0
+                .moras
                 .iter()
                 .fold(String::new(), |acc, mora| format!("{}{}", acc, mora)),
         )
@@ -156,7 +158,7 @@ mod test {
     fn from_str_normal() {
         let pron = Pronunciation::from_str("オツカレサマデシ’タ").unwrap();
         assert_eq!(
-            pron.0,
+            pron.moras,
             vec![
                 Mora {
                     mora_enum: MoraEnum::O,
@@ -201,7 +203,7 @@ mod test {
     #[test]
     fn from_str_symbol() {
         assert_eq!(
-            Pronunciation::from_str("；").unwrap().0,
+            Pronunciation::from_str("；").unwrap().moras,
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
                 is_voiced: true
