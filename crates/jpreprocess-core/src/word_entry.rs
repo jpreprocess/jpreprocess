@@ -104,8 +104,6 @@ impl WordEntry {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use crate::{
         cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_entry::WordEntry,
     };
@@ -129,7 +127,7 @@ mod tests {
         assert_eq!(details.ctype, CType::None);
         assert_eq!(details.cform, CForm::None);
         assert_eq!(details.read.as_ref().unwrap(), "テン");
-        assert_eq!(details.pron, Pronunciation::from_str("テン").unwrap());
+        assert_eq!(details.pron, Pronunciation::parse("テン", 0).unwrap());
         assert_eq!(details.acc, 0);
         assert_eq!(details.mora_size, 2);
         assert_eq!(details.chain_rule.get_rule(&POS::Filler), None);

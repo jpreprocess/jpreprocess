@@ -4,12 +4,12 @@ mod mora_enum;
 pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::JPreprocessError;
+use crate::{JPreprocessError, JPreprocessResult};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -17,18 +17,17 @@ pub const QUOTATION: &str = "’";
 
 #[macro_export]
 macro_rules! pron {
-    ($($x:ident),*) => {
+    ([$($x:ident),*],$acc:expr) => {
         {
-            use $crate::pronunciation::*;
             let moras = vec![
                 $(
-                    Mora {
-                        mora_enum: MoraEnum::$x,
+                    $crate::pronunciation::Mora {
+                        mora_enum: $crate::pronunciation::MoraEnum::$x,
                         is_voiced: true,
                     },
                 )*
             ];
-            Pronunciation::new(moras)
+            $crate::pronunciation::Pronunciation::new(moras, $acc)
         }
     };
 }
@@ -36,11 +35,12 @@ macro_rules! pron {
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Pronunciation {
     moras: Vec<Mora>,
+    accent: usize,
 }
 
 impl Pronunciation {
-    pub fn new(moras: Vec<Mora>) -> Self {
-        Self { moras }
+    pub fn new(moras: Vec<Mora>, accent: usize) -> Self {
+        Self { moras, accent }
     }
 
     pub fn mora_size(&self) -> usize {
@@ -88,13 +88,18 @@ impl Pronunciation {
     pub fn transfer_from(&mut self, from: &Self) {
         self.moras.extend_from_slice(&from.moras);
     }
-}
 
-impl FromStr for Pronunciation {
-    type Err = JPreprocessError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut result = Self::new(Vec::new());
+    pub fn parse(moras: &str, accent: usize) -> JPreprocessResult<Self> {
+        Ok(Self::new(Self::parse_mora_str(moras)?, accent))
+    }
+    /// TODO: remove this
+    #[doc(hidden)]
+    pub fn set_mora_by_str(&mut self, moras: &str) -> JPreprocessResult<()> {
+        self.moras = Self::parse_mora_str(moras)?;
+        Ok(())
+    }
+    fn parse_mora_str(s: &str) -> JPreprocessResult<Vec<Mora>> {
+        let mut result = Vec::new();
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
@@ -105,7 +110,7 @@ impl FromStr for Pronunciation {
 
             let quotation = s[match_result.end()..].starts_with(QUOTATION);
 
-            result.moras.extend(
+            result.extend(
                 mora_dict::get_mora_enum(match_result.pattern().as_usize())
                     .into_iter()
                     .map(|mora_enum| Mora {
@@ -120,14 +125,14 @@ impl FromStr for Pronunciation {
             }
         }
 
-        if result.moras.is_empty() {
+        if result.is_empty() {
             if s == QUESTION {
-                result.moras.push(Mora {
+                result.push(Mora {
                     mora_enum: MoraEnum::Question,
                     is_voiced: true,
                 });
             } else if s != "*" {
-                result.moras.push(Mora {
+                result.push(Mora {
                     mora_enum: MoraEnum::Touten,
                     is_voiced: true,
                 });
@@ -150,15 +155,13 @@ impl Display for Pronunciation {
 
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
-
     use super::{Mora, MoraEnum, Pronunciation};
 
     #[test]
     fn from_str_normal() {
-        let pron = Pronunciation::from_str("オツカレサマデシ’タ").unwrap();
+        let pron = Pronunciation::parse_mora_str("オツカレサマデシ’タ").unwrap();
         assert_eq!(
-            pron.moras,
+            pron,
             vec![
                 Mora {
                     mora_enum: MoraEnum::O,
@@ -203,7 +206,7 @@ mod test {
     #[test]
     fn from_str_symbol() {
         assert_eq!(
-            Pronunciation::from_str("；").unwrap().moras,
+            Pronunciation::parse_mora_str("；").unwrap(),
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
                 is_voiced: true
@@ -214,7 +217,7 @@ mod test {
     #[test]
     fn to_string() {
         assert_eq!(
-            Pronunciation::from_str("オツカレサマデシ’タ")
+            Pronunciation::parse("オツカレサマデシ’タ", 0)
                 .unwrap()
                 .to_string(),
             "オツカレサマデシ’タ"

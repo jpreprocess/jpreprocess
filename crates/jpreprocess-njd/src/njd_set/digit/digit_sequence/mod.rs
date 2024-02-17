@@ -80,15 +80,15 @@ impl DigitSequence {
         {
             match *digit {
                 0 => {
-                    node.set_pron(pron![Ze, Ro]);
+                    node.set_pron(pron!([Ze, Ro], 1));
                     node.set_mora_size(2);
                 }
                 2 => {
-                    node.set_pron(pron![Ni, Long]);
+                    node.set_pron(pron!([Ni, Long], 1));
                     node.set_mora_size(2);
                 }
                 5 => {
-                    node.set_pron(pron![Go, Long]);
+                    node.set_pron(pron!([Go, Long], 1));
                     node.set_mora_size(2);
                 }
                 _ => (),

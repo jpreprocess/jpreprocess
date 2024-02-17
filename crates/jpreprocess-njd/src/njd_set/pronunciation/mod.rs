@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use crate::NJD;
 
 pub const CHOUON: &str = "ー";
@@ -21,7 +19,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
         if node.get_mora_size() == 0 {
             let pron =
-                Pronunciation::from_str(node.get_string()).unwrap_or(Pronunciation::default());
+                Pronunciation::parse(node.get_string(), 0).unwrap_or(Pronunciation::default());
             let mora_size = pron.mora_size();
 
             /* if filler, overwrite pos */

@@ -3,7 +3,7 @@
 //! If you change POS or other inner structures, you need to change this file as well.
 
 use jpreprocess_core::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
+    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Mora,
 };
 use serde::{Deserialize, Serialize};
 
@@ -49,7 +49,10 @@ impl From<WordDetails> for jpreprocess_core::word_details::WordDetails {
             ctype: value.ctype,
             cform: value.cform,
             read: value.read,
-            pron: value.pron,
+            pron: jpreprocess_core::pronunciation::Pronunciation::new(
+                value.pron.0,
+                value.acc as usize,
+            ),
             acc: value.acc,
             mora_size: value.mora_size,
             chain_rule: value.chain_rule,
@@ -57,3 +60,6 @@ impl From<WordDetails> for jpreprocess_core::word_details::WordDetails {
         }
     }
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Pronunciation(Vec<Mora>);

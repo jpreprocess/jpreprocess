@@ -44,9 +44,9 @@ impl WordDetails {
                 "*" => None,
                 _ => Some(read.to_string()),
             },
-            pron: Pronunciation::from_str(pron)?,
-            acc,
-            mora_size,
+            pron: Pronunciation::parse(pron, acc)?,
+            acc: acc as i32,
+            mora_size: mora_size as i32,
         })
     }
 
@@ -60,15 +60,15 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        self.pron = Pronunciation::from_str(pron)?;
         let (acc, mora_size) = Self::parse_acc_morasize(acc_morasize);
-        self.acc = acc;
-        self.mora_size = mora_size;
+        self.pron = Pronunciation::parse(pron, acc)?;
+        self.acc = acc as i32;
+        self.mora_size = mora_size as i32;
         self.chain_flag = Some(false);
         Ok(())
     }
 
-    fn parse_acc_morasize(acc_morasize: &str) -> (i32, i32) {
+    fn parse_acc_morasize(acc_morasize: &str) -> (usize, usize) {
         match acc_morasize.split_once('/') {
             Some((acc_s, mora_size_s)) => {
                 let acc = acc_s.parse().unwrap_or(0);

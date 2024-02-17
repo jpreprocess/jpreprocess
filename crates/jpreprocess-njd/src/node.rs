@@ -1,5 +1,5 @@
+use std::fmt::Debug;
 use std::fmt::Display;
-use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_core::{
@@ -144,7 +144,7 @@ impl NJDNode {
     }
 
     pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron = Pronunciation::from_str(pron).unwrap();
+        self.details.pron.set_mora_by_str(pron).unwrap();
     }
     pub fn get_pron(&self) -> &Pronunciation {
         &self.details.pron
