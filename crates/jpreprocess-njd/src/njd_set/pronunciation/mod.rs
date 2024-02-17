@@ -83,7 +83,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 Triple::Full(_, node, next) => (node, next),
                 _ => continue,
             };
-            if matches!(next.get_pron().mora_enums().as_slice(), [MoraEnum::U])
+            if next.get_pron().mora_matches(MoraEnum::U)
                 && matches!(next.get_pos(), POS::Jodoushi)
                 && matches!(node.get_pos(), POS::Doushi(_) | POS::Jodoushi)
                 && node.get_mora_size() > 0

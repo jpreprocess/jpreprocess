@@ -131,10 +131,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
             ) {
                 Some(DigitType::Voiced) => node
                     .get_pron_mut()
+                    .moras_mut()
                     .first_mut()
                     .map(|mora| mora.convert_to_voiced_sound()),
                 Some(DigitType::SemiVoiced) => node
                     .get_pron_mut()
+                    .moras_mut()
                     .first_mut()
                     .map(|mora| mora.convert_to_semivoiced_sound()),
                 _ => None,
@@ -182,10 +184,12 @@ pub fn njd_set_digit(njd: &mut NJD) {
             ) {
                 Some(DigitType::Voiced) => node
                     .get_pron_mut()
+                    .moras_mut()
                     .first_mut()
                     .map(|mora| mora.convert_to_voiced_sound()),
                 Some(DigitType::SemiVoiced) => node
                     .get_pron_mut()
+                    .moras_mut()
                     .first_mut()
                     .map(|mora| mora.convert_to_semivoiced_sound()),
                 _ => None,

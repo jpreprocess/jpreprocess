@@ -51,36 +51,22 @@ impl Pronunciation {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+
+    pub fn mora_matches(&self, mora_enum: MoraEnum) -> bool {
+        let Some((first, rest)) = self.0.split_first() else {
+            return false;
+        };
+        rest.is_empty() && first.mora_enum == mora_enum
+    }
     pub fn is_question(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Question])
+        self.mora_matches(MoraEnum::Question)
     }
     pub fn is_touten(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Touten])
-    }
-    pub fn starts_with_long(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Long, ..])
+        self.mora_matches(MoraEnum::Touten)
     }
 
     pub fn is_mora_convertable(s: &str) -> bool {
         mora_dict::MORA_STR_LIST.contains(&s)
-    }
-
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Mora> {
-        self.0.iter_mut()
-    }
-
-    pub fn transfer_from(&mut self, from: &Self) {
-        self.0.extend_from_slice(&from.0);
-    }
-    pub fn mora_enums(&self) -> Vec<MoraEnum> {
-        self.0.iter().map(|mora| mora.mora_enum).collect()
-    }
-
-    pub fn first_mut(&mut self) -> Option<&mut Mora> {
-        self.0.first_mut()
-    }
-    pub fn last(&self) -> Option<&Mora> {
-        self.0.last()
     }
 
     pub fn to_pure_string(&self) -> String {
@@ -92,6 +78,13 @@ impl Pronunciation {
 
     pub fn moras(&self) -> &[Mora] {
         self.0.as_slice()
+    }
+    pub fn moras_mut(&mut self) -> &mut [Mora] {
+        self.0.as_mut_slice()
+    }
+
+    pub fn transfer_from(&mut self, from: &Self) {
+        self.0.extend_from_slice(&from.0);
     }
 }
 

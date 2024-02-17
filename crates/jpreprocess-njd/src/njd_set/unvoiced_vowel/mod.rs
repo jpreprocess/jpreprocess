@@ -43,7 +43,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
         let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
-        for mora in pron.iter_mut() {
+        for mora in pron.moras_mut() {
             states.push(MoraState {
                 is_voiced_flag: if mora.is_voiced { None } else { Some(false) },
                 mora,
