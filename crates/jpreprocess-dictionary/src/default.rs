@@ -59,6 +59,7 @@ pub enum WordDictionaryMode {
     Lindera,
     JPreprocess,
     JPreprocessLegacyV051,
+    JPreprocessLegacyV070,
 }
 
 impl WordDictionaryMode {
@@ -68,6 +69,9 @@ impl WordDictionaryMode {
             Self::JPreprocess => Box::new(JPreprocessSerializer),
             Self::JPreprocessLegacyV051 => {
                 Box::new(crate::serializer::jpreprocess::legacy_0_5_1::JPreprocessSerializer)
+            }
+            Self::JPreprocessLegacyV070 => {
+                Box::new(crate::serializer::jpreprocess::legacy_0_7_0::JPreprocessSerializer)
             }
         }
     }
@@ -85,6 +89,9 @@ impl WordDictionaryMode {
                 }
                 ["JPreprocess", "v0.3.0" | "v0.4.0" | "v0.5.0" | "v0.5.1"] => {
                     return Self::JPreprocessLegacyV051
+                }
+                ["JPreprocess", "v0.6.0" | "v0.6.1" | "v0.6.2" | "v0.6.3" | "v0.7.0"] => {
+                    return Self::JPreprocessLegacyV070
                 }
                 ["JPreprocess", ..] => return Self::JPreprocess,
                 _ => (),
