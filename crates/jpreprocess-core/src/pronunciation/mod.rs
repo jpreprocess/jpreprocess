@@ -15,23 +15,30 @@ pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
+#[macro_export]
+macro_rules! pron {
+    ($($x:ident),*) => {
+        {
+            use $crate::pronunciation::*;
+            let moras = vec![
+                $(
+                    Mora {
+                        mora_enum: MoraEnum::$x,
+                        is_voiced: true,
+                    },
+                )*
+            ];
+            Pronunciation::new(moras)
+        }
+    };
+}
+
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
 pub struct Pronunciation(Vec<Mora>);
 
 impl Pronunciation {
     pub fn new(moras: Vec<Mora>) -> Self {
         Self(moras)
-    }
-    pub fn new_simple(moras: Vec<MoraEnum>) -> Self {
-        Self(
-            moras
-                .into_iter()
-                .map(|mora_enum| Mora {
-                    mora_enum,
-                    is_voiced: true,
-                })
-                .collect(),
-        )
     }
 
     pub fn mora_size(&self) -> usize {
