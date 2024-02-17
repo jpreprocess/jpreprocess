@@ -85,6 +85,13 @@ impl Pronunciation {
         self.moras.as_mut_slice()
     }
 
+    pub fn accent(&self) -> usize {
+        self.accent
+    }
+    pub fn set_accent(&mut self, accent: usize) {
+        self.accent = accent;
+    }
+
     pub fn transfer_from(&mut self, from: &Self) {
         self.moras.extend_from_slice(&from.moras);
     }
