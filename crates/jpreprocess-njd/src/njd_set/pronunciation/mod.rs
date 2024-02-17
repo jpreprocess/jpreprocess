@@ -1,15 +1,12 @@
 use crate::NJD;
 
-pub const CHOUON: &str = "ー";
-
-pub const QUESTION: &str = "？";
-pub const DESU_STR: &str = "です";
-pub const MASU_STR: &str = "ます";
-pub const DESU_PRON: &str = "デス";
-pub const MASU_PRON: &str = "マス";
+const QUESTION: &str = "？";
+const DESU_STR: &str = "です";
+const MASU_STR: &str = "ます";
 
 use jpreprocess_core::{
     pos::*,
+    pron,
     pronunciation::{MoraEnum, Pronunciation},
 };
 
@@ -84,14 +81,14 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             if next.get_pron().mora_matches(MoraEnum::U)
                 && matches!(next.get_pos(), POS::Jodoushi)
                 && matches!(node.get_pos(), POS::Doushi(_) | POS::Jodoushi)
-                && node.get_mora_size() > 0
+                && node.get_pron().mora_size() > 0
             {
-                next.set_pron_by_str(CHOUON);
+                next.set_pron(pron!([Long], 0));
             }
             if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == QUESTION {
                 match node.get_string() {
-                    DESU_STR => node.set_pron_by_str(DESU_PRON),
-                    MASU_STR => node.set_pron_by_str(MASU_PRON),
+                    DESU_STR => node.set_pron(pron!([De, Su], 1)),
+                    MASU_STR => node.set_pron(pron!([Ma, Su], 1)),
                     _ => (),
                 }
             }

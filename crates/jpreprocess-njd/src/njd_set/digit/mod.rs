@@ -5,7 +5,7 @@ mod digit_sequence;
 
 use crate::{NJDNode, NJD};
 
-use jpreprocess_core::pos::*;
+use jpreprocess_core::{pos::*, pron};
 use jpreprocess_window::*;
 
 use self::{
@@ -77,19 +77,20 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 node.set_chain_flag(true);
                 match prev.get_string() {
                     rule::ZERO1 | rule::ZERO2 => {
-                        prev.set_pron_by_str(rule::ZERO_BEFORE_DP);
+                        prev.set_pron(pron!([Re, Long], 1));
                         prev.set_mora_size(2);
                     }
                     rule::TWO => {
-                        prev.set_pron_by_str(rule::TWO_BEFORE_DP);
+                        prev.set_pron(pron!([Ni, Long], 1));
                         prev.set_mora_size(2);
                     }
                     rule::FIVE => {
-                        prev.set_pron_by_str(rule::FIVE_BEFORE_DP);
+                        prev.set_pron(pron!([Go, Long], 1));
                         prev.set_mora_size(2);
                     }
                     rule::SIX => {
-                        prev.set_acc(1);
+                        prev.set_pron(pron!([Ro, Ku], 1));
+                        prev.set_mora_size(2);
                     }
                     _ => (),
                 }
@@ -326,11 +327,8 @@ mod rule {
     pub const TEN_FEATURE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,-1";
     pub const ZERO1: &str = "〇";
     pub const ZERO2: &str = "０";
-    pub const ZERO_BEFORE_DP: &str = "レー";
     pub const TWO: &str = "二";
-    pub const TWO_BEFORE_DP: &str = "ニー";
     pub const FIVE: &str = "五";
-    pub const FIVE_BEFORE_DP: &str = "ゴー";
     pub const SIX: &str = "六";
 
     pub const GATSU: &str = "月";

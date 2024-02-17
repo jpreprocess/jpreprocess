@@ -144,9 +144,6 @@ impl NJDNode {
         }
     }
 
-    pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron.set_mora_by_str(pron).unwrap();
-    }
     pub fn get_pron(&self) -> &Pronunciation {
         &self.details.pron
     }

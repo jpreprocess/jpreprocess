@@ -117,12 +117,6 @@ impl Pronunciation {
     pub fn parse(moras: &str, accent: usize) -> JPreprocessResult<Self> {
         Ok(Self::new(Self::parse_mora_str(moras)?, accent))
     }
-    /// TODO: remove this
-    #[doc(hidden)]
-    pub fn set_mora_by_str(&mut self, moras: &str) -> JPreprocessResult<()> {
-        self.moras = Cow::Owned(Self::parse_mora_str(moras)?);
-        Ok(())
-    }
     fn parse_mora_str(s: &str) -> JPreprocessResult<Vec<Mora>> {
         let mut result = Vec::new();
         let mut current_position = 0;
