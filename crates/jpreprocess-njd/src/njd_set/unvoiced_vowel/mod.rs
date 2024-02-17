@@ -25,8 +25,8 @@ struct MoraState<'a> {
     pub node_index: usize,
     pub pos: POS,
     pub is_voiced_flag: Option<bool>,
-    pub midx: i32,
-    pub atype: i32,
+    pub midx: usize,
+    pub atype: usize,
 }
 
 pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {

@@ -13,7 +13,7 @@ pub enum DigitType {
 }
 
 pub type Keys = Set<&'static str>;
-pub type DigitLUT = Map<&'static str, (&'static str, i32, i32)>;
+pub type DigitLUT = Map<&'static str, (&'static str, usize, usize)>;
 pub type NumerativeLUT = Map<&'static str, DigitType>;
 
 pub type ConvTable<K, V> = &'static [(K, Map<&'static str, V>)];

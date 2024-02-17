@@ -69,7 +69,7 @@ const NUMERATIVE_CLASS3: Map<&str, &[&str]> = phf_map! {
     "とき" => &["トキ"],
 };
 
-const CONV_TABLE3: Map<&str, (&str, i32, i32)> = phf_map! {
+const CONV_TABLE3: DigitLUT = phf_map! {
    "一"=>("ヒト", 0, 2),
    "二"=> ("フタ", 0, 2),
    /* "三", "ミ", "1", "1", *//* modified */

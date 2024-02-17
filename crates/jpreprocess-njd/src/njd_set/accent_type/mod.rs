@@ -25,11 +25,11 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
         return;
     }
     let mut top_node_i = 0;
-    let mut mora_size: i32 = 0;
+    let mut mora_size = 0;
     for i in 0..njd.nodes.len() {
-        let mut top_node_acc: Option<i32> = None;
-        let mut prev_acc: Option<i32> = None;
-        let mut current_acc: Option<i32> = None;
+        let mut top_node_acc: Option<usize> = None;
+        let mut prev_acc: Option<usize> = None;
+        let mut current_acc: Option<usize> = None;
 
         {
             let (top_node, prev, current, next) = (
@@ -54,7 +54,7 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
                 }
             }
 
-            mora_size += current.get_mora_size();
+            mora_size += current.get_pron().mora_size();
         }
 
         if let Some(top_node_acc) = top_node_acc {
@@ -69,7 +69,12 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
     }
 }
 
-fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_size: i32) -> i32 {
+fn calc_top_node_acc(
+    node: &NJDNode,
+    prev: &NJDNode,
+    top_node: &NJDNode,
+    mora_size: usize,
+) -> usize {
     let node_acc = node.get_acc();
     let top_node_acc = top_node.get_acc();
 
@@ -77,11 +82,13 @@ fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_si
         return top_node_acc;
     };
 
+    let add_rule = || (mora_size as isize + rule.add_type) as usize;
+
     match rule.accent_type {
         AccentType::F1 => top_node_acc,
-        AccentType::F2 if top_node_acc == 0 => mora_size + rule.add_type,
-        AccentType::F3 if top_node_acc != 0 => mora_size + rule.add_type,
-        AccentType::F4 => mora_size + rule.add_type,
+        AccentType::F2 if top_node_acc == 0 => add_rule(),
+        AccentType::F3 if top_node_acc != 0 => add_rule(),
+        AccentType::F4 => add_rule(),
         AccentType::F5 => 0,
         AccentType::C1 => mora_size + node_acc,
         AccentType::C2 => mora_size + 1,
@@ -98,7 +105,7 @@ fn calc_top_node_acc(node: &NJDNode, prev: &NJDNode, top_node: &NJDNode, mora_si
     }
 }
 
-fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> Option<i32> {
+fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> Option<usize> {
     let prev_str = prev.get_string();
     let current_str = current.get_string();
     let next_str = next.map(|node| node.get_string());

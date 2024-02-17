@@ -56,7 +56,7 @@ impl NJDNode {
 
     pub fn transfer_from(&mut self, node: &mut Self) {
         self.string.push_str(&node.string);
-        self.add_mora_size(node.details.mora_size);
+        self.add_mora_size(node.details.mora_size as usize);
         if let Some(add) = &node.details.read {
             if let Some(read) = &mut self.details.read {
                 read.push_str(add);
@@ -123,22 +123,22 @@ impl NJDNode {
         self.details.read = None;
     }
 
-    pub fn get_acc(&self) -> i32 {
-        self.details.acc
+    pub fn get_acc(&self) -> usize {
+        self.details.acc as usize
     }
-    pub fn set_acc(&mut self, acc: i32) {
-        self.details.acc = acc;
+    pub fn set_acc(&mut self, acc: usize) {
+        self.details.acc = acc as i32;
         self.details.pron.set_accent(acc as usize);
     }
 
-    pub fn get_mora_size(&self) -> i32 {
-        self.details.mora_size
+    pub fn get_mora_size(&self) -> usize {
+        self.details.mora_size as usize
     }
-    pub fn set_mora_size(&mut self, mora_size: i32) {
-        self.details.mora_size = mora_size;
+    pub fn set_mora_size(&mut self, mora_size: usize) {
+        self.details.mora_size = mora_size as i32;
     }
-    pub fn add_mora_size(&mut self, mora_size: i32) {
-        self.details.mora_size += mora_size;
+    pub fn add_mora_size(&mut self, mora_size: usize) {
+        self.details.mora_size += mora_size as i32;
         if self.details.mora_size < 0 {
             self.details.mora_size = 0;
         }
