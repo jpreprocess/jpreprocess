@@ -47,7 +47,7 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
                 {
                     current_acc = Some(0);
                 }
-            } else if let Some(ref prev) = prev {
+            } else if let Some(prev) = prev {
                 top_node_acc = Some(calc_top_node_acc(current, prev, top_node, mora_size));
                 if prev.get_pos().is_kazu() && current.get_pos().is_kazu() {
                     prev_acc = calc_digit_acc(prev, current, next);

@@ -15,8 +15,7 @@ use jpreprocess_window::*;
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
         if node.get_pron().mora_size() == 0 {
-            let pron =
-                Pronunciation::parse(node.get_string(), 0).unwrap_or(Pronunciation::default());
+            let pron = Pronunciation::parse(node.get_string(), 0).unwrap_or_default();
             let mora_size = pron.mora_size();
 
             /* if filler, overwrite pos */
