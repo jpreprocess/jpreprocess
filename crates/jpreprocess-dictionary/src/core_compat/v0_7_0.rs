@@ -3,7 +3,7 @@
 //! If you change POS or other inner structures, you need to change this file as well.
 
 use jpreprocess_core::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Mora,
+    accent_rule::AccentType, cform::CForm, ctype::CType, pos::POS, pronunciation::Mora,
 };
 use serde::{Deserialize, Serialize};
 
@@ -53,7 +53,7 @@ impl From<WordDetails> for jpreprocess_core::word_details::WordDetails {
                 value.pron.0,
                 value.acc as usize,
             ),
-            chain_rule: value.chain_rule,
+            chain_rule: value.chain_rule.into(),
             chain_flag: value.chain_flag,
         }
     }
@@ -61,3 +61,39 @@ impl From<WordDetails> for jpreprocess_core::word_details::WordDetails {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Pronunciation(Vec<Mora>);
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ChainRules {
+    default: Option<ChainRule>,
+    doushi: Option<ChainRule>,
+    joshi: Option<ChainRule>,
+    keiyoushi: Option<ChainRule>,
+    meishi: Option<ChainRule>,
+}
+
+impl From<ChainRules> for jpreprocess_core::accent_rule::ChainRules {
+    fn from(value: ChainRules) -> Self {
+        jpreprocess_core::accent_rule::ChainRules {
+            default: value.default.map(|rule| rule.into()),
+            doushi: value.doushi.map(|rule| rule.into()),
+            joshi: value.joshi.map(|rule| rule.into()),
+            keiyoushi: value.keiyoushi.map(|rule| rule.into()),
+            meishi: value.meishi.map(|rule| rule.into()),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct ChainRule {
+    pub accent_type: AccentType,
+    pub add_type: i32,
+}
+
+impl From<ChainRule> for jpreprocess_core::accent_rule::ChainRule {
+    fn from(value: ChainRule) -> Self {
+        jpreprocess_core::accent_rule::ChainRule {
+            accent_type: value.accent_type,
+            add_type: value.add_type as isize,
+        }
+    }
+}

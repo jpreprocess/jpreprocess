@@ -53,7 +53,7 @@ fn lindera_user_dictionary() -> Result<(), Box<dyn Error>> {
         "Kubernetes",
         "クーバネティス",
         "クーバネティス",
-        "4/5",
+        "4/6",
         "*",
     ]];
     rows.sort_by_key(|row| row[0].to_string());

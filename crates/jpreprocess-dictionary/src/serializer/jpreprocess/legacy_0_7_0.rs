@@ -39,7 +39,6 @@ mod bincode_serializer {
 }
 
 pub struct JPreprocessSerializer;
-
 impl DictionarySerializer for JPreprocessSerializer {
     fn identifier(&self) -> String {
         panic!("`legacy_0_7_0.rs` exists only for backward compatibility. Do not build dictionary with it.")
@@ -82,7 +81,7 @@ mod tests {
         let input_str = "名詞,一般,*,*,*,*,おき火,オキビ,オキビ,0/3,C2,-1";
 
         let deserialized = serlializer
-            .deserialize(&OKIBI.as_slice())
+            .deserialize(&OKIBI)
             .unwrap()
             .to_str_vec("おき火".to_string())
             .join(",");
