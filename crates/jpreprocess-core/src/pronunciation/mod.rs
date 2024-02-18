@@ -109,7 +109,7 @@ impl Pronunciation {
             .moras()
             .iter()
             .chain(from.moras())
-            .map(|mora| mora.clone())
+            .cloned()
             .collect::<Vec<_>>();
         self.moras = Cow::Owned(moras);
     }
