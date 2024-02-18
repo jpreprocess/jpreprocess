@@ -81,15 +81,12 @@ impl DigitSequence {
             match *digit {
                 0 => {
                     node.set_pron(pron!([Ze, Ro], 1));
-                    node.set_mora_size(2);
                 }
                 2 => {
                     node.set_pron(pron!([Ni, Long], 1));
-                    node.set_mora_size(2);
                 }
                 5 => {
                     node.set_pron(pron!([Go, Long], 1));
-                    node.set_mora_size(2);
                 }
                 _ => (),
             }
@@ -98,7 +95,7 @@ impl DigitSequence {
                 node.set_chain_flag(false);
                 if i != self.digits.len() - 1 {
                     /* if this is not the last digit */
-                    node.set_acc(3);
+                    node.get_pron_mut().set_accent(3);
                 }
             } else {
                 node.set_chain_flag(true);
@@ -143,8 +140,6 @@ impl DigitSequence {
             if *digit == 0 {
                 let node = &mut njd.nodes[nodes_index];
                 node.reset();
-                node.set_acc(0);
-                node.set_mora_size(0);
             } else {
                 have_digit_in_block = true;
             }

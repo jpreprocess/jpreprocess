@@ -73,9 +73,11 @@ fn test_one(input_text: &'static str) {
 
     let parsed = parse_openjtalk_output(&stdout);
 
-    for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
+    for (node, ans) in njd.nodes.into_iter().zip(parsed.njd.iter()) {
+        // node.set_acc(node.get_pron().accent());
+        // node.set_mora_size(node.get_pron().mora_size());
         let node_ans = NJDNode::new_single(ans);
-        assert_eq!(node, &node_ans);
+        assert_eq!(node, node_ans);
     }
 
     for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {

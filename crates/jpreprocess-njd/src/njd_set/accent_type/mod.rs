@@ -58,13 +58,25 @@ pub fn njd_set_accent_type(njd: &mut NJD) {
         }
 
         if let Some(top_node_acc) = top_node_acc {
-            njd.nodes.get_mut(top_node_i).unwrap().set_acc(top_node_acc);
+            njd.nodes
+                .get_mut(top_node_i)
+                .unwrap()
+                .get_pron_mut()
+                .set_accent(top_node_acc);
         }
         if let Some(prev_acc) = prev_acc {
-            njd.nodes.get_mut(i - 1).unwrap().set_acc(prev_acc);
+            njd.nodes
+                .get_mut(i - 1)
+                .unwrap()
+                .get_pron_mut()
+                .set_accent(prev_acc);
         }
         if let Some(current_acc) = current_acc {
-            njd.nodes.get_mut(i).unwrap().set_acc(current_acc);
+            njd.nodes
+                .get_mut(i)
+                .unwrap()
+                .get_pron_mut()
+                .set_accent(current_acc);
         }
     }
 }

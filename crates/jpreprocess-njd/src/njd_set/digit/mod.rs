@@ -78,19 +78,15 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 match prev.get_string() {
                     rule::ZERO1 | rule::ZERO2 => {
                         prev.set_pron(pron!([Re, Long], 1));
-                        prev.set_mora_size(2);
                     }
                     rule::TWO => {
                         prev.set_pron(pron!([Ni, Long], 1));
-                        prev.set_mora_size(2);
                     }
                     rule::FIVE => {
                         prev.set_pron(pron!([Go, Long], 1));
-                        prev.set_mora_size(2);
                     }
                     rule::SIX => {
                         prev.set_pron(pron!([Ro, Ku], 1));
-                        prev.set_mora_size(2);
                     }
                     _ => (),
                 }
@@ -227,7 +223,7 @@ pub fn njd_set_digit(njd: &mut NJD) {
                 next.get_read().unwrap_or("*"),
                 node.get_string(),
             ) {
-                node.set_read(&conversion.to_string());
+                node.set_read(&conversion.to_pure_string());
                 node.set_pron(conversion.clone());
             }
 

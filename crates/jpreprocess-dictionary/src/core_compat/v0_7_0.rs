@@ -53,8 +53,6 @@ impl From<WordDetails> for jpreprocess_core::word_details::WordDetails {
                 value.pron.0,
                 value.acc as usize,
             ),
-            acc: value.acc,
-            mora_size: value.mora_size,
             chain_rule: value.chain_rule,
             chain_flag: value.chain_flag,
         }

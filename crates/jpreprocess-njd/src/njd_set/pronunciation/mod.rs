@@ -22,7 +22,6 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             /* if filler, overwrite pos */
             if mora_size != 0 {
                 *node.get_pos_mut() = POS::Filler;
-                node.set_mora_size(mora_size.try_into().unwrap());
             }
 
             if pron.is_touten() {
