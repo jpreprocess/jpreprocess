@@ -1,5 +1,5 @@
+use std::fmt::Debug;
 use std::fmt::Display;
-use std::{fmt::Debug, str::FromStr};
 
 use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_core::{
@@ -56,7 +56,6 @@ impl NJDNode {
 
     pub fn transfer_from(&mut self, node: &mut Self) {
         self.string.push_str(&node.string);
-        self.add_mora_size(node.details.mora_size);
         if let Some(add) = &node.details.read {
             if let Some(read) = &mut self.details.read {
                 read.push_str(add);
@@ -123,29 +122,6 @@ impl NJDNode {
         self.details.read = None;
     }
 
-    pub fn get_acc(&self) -> i32 {
-        self.details.acc
-    }
-    pub fn set_acc(&mut self, acc: i32) {
-        self.details.acc = acc;
-    }
-
-    pub fn get_mora_size(&self) -> i32 {
-        self.details.mora_size
-    }
-    pub fn set_mora_size(&mut self, mora_size: i32) {
-        self.details.mora_size = mora_size;
-    }
-    pub fn add_mora_size(&mut self, mora_size: i32) {
-        self.details.mora_size += mora_size;
-        if self.details.mora_size < 0 {
-            self.details.mora_size = 0;
-        }
-    }
-
-    pub fn set_pron_by_str(&mut self, pron: &str) {
-        self.details.pron = Pronunciation::from_str(pron).unwrap();
-    }
     pub fn get_pron(&self) -> &Pronunciation {
         &self.details.pron
     }

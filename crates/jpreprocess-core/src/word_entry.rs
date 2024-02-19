@@ -104,11 +104,7 @@ impl WordEntry {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
-    use crate::{
-        cform::CForm, ctype::CType, pos::*, pronunciation::Pronunciation, word_entry::WordEntry,
-    };
+    use crate::{cform::CForm, ctype::CType, pos::*, pron, word_entry::WordEntry};
 
     #[test]
     fn load_single_node() {
@@ -129,9 +125,7 @@ mod tests {
         assert_eq!(details.ctype, CType::None);
         assert_eq!(details.cform, CForm::None);
         assert_eq!(details.read.as_ref().unwrap(), "テン");
-        assert_eq!(details.pron, Pronunciation::from_str("テン").unwrap());
-        assert_eq!(details.acc, 0);
-        assert_eq!(details.mora_size, 2);
+        assert_eq!(details.pron, pron!([Te, N], 0));
         assert_eq!(details.chain_rule.get_rule(&POS::Filler), None);
         assert_eq!(details.chain_flag, None);
 
@@ -154,10 +148,8 @@ mod tests {
         let details0 = &details_vec[0].1;
         let details1 = &details_vec[1].1;
 
-        assert_eq!(details0.acc, 1);
-        assert_eq!(details1.acc, 1);
-        assert_eq!(details0.mora_size, 2);
-        assert_eq!(details1.mora_size, 1);
+        assert_eq!(&details0.pron, &pron!([A, Long], 1));
+        assert_eq!(&details1.pron, &pron!([A], 1));
 
         let v = entry.to_str_vec(input[0].to_owned());
         assert_eq!(v[0..8].join(","), input[1..12].join(","));

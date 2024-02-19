@@ -14,7 +14,7 @@ pub struct AccentPhrase {
 impl AccentPhrase {
     pub fn new(start_node: &NJDNode) -> Self {
         Self {
-            accent: start_node.get_acc().try_into().unwrap(),
+            accent: start_node.get_pron().accent(),
             is_interrogative: false,
             words: vec![start_node.into()],
         }

@@ -4,95 +4,121 @@ mod mora_enum;
 pub mod phoneme;
 
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, str::FromStr};
+use std::{borrow::Cow, fmt::Display};
 
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::JPreprocessError;
+use crate::{JPreprocessError, JPreprocessResult};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
 
+#[macro_export]
+macro_rules! pron {
+    ([$($x:ident),*],$acc:expr) => {
+        {
+            $crate::pronunciation::Pronunciation {
+                moras: ::std::borrow::Cow::Borrowed(&[
+                    $(
+                        $crate::pronunciation::Mora {
+                            mora_enum: $crate::pronunciation::MoraEnum::$x,
+                            is_voiced: true,
+                        },
+                    )*
+                ]),
+                accent: $acc,
+            }
+        }
+    };
+}
+
+/// Pronunciation.
+///
+/// Do not access moras and accent directly unless through [`pron`] macro.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
-pub struct Pronunciation(Vec<Mora>);
+pub struct Pronunciation {
+    #[doc(hidden)]
+    pub moras: Cow<'static, [Mora]>,
+    #[doc(hidden)]
+    pub accent: usize,
+}
 
 impl Pronunciation {
-    pub fn new(moras: Vec<Mora>) -> Self {
-        Self(moras)
-    }
-    pub fn new_simple(moras: Vec<MoraEnum>) -> Self {
-        Self(
-            moras
-                .into_iter()
-                .map(|mora_enum| Mora {
-                    mora_enum,
-                    is_voiced: true,
-                })
-                .collect(),
-        )
+    pub fn new(moras: Vec<Mora>, accent: usize) -> Self {
+        Self {
+            moras: Cow::Owned(moras),
+            accent,
+        }
     }
 
     pub fn mora_size(&self) -> usize {
-        self.0
+        self.moras
             .iter()
             .filter(|mora| !matches!(mora.mora_enum, MoraEnum::Question | MoraEnum::Touten))
             .count()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+        self.moras.is_empty()
+    }
+
+    pub fn mora_matches(&self, mora_enum: MoraEnum) -> bool {
+        let Some((first, rest)) = self.moras.split_first() else {
+            return false;
+        };
+        rest.is_empty() && first.mora_enum == mora_enum
     }
     pub fn is_question(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Question])
+        self.mora_matches(MoraEnum::Question)
     }
     pub fn is_touten(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Touten])
-    }
-    pub fn starts_with_long(&self) -> bool {
-        matches!(self.mora_enums().as_slice(), [MoraEnum::Long, ..])
+        self.mora_matches(MoraEnum::Touten)
     }
 
     pub fn is_mora_convertable(s: &str) -> bool {
         mora_dict::MORA_STR_LIST.contains(&s)
     }
 
-    pub fn iter_mut(&mut self) -> std::slice::IterMut<'_, Mora> {
-        self.0.iter_mut()
-    }
-
-    pub fn transfer_from(&mut self, from: &Self) {
-        self.0.extend_from_slice(&from.0);
-    }
-    pub fn mora_enums(&self) -> Vec<MoraEnum> {
-        self.0.iter().map(|mora| mora.mora_enum).collect()
-    }
-
-    pub fn first_mut(&mut self) -> Option<&mut Mora> {
-        self.0.first_mut()
-    }
-    pub fn last(&self) -> Option<&Mora> {
-        self.0.last()
-    }
-
     pub fn to_pure_string(&self) -> String {
-        self.0
+        self.moras
             .iter()
             .map(|mora| mora.to_string())
             .fold(String::new(), |a, b| a + &b)
     }
 
+    #[inline]
     pub fn moras(&self) -> &[Mora] {
-        self.0.as_slice()
+        self.moras.as_ref()
     }
-}
+    #[inline]
+    pub fn moras_mut(&mut self) -> &mut [Mora] {
+        self.moras.to_mut()
+    }
 
-impl FromStr for Pronunciation {
-    type Err = JPreprocessError;
+    pub fn accent(&self) -> usize {
+        self.accent
+    }
+    pub fn set_accent(&mut self, accent: usize) {
+        self.accent = accent;
+    }
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut result = Self(Vec::new());
+    pub fn transfer_from(&mut self, from: &Self) {
+        let moras = self
+            .moras()
+            .iter()
+            .chain(from.moras())
+            .cloned()
+            .collect::<Vec<_>>();
+        self.moras = Cow::Owned(moras);
+    }
+
+    pub fn parse(moras: &str, accent: usize) -> JPreprocessResult<Self> {
+        Ok(Self::new(Self::parse_mora_str(moras)?, accent))
+    }
+    fn parse_mora_str(s: &str) -> JPreprocessResult<Vec<Mora>> {
+        let mut result = Vec::new();
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
@@ -103,7 +129,7 @@ impl FromStr for Pronunciation {
 
             let quotation = s[match_result.end()..].starts_with(QUOTATION);
 
-            result.0.extend(
+            result.extend(
                 mora_dict::get_mora_enum(match_result.pattern().as_usize())
                     .into_iter()
                     .map(|mora_enum| Mora {
@@ -118,14 +144,14 @@ impl FromStr for Pronunciation {
             }
         }
 
-        if result.0.is_empty() {
+        if result.is_empty() {
             if s == QUESTION {
-                result.0.push(Mora {
+                result.push(Mora {
                     mora_enum: MoraEnum::Question,
                     is_voiced: true,
                 });
             } else if s != "*" {
-                result.0.push(Mora {
+                result.push(Mora {
                     mora_enum: MoraEnum::Touten,
                     is_voiced: true,
                 });
@@ -139,7 +165,7 @@ impl Display for Pronunciation {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(
             &self
-                .0
+                .moras
                 .iter()
                 .fold(String::new(), |acc, mora| format!("{}{}", acc, mora)),
         )
@@ -148,15 +174,13 @@ impl Display for Pronunciation {
 
 #[cfg(test)]
 mod test {
-    use std::str::FromStr;
-
     use super::{Mora, MoraEnum, Pronunciation};
 
     #[test]
     fn from_str_normal() {
-        let pron = Pronunciation::from_str("オツカレサマデシ’タ").unwrap();
+        let pron = Pronunciation::parse_mora_str("オツカレサマデシ’タ").unwrap();
         assert_eq!(
-            pron.0,
+            pron,
             vec![
                 Mora {
                     mora_enum: MoraEnum::O,
@@ -201,7 +225,7 @@ mod test {
     #[test]
     fn from_str_symbol() {
         assert_eq!(
-            Pronunciation::from_str("；").unwrap().0,
+            Pronunciation::parse_mora_str("；").unwrap(),
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
                 is_voiced: true
@@ -212,7 +236,7 @@ mod test {
     #[test]
     fn to_string() {
         assert_eq!(
-            Pronunciation::from_str("オツカレサマデシ’タ")
+            Pronunciation::parse("オツカレサマデシ’タ", 0)
                 .unwrap()
                 .to_string(),
             "オツカレサマデシ’タ"

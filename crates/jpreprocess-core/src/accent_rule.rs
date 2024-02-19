@@ -96,11 +96,11 @@ impl Display for AccentType {
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct ChainRule {
     pub accent_type: AccentType,
-    pub add_type: i32,
+    pub add_type: isize,
 }
 
 impl ChainRule {
-    pub fn new(accent_type: AccentType, add_type: i32) -> Self {
+    pub fn new(accent_type: AccentType, add_type: isize) -> Self {
         Self {
             accent_type,
             add_type,
@@ -142,11 +142,11 @@ impl FromStr for POSMatch {
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
 pub struct ChainRules {
-    default: Option<ChainRule>,
-    doushi: Option<ChainRule>,
-    joshi: Option<ChainRule>,
-    keiyoushi: Option<ChainRule>,
-    meishi: Option<ChainRule>,
+    pub default: Option<ChainRule>,
+    pub doushi: Option<ChainRule>,
+    pub joshi: Option<ChainRule>,
+    pub keiyoushi: Option<ChainRule>,
+    pub meishi: Option<ChainRule>,
 }
 
 impl ChainRules {

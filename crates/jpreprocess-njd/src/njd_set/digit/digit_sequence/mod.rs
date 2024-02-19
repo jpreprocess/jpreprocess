@@ -1,5 +1,5 @@
 use crate::{NJDNode, NJD};
-use jpreprocess_core::pronunciation::{MoraEnum, Pronunciation};
+use jpreprocess_core::pron;
 
 mod builder;
 mod score;
@@ -80,22 +80,13 @@ impl DigitSequence {
         {
             match *digit {
                 0 => {
-                    node.set_pron(Pronunciation::new_simple(vec![MoraEnum::Ze, MoraEnum::Ro]));
-                    node.set_mora_size(2);
+                    node.set_pron(pron!([Ze, Ro], 1));
                 }
                 2 => {
-                    node.set_pron(Pronunciation::new_simple(vec![
-                        MoraEnum::Ni,
-                        MoraEnum::Long,
-                    ]));
-                    node.set_mora_size(2);
+                    node.set_pron(pron!([Ni, Long], 1));
                 }
                 5 => {
-                    node.set_pron(Pronunciation::new_simple(vec![
-                        MoraEnum::Go,
-                        MoraEnum::Long,
-                    ]));
-                    node.set_mora_size(2);
+                    node.set_pron(pron!([Go, Long], 1));
                 }
                 _ => (),
             }
@@ -104,7 +95,7 @@ impl DigitSequence {
                 node.set_chain_flag(false);
                 if i != self.digits.len() - 1 {
                     /* if this is not the last digit */
-                    node.set_acc(3);
+                    node.get_pron_mut().set_accent(3);
                 }
             } else {
                 node.set_chain_flag(true);
@@ -149,8 +140,6 @@ impl DigitSequence {
             if *digit == 0 {
                 let node = &mut njd.nodes[nodes_index];
                 node.reset();
-                node.set_acc(0);
-                node.set_mora_size(0);
             } else {
                 have_digit_in_block = true;
             }

@@ -25,8 +25,8 @@ struct MoraState<'a> {
     pub node_index: usize,
     pub pos: POS,
     pub is_voiced_flag: Option<bool>,
-    pub midx: i32,
-    pub atype: i32,
+    pub midx: usize,
+    pub atype: usize,
 }
 
 pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
@@ -39,11 +39,11 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
             midx = 0;
         }
 
-        let acc = node.get_acc();
+        let acc = node.get_pron().accent();
         let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
-        for mora in pron.iter_mut() {
+        for mora in pron.moras_mut() {
             states.push(MoraState {
                 is_voiced_flag: if mora.is_voiced { None } else { Some(false) },
                 mora,

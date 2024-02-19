@@ -20,6 +20,8 @@ pub enum JPreprocessError {
     CFormParseError,
     #[error("Failed to parse accent rule: {0}")]
     AccentRuleParseError(#[from] AccentRuleParseError),
+    #[error("Provided mora size {0} is different from that of calculated from pronunciation {1}")]
+    MoraSizeMismatch(usize, usize),
 }
 
 #[derive(Debug, thiserror::Error)]

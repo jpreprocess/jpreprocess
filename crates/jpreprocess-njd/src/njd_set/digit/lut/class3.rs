@@ -1,4 +1,5 @@
 use super::*;
+use jpreprocess_core::pron;
 use phf::phf_map;
 
 type Class3Keys = Map<&'static str, &'static [&'static str]>;
@@ -69,8 +70,8 @@ const NUMERATIVE_CLASS3: Map<&str, &[&str]> = phf_map! {
     "とき" => &["トキ"],
 };
 
-const CONV_TABLE3: Map<&str, (&str, i32, i32)> = phf_map! {
-   "一"=>("ヒト", 0, 2),
-   "二"=> ("フタ", 0, 2),
+const CONV_TABLE3: DigitLUT = phf_map! {
+    "一" => pron!([Hi, To], 0),
+    "二" => pron!([Fu, Ta], 0),
    /* "三", "ミ", "1", "1", *//* modified */
 };
