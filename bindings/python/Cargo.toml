@@ -1,5 +1,5 @@
 [package]
-name = "jpreprocess-pyo3"
+name = "jpreprocess-python"
 edition = "2021"
 version = "0.1.0"
 

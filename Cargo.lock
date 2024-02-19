@@ -617,7 +617,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "jpreprocess-pyo3"
+name = "jpreprocess-python"
 version = "0.1.0"
 dependencies = [
  "jpreprocess",
