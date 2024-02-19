@@ -12,6 +12,10 @@ on:
     tags:
       - 'py-*.*.*'
   pull_request:
+     paths:
+      - "Cargo.*"
+      - "bindings/python/**"
+      - ".github/workflows/python.yml"
   workflow_dispatch:
 
 permissions:
