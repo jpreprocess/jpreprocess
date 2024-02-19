@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
-    JPreprocessError, JPreprocessResult,
+    JPreprocessResult,
 };
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
@@ -40,7 +40,7 @@ impl WordDetails {
                 "*" => None,
                 _ => Some(read.to_string()),
             },
-            pron: Self::parse_pron(pron, acc_morasize)?,
+            pron: Pronunciation::parse_csv_pron(pron, acc_morasize)?,
         })
     }
 
@@ -54,29 +54,9 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        self.pron = Self::parse_pron(pron, acc_morasize)?;
+        self.pron = Pronunciation::parse_csv_pron(pron, acc_morasize)?;
         self.chain_flag = Some(false);
         Ok(())
-    }
-
-    fn parse_pron(pron: &str, acc_morasize: &str) -> JPreprocessResult<Pronunciation> {
-        let (accent, mora_size) = match acc_morasize.split_once('/') {
-            Some((acc_s, mora_size_s)) => {
-                let acc = acc_s.parse().unwrap_or(0);
-                let mora_size = mora_size_s.parse().unwrap_or(0);
-                (acc, mora_size)
-            }
-            None => (0, 0),
-        };
-
-        let pronunciation = Pronunciation::parse(pron, accent)?;
-        if mora_size != pronunciation.mora_size() {
-            return Err(JPreprocessError::MoraSizeMismatch(
-                mora_size,
-                pronunciation.mora_size(),
-            ));
-        }
-        Ok(pronunciation)
     }
 
     pub fn to_str_vec(&self, orig: String) -> [String; 9] {

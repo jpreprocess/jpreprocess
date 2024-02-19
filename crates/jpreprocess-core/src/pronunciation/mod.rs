@@ -9,8 +9,6 @@ use std::{borrow::Cow, fmt::Display};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{JPreprocessError, JPreprocessResult};
-
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
@@ -32,6 +30,16 @@ macro_rules! pron {
             }
         }
     };
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum PronunciationParseError {
+    #[error("`{0}` could not be parsed as mora")]
+    UnknownMora(String),
+    #[error("Provided mora size {0} is different from that of calculated from pronunciation {1}")]
+    MoraSizeMismatch(usize, usize),
+    #[error("Failed to parse as integer: {0}")]
+    NumberParseError(#[from] std::num::ParseIntError),
 }
 
 /// Pronunciation.
@@ -113,16 +121,45 @@ impl Pronunciation {
             .collect::<Vec<_>>();
         self.moras = Cow::Owned(moras);
     }
+}
 
-    pub fn parse(moras: &str, accent: usize) -> JPreprocessResult<Self> {
+impl Pronunciation {
+    pub(crate) fn parse_csv_pron(
+        pron: &str,
+        acc_morasize: &str,
+    ) -> Result<Self, PronunciationParseError> {
+        let (accent, mora_size) = match acc_morasize.split_once('/') {
+            Some(("*" | "", "*" | "")) => (None, None),
+            Some((acc, mora_size)) => (Some(acc.parse()?), Some(mora_size.parse()?)),
+            None => match acc_morasize {
+                "*" | "" => (None, None),
+                acc => (Some(acc.parse()?), None),
+            },
+        };
+        let pronunciation = Self::parse(pron, accent.unwrap_or(0))?;
+
+        if let Some(mora_size) = mora_size {
+            if pronunciation.mora_size() != mora_size {
+                return Err(PronunciationParseError::MoraSizeMismatch(
+                    mora_size,
+                    pronunciation.mora_size(),
+                ));
+            }
+        }
+
+        Ok(pronunciation)
+    }
+
+    pub fn parse(moras: &str, accent: usize) -> Result<Self, PronunciationParseError> {
         Ok(Self::new(Self::parse_mora_str(moras)?, accent))
     }
-    fn parse_mora_str(s: &str) -> JPreprocessResult<Vec<Mora>> {
+
+    fn parse_mora_str(s: &str) -> Result<Vec<Mora>, PronunciationParseError> {
         let mut result = Vec::new();
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
-                return Err(JPreprocessError::PronunciationParseError(
+                return Err(PronunciationParseError::UnknownMora(
                     s[current_position..match_result.start()].to_string(),
                 ));
             }

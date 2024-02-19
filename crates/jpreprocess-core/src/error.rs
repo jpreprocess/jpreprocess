@@ -1,6 +1,9 @@
 use lindera_core::error::LinderaError;
 
-use crate::{accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError};
+use crate::{
+    accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError,
+    pronunciation::PronunciationParseError,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub enum JPreprocessError {
@@ -10,8 +13,8 @@ pub enum JPreprocessError {
     DictionaryError(#[from] DictionaryError),
     #[error("Lindera error: {0}")]
     LinderaError(#[from] LinderaError),
-    #[error("Failed to parse pronunciation in: {0}")]
-    PronunciationParseError(String),
+    #[error("Failed to parse pronunciation: {0}")]
+    PronunciationParseError(#[from] PronunciationParseError),
     #[error("Failed to parse part of speech (POS): {0}")]
     PartOfSpeechParseError(#[from] POSParseError),
     #[error("Failed to parse conjugation type (CType): {0}")]
