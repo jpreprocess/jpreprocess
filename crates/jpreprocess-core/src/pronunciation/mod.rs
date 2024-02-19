@@ -128,19 +128,17 @@ impl Pronunciation {
         pron: &str,
         acc_morasize: &str,
     ) -> Result<Self, PronunciationParseError> {
-        let (acc, mora_size) = match acc_morasize.split_once('/') {
+        let (accent, mora_size) = match acc_morasize.split_once('/') {
             Some(("*" | "", "*" | "")) => (None, None),
-            Some((acc, mora_size)) => (Some(acc), Some(mora_size)),
+            Some((acc, mora_size)) => (Some(acc.parse()?), Some(mora_size.parse()?)),
             None => match acc_morasize {
                 "*" | "" => (None, None),
-                acc => (Some(acc), None),
+                acc => (Some(acc.parse()?), None),
             },
         };
-        let accent = acc.map(|acc| acc.parse()).transpose()?.unwrap_or(0);
-        let pronunciation = Self::parse(pron, accent)?;
+        let pronunciation = Self::parse(pron, accent.unwrap_or(0))?;
 
         if let Some(mora_size) = mora_size {
-            let mora_size = mora_size.parse()?;
             if pronunciation.mora_size() != mora_size {
                 return Err(PronunciationParseError::MoraSizeMismatch(
                     mora_size,
