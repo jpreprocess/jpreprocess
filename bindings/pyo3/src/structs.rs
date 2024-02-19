@@ -1,8 +1,14 @@
 use std::str::FromStr;
 
 use jpreprocess_core::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
-    word_details::WordDetails, word_entry::WordEntry, JPreprocessError,
+    accent_rule::ChainRules,
+    cform::CForm,
+    ctype::CType,
+    pos::POS,
+    pronunciation::{Pronunciation, PronunciationParseError},
+    word_details::WordDetails,
+    word_entry::WordEntry,
+    JPreprocessError,
 };
 use jpreprocess_njd::NJDNode;
 use pyo3::prelude::*;
@@ -51,8 +57,8 @@ pub struct NjdObject {
     orig: String,
     read: String,
     pron: String,
-    acc: i32,
-    mora_size: i32,
+    acc: usize,
+    mora_size: usize,
     chain_rule: String,
     chain_flag: i32,
 }
@@ -72,8 +78,8 @@ impl From<NJDNode> for NjdObject {
             orig: value.get_string().to_string(),
             read: value.get_read().unwrap_or("*").to_string(),
             pron: value.get_pron().to_string(),
-            acc: value.get_acc(),
-            mora_size: value.get_mora_size(),
+            acc: value.get_pron().accent(),
+            mora_size: value.get_pron().mora_size(),
             chain_rule: value.get_chain_rule().to_string(),
             chain_flag: match value.get_chain_flag() {
                 Some(true) => 1,
@@ -100,9 +106,7 @@ impl TryFrom<NjdObject> for NJDNode {
                 "*" => None,
                 read => Some(read.to_string()),
             },
-            pron: Pronunciation::from_str(&value.pron)?,
-            acc: value.acc,
-            mora_size: value.mora_size,
+            pron: Pronunciation::parse(&value.pron, value.acc)?,
             chain_rule: ChainRules::new(&value.chain_rule),
             chain_flag: match value.chain_flag {
                 1 => Some(true),
@@ -110,6 +114,13 @@ impl TryFrom<NjdObject> for NJDNode {
                 _ => None,
             },
         };
+        if details.pron.mora_size() != value.mora_size {
+            return Err(PronunciationParseError::MoraSizeMismatch(
+                value.mora_size as usize,
+                details.pron.mora_size(),
+            )
+            .into());
+        }
         let node = NJDNode::load(&value.string, WordEntry::Single(details));
         Ok(node[0].to_owned())
     }
