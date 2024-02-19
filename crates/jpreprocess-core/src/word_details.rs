@@ -26,8 +26,6 @@ impl WordDetails {
         let acc_morasize = details[9];
         let chain_rule = details[10];
 
-        let (accent, mora_size) = Self::parse_acc_morasize(acc_morasize);
-
         Ok(Self {
             pos: POS::from_strs(details[0], details[1], details[2], details[3])?,
             ctype: CType::from_str(details[4])?,
@@ -42,7 +40,7 @@ impl WordDetails {
                 "*" => None,
                 _ => Some(read.to_string()),
             },
-            pron: Self::parse_pron(pron, accent, mora_size)?,
+            pron: Self::parse_pron(pron, acc_morasize)?,
         })
     }
 
@@ -56,32 +54,29 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        let (accent, mora_size) = Self::parse_acc_morasize(acc_morasize);
-        self.pron = Self::parse_pron(pron, accent, mora_size)?;
+        self.pron = Self::parse_pron(pron, acc_morasize)?;
         self.chain_flag = Some(false);
         Ok(())
     }
 
-    fn parse_acc_morasize(acc_morasize: &str) -> (usize, usize) {
-        match acc_morasize.split_once('/') {
+    fn parse_pron(pron: &str, acc_morasize: &str) -> JPreprocessResult<Pronunciation> {
+        let (accent, mora_size) = match acc_morasize.split_once('/') {
             Some((acc_s, mora_size_s)) => {
                 let acc = acc_s.parse().unwrap_or(0);
                 let mora_size = mora_size_s.parse().unwrap_or(0);
                 (acc, mora_size)
             }
             None => (0, 0),
-        }
-    }
+        };
 
-    fn parse_pron(pron: &str, accent: usize, mora_size: usize) -> JPreprocessResult<Pronunciation> {
-        let pron = Pronunciation::parse(pron, accent)?;
-        if mora_size != pron.mora_size() {
+        let pronunciation = Pronunciation::parse(pron, accent)?;
+        if mora_size != pronunciation.mora_size() {
             return Err(JPreprocessError::MoraSizeMismatch(
                 mora_size,
-                pron.mora_size(),
+                pronunciation.mora_size(),
             ));
         }
-        Ok(pron)
+        Ok(pronunciation)
     }
 
     pub fn to_str_vec(&self, orig: String) -> [String; 9] {
