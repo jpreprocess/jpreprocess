@@ -15,7 +15,7 @@ documentation = "https://docs.rs/jpreprocess-dictionary"
 [dependencies]
 bincode = "1.3.3"
 byteorder = "1.5.0"
-anyhow = "1.0.79"
+anyhow = "1.0.80"
 once_cell = "1.19.0"
 
 lindera-core = { version = "0.27.2" }
