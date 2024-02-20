@@ -116,7 +116,7 @@ impl TryFrom<NjdObject> for NJDNode {
         };
         if details.pron.mora_size() != value.mora_size {
             return Err(PronunciationParseError::MoraSizeMismatch(
-                value.mora_size as usize,
+                value.mora_size,
                 details.pron.mora_size(),
             )
             .into());
