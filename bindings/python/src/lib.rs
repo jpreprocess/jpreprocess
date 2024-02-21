@@ -6,7 +6,8 @@ use pyo3::{exceptions::PyRuntimeError, prelude::*};
 #[pymodule]
 fn jpreprocess(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<binding::JPreprocessPyBinding>()?;
-    m.add("VERSION", env!("CARGO_PKG_VERSION"))?;
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
+    m.add("JPREPROCESS_VERSION", ::jpreprocess::VERSION)?;
     Ok(())
 }
 

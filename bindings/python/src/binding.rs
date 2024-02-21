@@ -24,8 +24,8 @@ impl JPreprocessPyBinding {
         Ok(Self {
             inner: JPreprocess::from_config(JPreprocessConfig {
                 dictionary: SystemDictionaryConfig::File(dictionary),
-                user_dictionary: user_dictionary.map(|u| UserDictionaryConfig {
-                    path: u,
+                user_dictionary: user_dictionary.map(|path| UserDictionaryConfig {
+                    path,
                     kind: Some(DictionaryKind::IPADIC),
                 }),
             })

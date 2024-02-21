@@ -12,5 +12,8 @@ classifiers = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+progress = [ "tqdm" ]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]

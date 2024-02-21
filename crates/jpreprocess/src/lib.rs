@@ -39,6 +39,9 @@
 //! # }
 //! ```
 
+#[doc(hidden)]
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 mod dictionary;
 mod normalize_text;
 
