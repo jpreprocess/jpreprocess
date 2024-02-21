@@ -25,11 +25,11 @@ name = "dict_tools"
 required-features = ["binary"]
 
 [dependencies]
-lindera-core = { version = "0.27" }
-lindera-tokenizer = { version = "0.27" }
-lindera-dictionary = { version = "0.27" }
+lindera-core.workspace = true
+lindera-tokenizer.workspace = true
+lindera-dictionary.workspace = true
 
-phf = { version = "0.11", features = ["macros"] }
+phf = { workspace = true, features = ["macros"] }
 
 jlabel.workspace = true
 jpreprocess-core.workspace = true
@@ -40,4 +40,4 @@ jpreprocess-dictionary-builder.workspace = true
 
 jpreprocess-naist-jdic = { workspace = true, optional = true }
 
-clap = { version = "4.5.1", features = ["derive"], optional = true }
+clap = { workspace = true, features = ["derive"], optional = true }

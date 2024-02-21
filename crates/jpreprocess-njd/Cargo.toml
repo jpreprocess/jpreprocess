@@ -13,9 +13,10 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-njd"
 
 [dependencies]
-phf = { version = "0.11", features = ["macros"] }
-lindera-tokenizer = { version = "0.27" }
-aho-corasick = "1.1"
+phf = { workspace = true, features = ["macros"] }
+aho-corasick.workspace = true
+
+lindera-tokenizer.workspace = true
 
 jpreprocess-core.workspace = true
 jpreprocess-window.workspace = true
