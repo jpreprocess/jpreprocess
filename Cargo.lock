@@ -622,8 +622,11 @@ version = "0.1.0"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
+ "jpreprocess-dictionary",
+ "jpreprocess-dictionary-builder",
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
+ "lindera-core",
  "pyo3",
  "pythonize",
  "serde",
