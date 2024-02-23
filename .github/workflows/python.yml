@@ -26,16 +26,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [x86_64, x86, aarch64, armv7, s390x, ppc64le]
+        platform: [x86_64, x86, aarch64, armv7, s390x, ppc64le]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.platform }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
           manylinux: auto
@@ -49,17 +50,18 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        target: [x64, x86]
+        architecture: [x64, x86]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-          architecture: ${{ matrix.target }}
+          python-version: ${{ matrix.python }}
+          architecture: ${{ matrix.architecture }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.architecture }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
@@ -72,16 +74,17 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        target: [x86_64, aarch64]
+        architecture: [x86_64, aarch64]
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python }}
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          target: ${{ matrix.target }}
+          target: ${{ matrix.architecture }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
