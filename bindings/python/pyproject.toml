@@ -17,6 +17,12 @@ dependencies = [
 
 [project.optional-dependencies]
 progress = [ "tqdm" ]
+dev = [ "pytest>=8.0.1" ]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]

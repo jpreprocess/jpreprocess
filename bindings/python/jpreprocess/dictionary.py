@@ -1,7 +1,5 @@
-from .jpreprocess import JPREPROCESS_VERSION
 from contextlib import ExitStack
 import sys
-import os
 import atexit
 
 # from https://github.com/r9y9/pyopenjtalk/pull/74
@@ -15,24 +13,27 @@ _file_manager = ExitStack()
 atexit.register(_file_manager.close)
 _file_ref = files(__package__)
 
-# Dictionary path
-# defaults to the package directory where the dictionary will be automatically downloaded
-JPREPROCESS_DICT_PATH = os.environ.get(
-    "JPREPROCESS_DICT_PATH",
-    str(_file_manager.enter_context(
-        as_file(_file_ref / JPREPROCESS_VERSION / "naist-jdic"))),
-)
-JPREPROCESS_DICT_URL = f"https://github.com/jpreprocess/jpreprocess/releases/download/v{JPREPROCESS_VERSION}/naist-jdic-jpreprocess.tar.gz"
+
+def dictionary_path(version: str) -> str:
+    return str(_file_manager.enter_context(
+        as_file(_file_ref / version / "naist-jdic")))
 
 
-def download_dictionary() -> None:
+def download_dictionary(version: str) -> str:
     from urllib.request import urlopen
     import tarfile
     import tempfile
 
+    if version == "latest":
+        url = f"https://github.com/jpreprocess/jpreprocess/releases/latest/download/naist-jdic-jpreprocess.tar.gz"
+    else:
+        url = f"https://github.com/jpreprocess/jpreprocess/releases/download/{version}/naist-jdic-jpreprocess.tar.gz"
+
+    target_dir = _file_ref / version
+
     with tempfile.TemporaryFile() as file:
-        print('Downloading: "{}"'.format(JPREPROCESS_DICT_URL))
-        with urlopen(JPREPROCESS_DICT_URL) as response:
+        print('Downloading: "{}"'.format(url))
+        with urlopen(url) as response:
             try:
                 from tqdm.auto import tqdm
                 with tqdm.wrapattr(file, "write", total=getattr(response, "length", None)) as tar:
@@ -43,6 +44,8 @@ def download_dictionary() -> None:
                     file.write(chunk)
         file.seek(0)
         print("Extracting tar file")
-        with tarfile.open(mode="r|gz", fileobj=file) as f, as_file(_file_ref / JPREPROCESS_VERSION) as dir:
+        with tarfile.open(mode="r|gz", fileobj=file) as f, as_file(target_dir) as dir:
             f.extractall(path=dir)
         print("done")
+
+    return str(target_dir)
