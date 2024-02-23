@@ -11,6 +11,9 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+dependencies = [
+    "importlib_resources; python_version<'3.9'"
+]
 
 [project.optional-dependencies]
 progress = [ "tqdm" ]
