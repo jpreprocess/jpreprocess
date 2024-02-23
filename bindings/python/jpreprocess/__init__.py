@@ -11,7 +11,7 @@ def jpreprocess(dictionary_version: str = f"v{JPREPROCESS_VERSION}", user_dictio
 
     Arguments:
     - dictionary_version (str): Version of dictionary to download.
-      We don't recommend specifying this argument unless you know what you are doing.
+      We don't recommend specifying this argument unless you are aware of what you are doing.
     - user_dictionary (str | None): Path to user dictionary. The extionsion must be ".csv" or ".bin".
     """
     dict_path = dictionary_path(dictionary_version)
