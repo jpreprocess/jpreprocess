@@ -22,7 +22,7 @@ lindera-core.workspace = true
 encoding = { workspace = true, optional = true }
 flate2 = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
-ureq = { workspace = true, default-features = false, features = ["tls"], optional = true }
+ureq = { workspace = true, features = ["tls"], optional = true }
 
 lindera-core.workspace = true
 
