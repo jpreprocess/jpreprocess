@@ -39,6 +39,9 @@
 //! # }
 //! ```
 
+#[doc(hidden)]
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 mod dictionary;
 mod normalize_text;
 
@@ -48,11 +51,11 @@ pub use normalize_text::normalize_text_for_naist_jdic;
 pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary::default::DefaultFetcher;
 pub use jpreprocess_njd::NJD;
+pub use lindera_core::dictionary::{Dictionary, UserDictionary};
+pub use lindera_dictionary::{load_user_dictionary, DictionaryKind, UserDictionaryConfig};
 
 use jpreprocess_core::*;
 use jpreprocess_dictionary::DictionaryFetcher;
-use lindera_core::dictionary::{Dictionary, UserDictionary};
-use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
 use lindera_tokenizer::tokenizer::Tokenizer;
 
 pub struct JPreprocessConfig {
