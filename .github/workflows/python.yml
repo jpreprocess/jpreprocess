@@ -54,7 +54,7 @@ jobs:
           cd bindings/python && pytest
       - name: pytest
         if: ${{ !startsWith(matrix.target, 'x86') && matrix.target != 'ppc64' }}
-        uses: uraimo/run-on-arch-action@a8003307a739516fdd80ee6d3da8924db811b8da # v2.5.0
+        uses: uraimo/run-on-arch-action@517085f0367c8256bcfa753e3e13e1550af09954 # v2.7.1
         with:
           arch: ${{ matrix.target }}
           distro: ubuntu22.04
