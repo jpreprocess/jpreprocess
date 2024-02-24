@@ -14,7 +14,7 @@ repository = "https://github.com/jpreprocess/jpreprocess"
 keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
 
-rust-version = "1.65.0"
+rust-version = "1.71.1"
 
 [workspace.dependencies]
 jpreprocess = { path = "crates/jpreprocess", version = "0.8.0-rc0" }
