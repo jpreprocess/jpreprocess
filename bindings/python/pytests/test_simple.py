@@ -4,7 +4,6 @@ import os
 
 def pytest_sessionstart(session):
     session.__dictionary_path = jpreprocess.download_dictionary("latest")
-    print(session.__dictionary_path)
 
 
 def test_run_frontend():
@@ -46,7 +45,6 @@ def test_extract_fullcontext():
     j = jpreprocess.jpreprocess(dictionary_version="latest")
     fullcontext = j.extract_fullcontext("本日は晴天なり")
 
-    print(fullcontext[0], fullcontext[16])
     assert len(fullcontext) == 21
 
     assert fullcontext[0] == r"xx^xx-sil+h=o/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:5_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:2_11/K:1+2-11"
