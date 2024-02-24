@@ -1,6 +1,19 @@
 import os
-from .jpreprocess import *
+from .jpreprocess import (
+    __version__,
+    JPreprocess,
+    build_dictionary,
+    JPREPROCESS_VERSION,
+)
 from .dictionary import download_dictionary, dictionary_path
+
+
+__all__ = [
+    "JPreprocess",
+    "build_dictionary",
+    "download_dictionary",
+    "JPREPROCESS_VERSION",
+]
 
 
 def jpreprocess(dictionary_version: str = f"v{JPREPROCESS_VERSION}", user_dictionary: str | None = None) -> JPreprocess:
