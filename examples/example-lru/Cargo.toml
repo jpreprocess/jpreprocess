@@ -14,6 +14,6 @@ rust-version.workspace = true
 jpreprocess.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true
-lindera-tokenizer = { version = "0.27" }
+lindera-tokenizer.workspace = true
 
 lru = "0.12.2"

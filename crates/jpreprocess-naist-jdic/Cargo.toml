@@ -16,7 +16,7 @@ documentation = "https://docs.rs/jpreprocess-naist-jdic"
 naist-jdic = ["encoding", "flate2", "tar", "ureq"]
 
 [dependencies]
-lindera-core = { version = "0.27.2" }
+lindera-core.workspace = true
 
 [build-dependencies]
 encoding = { workspace = true, optional = true }
