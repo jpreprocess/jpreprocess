@@ -117,7 +117,10 @@ impl WordEntryWithString {
                 word_cost: i16::from_str(row[3].trim()).map_err(|_err| {
                     LinderaErrorKind::Parse.with_error(anyhow::anyhow!("failed to parse word_cost"))
                 })?,
-                cost_id: u16::from_str(row[1].trim()).map_err(|_err| {
+                left_id: u16::from_str(row[1].trim()).map_err(|_err| {
+                    LinderaErrorKind::Parse.with_error(anyhow::anyhow!("failed to parse cost_id"))
+                })?,
+                right_id: u16::from_str(row[2].trim()).map_err(|_err| {
                     LinderaErrorKind::Parse.with_error(anyhow::anyhow!("failed to parse cost_id"))
                 })?,
             },
@@ -129,7 +132,8 @@ impl WordEntryWithString {
             word_entry: WordEntry {
                 word_id: WordId(row_id, false),
                 word_cost: SIMPLE_WORD_COST,
-                cost_id: SIMPLE_CONTEXT_ID,
+                left_id: SIMPLE_CONTEXT_ID,
+                right_id: SIMPLE_CONTEXT_ID,
             },
         }
     }
