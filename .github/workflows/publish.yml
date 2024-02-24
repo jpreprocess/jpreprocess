@@ -63,7 +63,7 @@ jobs:
           targets: ${{ matrix.target }}
       - run: |
           cargo install cross
-          cross build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }}
+          cross build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }} --bin dict_tools --bin jpreprocess
 
       - run: |
           zip --junk-paths ${{ matrix.target }}-${{ matrix.feature }}.zip target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe}
