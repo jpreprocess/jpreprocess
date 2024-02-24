@@ -161,4 +161,4 @@ jobs:
         uses: PyO3/maturin-action@60d11847b29f81ca5375519a8eb33cc336ba4bfa # v1
         with:
           command: upload
-          args: --non-interactive --skip-existing * --manifest-path bindings/python/Cargo.toml
+          args: --non-interactive --skip-existing *
