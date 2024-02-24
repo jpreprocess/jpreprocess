@@ -37,7 +37,7 @@ assert len(fullcontext) == 21
 assert fullcontext[0] == r"xx^xx-sil+h=o/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:5_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:2_11/K:1+2-11"
 ```
 
-## Grapheme-to-phoeneme (G2P)
+### Grapheme-to-phoeneme (G2P)
 
 ```python
 import jpreprocess
@@ -47,3 +47,11 @@ j = jpreprocess.jpreprocess()
 assert j.g2p("おはようございます") == "o h a y o o g o z a i m a s U"
 assert j.g2p("おはようございます", kana=True) == "オハヨーゴザイマス"
 ```
+
+## Copyrights
+
+Please see [README.md](https://github.com/jpreprocess/jpreprocess/blob/main/README.md).
+
+## License
+
+BSD-3-Clause
