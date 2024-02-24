@@ -37,12 +37,7 @@ pub fn dict_to_csv<S: DictionarySerializer>(
         .map(|((string, word_entry), right)| {
             format!(
                 "{},{},{},{},{}",
-                string,
-                word_entry.cost_id,
-                // Lindera does not use right_id, so assuming that it is same as the left_id
-                word_entry.cost_id,
-                word_entry.word_cost,
-                right
+                string, word_entry.left_id, word_entry.right_id, word_entry.word_cost, right
             )
         })
         .collect())
