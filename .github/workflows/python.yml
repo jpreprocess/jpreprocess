@@ -42,7 +42,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: wheels
+          name: wheels-linux-${{ matrix.target }}
           path: dist
       - name: pytest
         if: ${{ startsWith(matrix.target, 'x86_64') }}
@@ -88,7 +88,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: wheels
+          name: wheels-windows-${{ matrix.target }}
           path: dist
       - name: pytest
         if: ${{ !startsWith(matrix.target, 'aarch64') }}
@@ -118,7 +118,7 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: wheels
+          name: wheels-macos-${{ matrix.target }}
           path: dist
       - name: pytest
         if: ${{ !startsWith(matrix.target, 'aarch64') }}
@@ -141,7 +141,7 @@ jobs:
       - name: Upload sdist
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4
         with:
-          name: wheels
+          name: wheels-sdist
           path: dist
 
   release:
@@ -152,7 +152,8 @@ jobs:
     steps:
       - uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4
         with:
-          name: wheels
+          pattern: wheels-*
+          merge-multiple: true
       - name: Publish to PyPI
         uses: PyO3/maturin-action@60d11847b29f81ca5375519a8eb33cc336ba4bfa # v1
         env:
