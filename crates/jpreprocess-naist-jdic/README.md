@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-naist-jdic = "0.8.0"
+jpreprocess-naist-jdic = "0.8.1"
 ```
 
 ## Copyrights
