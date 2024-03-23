@@ -54,5 +54,5 @@ rayon = "1.9"
 serde = "1.0.197"
 
 aho-corasick = "1.1"
-regex = "1.10.3"
+regex = "1.10.4"
 phf = "0.11"
