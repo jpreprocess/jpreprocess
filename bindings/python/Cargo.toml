@@ -15,8 +15,8 @@ name = "jpreprocess"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.20.3"
-pythonize = "0.20.0"
+pyo3 = "0.21.1"
+pythonize = "0.21.1"
 
 serde.workspace = true
 
