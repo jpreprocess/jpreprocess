@@ -12,7 +12,7 @@ use jpreprocess_core::{
 };
 use jpreprocess_njd::NJDNode;
 use pyo3::prelude::*;
-use pythonize::{depythonize, pythonize};
+use pythonize::{depythonize_bound, pythonize};
 use serde::{Deserialize, Serialize};
 
 use crate::into_runtime_error;
@@ -133,7 +133,7 @@ impl IntoPy<PyObject> for NjdObject {
 }
 
 impl<'a> FromPyObject<'a> for NjdObject {
-    fn extract(ob: &'a pyo3::prelude::PyAny) -> pyo3::prelude::PyResult<Self> {
-        depythonize(ob).map_err(into_runtime_error)
+    fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
+        depythonize_bound(ob.clone()).map_err(into_runtime_error)
     }
 }
