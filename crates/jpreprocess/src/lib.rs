@@ -209,7 +209,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// If you need these infomation, please raise a feature request as an issue.
     pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess();
+        njd.preprocess_default();
         Ok(njd.into())
     }
 
@@ -229,7 +229,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// [`make_label`]: #method.make_label
     pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess();
+        njd.preprocess_default();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
     }
 }

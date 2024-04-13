@@ -41,8 +41,16 @@ impl NJD {
         }
     }
 
-    pub fn preprocess(&mut self) {
-        njd_set::preprocess_njd(self)
+    pub fn preprocess_default(&mut self) {
+        use njd_set::*;
+
+        pronunciation::njd_set_pronunciation(self);
+        digit::njd_set_digit(self);
+        accent_phrase::njd_set_accent_phrase(self);
+        accent_type::njd_set_accent_type(self);
+        unvoiced_vowel::njd_set_unvoiced_vowel(self);
+        // long vowel estimator is deprecated
+        // long_vowel::njd_set_long_vowel(self);
     }
 }
 
