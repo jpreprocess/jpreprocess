@@ -1,20 +1,25 @@
-pub const ICHI: &str = "一";
-pub const NI: &str = "二";
-pub const SAN: &str = "三";
-pub const YON: &str = "四";
-pub const GO: &str = "五";
-pub const ROKU: &str = "六";
-pub const NANA: &str = "七";
-pub const HACHI: &str = "八";
-pub const KYUU: &str = "九";
-pub const JYUU: &str = "十";
-pub const HYAKU: &str = "百";
-pub const SEN: &str = "千";
-pub const MAN: &str = "万";
-pub const OKU: &str = "億";
-pub const CHOU: &str = "兆";
-pub const NAN: &str = "何";
-pub const IKU: &str = "幾";
+//! Process accent conjugation.
+//!
+//! Please refer to [UNIDIC Users' Manual](https://clrd.ninjal.ac.jp/unidic/UNIDIC_manual.pdf)「6.7 アクセント結合型
+//! for details on each accent conjugation type.
+
+const ICHI: &str = "一";
+const NI: &str = "二";
+const SAN: &str = "三";
+const YON: &str = "四";
+const GO: &str = "五";
+const ROKU: &str = "六";
+const NANA: &str = "七";
+const HACHI: &str = "八";
+const KYUU: &str = "九";
+const JYUU: &str = "十";
+const HYAKU: &str = "百";
+const SEN: &str = "千";
+const MAN: &str = "万";
+const OKU: &str = "億";
+const CHOU: &str = "兆";
+const NAN: &str = "何";
+const IKU: &str = "幾";
 
 use jpreprocess_core::accent_rule::AccentType;
 

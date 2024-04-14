@@ -1,13 +1,14 @@
-/*
-  無声子音: k ky s sh t ty ch ts h f hy p py
-  Rule 0 フィラーは無声化しない
-  Rule 1 助動詞の「です」と「ます」の「す」が無声化
-  Rule 2 動詞，助動詞，助詞の「し」は無声化しやすい
-  Rule 3 続けて無声化しない
-  Rule 4 アクセント核で無声化しない
-  Rule 5 無声子音(k ky s sh t ty ch ts h f hy p py)に囲まれた「i」と「u」が無声化
-         例外：s->s, s->sh, f->f, f->h, f->hy, h->f, h->h, h->hy
-*/
+//! Set unvoiced flag.
+//!
+//! ## Rules
+//!
+//! 0. フィラーは無声化しない
+//! 1. 助動詞の「です」と「ます」の「す」が無声化
+//! 2. 動詞，助動詞，助詞の「し」は無声化しやすい
+//! 3. 続けて無声化しない
+//! 4. アクセント核で無声化しない
+//! 5. 無声子音(`k ky s sh t ty ch ts h f hy p py`)に囲まれた「`i`」と「`u`」が無声化
+//!    - 例外：`s->s`, `s->sh`, `f->f`, `f->h`, `f->hy`, `h->f`, `h->h`, `h->hy`
 
 use jpreprocess_core::pronunciation::{
     phoneme::{Consonant, Vowel},

@@ -118,9 +118,6 @@ impl NJDNode {
     pub fn set_read(&mut self, read: &str) {
         self.details.read = Some(read.to_string());
     }
-    pub fn unset_read(&mut self) {
-        self.details.read = None;
-    }
 
     pub fn get_pron(&self) -> &Pronunciation {
         &self.details.pron

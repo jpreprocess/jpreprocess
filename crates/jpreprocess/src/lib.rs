@@ -179,6 +179,8 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();
     ///
+    /// // Do something with njd
+    ///
     /// // jpcommon utterance
     /// let utterance = Utterance::from(njd.nodes.as_slice());
     ///
