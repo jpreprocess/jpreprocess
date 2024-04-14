@@ -6,6 +6,7 @@ use dictionary::build_dictionary;
 use pyo3::{exceptions::PyRuntimeError, prelude::*};
 
 #[pymodule]
+#[pyo3(name = "jpreprocess")]
 fn jpreprocess(_py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<binding::JPreprocessPyBinding>()?;
     m.add_function(wrap_pyfunction!(build_dictionary, m)?)?;

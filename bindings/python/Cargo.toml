@@ -10,10 +10,6 @@ keywords.workspace = true
 categories.workspace = true
 rust-version.workspace = true
 
-[lib]
-name = "jpreprocess"
-crate-type = ["cdylib"]
-
 [dependencies]
 pyo3 = "0.21.1"
 pythonize = "0.21.1"
