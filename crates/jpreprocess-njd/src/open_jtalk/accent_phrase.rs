@@ -21,9 +21,6 @@
 //! 17. 「名詞」の後の「*,*,*,名」は別のアクセント句に
 //! 18. 「*,接尾」は前にくっつける
 
-pub const TE: &str = "て";
-pub const DE: &str = "で";
-
 use crate::{NJDNode, NJD};
 use jpreprocess_core::pos::*;
 
@@ -76,7 +73,7 @@ fn chain_flag(prev: &NJDNode, node: &NJDNode) -> bool {
         (POS::Doushi(_), POS::Keiyoushi(Keiyoushi::Hijiritsu)) if prev.is_renyou() => true,
         (POS::Keiyoushi(_), POS::Keiyoushi(Keiyoushi::Hijiritsu)) if prev.is_renyou() => true,
         (POS::Joshi(Joshi::SetsuzokuJoshi), POS::Keiyoushi(Keiyoushi::Hijiritsu))
-            if matches!(prev.get_string(), TE | DE) =>
+            if matches!(prev.get_string(), "て" | "で") =>
         {
             true
         }

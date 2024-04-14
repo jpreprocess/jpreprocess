@@ -2,10 +2,6 @@
 
 use crate::NJD;
 
-const QUESTION: &str = "？";
-const DESU_STR: &str = "です";
-const MASU_STR: &str = "ます";
-
 use jpreprocess_core::{
     pos::*,
     pron,
@@ -85,10 +81,10 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             {
                 next.set_pron(pron!([Long], 0));
             }
-            if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == QUESTION {
+            if matches!(node.get_pos(), POS::Jodoushi) && next.get_string() == "？" {
                 match node.get_string() {
-                    DESU_STR => node.set_pron(pron!([De, Su], 1)),
-                    MASU_STR => node.set_pron(pron!([Ma, Su], 1)),
+                    "です" => node.set_pron(pron!([De, Su], 1)),
+                    "ます" => node.set_pron(pron!([Ma, Su], 1)),
                     _ => (),
                 }
             }
