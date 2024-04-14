@@ -1,3 +1,8 @@
+//! Process accent conjugation.
+//!
+//! Please refer to [UNIDIC Users' Manual](https://clrd.ninjal.ac.jp/unidic/UNIDIC_manual.pdf)「6.7 アクセント結合型
+//! for details on each accent conjugation type.
+
 pub const ICHI: &str = "一";
 pub const NI: &str = "二";
 pub const SAN: &str = "三";

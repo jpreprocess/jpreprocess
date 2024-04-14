@@ -1,3 +1,5 @@
+//! Set pronunciation based on various clues.
+
 use crate::NJD;
 
 const QUESTION: &str = "？";
