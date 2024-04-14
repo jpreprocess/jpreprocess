@@ -44,7 +44,7 @@ fn test_one(input_text: &'static str) {
 
     let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
 
-    njd.preprocess_default();
+    njd.preprocess();
 
     let features = jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes);
 

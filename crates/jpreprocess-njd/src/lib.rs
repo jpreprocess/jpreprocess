@@ -41,7 +41,7 @@ impl NJD {
         }
     }
 
-    pub fn preprocess_default(&mut self) {
+    pub fn preprocess(&mut self) {
         use open_jtalk::*;
 
         pronunciation::njd_set_pronunciation(self);

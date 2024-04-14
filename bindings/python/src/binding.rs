@@ -34,7 +34,7 @@ impl JPreprocessPyBinding {
     }
     fn run_frontend(&self, text: &str) -> PyResult<Vec<NjdObject>> {
         let mut njd = self.inner.text_to_njd(text).map_err(into_runtime_error)?;
-        njd.preprocess_default();
+        njd.preprocess();
         Ok(njd.nodes.into_iter().map(|n| n.into()).collect())
     }
     fn make_label(&self, njd_features: Vec<NjdObject>) -> PyResult<Vec<String>> {
@@ -61,7 +61,7 @@ impl JPreprocessPyBinding {
 
         let prons = if kana {
             let mut njd = self.inner.text_to_njd(text).map_err(into_runtime_error)?;
-            njd.preprocess_default();
+            njd.preprocess();
             njd.nodes
                 .iter()
                 .map(|node| {
