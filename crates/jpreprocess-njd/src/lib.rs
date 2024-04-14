@@ -1,4 +1,4 @@
-mod njd_set;
+mod open_jtalk;
 mod node;
 
 use jpreprocess_core::JPreprocessResult;
@@ -6,7 +6,7 @@ use jpreprocess_dictionary::DictionaryFetcher;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
-pub use njd_set::*;
+pub use open_jtalk::*;
 pub use node::*;
 
 #[derive(Debug)]
@@ -42,7 +42,7 @@ impl NJD {
     }
 
     pub fn preprocess_default(&mut self) {
-        use njd_set::*;
+        use open_jtalk::*;
 
         pronunciation::njd_set_pronunciation(self);
         digit::njd_set_digit(self);
