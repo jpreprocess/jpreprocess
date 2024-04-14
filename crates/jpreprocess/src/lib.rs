@@ -177,6 +177,8 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();
     ///
+    /// // Do something with njd
+    ///
     /// // jpcommon utterance
     /// let utterance = Utterance::from(njd.nodes.as_slice());
     ///
@@ -209,7 +211,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// If you need these infomation, please raise a feature request as an issue.
     pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess_default();
+        njd.preprocess();
         Ok(njd.into())
     }
 
@@ -229,7 +231,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// [`make_label`]: #method.make_label
     pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
         let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess_default();
+        njd.preprocess();
         Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
     }
 }
