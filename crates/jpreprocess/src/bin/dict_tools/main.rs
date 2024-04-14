@@ -2,12 +2,12 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
 
-use jpreprocess::SystemDictionaryConfig;
+use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
 use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 
 use lindera_core::dictionary_builder::DictionaryBuilder;
-use lindera_dictionary::{load_user_dictionary, UserDictionaryConfig};
+use lindera_dictionary::UserDictionaryConfig;
 
 use crate::dict_query::QueryDict;
 
@@ -95,10 +95,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
-                    let dict = load_user_dictionary(UserDictionaryConfig {
-                        path: input,
-                        kind: None,
-                    })?;
+                    let dict =
+                        DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
+                            path: input,
+                            kind: None,
+                        })?;
                     QueryDict::User(dict)
                 };
 
@@ -158,10 +159,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let dict = SystemDictionaryConfig::File(input).load()?;
                 QueryDict::System(dict)
             } else {
-                let dict = load_user_dictionary(UserDictionaryConfig {
-                    path: input,
-                    kind: None,
-                })?;
+                let dict =
+                    DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
+                        path: input,
+                        kind: None,
+                    })?;
                 QueryDict::User(dict)
             };
             println!("Successfully loaded source dictionary.");
