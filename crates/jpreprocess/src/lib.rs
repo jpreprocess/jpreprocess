@@ -52,7 +52,7 @@ pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary::default::DefaultFetcher;
 pub use jpreprocess_njd::NJD;
 pub use lindera_core::dictionary::{Dictionary, UserDictionary};
-pub use lindera_dictionary::{load_user_dictionary, DictionaryKind, UserDictionaryConfig};
+pub use lindera_dictionary::{DictionaryKind, DictionaryLoader, UserDictionaryConfig};
 
 use jpreprocess_core::*;
 use jpreprocess_dictionary::DictionaryFetcher;
@@ -118,7 +118,9 @@ impl JPreprocess<DefaultFetcher> {
         let dictionary = config.dictionary.load()?;
 
         let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(load_user_dictionary(user_dict_conf)?),
+            Some(user_dict_conf) => Some(DictionaryLoader::load_user_dictionary_from_config(
+                user_dict_conf,
+            )?),
             None => None,
         };
 
