@@ -1,13 +1,13 @@
-mod open_jtalk;
 mod node;
+mod open_jtalk;
 
 use jpreprocess_core::JPreprocessResult;
 use jpreprocess_dictionary::DictionaryFetcher;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
-pub use open_jtalk::*;
 pub use node::*;
+pub use open_jtalk::*;
 
 #[derive(Debug)]
 pub struct NJD {
