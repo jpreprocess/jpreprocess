@@ -35,31 +35,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        feature:
+          - []
+          - ["naist-jdic"]
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            feature: ""
-          - target: x86_64-unknown-linux-gnu
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
-            feature: "naist-jdic"
           - target: x86_64-pc-windows-gnu
             os: ubuntu-latest
-            feature: ""
-          - target: x86_64-pc-windows-gnu
-            os: ubuntu-latest
-            feature: "naist-jdic"
           - target: x86_64-apple-darwin
             os: macos-latest
-            feature: ""
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            feature: ""
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            feature: "naist-jdic"
           - target: aarch64-apple-darwin
             os: macos-latest
-            feature: ""
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -67,18 +56,26 @@ jobs:
         with:
           toolchain: stable
           targets: ${{ matrix.target }}
-      - run: |
-          cargo install cross
-          cross build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }} --bin dict_tools --bin jpreprocess
 
-      - run: |
-          zip --junk-paths ${{ matrix.target }}-${{ matrix.feature }}.zip target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe}
+      - name: Build
+        run: |
+          cargo install cross
+          cross build --release --target=${{ matrix.target }} --features=binary,${{ join(matrix.feature, ',') }} --bin dict_tools --bin jpreprocess
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir target/.jpreprocess_artifact
+          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe} target/.jpreprocess_artifact
+          NAME="${{ format('jpreprocess-{0}-{1}.tar.gz', matrix.target, join(matrix.feature, '-')) }}"
+          tar czvf "${NAME/-.tar.gz/.tar.gz}" target/.jpreprocess_artifact
+          rm -r target/.jpreprocess_artifact
 
       - name: Upload Artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: build-${{ matrix.target }}-${{ matrix.feature }}
-          path: ${{ matrix.target }}-${{ matrix.feature }}.zip
+          path: "*.tar.gz"
 
   build-naist-jdic:
     runs-on: ubuntu-latest
