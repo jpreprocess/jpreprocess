@@ -84,12 +84,12 @@ jobs:
         shell: bash
         run: |
           TMP_NAME="${{ format('jpreprocess-{0}-{1}.tar.gz', matrix.target, join(matrix.feature, '-')) }}"
-          echo $TMP_NAME
+          echo "$TMP_NAME"
           NAME="${NAME/-.tar.gz/.tar.gz}"
-          echo $NAME
+          echo "$NAME"
 
           mkdir -p target/.jpreprocess_artifact/jpreprocess
-          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe} jpreprocess
+          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe} target/.jpreprocess_artifact/jpreprocess
 
           tar czvf "$NAME" -C target/.jpreprocess_artifact jpreprocess
 
