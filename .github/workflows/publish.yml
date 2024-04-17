@@ -89,7 +89,7 @@ jobs:
           echo "$NAME"
 
           mkdir -p target/.jpreprocess_artifact/jpreprocess
-          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe} target/.jpreprocess_artifact/jpreprocess
+          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}${{ contains(matrix.target, 'windows') && '.exe' }} target/.jpreprocess_artifact/jpreprocess
 
           tar czvf "$NAME" -C target/.jpreprocess_artifact jpreprocess
 
