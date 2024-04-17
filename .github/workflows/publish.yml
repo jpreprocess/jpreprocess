@@ -114,9 +114,9 @@ jobs:
           name: build-x86_64-unknown-linux-gnu-
       - name: Build
         run: |
-          unzip x86_64-unknown-linux-gnu-.zip
-          chmod +x dict_tools
-          ./dict_tools build jpreprocess naist-jdic-source naist-jdic
+          tar xzvf x86_64-unknown-linux-gnu-.tgz
+          chmod +x jpreprocess/dict_tools
+          jpreprocess/dict_tools build jpreprocess naist-jdic-source naist-jdic
       - name: Package naist-jdic
         run: |
           tar czvf naist-jdic-jpreprocess.tar.gz naist-jdic
