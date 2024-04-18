@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - v*.*.*
-    branches: [ "binstall-support" ]
 
 jobs:
   pre-publish-test:
