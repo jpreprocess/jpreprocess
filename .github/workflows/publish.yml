@@ -38,28 +38,34 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            feature: ""
-          - target: x86_64-unknown-linux-gnu
+            feature: []
+          - target: aarch64-unknown-linux-gnu
             os: ubuntu-latest
-            feature: "naist-jdic"
+            feature: []
           - target: x86_64-pc-windows-gnu
             os: ubuntu-latest
-            feature: ""
-          - target: x86_64-pc-windows-gnu
-            os: ubuntu-latest
-            feature: "naist-jdic"
+            feature: []
           - target: x86_64-apple-darwin
             os: macos-latest
-            feature: ""
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            feature: ""
-          - target: aarch64-unknown-linux-gnu
-            os: ubuntu-latest
-            feature: "naist-jdic"
+            feature: []
           - target: aarch64-apple-darwin
             os: macos-latest
-            feature: ""
+            feature: []
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            feature: ["naist-jdic"]
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            feature: ["naist-jdic"]
+          - target: x86_64-pc-windows-gnu
+            os: ubuntu-latest
+            feature: ["naist-jdic"]
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            feature: ["naist-jdic"]
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            feature: ["naist-jdic"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -67,18 +73,30 @@ jobs:
         with:
           toolchain: stable
           targets: ${{ matrix.target }}
-      - run: |
-          cargo install cross
-          cross build --release --target=${{ matrix.target }} --features=binary,${{ matrix.feature }} --bin dict_tools --bin jpreprocess
 
-      - run: |
-          zip --junk-paths ${{ matrix.target }}-${{ matrix.feature }}.zip target/${{ matrix.target }}/release/{jpreprocess,dict_tools}{,.exe}
+      - name: Build
+        run: |
+          cargo install cross
+          cross build --release --target=${{ matrix.target }} --features=binary,${{ join(matrix.feature, ',') }} --bin dict_tools --bin jpreprocess
+
+      - name: Package
+        shell: bash
+        run: |
+          TMP_NAME="${{ format('jpreprocess-{0}-{1}.tgz', matrix.target, join(matrix.feature, '-')) }}"
+          NAME="${TMP_NAME/-.tgz/.tgz}"
+
+          mkdir -p target/.jpreprocess_artifact/jpreprocess
+          cp target/${{ matrix.target }}/release/{jpreprocess,dict_tools}${{ contains(matrix.target, 'windows') && '.exe' || '' }} target/.jpreprocess_artifact/jpreprocess
+
+          tar czvf "$NAME" -C target/.jpreprocess_artifact jpreprocess
+
+          rm -r target/.jpreprocess_artifact
 
       - name: Upload Artifact
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: build-${{ matrix.target }}-${{ matrix.feature }}
-          path: ${{ matrix.target }}-${{ matrix.feature }}.zip
+          name: ${{ format('build-{0}-{1}', matrix.target, join(matrix.feature, '-')) }}
+          path: "*.tgz"
 
   build-naist-jdic:
     runs-on: ubuntu-latest
@@ -95,9 +113,9 @@ jobs:
           name: build-x86_64-unknown-linux-gnu-
       - name: Build
         run: |
-          unzip x86_64-unknown-linux-gnu-.zip
-          chmod +x dict_tools
-          ./dict_tools build jpreprocess naist-jdic-source naist-jdic
+          tar xzvf jpreprocess-x86_64-unknown-linux-gnu.tgz
+          chmod +x jpreprocess/dict_tools
+          jpreprocess/dict_tools build jpreprocess naist-jdic-source naist-jdic
       - name: Package naist-jdic
         run: |
           tar czvf naist-jdic-jpreprocess.tar.gz naist-jdic
@@ -170,3 +188,4 @@ jobs:
           files: |
             **/*.zip
             **/*.tar.gz
+            **/*.tgz
