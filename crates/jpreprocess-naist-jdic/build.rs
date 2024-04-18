@@ -27,10 +27,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     let build_dir = env::var_os("OUT_DIR").unwrap(); // ex) target/debug/build/<pkg>/out
 
     // Dictionary file name
-    let file_name = "v0.1.1.tar.gz";
+    let file_name = "v0.1.3.tar.gz";
 
     // MeCab IPADIC directory
-    let input_dir = Path::new(&build_dir).join("naist-jdic-0.1.1");
+    let input_dir = Path::new(&build_dir).join("naist-jdic-0.1.3");
 
     if std::env::var("DOCS_RS").is_ok() {
         // Create directory for dummy input directory for build docs
@@ -66,7 +66,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             // Download a tarball
             let download_url =
-                "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.1.tar.gz";
+                "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.3.tar.gz";
             let resp = ureq::get(download_url).call()?;
             let mut dest = File::create(&tmp_path)?;
 
