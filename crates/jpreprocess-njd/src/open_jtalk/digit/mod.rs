@@ -1,55 +1,26 @@
-//! Process digit sequence and pronunciation of digits.
+//! Process pronunciation of digits.
 //!
-//! - 数字列や小数点を含む数字列を読む
-//!   - 数字を順に読み上げるのか（例：123=いちにーさん），一つの数として読み上げるのか（例：123=ひゃくにじゅうさん）を判別して読む．
-//!   - 小数点を正しく読む．例えば「0.1」は「ぜろてんいち」ではなく「れーてんいち」．
 //! - 接尾辞によって読み方を変える
 //!   - 例えば「一分」を「いちふん」ではなく「いっぷん」と読む．
 //! - 日付を正しく読む
 //!   - 例えば「1日」は「いちにち」ではなく「ついたち」，「24日」は「にじゅうよんにち」ではなく「にじゅうよっか」．
 
 mod lut;
-mod symbols;
-
-mod digit_sequence;
 
 use crate::{NJDNode, NJD};
 
 use jpreprocess_core::{pos::*, pron};
 use jpreprocess_window::*;
 
-use self::{
-    lut::{
-        class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
-    },
-    symbols::{is_period, normalize_digit},
+use self::lut::{
+    class1, class2, class3, find_pron_conv_map, find_pron_conv_set, numeral, others, DigitType,
 };
 
+pub fn is_period(s: &str) -> bool {
+    s == "．" || s == "・"
+}
+
 pub fn njd_set_digit(njd: &mut NJD) {
-    let mut find = false;
-
-    {
-        for node in &mut njd.nodes {
-            if node.get_pos().is_kazu() {
-                find = true;
-            }
-            normalize_digit(node);
-        }
-
-        let mut sequences = digit_sequence::from_njd(njd);
-
-        let mut offset = 0;
-        for seq in &mut sequences {
-            offset += seq.convert(njd, offset);
-        }
-    }
-
-    if !find {
-        return;
-    }
-
-    njd.remove_silent_node();
-
     {
         enum SkipState {
             Disabled,

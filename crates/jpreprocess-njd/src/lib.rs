@@ -45,6 +45,7 @@ impl NJD {
         use open_jtalk::*;
 
         pronunciation::njd_set_pronunciation(self);
+        digit_sequence::njd_digit_sequence(self);
         digit::njd_set_digit(self);
         accent_phrase::njd_set_accent_phrase(self);
         accent_type::njd_set_accent_type(self);

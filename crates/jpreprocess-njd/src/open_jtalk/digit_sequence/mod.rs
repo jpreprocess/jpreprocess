@@ -1,10 +1,56 @@
+//! Process digit sequence.
+//!
+//! 数字列や小数点を含む数字列を読みます．たとえば：
+//! - 数字を順に読み上げるのか（例：123=いちにーさん），一つの数として読み上げるのか（例：123=ひゃくにじゅうさん）を判別して読む．
+//! - 小数点を正しく読む．例えば「0.1」は「ぜろてんいち」ではなく「れーてんいち」．
+
 use crate::{NJDNode, NJD};
 use jpreprocess_core::pron;
 
 mod builder;
 mod score;
 
-pub use builder::from_njd;
+// NUMERAL_LIST1 in OpenJTalk
+const DIGIT_NORMALIZE: phf::Map<&'static str, &'static str> = phf::phf_map! {
+   "○" => "〇",
+   "１" => "一",
+   "２" => "二",
+   "３" => "三",
+   "４" => "四",
+   "５" => "五",
+   "６" => "六",
+   "７" => "七",
+   "８" => "八",
+   "９" => "九",
+   "一" => "一",
+   "二" => "二",
+   "三" => "三",
+   "四" => "四",
+   "五" => "五",
+   "六" => "六",
+   "七" => "七",
+   "八" => "八",
+   "九" => "九",
+   "いち" => "一",
+   "に" => "二",
+   "さん" => "三",
+   "よん" => "四",
+   "ご" => "五",
+   "ろく" => "六",
+   "なな" => "七",
+   "はち" => "八",
+   "きゅう" => "九",
+   "〇" => "〇",
+   "０" => "０",
+   "壱" => "一",
+   "弐" => "二",
+   "貳" => "二",
+   "ニ" => "二",
+   "参" => "三",
+   "し" => "四",
+   "しち" => "七",
+   "く" => "九"
+};
 
 const NUMERAL_LIST2: &[&str] = &[
     "",
@@ -33,8 +79,28 @@ const NUMERAL_LIST3: &[&str] = &[
     "無量大数,名詞,数,*,*,*,*,無量大数,ムリョウタイスウ,ムリョータイスー,6/7,*",
 ];
 
+pub fn njd_digit_sequence(njd: &mut NJD) {
+    // normalize digit
+    for node in &mut njd.nodes {
+        if node.get_string() != "*" && node.get_pos().is_kazu() {
+            if let Some(replace) = DIGIT_NORMALIZE.get(node.get_string()) {
+                node.replace_string(replace);
+            }
+        }
+    }
+
+    let mut sequences = builder::from_njd(njd);
+
+    let mut offset = 0;
+    for seq in &mut sequences {
+        offset += seq.convert(njd, offset);
+    }
+
+    njd.remove_silent_node();
+}
+
 #[derive(Debug)]
-pub struct DigitSequence {
+struct DigitSequence {
     start: usize,
     end: usize,
     digits: Vec<u8>,
