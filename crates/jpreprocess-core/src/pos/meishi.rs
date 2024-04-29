@@ -82,7 +82,7 @@ impl Display for Meishi {
             Self::Hijiritsu(meishi_hijiritsu) => format!("非自立,{}", meishi_hijiritsu),
             Self::FukushiKanou => "副詞可能,*,*".to_string(),
 
-            Self::None => "*".to_string(),
+            Self::None => "*,*,*".to_string(),
         })
     }
 }
