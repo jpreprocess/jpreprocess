@@ -1,3 +1,4 @@
+mod additional;
 mod node;
 mod open_jtalk;
 
@@ -9,7 +10,7 @@ use lindera_tokenizer::token::Token;
 pub use node::*;
 pub use open_jtalk::*;
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct NJD {
     pub nodes: Vec<NJDNode>,
 }
