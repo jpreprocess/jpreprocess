@@ -55,4 +55,4 @@ serde = "1.0.199"
 
 aho-corasick = "1.1"
 regex = "1.10.4"
-phf = "0.11"
+phf = "0.11.2"
