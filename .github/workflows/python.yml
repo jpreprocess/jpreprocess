@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Build wheels
-        uses: PyO3/maturin-action@6c040287d49afcbdb94da54484e3e17051e60e53 # v1.42.0
+        uses: PyO3/maturin-action@52b28abb0c6729beb388babfc348bf6ff5aaff31 # v1.42.2
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
@@ -80,7 +80,7 @@ jobs:
           python-version: '3.10'
           architecture: ${{ matrix.target }}
       - name: Build wheels
-        uses: PyO3/maturin-action@6c040287d49afcbdb94da54484e3e17051e60e53 # v1.42.0
+        uses: PyO3/maturin-action@52b28abb0c6729beb388babfc348bf6ff5aaff31 # v1.42.2
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
@@ -110,7 +110,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Build wheels
-        uses: PyO3/maturin-action@6c040287d49afcbdb94da54484e3e17051e60e53 # v1.42.0
+        uses: PyO3/maturin-action@52b28abb0c6729beb388babfc348bf6ff5aaff31 # v1.42.2
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
@@ -134,7 +134,7 @@ jobs:
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
       - name: Build sdist
-        uses: PyO3/maturin-action@6c040287d49afcbdb94da54484e3e17051e60e53 # v1.42.0
+        uses: PyO3/maturin-action@52b28abb0c6729beb388babfc348bf6ff5aaff31 # v1.42.2
         with:
           command: sdist
           args: --out dist --manifest-path bindings/python/Cargo.toml
@@ -158,7 +158,7 @@ jobs:
           pattern: wheels-*
           merge-multiple: true
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@6c040287d49afcbdb94da54484e3e17051e60e53 # v1.42.0
+        uses: PyO3/maturin-action@52b28abb0c6729beb388babfc348bf6ff5aaff31 # v1.42.2
         with:
           command: upload
           args: --non-interactive --skip-existing *
