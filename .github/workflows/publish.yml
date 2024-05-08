@@ -93,7 +93,7 @@ jobs:
           rm -r target/.jpreprocess_artifact
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: ${{ format('build-{0}-{1}', matrix.target, join(matrix.feature, '-')) }}
           path: "*.tgz"
@@ -120,7 +120,7 @@ jobs:
         run: |
           tar czvf naist-jdic-jpreprocess.tar.gz naist-jdic
       - name: Upload Artifact
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: naist-jdic
           path: naist-jdic-jpreprocess.tar.gz
