@@ -29,7 +29,7 @@ jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.9.1" }
 
 lindera-core = "0.30"
 lindera-tokenizer = "0.30"
-lindera-dictionary = "0.30"
+lindera-dictionary = "0.31"
 lindera-ipadic-builder = "0.30"
 
 jlabel = "0.1.4"
