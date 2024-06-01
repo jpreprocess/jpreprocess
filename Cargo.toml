@@ -28,7 +28,7 @@ jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.9.1" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.9.1" }
 
 lindera-core = "0.30"
-lindera-tokenizer = "0.30"
+lindera-tokenizer = "0.31"
 lindera-dictionary = "0.30"
 lindera-ipadic-builder = "0.30"
 
