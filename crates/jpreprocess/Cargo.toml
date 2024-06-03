@@ -13,8 +13,8 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess"
 
 [features]
-naist-jdic = ["jpreprocess-naist-jdic/naist-jdic"]
-binary = ["clap"]
+naist-jdic = ["dep:jpreprocess-naist-jdic", "jpreprocess-naist-jdic/naist-jdic"]
+binary = ["dep:clap"]
 
 [[bin]]
 name = "jpreprocess"
