@@ -74,10 +74,13 @@ impl TryFrom<JsUserDictionary> for lindera_core::dictionary::UserDictionary {
 
 #[wasm_bindgen]
 extern "C" {
+    /// Dictionary data
     #[wasm_bindgen(typescript_type = "Dictionary")]
     pub type IDictionary;
+    /// User dictionary data
     #[wasm_bindgen(typescript_type = "UserDictionary")]
     pub type IUserDictionary;
+    /// Array of strings
     #[wasm_bindgen(typescript_type = "string[]")]
     pub type IVecString;
 }
