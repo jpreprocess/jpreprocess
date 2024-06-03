@@ -4,7 +4,7 @@ use crate::NJD;
 
 const CURRENCY_SYMBOLS: &[&str] = &["￥", "＄", "€"];
 
-const CURRENCY_TABLE:phf::Map<&str, &str>=phf::phf_map!{
+const CURRENCY_TABLE: phf::Map<&str, &str> = phf::phf_map! {
     "￥" => "￥,記号,*,*,*,*,*,￥,エン,エン,0/0,*,-1",
     "＄" => "＄,記号,*,*,*,*,*,＄,ドル,ドル,0/0,*,-1",
     "€" => "€,記号,*,*,*,*,*,€,ユーロ,ユーロ,0/0,*,-1",
