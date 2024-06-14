@@ -1,4 +1,5 @@
-use crate::{digit::symbols::is_period, NJD};
+use crate::NJD;
+
 use jpreprocess_core::pos::*;
 
 pub const HAIHUN1:&str="―"     /* horizontal bar */;
@@ -81,4 +82,8 @@ fn score_end(njd: &NJD, end: usize) -> i8 {
         };
     }
     score
+}
+
+fn is_period(s: &str) -> bool {
+    s == "．" || s == "・"
 }
