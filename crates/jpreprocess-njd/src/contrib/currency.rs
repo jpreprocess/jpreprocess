@@ -39,8 +39,8 @@ pub fn process_currency(njd: &mut NJD) {
         }
 
         if !is_kazu(curr) && next.map(|next| is_kazu(next)) == Some(true) {
-            if let Some(substitute) = CURRENCY_TABLE.get(&curr.get_string()) {
-                *curr = NJDNode::new_single(&substitute);
+            if let Some(substitute) = CURRENCY_TABLE.get(curr.get_string()) {
+                *curr = NJDNode::new_single(substitute);
                 is_currency = true;
             }
         }
