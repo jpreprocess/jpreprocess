@@ -3,7 +3,6 @@ use std::{
     io::{self, Write},
     path::{Path, PathBuf},
     str::FromStr,
-    u32,
 };
 
 use jpreprocess_dictionary::{serializer::lindera::LinderaSerializer, DictionarySerializer};

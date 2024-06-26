@@ -126,28 +126,38 @@ impl FromStr for CType {
 
 impl Display for CType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        // Current implementation loses the latter half of CType
-        let (major, minor) = match &self {
-            Self::KaIrregular(minor) => ("カ変", minor.to_string()),
-            Self::SaIrregular(minor) => ("サ変", minor.to_string()),
-            Self::RaIrregular => ("ラ変", "".to_string()),
-            Self::One(minor) => ("一段", minor.to_string()),
-            Self::LowerTwo(minor) => ("下二", minor.to_string()),
-            Self::Keiyoushi(minor) => ("形容詞", minor.to_string()),
-            Self::Five(minor) => ("五段", minor.to_string()),
-            Self::Four(minor) => ("四段", minor.to_string()),
-            Self::UpperTwo(minor) => ("上二", minor.to_string()),
-            Self::Special(minor) => ("特殊", minor.to_string()),
-            Self::NoConjugation => ("不変化型", "".to_string()),
-            Self::Old(minor) => ("文語", minor.to_string()),
+        f.write_str(match &self {
+            Self::KaIrregular(_) => "カ変",
+            Self::SaIrregular(_) => "サ変",
+            Self::RaIrregular => "ラ変",
+            Self::One(_) => "一段",
+            Self::LowerTwo(_) => "下二",
+            Self::Keiyoushi(_) => "形容詞",
+            Self::Five(_) => "五段",
+            Self::Four(_) => "四段",
+            Self::UpperTwo(_) => "上二",
+            Self::Special(_) => "特殊",
+            Self::NoConjugation => "不変化型",
+            Self::Old(_) => "文語",
 
-            Self::None => ("*", "".to_string()),
-        };
+            Self::None => "*",
+        })?;
 
-        if minor.is_empty() {
-            write!(f, "{}", major)
-        } else {
-            write!(f, "{}・{}", major, minor)
+        match &self {
+            Self::One(One::None) => Ok(()),
+
+            Self::KaIrregular(minor) => write!(f, "・{}", minor),
+            Self::SaIrregular(minor) => write!(f, "・{}", minor),
+            Self::One(minor) => write!(f, "・{}", minor),
+            Self::LowerTwo(minor) => write!(f, "・{}", minor),
+            Self::Keiyoushi(minor) => write!(f, "・{}", minor),
+            Self::Five(minor) => write!(f, "・{}", minor),
+            Self::Four(minor) => write!(f, "・{}", minor),
+            Self::UpperTwo(minor) => write!(f, "・{}", minor),
+            Self::Special(minor) => write!(f, "・{}", minor),
+            Self::Old(minor) => write!(f, "・{}", minor),
+
+            _ => Ok(()),
         }
     }
 }

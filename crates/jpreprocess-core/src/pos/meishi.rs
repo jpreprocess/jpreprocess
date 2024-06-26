@@ -66,24 +66,35 @@ impl Meishi {
 
 impl Display for Meishi {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&match &self {
-            Self::SahenSetsuzoku => "サ変接続,*,*".to_string(),
-            Self::NaiKeiyoushiGokan => "ナイ形容詞語幹,*,*".to_string(),
-            Self::General => "一般,*,*".to_string(),
-            Self::QuoteStr => "引用文字列,*,*".to_string(),
-            Self::KeiyoudoushiGokan => "形容動詞語幹,*,*".to_string(),
-            Self::KoyuMeishi(koyumeishi) => format!("固有名詞,{}", koyumeishi),
-            Self::Kazu => "数,*,*".to_string(),
-            Self::Setsuzokushiteki => "接続詞的,*,*".to_string(),
-            Self::Setsubi(setsubi) => format!("接尾,{}", setsubi),
-            Self::Daimeishi(daimeishi) => format!("代名詞,{}", daimeishi),
-            Self::DoushiHijiritsuteki => "動詞非自立的,*,*".to_string(),
-            Self::Special => "特殊,*,*".to_string(),
-            Self::Hijiritsu(meishi_hijiritsu) => format!("非自立,{}", meishi_hijiritsu),
-            Self::FukushiKanou => "副詞可能,*,*".to_string(),
+        f.write_str(match &self {
+            Self::SahenSetsuzoku => "サ変接続",
+            Self::NaiKeiyoushiGokan => "ナイ形容詞語幹",
+            Self::General => "一般",
+            Self::QuoteStr => "引用文字列",
+            Self::KeiyoudoushiGokan => "形容動詞語幹",
+            Self::KoyuMeishi(_) => "固有名詞",
+            Self::Kazu => "数",
+            Self::Setsuzokushiteki => "接続詞的",
+            Self::Setsubi(_) => "接尾",
+            Self::Daimeishi(_) => "代名詞",
+            Self::DoushiHijiritsuteki => "動詞非自立的",
+            Self::Special => "特殊",
+            Self::Hijiritsu(_) => "非自立",
+            Self::FukushiKanou => "副詞可能",
 
-            Self::None => "*,*,*".to_string(),
-        })
+            Self::None => "*",
+        })?;
+
+        match &self {
+            Self::KoyuMeishi(koyumeishi) => write!(f, ",{}", koyumeishi),
+            Self::Setsubi(setsubi) => write!(f, ",{}", setsubi),
+            Self::Daimeishi(daimeishi) => write!(f, ",{}", daimeishi),
+            Self::Hijiritsu(meishi_hijiritsu) => write!(f, ",{}", meishi_hijiritsu),
+
+            _ => f.write_str(",*,*"),
+        }?;
+
+        Ok(())
     }
 }
 
