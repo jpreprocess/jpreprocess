@@ -1,3 +1,4 @@
+mod contrib;
 mod node;
 mod open_jtalk;
 
@@ -6,10 +7,11 @@ use jpreprocess_dictionary::DictionaryFetcher;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
 
+pub use contrib::*;
 pub use node::*;
 pub use open_jtalk::*;
 
-#[derive(Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct NJD {
     pub nodes: Vec<NJDNode>,
 }
