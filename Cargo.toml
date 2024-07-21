@@ -4,6 +4,7 @@ members = [
   "bindings/*",
   "crates/*",
   "examples/*",
+  "tests",
 ]
 
 [workspace.package]

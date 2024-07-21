@@ -34,7 +34,7 @@ fn test_one(input_text: &'static str) {
     #[cfg(feature = "naist-jdic")]
     let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
     #[cfg(not(feature = "naist-jdic"))]
-    let config = SystemDictionaryConfig::File(PathBuf::from("tests/dict"));
+    let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
     let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
         dictionary: config,
@@ -53,9 +53,9 @@ fn test_one(input_text: &'static str) {
         assert_eq!(nontext, text)
     }
 
-    let mut child = Command::new("tests/openjtalk_bin")
+    let mut child = Command::new("data/openjtalk_bin")
         .arg("-x")
-        .arg("tests/mecab-naist-jdic")
+        .arg("data/mecab-naist-jdic")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()

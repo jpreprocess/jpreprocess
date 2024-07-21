@@ -1,0 +1,21 @@
+[package]
+name = "tests"
+edition = "2021"
+
+version.workspace = true
+description.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+jpreprocess.workspace = true
+jpreprocess-core.workspace = true
+jpreprocess-dictionary.workspace = true
+jpreprocess-dictionary-builder.workspace = true
+jpreprocess-njd.workspace = true
+jpreprocess-jpcommon.workspace = true
+
+lindera-tokenizer.workspace = true
