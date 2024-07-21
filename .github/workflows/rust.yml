@@ -22,7 +22,7 @@ jobs:
       uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
 
     - name: setup integration test
-      working-directory: crates/jpreprocess/tests
+      working-directory: tests/data
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
