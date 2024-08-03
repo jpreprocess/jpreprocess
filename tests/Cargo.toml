@@ -10,6 +10,9 @@ keywords.workspace = true
 categories.workspace = true
 rust-version.workspace = true
 
+[features]
+naist-jdic = ["jpreprocess/naist-jdic"]
+
 [dependencies]
 jpreprocess.workspace = true
 jpreprocess-core.workspace = true
