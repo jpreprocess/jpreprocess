@@ -1,6 +1,6 @@
 //! Process accent conjugation.
 //!
-//! Please refer to [UNIDIC Users' Manual](https://clrd.ninjal.ac.jp/unidic/UNIDIC_manual.pdf)「6.7 アクセント結合型
+//! Please refer to [UNIDIC Users' Manual](https://clrd.ninjal.ac.jp/unidic/UNIDIC_manual.pdf)「6.7 アクセント結合型」
 //! for details on each accent conjugation type.
 
 const ICHI: &str = "一";

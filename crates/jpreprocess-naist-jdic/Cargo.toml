@@ -13,7 +13,7 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-naist-jdic"
 
 [features]
-naist-jdic = ["encoding", "flate2", "tar", "ureq"]
+naist-jdic = ["dep:encoding", "dep:flate2", "dep:tar", "dep:ureq"]
 
 [dependencies]
 lindera-core.workspace = true

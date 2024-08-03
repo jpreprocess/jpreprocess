@@ -16,7 +16,7 @@ fn system_dictionary() -> Result<(), Box<dyn Error>> {
     #[cfg(feature = "naist-jdic")]
     let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
     #[cfg(not(feature = "naist-jdic"))]
-    let config = SystemDictionaryConfig::File(PathBuf::from("tests/dict"));
+    let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
     let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
         dictionary: config,
@@ -37,7 +37,7 @@ fn lindera_user_dictionary() -> Result<(), Box<dyn Error>> {
     #[cfg(feature = "naist-jdic")]
     let config = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic);
     #[cfg(not(feature = "naist-jdic"))]
-    let config = SystemDictionaryConfig::File(PathBuf::from("tests/dict"));
+    let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
     let mut rows: Vec<Vec<&str>> = vec![vec![
         "クーバネティス",

@@ -8,7 +8,7 @@
 //! use jpreprocess::*;
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
-//! #     let path = PathBuf::from("tests/min-dict");
+//! #     let path = PathBuf::from("../../tests/data/min-dict");
 //! let config = JPreprocessConfig {
 //!      dictionary: SystemDictionaryConfig::File(path),
 //!      user_dictionary: None,
@@ -84,7 +84,7 @@ impl JPreprocess<DefaultFetcher> {
     /// use jpreprocess::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("tests/min-dict");
+    /// #     let path = PathBuf::from("../../tests/data/min-dict");
     ///  let config = JPreprocessConfig {
     ///      dictionary: SystemDictionaryConfig::File(path),
     ///      user_dictionary: None,
@@ -169,7 +169,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// use jpreprocess_jpcommon::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("tests/min-dict");
+    /// #     let path = PathBuf::from("../../tests/data/min-dict");
     /// #  let config = JPreprocessConfig {
     /// #      dictionary: SystemDictionaryConfig::File(path),
     /// #      user_dictionary: None,
