@@ -413,7 +413,7 @@ dependencies = [
 
 [[package]]
 name = "example-lru"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
@@ -424,14 +424,14 @@ dependencies = [
 
 [[package]]
 name = "example-simple"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jpreprocess",
 ]
 
 [[package]]
 name = "example-wasm"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jpreprocess",
  "js-sys",
@@ -556,7 +556,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "clap",
  "jlabel",
@@ -574,7 +574,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-core"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "aho-corasick",
  "bincode",
@@ -588,7 +588,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-dictionary"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -603,7 +603,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-dictionary-builder"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -621,7 +621,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-jpcommon"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jlabel",
  "jpreprocess-core",
@@ -630,7 +630,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-naist-jdic"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "encoding",
  "flate2",
@@ -643,7 +643,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-njd"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "aho-corasick",
  "jpreprocess-core",
@@ -655,7 +655,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-python"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
@@ -671,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-window"
-version = "0.9.1"
+version = "0.10.0"
 
 [[package]]
 name = "js-sys"
@@ -1296,7 +1296,7 @@ checksum = "e1fc403891a21bcfb7c37834ba66a547a8f402146eba7265b5a6d88059c9ff2f"
 
 [[package]]
 name = "tests"
-version = "0.9.1"
+version = "0.10.0"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
