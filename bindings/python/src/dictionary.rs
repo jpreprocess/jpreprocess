@@ -9,6 +9,7 @@ use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
 use crate::into_runtime_error;
 
 #[pyfunction]
+#[pyo3(signature = (input, output, user=None, serializer=None))]
 pub fn build_dictionary(
     input: PathBuf,
     output: PathBuf,

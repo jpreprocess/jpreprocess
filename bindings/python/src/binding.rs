@@ -20,6 +20,7 @@ pub struct JPreprocessPyBinding {
 #[pymethods]
 impl JPreprocessPyBinding {
     #[new]
+    #[pyo3(signature = (dictionary, user_dictionary=None))]
     fn new(dictionary: PathBuf, user_dictionary: Option<PathBuf>) -> PyResult<Self> {
         Ok(Self {
             inner: JPreprocess::from_config(JPreprocessConfig {
@@ -55,6 +56,7 @@ impl JPreprocessPyBinding {
             .map_err(into_runtime_error)?;
         Ok(labels.into_iter().map(|l| l.to_string()).collect())
     }
+    #[pyo3(signature = (text, kana=None, join=None))]
     fn g2p(&self, text: &str, kana: Option<bool>, join: Option<bool>) -> PyResult<StringOrArray> {
         let kana = kana.unwrap_or(false);
         let join = join.unwrap_or(true);
