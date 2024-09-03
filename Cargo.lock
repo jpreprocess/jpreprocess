@@ -626,6 +626,7 @@ dependencies = [
  "jlabel",
  "jpreprocess-core",
  "jpreprocess-njd",
+ "jpreprocess-window",
 ]
 
 [[package]]

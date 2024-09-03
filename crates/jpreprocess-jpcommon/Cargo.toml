@@ -16,3 +16,4 @@ documentation = "https://docs.rs/jpreprocess-jpcommon"
 jlabel.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-njd.workspace = true
+jpreprocess-window.workspace = true

@@ -2,6 +2,8 @@ mod feature;
 mod label;
 mod word_attr;
 
+mod create_features;
+
 pub use feature::*;
 use jlabel::Label;
 pub use label::*;
