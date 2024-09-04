@@ -153,8 +153,8 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
         return Some(true);
     };
 
-    let (curr_consonant, curr_vowel) = mora_curr.phonemes();
-    let (next_consonant, _) = mora_next.phonemes();
+    let (curr_consonant, curr_vowel) = mora_curr.phonemes_consistent();
+    let (next_consonant, _) = mora_next.phonemes_consistent();
 
     if !matches!(
         curr_vowel,

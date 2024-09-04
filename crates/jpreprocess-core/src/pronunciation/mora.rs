@@ -16,6 +16,14 @@ pub struct Mora {
 }
 
 impl Mora {
+    #[deprecated(
+        since = "0.11.0",
+        note = "This function will be replaced with phonemes_consistent in the future. Please use phonemes_openjtalk_compat instead if you want the same behavior with the previous versions."
+    )]
+    pub fn phonemes(&self) -> (Option<Consonant>, Option<Vowel>) {
+        self.phonemes_openjtalk_compat()
+    }
+
     /// Convert this mora to a pair of phonemes.
     ///
     /// The returned phonemes will be different from openjtalk as following.
@@ -30,7 +38,7 @@ impl Mora {
     /// - "り" (Ri) -> Ry + I
     ///
     /// If you need openjtalk-compatible version, please use [`Mora::phonemes_openjtalk_compat`] instead.
-    pub fn phonemes(&self) -> (Option<Consonant>, Option<Vowel>) {
+    pub fn phonemes_consistent(&self) -> (Option<Consonant>, Option<Vowel>) {
         mora_to_phoneme(self)
     }
 
@@ -38,7 +46,7 @@ impl Mora {
     ///
     /// This method is compatible with openjtalk, unlike [`Mora::phonemes`].
     pub fn phonemes_openjtalk_compat(&self) -> (Option<Consonant>, Option<Vowel>) {
-        let (mut consonant, vowel) = self.phonemes();
+        let (mut consonant, vowel) = self.phonemes_consistent();
 
         if matches!(vowel, Some(Vowel::I | Vowel::IUnvoiced)) {
             consonant = match consonant {
