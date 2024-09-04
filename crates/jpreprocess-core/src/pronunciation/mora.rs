@@ -16,8 +16,44 @@ pub struct Mora {
 }
 
 impl Mora {
+    /// Convert this mora to a pair of phonemes.
+    ///
+    /// The returned phonemes will be different from openjtalk as following.
+    /// This change reflects some "い" (I) row's having a different consonant from its "あ" (A) row counterpart.
+    ///
+    /// - "ぎ" (Gi) -> Gy + I
+    /// - "に" (Ni) -> Ny + I
+    /// - "ぴ" (Pi) -> Py + I
+    /// - "び" (Bi) -> By + I
+    /// - "ひ" (Hi) -> Hy + I
+    /// - "み" (Mi) -> My + I
+    /// - "り" (Ri) -> Ry + I
+    ///
+    /// If you need openjtalk-compatible version, please use [`Mora::phonemes_openjtalk_compat`] instead.
     pub fn phonemes(&self) -> (Option<Consonant>, Option<Vowel>) {
         mora_to_phoneme(self)
+    }
+
+    /// Convert this mora to a pair of phonemes.
+    ///
+    /// This method is compatible with openjtalk, unlike [`Mora::phonemes`].
+    pub fn phonemes_openjtalk_compat(&self) -> (Option<Consonant>, Option<Vowel>) {
+        let (mut consonant, vowel) = self.phonemes();
+
+        if matches!(vowel, Some(Vowel::I | Vowel::IUnvoiced)) {
+            consonant = match consonant {
+                Some(Consonant::Gy) => Some(Consonant::G),
+                Some(Consonant::Ny) => Some(Consonant::N),
+                Some(Consonant::Py) => Some(Consonant::P),
+                Some(Consonant::By) => Some(Consonant::B),
+                Some(Consonant::Hy) => Some(Consonant::H),
+                Some(Consonant::My) => Some(Consonant::M),
+                Some(Consonant::Ry) => Some(Consonant::R),
+                others => others,
+            };
+        }
+
+        (consonant, vowel)
     }
 
     pub fn convert_to_voiced_sound(&mut self) {
