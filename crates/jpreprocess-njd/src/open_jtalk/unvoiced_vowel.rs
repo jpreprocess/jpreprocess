@@ -165,9 +165,7 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
 
     Some(match (curr_consonant, next_consonant) {
         (Some(Consonant::S), Some(Consonant::S | Consonant::Sh)) => true,
-        (Some(Consonant::F | Consonant::Hy), Some(Consonant::F | Consonant::Hy)) => {
-            true
-        }
+        (Some(Consonant::F | Consonant::Hy), Some(Consonant::F | Consonant::Hy)) => true,
         (
             Some(
                 Consonant::K
