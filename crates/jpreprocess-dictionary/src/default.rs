@@ -1,5 +1,5 @@
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
-use lindera_tokenizer::token::Token;
+use lindera::token::Token;
 
 use super::{
     serializer::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer},

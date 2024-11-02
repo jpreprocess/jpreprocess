@@ -23,7 +23,7 @@ serde.workspace = true
 yada.workspace = true
 rayon.workspace = true
 
-lindera-core.workspace = true
+lindera.workspace = true
 
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true

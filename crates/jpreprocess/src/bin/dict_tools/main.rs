@@ -6,7 +6,7 @@ use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
 use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
 use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
 
-use lindera_core::dictionary_builder::DictionaryBuilder;
+use lindera::dictionary_builder::DictionaryBuilder;
 use lindera_dictionary::UserDictionaryConfig;
 
 use crate::dict_query::QueryDict;

@@ -1,7 +1,7 @@
 use crate::build_dict::WordEntryMap;
 use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_dictionary::DictionarySerializer;
-use lindera_core::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
+use lindera::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
 use std::collections::BTreeMap;
 
 use self::da::DoubleArrayParser;
