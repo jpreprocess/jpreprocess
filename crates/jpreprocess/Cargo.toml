@@ -20,10 +20,6 @@ binary = ["dep:clap"]
 name = "jpreprocess"
 required-features = ["binary"]
 
-[[bin]]
-name = "dict_tools"
-required-features = ["binary"]
-
 [dependencies]
 lindera.workspace = true
 lindera-dictionary.workspace = true

@@ -613,6 +613,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "byteorder",
+ "clap",
  "jpreprocess-core",
  "lindera",
  "lindera-dictionary",
