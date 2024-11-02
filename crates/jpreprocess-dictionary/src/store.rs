@@ -2,7 +2,7 @@ use crate::DictionaryStore;
 use byteorder::{ByteOrder, LittleEndian};
 use jpreprocess_core::{error::DictionaryError, JPreprocessResult};
 
-impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
+impl<'a> DictionaryStore<'a> for lindera::dictionary::Dictionary {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
         get_bytes(id, &self.words_idx_data, &self.words_data)
     }
@@ -11,7 +11,7 @@ impl<'a> DictionaryStore<'a> for lindera_core::dictionary::Dictionary {
     }
 }
 
-impl<'a> DictionaryStore<'a> for lindera_core::dictionary::UserDictionary {
+impl<'a> DictionaryStore<'a> for lindera::dictionary::UserDictionary {
     fn get_bytes(&'a self, id: u32) -> JPreprocessResult<&'a [u8]> {
         get_bytes(id, &self.words_idx_data, &self.words_data)
     }

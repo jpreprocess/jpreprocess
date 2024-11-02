@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::JPreprocessResult;
-use lindera_core::dictionary::Dictionary;
+use lindera::dictionary::Dictionary;
 use lindera_dictionary::{DictionaryConfig, DictionaryLoader};
 
 pub mod kind;

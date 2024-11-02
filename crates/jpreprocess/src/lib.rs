@@ -51,7 +51,7 @@ pub use normalize_text::normalize_text_for_naist_jdic;
 pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary::default::DefaultFetcher;
 pub use jpreprocess_njd::NJD;
-pub use lindera_core::dictionary::{Dictionary, UserDictionary};
+pub use lindera::dictionary::{Dictionary, UserDictionary};
 pub use lindera_dictionary::{DictionaryKind, DictionaryLoader, UserDictionaryConfig};
 
 use jpreprocess_core::*;
@@ -149,7 +149,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
         let tokenizer = Tokenizer::new(
             dictionary,
             user_dictionary,
-            lindera_core::mode::Mode::Normal,
+            lindera::mode::Mode::Normal,
         );
 
         Self {

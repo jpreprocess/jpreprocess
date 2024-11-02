@@ -11,7 +11,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
     use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
-    use lindera_core::dictionary_builder::DictionaryBuilder;
+    use lindera::dictionary_builder::DictionaryBuilder;
 
     use encoding::{
         all::UTF_8,

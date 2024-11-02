@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use lindera_core::{
+use lindera::{
     character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
     dictionary::Dictionary, prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
     LinderaResult,

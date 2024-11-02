@@ -1,6 +1,5 @@
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use lindera_core::LinderaResult;
-use lindera_tokenizer::token::Token;
+use lindera::{LinderaResult,token::Token};
 
 pub mod default;
 

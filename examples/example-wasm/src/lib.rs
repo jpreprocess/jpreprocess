@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use lindera_core::{
+use lindera::{
     character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
     prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
 };
@@ -37,8 +37,8 @@ struct JsDictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsDictionary> for lindera_core::dictionary::Dictionary {
-    type Error = lindera_core::error::LinderaError;
+impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
+    type Error = lindera::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
@@ -60,8 +60,8 @@ struct JsUserDictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsUserDictionary> for lindera_core::dictionary::UserDictionary {
-    type Error = lindera_core::error::LinderaError;
+impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
+    type Error = lindera::error::LinderaError;
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),

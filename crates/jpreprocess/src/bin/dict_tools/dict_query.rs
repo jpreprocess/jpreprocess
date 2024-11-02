@@ -1,6 +1,6 @@
 use jpreprocess_core::JPreprocessResult;
 use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
-use lindera_core::{
+use lindera::{
     dictionary::{Dictionary, UserDictionary},
     prefix_dict::PrefixDict,
 };
