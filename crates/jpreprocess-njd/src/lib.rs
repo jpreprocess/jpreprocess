@@ -2,7 +2,7 @@ mod contrib;
 mod node;
 mod open_jtalk;
 
-use jpreprocess_core::JPreprocessResult;
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 use jpreprocess_dictionary::DictionaryFetcher;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 use lindera_tokenizer::token::Token;
@@ -21,6 +21,7 @@ impl NJD {
         self.nodes.retain(|node| !node.get_pron().is_empty())
     }
 
+    #[deprecated]
     pub fn from_tokens<S: DictionaryFetcher>(
         tokens: &[Token],
         fetcher: &S,
@@ -29,9 +30,17 @@ impl NJD {
             .get_word_vectored(tokens)?
             .into_iter()
             .zip(tokens)
-            .flat_map(|(word_entry, token)| NJDNode::load(token.text, word_entry))
+            .flat_map(|(word_entry, token)| NJDNode::load(&token.text, &word_entry))
             .collect();
         Ok(Self { nodes })
+    }
+
+    pub fn from_entries(entries: &[(String, WordEntry)]) -> Self {
+        let nodes = entries
+            .iter()
+            .flat_map(|(text, word_entry)| NJDNode::load(text, word_entry))
+            .collect();
+        Self { nodes }
     }
 
     pub fn from_strings(njd_features: Vec<String>) -> Self {
