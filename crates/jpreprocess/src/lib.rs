@@ -46,6 +46,7 @@ mod dictionary;
 mod normalize_text;
 
 pub use dictionary::*;
+use lindera::tokenizer::Tokenizer;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
@@ -146,6 +147,7 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
+        Tokenizer::new(segmenter)
         let tokenizer = Tokenizer::new(
             dictionary,
             user_dictionary,

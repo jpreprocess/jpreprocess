@@ -2,10 +2,8 @@ mod contrib;
 mod node;
 mod open_jtalk;
 
-use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use jpreprocess_dictionary::DictionaryFetcher;
+use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
-use lindera_tokenizer::token::Token;
 
 pub use contrib::*;
 pub use node::*;
@@ -19,20 +17,6 @@ pub struct NJD {
 impl NJD {
     pub fn remove_silent_node(&mut self) {
         self.nodes.retain(|node| !node.get_pron().is_empty())
-    }
-
-    #[deprecated]
-    pub fn from_tokens<S: DictionaryFetcher>(
-        tokens: &[Token],
-        fetcher: &S,
-    ) -> JPreprocessResult<Self> {
-        let nodes = fetcher
-            .get_word_vectored(tokens)?
-            .into_iter()
-            .zip(tokens)
-            .flat_map(|(word_entry, token)| NJDNode::load(&token.text, &word_entry))
-            .collect();
-        Ok(Self { nodes })
     }
 
     pub fn from_entries(entries: &[(String, WordEntry)]) -> Self {
