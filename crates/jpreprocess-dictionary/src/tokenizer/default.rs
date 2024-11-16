@@ -2,7 +2,7 @@ use std::borrow::Cow;
 
 use jpreprocess_core::word_entry::WordEntry;
 
-use crate::{Token, Tokenizer};
+use super::{Token, Tokenizer};
 
 pub struct WordDictionary {
     system: Vec<WordEntry>,

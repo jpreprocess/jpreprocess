@@ -3,37 +3,5 @@ name = "jpreprocess-dictionary-builder"
 edition = "2021"
 
 version.workspace = true
-description.workspace = true
-license.workspace = true
-repository.workspace = true
-keywords.workspace = true
-categories.workspace = true
-rust-version.workspace = true
-
-documentation = "https://docs.rs/jpreprocess-dictionary-builder"
-
-[features]
-binary = ["dep:clap"]
-
-[[bin]]
-name = "dict_tools"
-required-features = ["binary"]
 
 [dependencies]
-anyhow.workspace = true
-bincode.workspace = true
-byteorder.workspace = true
-csv.workspace = true
-glob.workspace = true
-log.workspace = true
-serde.workspace = true
-yada.workspace = true
-rayon.workspace = true
-
-lindera.workspace = true
-lindera-dictionary.workspace = true
-
-jpreprocess-core.workspace = true
-jpreprocess-dictionary.workspace = true
-
-clap = { workspace = true, features = ["derive"], optional = true }
