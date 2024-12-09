@@ -1,11 +1,9 @@
-use std::borrow::Cow;
 use std::collections::BTreeMap;
 use std::io::Write;
 use std::str::FromStr;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
-use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
 use log::warn;
 use yada::builder::DoubleArrayBuilder;
 
@@ -14,20 +12,29 @@ use lindera_dictionary::viterbi::{WordEntry, WordId};
 use lindera_dictionary::LinderaResult;
 use yada::DoubleArray;
 
+use super::writer::{PrefixDictionaryDataType, PrefixDictionaryWriter};
+
 #[derive(Debug)]
 pub struct PrefixDictionaryBuilder {
     normalize_details: bool,
     skip_invalid_cost_or_id: bool,
+
+    is_user_dict: bool,
+    simple_userdic_fields_num: usize,
+    simple_word_cost: i16,
+    simple_context_id: u16,
 }
 
 impl PrefixDictionaryBuilder {
-    pub fn build<F>(
+    pub fn build<F, W>(
         &self,
         mut rows: Vec<StringRecord>,
         row_encoder: F,
-    ) -> LinderaResult<PrefixDictionary>
+        writer: &mut W,
+    ) -> LinderaResult<()>
     where
         F: Fn(&StringRecord) -> LinderaResult<Vec<u8>>,
+        W: PrefixDictionaryWriter,
     {
         if self.normalize_details {
             rows.sort_by_key(|row| normalize(&row[0]));
@@ -38,51 +45,64 @@ impl PrefixDictionaryBuilder {
         let mut word_entry_map: BTreeMap<String, Vec<WordEntry>> = BTreeMap::new();
 
         for (row_id, row) in rows.iter().enumerate() {
-            let word_cost = match i16::from_str(row[3].trim()) {
-                Ok(wc) => wc,
-                Err(_err) => {
-                    if self.skip_invalid_cost_or_id {
-                        warn!("failed to parse word_cost: {:?}", row);
-                        continue;
-                    } else {
-                        return Err(LinderaErrorKind::Parse
-                            .with_error(anyhow::anyhow!("failed to parse word_cost")));
-                    }
-                }
-            };
-            let left_id = match u16::from_str(row[1].trim()) {
-                Ok(lid) => lid,
-                Err(_err) => {
-                    if self.skip_invalid_cost_or_id {
-                        warn!("failed to parse left_id: {:?}", row);
-                        continue;
-                    } else {
-                        return Err(LinderaErrorKind::Parse
-                            .with_error(anyhow::anyhow!("failed to parse left_id")));
-                    }
-                }
-            };
-            let right_id = match u16::from_str(row[2].trim()) {
-                Ok(rid) => rid,
-                Err(_err) => {
-                    if self.skip_invalid_cost_or_id {
-                        warn!("failed to parse right_id: {:?}", row);
-                        continue;
-                    } else {
-                        return Err(LinderaErrorKind::Parse
-                            .with_error(anyhow::anyhow!("failed to parse right_id")));
-                    }
-                }
-            };
-            let key = if self.normalize_details {
+            let surface = if self.normalize_details {
                 normalize(&row[0])
             } else {
                 row[0].to_string()
             };
-            word_entry_map.entry(key).or_default().push(WordEntry {
+
+            let (word_cost, left_id, right_id) =
+                if self.is_user_dict && row.len() == self.simple_userdic_fields_num {
+                    (
+                        self.simple_word_cost,
+                        self.simple_context_id,
+                        self.simple_context_id,
+                    )
+                } else {
+                    let word_cost = match i16::from_str(row[3].trim()) {
+                        Ok(wc) => wc,
+                        Err(_err) => {
+                            if self.skip_invalid_cost_or_id {
+                                warn!("failed to parse word_cost: {:?}", row);
+                                continue;
+                            } else {
+                                return Err(LinderaErrorKind::Parse
+                                    .with_error(anyhow::anyhow!("failed to parse word_cost")));
+                            }
+                        }
+                    };
+                    let left_id = match u16::from_str(row[1].trim()) {
+                        Ok(lid) => lid,
+                        Err(_err) => {
+                            if self.skip_invalid_cost_or_id {
+                                warn!("failed to parse left_id: {:?}", row);
+                                continue;
+                            } else {
+                                return Err(LinderaErrorKind::Parse
+                                    .with_error(anyhow::anyhow!("failed to parse left_id")));
+                            }
+                        }
+                    };
+                    let right_id = match u16::from_str(row[2].trim()) {
+                        Ok(rid) => rid,
+                        Err(_err) => {
+                            if self.skip_invalid_cost_or_id {
+                                warn!("failed to parse right_id: {:?}", row);
+                                continue;
+                            } else {
+                                return Err(LinderaErrorKind::Parse
+                                    .with_error(anyhow::anyhow!("failed to parse right_id")));
+                            }
+                        }
+                    };
+
+                    (word_cost, left_id, right_id)
+                };
+
+            word_entry_map.entry(surface).or_default().push(WordEntry {
                 word_id: WordId {
                     id: row_id as u32,
-                    is_system: true,
+                    is_system: !self.is_user_dict,
                 },
                 word_cost,
                 left_id,
@@ -103,26 +123,10 @@ impl PrefixDictionaryBuilder {
             dict_words_buffer
                 .write(&word)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-
-            // let joined_details = if self.normalize_details {
-            //     row.iter()
-            //         .skip(4)
-            //         .map(normalize)
-            //         .collect::<Vec<String>>()
-            //         .join("\0")
-            // } else {
-            //     row.iter().skip(4).collect::<Vec<&str>>().join("\0")
-            // };
-            // let joined_details_len = u32::try_from(joined_details.as_bytes().len())
-            //     .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-
-            // dict_words_buffer
-            //     .write_u32::<LittleEndian>(joined_details_len)
-            //     .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
-            // dict_words_buffer
-            //     .write_all(joined_details.as_bytes())
-            //     .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
         }
+
+        writer.write(PrefixDictionaryDataType::WordsIdx, &dict_wordsidx_buffer)?;
+        writer.write(PrefixDictionaryDataType::Words, &dict_words_buffer)?;
 
         let mut id = 0u32;
 
@@ -137,6 +141,7 @@ impl PrefixDictionaryBuilder {
         let dict_da_buffer = DoubleArrayBuilder::build(&keyset).ok_or_else(|| {
             LinderaErrorKind::Io.with_error(anyhow::anyhow!("DoubleArray build error."))
         })?;
+        writer.write(PrefixDictionaryDataType::DoubleArray, &dict_da_buffer)?;
 
         let mut dict_vals_buffer = Vec::new();
         for word_entries in word_entry_map.values() {
@@ -146,14 +151,9 @@ impl PrefixDictionaryBuilder {
                     .map_err(|err| LinderaErrorKind::Serialize.with_error(anyhow::anyhow!(err)))?;
             }
         }
+        writer.write(PrefixDictionaryDataType::Vals, &dict_vals_buffer)?;
 
-        Ok(PrefixDictionary {
-            da: DoubleArray(dict_da_buffer),
-            vals_data: dict_vals_buffer,
-            words_idx_data: dict_wordsidx_buffer,
-            words_data: dict_words_buffer,
-            is_system: true,
-        })
+        Ok(())
     }
 }
 
