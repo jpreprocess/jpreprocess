@@ -21,4 +21,4 @@ jpreprocess-dictionary-builder.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
 
-lindera-tokenizer.workspace = true
+lindera.workspace = true

@@ -18,9 +18,8 @@ byteorder.workspace = true
 anyhow.workspace = true
 once_cell.workspace = true
 
-lindera-core.workspace = true
-lindera-ipadic-builder.workspace = true
-lindera-tokenizer.workspace = true
+lindera.workspace = true
+lindera-dictionary.workspace = true
 
 serde.workspace = true
 

@@ -13,7 +13,7 @@ use csv::StringRecord;
 use glob::glob;
 use log::debug;
 
-use lindera_core::{
+use lindera::{
     character_definition::{CharacterDefinitions, CharacterDefinitionsBuilder},
     dictionary::UserDictionary,
     dictionary_builder::DictionaryBuilder,
@@ -42,7 +42,7 @@ impl IpadicBuilder {
         wtr_words_idx_path: &Path,
         is_system: bool,
         normalized_rows: &Vec<Vec<String>>,
-    ) -> Result<(), lindera_core::error::LinderaError> {
+    ) -> Result<(), lindera::error::LinderaError> {
         let mut wtr_words = io::BufWriter::new(
             File::create(wtr_words_path)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?,

@@ -1,5 +1,5 @@
 use byteorder::{LittleEndian, WriteBytesExt};
-use lindera_core::{
+use lindera::{
     error::LinderaErrorKind,
     prefix_dict::PrefixDict,
     word_entry::{WordEntry, WordId},

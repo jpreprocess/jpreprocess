@@ -25,8 +25,7 @@ name = "dict_tools"
 required-features = ["binary"]
 
 [dependencies]
-lindera-core.workspace = true
-lindera-tokenizer.workspace = true
+lindera.workspace = true
 lindera-dictionary.workspace = true
 
 phf = { workspace = true, features = ["macros"] }

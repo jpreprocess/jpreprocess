@@ -1,5 +1,5 @@
 use bincode::Options;
-use lindera_core::{error::LinderaErrorKind, LinderaResult};
+use lindera::{error::LinderaErrorKind, LinderaResult};
 
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
