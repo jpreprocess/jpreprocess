@@ -70,7 +70,7 @@ pub struct PrefixDictionaryDataWriter {
 }
 
 impl PrefixDictionaryDataWriter {
-    fn new() -> Self {
+    pub fn new() -> Self {
         PrefixDictionaryDataWriter {
             da: None,
             vals_data: None,
@@ -78,7 +78,7 @@ impl PrefixDictionaryDataWriter {
             words_data: None,
         }
     }
-    fn build_prefix_dictionary(&self, is_system: bool) -> PrefixDictionary {
+    pub fn build_prefix_dictionary(&self, is_system: bool) -> PrefixDictionary {
         PrefixDictionary {
             da: self.da.clone().unwrap(),
             vals_data: self.vals_data.clone().unwrap(),

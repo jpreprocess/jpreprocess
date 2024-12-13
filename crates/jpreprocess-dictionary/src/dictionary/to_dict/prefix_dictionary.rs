@@ -4,24 +4,32 @@ use std::str::FromStr;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
+use derive_builder::Builder;
 use log::warn;
 use yada::builder::DoubleArrayBuilder;
 
 use lindera_dictionary::error::LinderaErrorKind;
 use lindera_dictionary::viterbi::{WordEntry, WordId};
 use lindera_dictionary::LinderaResult;
-use yada::DoubleArray;
 
 use super::writer::{PrefixDictionaryDataType, PrefixDictionaryWriter};
 
-#[derive(Debug)]
+#[derive(Builder, Debug)]
+#[builder(name = PrefixDictionaryBuilderOptions)]
+#[builder(build_fn(name = "builder"))]
 pub struct PrefixDictionaryBuilder {
+    #[builder(default = "false")]
     normalize_details: bool,
+    #[builder(default = "false")]
     skip_invalid_cost_or_id: bool,
 
+    #[builder(default = "false")]
     is_user_dict: bool,
+    #[builder(default = "3")]
     simple_userdic_fields_num: usize,
+    #[builder(default = "-10000")]
     simple_word_cost: i16,
+    #[builder(default = "0")]
     simple_context_id: u16,
 }
 
@@ -33,7 +41,7 @@ impl PrefixDictionaryBuilder {
         writer: &mut W,
     ) -> LinderaResult<()>
     where
-        F: Fn(&StringRecord) -> LinderaResult<Vec<u8>>,
+        F: Fn(&[&str]) -> LinderaResult<Vec<u8>>,
         W: PrefixDictionaryWriter,
     {
         if self.normalize_details {
@@ -119,7 +127,13 @@ impl PrefixDictionaryBuilder {
                 .write_u32::<LittleEndian>(offset as u32)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
 
-            let word = row_encoder(row)?;
+            let details = if self.is_user_dict && row.len() == self.simple_userdic_fields_num {
+                row.iter().skip(1).collect::<Vec<_>>()
+            } else {
+                row.iter().skip(4).collect::<Vec<_>>()
+            };
+
+            let word = row_encoder(&details)?;
             dict_words_buffer
                 .write(&word)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;

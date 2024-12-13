@@ -24,6 +24,10 @@ bincode.workspace = true
 byteorder.workspace = true
 anyhow.workspace = true
 once_cell.workspace = true
+log.workspace = true
+csv.workspace = true
+derive_builder.workspace = true
+glob.workspace = true
 
 lindera.workspace = true
 lindera-dictionary.workspace = true
