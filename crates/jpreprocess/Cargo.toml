@@ -31,7 +31,6 @@ jpreprocess-core.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
 jpreprocess-dictionary.workspace = true
-jpreprocess-dictionary-builder.workspace = true
 
 jpreprocess-naist-jdic = { workspace = true, optional = true }
 

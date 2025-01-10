@@ -553,7 +553,6 @@ dependencies = [
  "jlabel",
  "jpreprocess-core",
  "jpreprocess-dictionary",
- "jpreprocess-dictionary-builder",
  "jpreprocess-jpcommon",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",

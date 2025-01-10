@@ -46,30 +46,27 @@ mod dictionary;
 mod normalize_text;
 
 pub use dictionary::*;
-use lindera::tokenizer::Tokenizer;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
-pub use jpreprocess_dictionary::default::DefaultFetcher;
+pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 pub use jpreprocess_njd::NJD;
-pub use lindera::dictionary::{Dictionary, UserDictionary};
-pub use lindera_dictionary::{DictionaryKind, DictionaryLoader, UserDictionaryConfig};
+pub use lindera::dictionary::{Dictionary, UserDictionary, UserDictionaryConfig};
 
 use jpreprocess_core::*;
-use jpreprocess_dictionary::DictionaryFetcher;
-use lindera_tokenizer::tokenizer::Tokenizer;
+use jpreprocess_dictionary::tokenizer::Tokenizer;
+use lindera::dictionary::load_user_dictionary_from_config;
 
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,
     pub user_dictionary: Option<UserDictionaryConfig>,
 }
 
-pub struct JPreprocess<F: DictionaryFetcher> {
-    tokenizer: Tokenizer,
-    dictionary_fetcher: F,
+pub struct JPreprocess<T: Tokenizer> {
+    tokenizer: T,
 }
 
-impl JPreprocess<DefaultFetcher> {
+impl JPreprocess<DefaultTokenizer> {
     /// Loads the dictionary from JPreprocessConfig.
     ///
     /// This supports importing files and built-in dictionary (needs feature).
@@ -119,9 +116,7 @@ impl JPreprocess<DefaultFetcher> {
         let dictionary = config.dictionary.load()?;
 
         let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(DictionaryLoader::load_user_dictionary_from_config(
-                user_dict_conf,
-            )?),
+            Some(user_dict_conf) => Some(load_user_dictionary_from_config(user_dict_conf)?),
             None => None,
         };
 
@@ -133,31 +128,22 @@ impl JPreprocess<DefaultFetcher> {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
-        let dictionary_fetcher =
-            DefaultFetcher::from_dictionaries(&dictionary, user_dictionary.as_ref());
+        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            lindera_dictionary::mode::Mode::Normal,
+            dictionary,
+            user_dictionary,
+        ));
 
-        Self::with_dictionary_fetcher(dictionary_fetcher, dictionary, user_dictionary)
+        let tokenizer = DefaultTokenizer::new(tokenizer);
+
+        Self::from_tokenizer(tokenizer)
     }
 }
 
-impl<F: DictionaryFetcher> JPreprocess<F> {
-    /// Creates JPreprocess with provided dictionary fetcher.
-    pub fn with_dictionary_fetcher(
-        dictionary_fetcher: F,
-        dictionary: Dictionary,
-        user_dictionary: Option<UserDictionary>,
-    ) -> Self {
-        Tokenizer::new(segmenter)
-        let tokenizer = Tokenizer::new(
-            dictionary,
-            user_dictionary,
-            lindera::mode::Mode::Normal,
-        );
-
-        Self {
-            tokenizer,
-            dictionary_fetcher,
-        }
+impl<T: Tokenizer> JPreprocess<T> {
+    /// Creates JPreprocess from provided tokenizer.
+    pub fn from_tokenizer(tokenizer: T) -> Self {
+        Self { tokenizer }
     }
 
     /// Tokenize input text and return NJD.
@@ -201,9 +187,9 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
     /// ```
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
-        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
+        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str());
 
-        NJD::from_tokens(&tokens, &self.dictionary_fetcher)
+        Ok(NJD::from_tokens(tokens))
     }
 
     /// Tokenize a text, preprocess, and return NJD converted to string.
@@ -242,13 +228,13 @@ impl<F: DictionaryFetcher> JPreprocess<F> {
 
 #[cfg(test)]
 mod tests {
-    use jpreprocess_dictionary::default::DefaultFetcher;
+    use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 
     use crate::JPreprocess;
 
     #[test]
     fn multithread() {
         fn tester<T: Send + Sync>() {}
-        tester::<JPreprocess<DefaultFetcher>>();
+        tester::<JPreprocess<DefaultTokenizer>>();
     }
 }
