@@ -615,7 +615,7 @@ dependencies = [
  "flate2",
  "jpreprocess-dictionary",
  "jpreprocess-dictionary-builder",
- "lindera",
+ "lindera-dictionary",
  "tar",
  "ureq",
 ]

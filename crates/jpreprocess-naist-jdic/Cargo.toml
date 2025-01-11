@@ -16,7 +16,7 @@ documentation = "https://docs.rs/jpreprocess-naist-jdic"
 naist-jdic = ["dep:encoding", "dep:flate2", "dep:tar", "dep:ureq"]
 
 [dependencies]
-lindera.workspace = true
+lindera-dictionary.workspace = true
 
 [build-dependencies]
 encoding = { workspace = true, optional = true }
@@ -24,7 +24,7 @@ flate2 = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
 ureq = { workspace = true, features = ["tls"], optional = true }
 
-lindera.workspace = true
+lindera-dictionary.workspace = true
 
 jpreprocess-dictionary.workspace = true
 jpreprocess-dictionary-builder.workspace = true
