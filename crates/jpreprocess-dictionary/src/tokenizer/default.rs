@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry};
+use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
 use super::{Token, Tokenizer};
 
@@ -68,15 +68,17 @@ impl DefaultTokenizer {
 }
 
 impl Tokenizer for DefaultTokenizer {
-    fn tokenize<'a>(&'a self, text: &'a str) -> Vec<impl 'a + Token> {
+    fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
         let words = self.tokenizer.tokenize(text).unwrap();
         words
             .into_iter()
-            .map(|token| JPreprocessToken {
-                text: token.text,
-                entry: self.get_word(token.word_id).unwrap(),
+            .map(|token| {
+                Ok(JPreprocessToken {
+                    text: token.text,
+                    entry: self.get_word(token.word_id)?,
+                })
             })
-            .collect()
+            .collect::<Result<_, _>>()
     }
 }
 
@@ -86,10 +88,7 @@ pub struct JPreprocessToken<'a> {
 }
 
 impl Token for JPreprocessToken<'_> {
-    fn get_string(&mut self) -> &str {
-        &self.text
-    }
-    fn get_word_entry(&mut self) -> WordEntry {
-        self.entry.clone()
+    fn fetch(&mut self) -> Result<(&str, WordEntry), jpreprocess_core::JPreprocessError> {
+        Ok((&self.text, self.entry.clone()))
     }
 }

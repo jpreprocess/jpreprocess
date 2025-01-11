@@ -2,7 +2,8 @@ mod contrib;
 mod node;
 mod open_jtalk;
 
-use jpreprocess_core::word_entry::WordEntry;
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_dictionary::tokenizer::Token;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
 
 pub use contrib::*;
@@ -19,14 +20,26 @@ impl NJD {
         self.nodes.retain(|node| !node.get_pron().is_empty())
     }
 
-    pub fn from_entries(entries: &[(String, WordEntry)]) -> Self {
+    pub fn from_tokens<'a, T: Token>(
+        tokens: impl 'a + IntoIterator<Item = T>,
+    ) -> JPreprocessResult<Self> {
+        let mut nodes = Vec::new();
+        for mut token in tokens {
+            let (string, entry) = token.fetch()?;
+            nodes.extend(NJDNode::load(&string, &entry));
+        }
+
+        Ok(Self { nodes })
+    }
+    pub fn from_entries<'a>(
+        entries: impl 'a + IntoIterator<Item = (&'a str, &'a WordEntry)>,
+    ) -> Self {
         let nodes = entries
-            .iter()
+            .into_iter()
             .flat_map(|(text, word_entry)| NJDNode::load(text, word_entry))
             .collect();
         Self { nodes }
     }
-
     pub fn from_strings(njd_features: Vec<String>) -> Self {
         Self {
             nodes: njd_features

@@ -187,9 +187,9 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// ```
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
-        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str());
+        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
 
-        Ok(NJD::from_tokens(tokens))
+        Ok(NJD::from_tokens(tokens)?)
     }
 
     /// Tokenize a text, preprocess, and return NJD converted to string.

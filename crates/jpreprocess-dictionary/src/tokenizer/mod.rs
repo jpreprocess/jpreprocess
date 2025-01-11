@@ -1,28 +1,25 @@
-use jpreprocess_core::word_entry::WordEntry;
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 
 pub mod default;
 
 pub trait Tokenizer {
-    fn tokenize<'a>(&'a self, text: &'a str) -> Vec<impl 'a + Token>;
+    fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>>;
 }
 
 pub trait Token {
-    fn get_string(&mut self) -> &str;
-    fn get_word_entry(&mut self) -> WordEntry;
+    fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)>;
 }
 
 impl Tokenizer for lindera::tokenizer::Tokenizer {
-    fn tokenize<'a>(&'a self, text: &'a str) -> Vec<impl 'a + Token> {
-        self.tokenize(text).unwrap()
+    fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
+        Ok(self.tokenize(text)?)
     }
 }
 
 impl Token for lindera::token::Token<'_> {
-    fn get_string(&mut self) -> &str {
-        &self.text
-    }
-    fn get_word_entry(&mut self) -> WordEntry {
+    fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
         let details = self.details();
-        WordEntry::load(&details).unwrap()
+        let entry = WordEntry::load(&details)?;
+        Ok((&self.text, entry))
     }
 }
