@@ -51,7 +51,7 @@ pub use normalize_text::normalize_text_for_naist_jdic;
 pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 pub use jpreprocess_njd::NJD;
-pub use lindera::dictionary::{Dictionary, UserDictionary, UserDictionaryConfig};
+pub use lindera::dictionary::{Dictionary, DictionaryKind, UserDictionary, UserDictionaryConfig};
 
 use jpreprocess_core::*;
 use jpreprocess_dictionary::tokenizer::Tokenizer;

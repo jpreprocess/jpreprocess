@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use jpreprocess::{
-    DefaultFetcher, DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig,
+    DefaultTokenizer, DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig,
     UserDictionaryConfig,
 };
 use jpreprocess_core::pos::POS;
@@ -14,7 +14,7 @@ use crate::{into_runtime_error, structs::*};
 
 #[pyclass(name = "JPreprocess")]
 pub struct JPreprocessPyBinding {
-    inner: JPreprocess<DefaultFetcher>,
+    inner: JPreprocess<DefaultTokenizer>,
 }
 
 #[pymethods]

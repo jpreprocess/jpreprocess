@@ -1,9 +1,7 @@
 use std::path::PathBuf;
 
-use jpreprocess_dictionary::default::WordDictionaryMode;
-use lindera::dictionary_builder::DictionaryBuilder;
-
-use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
+use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
+use lindera_dictionary::dictionary_builder::{ipadic::IpadicBuilder, DictionaryBuilder};
 use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
 
 use crate::into_runtime_error;
@@ -16,9 +14,9 @@ pub fn build_dictionary(
     user: Option<bool>,
     serializer: Option<&str>,
 ) -> PyResult<()> {
-    let serializer = match serializer {
-        Some("lindera") => WordDictionaryMode::Lindera,
-        Some("jpreprocess") | None => WordDictionaryMode::JPreprocess,
+    let builder: Box<dyn DictionaryBuilder> = match serializer {
+        Some("lindera") => Box::new(IpadicBuilder {}),
+        Some("jpreprocess") | None => Box::new(JPreprocessDictionaryBuilder {}),
         _ => {
             return Err(PyAssertionError::new_err(
                 "serializer must be either `lindera` or `jpreprocess`.",
@@ -26,8 +24,6 @@ pub fn build_dictionary(
         }
     };
     let user = user.unwrap_or(false);
-
-    let builder = IpadicBuilder::new(serializer.into_serializer());
 
     if user {
         builder
