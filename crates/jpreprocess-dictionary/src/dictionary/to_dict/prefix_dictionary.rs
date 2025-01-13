@@ -57,15 +57,20 @@ pub struct PrefixDictionaryBuilder {
     simple_context_id: u16,
 }
 
+pub trait RowEncoder {
+    fn encode(&self, row: &[&str]) -> LinderaResult<Vec<u8>>;
+    fn identifier(&self) -> &'static str;
+}
+
 impl PrefixDictionaryBuilder {
-    pub fn build<F, W>(
+    pub fn build<E, W>(
         &self,
         mut rows: Vec<StringRecord>,
-        row_encoder: F,
+        row_encoder: E,
         writer: &mut W,
     ) -> LinderaResult<()>
     where
-        F: Fn(&[&str]) -> LinderaResult<Vec<u8>>,
+        E: RowEncoder,
         W: PrefixDictionaryWriter,
     {
         if self.normalize_details {
@@ -145,6 +150,10 @@ impl PrefixDictionaryBuilder {
         let mut dict_words_buffer = Vec::new();
         let mut dict_wordsidx_buffer = Vec::new();
 
+        dict_words_buffer
+            .write(row_encoder.identifier().as_bytes())
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+
         for row in rows.iter() {
             let offset = dict_words_buffer.len();
             dict_wordsidx_buffer
@@ -157,7 +166,7 @@ impl PrefixDictionaryBuilder {
                 row.iter().skip(4).collect::<Vec<_>>()
             };
 
-            let word = row_encoder(&details)?;
+            let word = row_encoder.encode(&details)?;
             dict_words_buffer
                 .write(&word)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
