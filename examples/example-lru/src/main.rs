@@ -6,7 +6,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     use jpreprocess::*;
     use std::path::PathBuf;
 
-    use crate::storage_fetcher::StorageFetcher;
+    use crate::storage_fetcher::LruTokenizer;
 
     let path = match std::env::args().nth(1).map(PathBuf::from) {
         Some(s) if s.is_dir() => s,
@@ -16,10 +16,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    let fetcher = StorageFetcher::new(&path)?;
-    let dictionary = SystemDictionaryConfig::File(path).load()?;
-
-    let jpreprocess = JPreprocess::with_dictionary_fetcher(fetcher, dictionary, None);
+    let tokenizer = LruTokenizer::new(&path)?;
+    let jpreprocess = JPreprocess::from_tokenizer(tokenizer);
 
     let mut text = String::new();
     while std::io::stdin().read_line(&mut text).is_ok() {

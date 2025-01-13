@@ -14,6 +14,10 @@ rust-version.workspace = true
 jpreprocess.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true
+
 lindera.workspace = true
+lindera-dictionary.workspace = true
+
+bincode.workspace = true
 
 lru = "0.12.2"

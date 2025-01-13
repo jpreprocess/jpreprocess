@@ -390,10 +390,12 @@ dependencies = [
 name = "example-lru"
 version = "0.10.0"
 dependencies = [
+ "bincode",
  "jpreprocess",
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "lindera",
+ "lindera-dictionary",
  "lru",
 ]
 
@@ -411,6 +413,7 @@ dependencies = [
  "jpreprocess",
  "js-sys",
  "lindera",
+ "lindera-dictionary",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",

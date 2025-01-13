@@ -1,8 +1,6 @@
-use std::borrow::Cow;
-
-use lindera::{
-    character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
-    prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
+use lindera_dictionary::dictionary::{
+    character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
+    prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -41,12 +39,15 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
     type Error = lindera::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
-            cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
-            char_definitions: CharacterDefinitions::load(&value.char_definitions)?,
+            prefix_dictionary: PrefixDictionary::load(
+                &value.dict_da,
+                &value.dict_vals,
+                &value.words_idx_data,
+                &value.words_data,
+            ),
             unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
-            words_idx_data: Cow::Owned(value.words_idx_data),
-            words_data: Cow::Owned(value.words_data),
+            connection_cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
+            character_definition: CharacterDefinition::load(&value.char_definitions)?,
         };
         Ok(this)
     }
@@ -64,9 +65,12 @@ impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
     type Error = lindera::error::LinderaError;
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
-            words_idx_data: value.words_idx_data,
-            words_data: value.words_data,
+            dict: PrefixDictionary::load(
+                &value.dict_da,
+                &value.dict_vals,
+                &value.words_idx_data,
+                &value.words_data,
+            ),
         };
         Ok(this)
     }
@@ -106,7 +110,7 @@ impl From<IVecString> for Vec<String> {
 
 #[wasm_bindgen]
 pub struct JPreprocess {
-    inner: jpreprocess::JPreprocess<jpreprocess::DefaultFetcher>,
+    inner: jpreprocess::JPreprocess<jpreprocess::DefaultTokenizer>,
 }
 #[wasm_bindgen]
 impl JPreprocess {
