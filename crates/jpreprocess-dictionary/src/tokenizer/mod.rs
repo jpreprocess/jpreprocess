@@ -1,6 +1,8 @@
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 
 pub mod default;
+mod identify_dictionary;
+pub mod jpreprocess;
 
 pub trait Tokenizer {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>>;
