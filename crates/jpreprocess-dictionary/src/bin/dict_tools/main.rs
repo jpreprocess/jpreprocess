@@ -1,13 +1,14 @@
 use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
-
-use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
-use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
-use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
-
-use lindera::dictionary_builder::DictionaryBuilder;
-use lindera_dictionary::UserDictionaryConfig;
+use jpreprocess_core::word_entry::WordEntry;
+use jpreprocess_dictionary::dictionary::{
+    to_csv::dict_to_csv, to_dict::JPreprocessDictionaryBuilder,
+};
+use lindera::dictionary::{
+    load_dictionary_from_path, load_user_dictionary_from_config, UserDictionaryConfig,
+};
+use lindera_dictionary::dictionary_builder::DictionaryBuilder;
 
 use crate::dict_query::QueryDict;
 
@@ -68,14 +69,6 @@ enum Serializer {
     /// Build jpreprocess dictionary
     Jpreprocess,
 }
-impl Serializer {
-    pub fn into_mode(self) -> WordDictionaryMode {
-        match self {
-            Self::Lindera => WordDictionaryMode::Lindera,
-            Self::Jpreprocess => WordDictionaryMode::JPreprocess,
-        }
-    }
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -91,34 +84,50 @@ fn main() -> Result<(), Box<dyn Error>> {
             if is_system_dict || is_user_bin_dict {
                 let dict = if is_system_dict {
                     println!("Lindera/JPreprocess system dictionary.");
-                    let dict = SystemDictionaryConfig::File(input).load()?;
+                    let dict = load_dictionary_from_path(&input)?;
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
-                    let dict =
-                        DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
-                            path: input,
-                            kind: None,
-                        })?;
+                    let dict = load_user_dictionary_from_config(UserDictionaryConfig {
+                        path: input,
+                        kind: None,
+                    })?;
                     QueryDict::User(dict)
                 };
 
-                if let Some(metadata) = dict.identifier() {
+                let serializer = if let Some(metadata) = dict.identifier() {
                     println!("Dictionary metadata: {}", metadata);
+                    if metadata.starts_with("jpreprocess") {
+                        Serializer::Jpreprocess
+                    } else {
+                        Serializer::Lindera
+                    }
                 } else {
-                    println!("No metadata found. Assuming lindera dictionary.")
-                }
+                    println!("No metadata found. Assuming lindera dictionary.");
+                    Serializer::Lindera
+                };
 
                 if let Some(word_id) = word_id {
                     let word_bin = match dict.get_bytes(word_id) {
-                        Ok(word_bin) => word_bin,
-                        Err(err) => {
-                            eprintln!("Error: {:?}", err);
+                        Some(word_bin) => word_bin,
+                        None => {
+                            eprintln!("Word not found");
                             std::process::exit(-1);
                         }
                     };
-                    let message = dict.mode().into_serializer().deserialize_debug(word_bin);
-                    println!("{}", message);
+
+                    match serializer {
+                        Serializer::Lindera => {
+                            let word_details: Vec<String> = bincode::deserialize(word_bin).unwrap();
+                            for detail in word_details {
+                                println!("{}", detail);
+                            }
+                        }
+                        Serializer::Jpreprocess => {
+                            let word_details: WordEntry = bincode::deserialize(word_bin).unwrap();
+                            println!("{}", word_details.to_str_vec("".to_owned()).join(","));
+                        }
+                    }
                 }
             }
         }
@@ -128,7 +137,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             input,
             output,
         } => {
-            let builder = IpadicBuilder::new(serializer_config.into_mode().into_serializer());
+            let builder = JPreprocessDictionaryBuilder {};
 
             if user {
                 println!("Building user dictionary...");
@@ -156,27 +165,21 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Loading dictionary...");
             let dict = if !user {
-                let dict = SystemDictionaryConfig::File(input).load()?;
+                let dict = load_dictionary_from_path(&input)?;
                 QueryDict::System(dict)
             } else {
-                let dict =
-                    DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
-                        path: input,
-                        kind: None,
-                    })?;
+                let dict = load_user_dictionary_from_config(UserDictionaryConfig {
+                    path: input,
+                    kind: None,
+                })?;
                 QueryDict::User(dict)
             };
             println!("Successfully loaded source dictionary.");
 
-            let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
+            let prefix_dict = dict.dictionary_data();
 
             println!("Converting dictionary csv...");
-            let csv = dict_to_csv(
-                prefix_dict,
-                words_idx_data,
-                words_data,
-                &serializer_config.into_mode().into_serializer(),
-            )?;
+            let csv = dict_to_csv(prefix_dict)?;
             println!("done.");
 
             println!("Writing csv file...");
