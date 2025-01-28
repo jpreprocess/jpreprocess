@@ -13,11 +13,7 @@ mod da;
 /// because it is lost while building the dictionary.
 ///
 /// TODO: implement reverse jpreprocess dict
-pub fn dict_to_csv(
-    prefix_dict: &PrefixDictionary,
-    words_idx_data: &[u8],
-    words_data: &[u8],
-) -> LinderaResult<Vec<String>> {
+pub fn dict_to_csv(prefix_dict: &PrefixDictionary) -> LinderaResult<Vec<String>> {
     let word_entry_map = inverse_prefix_dict(prefix_dict, true);
 
     let rows: Vec<(String, WordEntry)> = word_entry_map
@@ -33,8 +29,10 @@ pub fn dict_to_csv(
         .into_iter()
         .enumerate()
         .map(|(i, (string, word_entry))| {
-            let idx = LittleEndian::read_u32(&words_idx_data[i * 4..(i + 1) * 4]) as usize;
-            let details: Vec<String> = bincode::deserialize(&words_data[idx..]).unwrap();
+            let idx =
+                LittleEndian::read_u32(&prefix_dict.words_idx_data[i * 4..(i + 1) * 4]) as usize;
+            let details: Vec<String> =
+                bincode::deserialize(&prefix_dict.words_data[idx..]).unwrap();
 
             format!(
                 "{},{},{},{},{}",
@@ -91,11 +89,7 @@ mod tests {
         let builder = lindera_dictionary::dictionary_builder::ipadic::IpadicBuilder::new();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
-        let inverse = dict_to_csv(
-            &user_dict.dict,
-            &user_dict.dict.words_idx_data,
-            &user_dict.dict.words_data,
-        )?;
+        let inverse = dict_to_csv(&user_dict.dict)?;
 
         let input_content = std::fs::read_to_string(input_file).unwrap();
         let rows = input_content.split('\n').collect::<Vec<_>>();
