@@ -62,7 +62,9 @@ impl DictionaryRowCodec for jpreprocess_core::word_entry::WordEntry {
     }
 
     fn decode(row: &[&str]) -> LinderaResult<Self> {
-        jpreprocess_core::word_entry::WordEntry::load(row)
+        let mut row = row.to_vec();
+        row.resize(13, "");
+        jpreprocess_core::word_entry::WordEntry::load(&row)
             .map_err(|err| LinderaErrorKind::Serialize.with_error(err).into())
     }
 }
