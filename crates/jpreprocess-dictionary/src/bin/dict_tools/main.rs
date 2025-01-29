@@ -137,7 +137,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             input,
             output,
         } => {
-            let builder = JPreprocessDictionaryBuilder {};
+            let builder: Box<dyn DictionaryBuilder> = match serializer_config {
+                Serializer::Lindera => {
+                    Box::new(lindera_dictionary::dictionary_builder::ipadic::IpadicBuilder::new())
+                }
+                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder {}),
+            };
 
             if user {
                 println!("Building user dictionary...");
@@ -179,7 +184,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             let prefix_dict = dict.dictionary_data();
 
             println!("Converting dictionary csv...");
-            let csv = dict_to_csv(prefix_dict)?;
+            let csv = match serializer_config {
+                Serializer::Lindera => dict_to_csv::<Vec<String>>(&prefix_dict)?,
+                Serializer::Jpreprocess => dict_to_csv::<WordEntry>(&prefix_dict)?,
+            };
             println!("done.");
 
             println!("Writing csv file...");

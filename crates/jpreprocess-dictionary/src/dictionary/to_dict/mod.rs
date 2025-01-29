@@ -11,24 +11,11 @@ use lindera_dictionary::{
     error::LinderaErrorKind,
     LinderaResult,
 };
-use prefix_dictionary::{PrefixDictionaryBuilderOptions, RowEncoder};
+use prefix_dictionary::PrefixDictionaryBuilderOptions;
 use writer::{PrefixDictionaryDataWriter, PrefixDictionaryFileWriter};
 
 mod prefix_dictionary;
 mod writer;
-
-struct JPreprocessRowEncoder;
-impl RowEncoder for JPreprocessRowEncoder {
-    fn encode(&self, row: &[&str]) -> LinderaResult<Vec<u8>> {
-        let word_entry =
-            WordEntry::load(row).map_err(|err| LinderaErrorKind::Serialize.with_error(err))?;
-        bincode::serialize(&word_entry).map_err(|err| LinderaErrorKind::Serialize.with_error(err))
-    }
-
-    fn identifier(&self) -> &'static str {
-        concat!("jpreprocess ", env!("CARGO_PKG_VERSION"))
-    }
-}
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
@@ -134,7 +121,7 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
             .normalize_details(true)
             .builder()
             .unwrap()
-            .build(rows, JPreprocessRowEncoder, &mut writer)
+            .build::<WordEntry, _>(rows, &mut writer)
     }
 
     fn build_connection_cost_matrix(
@@ -172,7 +159,7 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
             .simple_context_id(SIMPLE_CONTEXT_ID)
             .builder()
             .unwrap()
-            .build(rows, JPreprocessRowEncoder, &mut writer)?;
+            .build::<WordEntry, _>(rows, &mut writer)?;
 
         Ok(UserDictionary {
             dict: writer.build_prefix_dictionary(false),
@@ -195,7 +182,7 @@ pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDict
         .simple_context_id(SIMPLE_CONTEXT_ID)
         .builder()
         .unwrap()
-        .build(data, JPreprocessRowEncoder, &mut writer)?;
+        .build::<WordEntry, _>(data, &mut writer)?;
 
     Ok(UserDictionary {
         dict: writer.build_prefix_dictionary(false),

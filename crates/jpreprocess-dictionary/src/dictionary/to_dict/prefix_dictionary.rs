@@ -36,6 +36,8 @@ use lindera_dictionary::error::LinderaErrorKind;
 use lindera_dictionary::viterbi::{WordEntry, WordId};
 use lindera_dictionary::LinderaResult;
 
+use crate::dictionary::codec::{DictionaryDataCodec, DictionaryRowCodec};
+
 use super::writer::{PrefixDictionaryDataType, PrefixDictionaryWriter};
 
 #[derive(Builder, Debug)]
@@ -57,20 +59,10 @@ pub struct PrefixDictionaryBuilder {
     simple_context_id: u16,
 }
 
-pub trait RowEncoder {
-    fn encode(&self, row: &[&str]) -> LinderaResult<Vec<u8>>;
-    fn identifier(&self) -> &'static str;
-}
-
 impl PrefixDictionaryBuilder {
-    pub fn build<E, W>(
-        &self,
-        mut rows: Vec<StringRecord>,
-        row_encoder: E,
-        writer: &mut W,
-    ) -> LinderaResult<()>
+    pub fn build<E, W>(&self, mut rows: Vec<StringRecord>, writer: &mut W) -> LinderaResult<()>
     where
-        E: RowEncoder,
+        E: DictionaryDataCodec + DictionaryRowCodec,
         W: PrefixDictionaryWriter,
     {
         if self.normalize_details {
@@ -151,7 +143,7 @@ impl PrefixDictionaryBuilder {
         let mut dict_wordsidx_buffer = Vec::new();
 
         dict_words_buffer
-            .write(row_encoder.identifier().as_bytes())
+            .write(E::identifier().as_bytes())
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
 
         for row in rows.iter() {
@@ -166,9 +158,10 @@ impl PrefixDictionaryBuilder {
                 row.iter().skip(4).collect::<Vec<_>>()
             };
 
-            let word = row_encoder.encode(&details)?;
+            let word = <E as DictionaryRowCodec>::decode(&details)?;
+            let word_encoded = <E as DictionaryDataCodec>::encode(&word)?;
             dict_words_buffer
-                .write(&word)
+                .write(&word_encoded)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
         }
 
