@@ -10,9 +10,7 @@ use jpreprocess_dictionary::dictionary::{
         LinderaUserDictionaryWordEncoder,
     },
 };
-use lindera::dictionary::{
-    load_dictionary_from_path, load_user_dictionary_from_config, UserDictionaryConfig,
-};
+use lindera::dictionary::{load_dictionary_from_path, load_user_dictionary_from_bin};
 use lindera_dictionary::dictionary_builder::DictionaryBuilder;
 
 use crate::dict_query::QueryDict;
@@ -93,10 +91,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
-                    let dict = load_user_dictionary_from_config(UserDictionaryConfig {
-                        path: input,
-                        kind: None,
-                    })?;
+                    if input.extension().unwrap() != "bin" {
+                        eprintln!("User dictionary must be a bin file.");
+                        std::process::exit(-1);
+                    }
+
+                    let dict = load_user_dictionary_from_bin(&input)?;
+
                     QueryDict::User(dict)
                 };
 
@@ -178,10 +179,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let dict = load_dictionary_from_path(&input)?;
                 QueryDict::System(dict)
             } else {
-                let dict = load_user_dictionary_from_config(UserDictionaryConfig {
-                    path: input,
-                    kind: None,
-                })?;
+                if input.extension().unwrap() != "bin" {
+                    eprintln!("User dictionary must be a bin file.");
+                    std::process::exit(-1);
+                }
+
+                let dict = load_user_dictionary_from_bin(&input)?;
                 QueryDict::User(dict)
             };
             println!("Successfully loaded source dictionary.");

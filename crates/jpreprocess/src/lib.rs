@@ -116,7 +116,7 @@ impl JPreprocess<DefaultTokenizer> {
         let dictionary = config.dictionary.load()?;
 
         let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(load_user_dictionary_from_config(user_dict_conf)?),
+            Some(user_dict_conf) => Some(load_user_dictionary_from_config(&user_dict_conf)?),
             None => None,
         };
 

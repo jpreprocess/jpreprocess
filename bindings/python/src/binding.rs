@@ -1,9 +1,6 @@
 use std::path::PathBuf;
 
-use jpreprocess::{
-    DefaultTokenizer, DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig,
-    UserDictionaryConfig,
-};
+use jpreprocess::{DefaultTokenizer, JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
 use jpreprocess_core::pos::POS;
 use jpreprocess_jpcommon::njdnodes_to_features;
 use jpreprocess_njd::NJDNode;
@@ -25,9 +22,11 @@ impl JPreprocessPyBinding {
         Ok(Self {
             inner: JPreprocess::from_config(JPreprocessConfig {
                 dictionary: SystemDictionaryConfig::File(dictionary),
-                user_dictionary: user_dictionary.map(|path| UserDictionaryConfig {
-                    path,
-                    kind: Some(DictionaryKind::IPADIC),
+                user_dictionary: user_dictionary.map(|path| {
+                    serde_json::json!({
+                        "path": path,
+                        "kind": "ipadic"
+                    })
                 }),
             })
             .map_err(into_runtime_error)?,
