@@ -2,35 +2,9 @@ use std::borrow::Cow;
 
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
-use super::{Token, Tokenizer};
+use crate::word_data::get_word_data;
 
-fn get_word_data<'a>(idx: &[u8], data: &'a [u8], word_id: usize) -> &'a [u8] {
-    if word_id * 4 + 4 > idx.len() {
-        &[]
-    } else if word_id * 4 + 8 > idx.len() {
-        let start = u32::from_le_bytes([
-            idx[word_id * 4],
-            idx[word_id * 4 + 1],
-            idx[word_id * 4 + 2],
-            idx[word_id * 4 + 3],
-        ]) as usize;
-        &data[start..]
-    } else {
-        let start = u32::from_le_bytes([
-            idx[word_id * 4],
-            idx[word_id * 4 + 1],
-            idx[word_id * 4 + 2],
-            idx[word_id * 4 + 3],
-        ]) as usize;
-        let end = u32::from_le_bytes([
-            idx[word_id * 4 + 4],
-            idx[word_id * 4 + 5],
-            idx[word_id * 4 + 6],
-            idx[word_id * 4 + 7],
-        ]) as usize;
-        &data[start..end]
-    }
-}
+use super::{Token, Tokenizer};
 
 pub struct JPreprocessTokenizer {
     tokenizer: lindera::tokenizer::Tokenizer,
@@ -49,8 +23,9 @@ impl JPreprocessTokenizer {
             let data = get_word_data(
                 &system.words_idx_data,
                 &system.words_data,
-                word_id.id as usize,
-            );
+                Some(word_id.id as usize),
+            )
+            .ok_or(DictionaryError::IdNotFound(word_id.id))?;
             Ok(bincode::deserialize(data)?)
         } else {
             let user = &self.tokenizer.segmenter.user_dictionary;
@@ -59,8 +34,9 @@ impl JPreprocessTokenizer {
                     let data = get_word_data(
                         &user.dict.words_idx_data,
                         &user.dict.words_data,
-                        word_id.id as usize,
-                    );
+                        Some(word_id.id as usize),
+                    )
+                    .ok_or(DictionaryError::IdNotFound(word_id.id))?;
                     Ok(bincode::deserialize(data)?)
                 })
         }

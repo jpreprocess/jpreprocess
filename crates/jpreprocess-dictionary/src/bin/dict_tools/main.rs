@@ -3,7 +3,12 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_dictionary::dictionary::{
-    to_csv::dict_to_csv, to_dict::JPreprocessDictionaryBuilder,
+    to_csv::dict_to_csv,
+    to_dict::JPreprocessDictionaryBuilder,
+    word_encoder::{
+        JPreprocessDictionaryWordEncoder, LinderaSystemDictionaryWordEncoder,
+        LinderaUserDictionaryWordEncoder,
+    },
 };
 use lindera::dictionary::{
     load_dictionary_from_path, load_user_dictionary_from_config, UserDictionaryConfig,
@@ -185,8 +190,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Converting dictionary csv...");
             let csv = match serializer_config {
-                Serializer::Lindera => dict_to_csv::<Vec<String>>(&prefix_dict)?,
-                Serializer::Jpreprocess => dict_to_csv::<WordEntry>(&prefix_dict)?,
+                Serializer::Lindera => match dict {
+                    QueryDict::System(_) => {
+                        dict_to_csv::<LinderaSystemDictionaryWordEncoder>(&prefix_dict)?
+                    }
+                    QueryDict::User(_) => {
+                        dict_to_csv::<LinderaUserDictionaryWordEncoder>(&prefix_dict)?
+                    }
+                },
+                Serializer::Jpreprocess => {
+                    dict_to_csv::<JPreprocessDictionaryWordEncoder>(&prefix_dict)?
+                }
             };
             println!("done.");
 

@@ -1,6 +1,5 @@
 use std::{fs, path::Path};
 
-use jpreprocess_core::word_entry::WordEntry;
 use lindera_dictionary::{
     decompress::Algorithm,
     dictionary::{character_definition::CharacterDefinition, UserDictionary},
@@ -13,6 +12,8 @@ use lindera_dictionary::{
 };
 use prefix_dictionary::PrefixDictionaryBuilderOptions;
 use writer::{PrefixDictionaryDataWriter, PrefixDictionaryFileWriter};
+
+use super::word_encoder::JPreprocessDictionaryWordEncoder;
 
 mod prefix_dictionary;
 mod writer;
@@ -121,7 +122,7 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
             .normalize_details(true)
             .builder()
             .unwrap()
-            .build::<WordEntry, _>(rows, &mut writer)
+            .build::<JPreprocessDictionaryWordEncoder, _>(rows, &mut writer)
     }
 
     fn build_connection_cost_matrix(
@@ -159,7 +160,7 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
             .simple_context_id(SIMPLE_CONTEXT_ID)
             .builder()
             .unwrap()
-            .build::<WordEntry, _>(rows, &mut writer)?;
+            .build::<JPreprocessDictionaryWordEncoder, _>(rows, &mut writer)?;
 
         Ok(UserDictionary {
             dict: writer.build_prefix_dictionary(false),
@@ -182,7 +183,7 @@ pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDict
         .simple_context_id(SIMPLE_CONTEXT_ID)
         .builder()
         .unwrap()
-        .build::<WordEntry, _>(data, &mut writer)?;
+        .build::<JPreprocessDictionaryWordEncoder, _>(data, &mut writer)?;
 
     Ok(UserDictionary {
         dict: writer.build_prefix_dictionary(false),

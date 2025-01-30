@@ -1,11 +1,12 @@
-use byteorder::{ByteOrder, LittleEndian};
 use lindera::LinderaResult;
 use lindera_dictionary::{dictionary::prefix_dictionary::PrefixDictionary, viterbi::WordEntry};
 use std::collections::BTreeMap;
 
+use crate::word_data::get_word_data;
+
 use self::da::DoubleArrayParser;
 
-use super::codec::{DictionaryDataCodec, DictionaryRowCodec};
+use super::word_encoder::DictionaryWordEncoder;
 
 mod da;
 
@@ -13,7 +14,7 @@ mod da;
 ///
 /// The third column (right_id) cannot be recovered
 /// because it is lost while building the dictionary.
-pub fn dict_to_csv<D: DictionaryDataCodec + DictionaryRowCodec>(
+pub fn dict_to_csv<E: DictionaryWordEncoder>(
     prefix_dict: &PrefixDictionary,
 ) -> LinderaResult<Vec<String>> {
     let word_entry_map = inverse_prefix_dict(prefix_dict, true);
@@ -31,13 +32,15 @@ pub fn dict_to_csv<D: DictionaryDataCodec + DictionaryRowCodec>(
         .into_iter()
         .enumerate()
         .map(|(i, (string, word_entry))| {
-            let idx =
-                LittleEndian::read_u32(&prefix_dict.words_idx_data[i * 4..(i + 1) * 4]) as usize;
-            let details = {
-                let data =
-                    <D as DictionaryDataCodec>::decode(&prefix_dict.words_data[idx..]).unwrap();
-                <D as DictionaryRowCodec>::encode(&data, string.clone()).unwrap()
-            };
+            let word_data = get_word_data(
+                &prefix_dict.words_idx_data,
+                &prefix_dict.words_data,
+                Some(i),
+            )
+            .unwrap();
+            let details = E::decode(string.clone(), word_data).unwrap();
+
+            dbg!(&details);
 
             format!(
                 "{},{},{},{},{}",
@@ -84,6 +87,10 @@ pub fn inverse_prefix_dict(
 mod tests {
     use lindera_dictionary::dictionary_builder::DictionaryBuilder;
 
+    use crate::dictionary::word_encoder::{
+        JPreprocessDictionaryWordEncoder, LinderaUserDictionaryWordEncoder,
+    };
+
     use super::dict_to_csv;
     use std::{error::Error, path::PathBuf};
 
@@ -94,7 +101,7 @@ mod tests {
         let builder = lindera_dictionary::dictionary_builder::ipadic::IpadicBuilder::new();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
-        let inverse = dict_to_csv::<Vec<String>>(&user_dict.dict)?;
+        let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoder>(&user_dict.dict)?;
 
         let input_content = std::fs::read_to_string(input_file).unwrap();
         let rows = input_content.split('\n').collect::<Vec<_>>();
@@ -112,7 +119,7 @@ mod tests {
         let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder {};
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
-        let inverse = dict_to_csv::<jpreprocess_core::word_entry::WordEntry>(&user_dict.dict)?;
+        let inverse = dict_to_csv::<JPreprocessDictionaryWordEncoder>(&user_dict.dict)?;
 
         let input_content = std::fs::read_to_string(input_file).unwrap();
         let rows = input_content.split('\n').collect::<Vec<_>>();

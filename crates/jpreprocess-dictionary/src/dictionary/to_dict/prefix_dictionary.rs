@@ -36,7 +36,7 @@ use lindera_dictionary::error::LinderaErrorKind;
 use lindera_dictionary::viterbi::{WordEntry, WordId};
 use lindera_dictionary::LinderaResult;
 
-use crate::dictionary::codec::{DictionaryDataCodec, DictionaryRowCodec};
+use crate::dictionary::word_encoder::DictionaryWordEncoder;
 
 use super::writer::{PrefixDictionaryDataType, PrefixDictionaryWriter};
 
@@ -62,7 +62,7 @@ pub struct PrefixDictionaryBuilder {
 impl PrefixDictionaryBuilder {
     pub fn build<E, W>(&self, mut rows: Vec<StringRecord>, writer: &mut W) -> LinderaResult<()>
     where
-        E: DictionaryDataCodec + DictionaryRowCodec,
+        E: DictionaryWordEncoder,
         W: PrefixDictionaryWriter,
     {
         if self.normalize_details {
@@ -158,10 +158,9 @@ impl PrefixDictionaryBuilder {
                 row.iter().skip(4).collect::<Vec<_>>()
             };
 
-            let word = <E as DictionaryRowCodec>::decode(&details)?;
-            let word_encoded = <E as DictionaryDataCodec>::encode(&word)?;
+            let word = E::encode(&details)?;
             dict_words_buffer
-                .write(&word_encoded)
+                .write(&word)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
         }
 
