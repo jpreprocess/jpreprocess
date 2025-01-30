@@ -10,10 +10,7 @@ use super::word_encoder::DictionaryWordEncoder;
 
 mod da;
 
-/// Converts dictionary to csv.
-///
-/// The third column (right_id) cannot be recovered
-/// because it is lost while building the dictionary.
+/// Converts prefix dictionary back to csv.
 pub fn dict_to_csv<E: DictionaryWordEncoder>(
     prefix_dict: &PrefixDictionary,
 ) -> LinderaResult<Vec<String>> {
@@ -39,8 +36,6 @@ pub fn dict_to_csv<E: DictionaryWordEncoder>(
             )
             .unwrap();
             let details = E::decode(string.clone(), word_data).unwrap();
-
-            dbg!(&details);
 
             format!(
                 "{},{},{},{},{}",
