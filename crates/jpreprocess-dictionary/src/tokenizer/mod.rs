@@ -1,4 +1,5 @@
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
+use lindera_dictionary::dictionary::UNK;
 
 pub mod default;
 mod identify_dictionary;
@@ -20,13 +21,14 @@ impl Tokenizer for lindera::tokenizer::Tokenizer {
 
 impl Token for lindera::token::Token<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
-        let entry = if self.word_id.is_unknown() {
+        let mut details = self.details();
+        let entry = if details == *UNK {
             WordEntry::default()
         } else {
-            let mut details = self.details();
             details.resize(13, "");
             WordEntry::load(&details)?
         };
+
         Ok((&self.text, entry))
     }
 }
