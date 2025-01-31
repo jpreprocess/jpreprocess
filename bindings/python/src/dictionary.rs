@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
 use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
-use lindera_dictionary::dictionary_builder::{ipadic::IpadicBuilder, DictionaryBuilder};
+use lindera_dictionary::dictionary_builder::{
+    ipadic_neologd::IpadicNeologdBuilder, DictionaryBuilder,
+};
 use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
 
 use crate::into_runtime_error;
@@ -15,7 +17,7 @@ pub fn build_dictionary(
     serializer: Option<&str>,
 ) -> PyResult<()> {
     let builder: Box<dyn DictionaryBuilder> = match serializer {
-        Some("lindera") => Box::new(IpadicBuilder {}),
+        Some("lindera") => Box::new(IpadicNeologdBuilder {}),
         Some("jpreprocess") | None => Box::new(JPreprocessDictionaryBuilder {}),
         _ => {
             return Err(PyAssertionError::new_err(

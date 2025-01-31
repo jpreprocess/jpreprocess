@@ -23,7 +23,8 @@ impl Token for lindera::token::Token<'_> {
         let entry = if self.word_id.is_unknown() {
             WordEntry::default()
         } else {
-            let details = self.details();
+            let mut details = self.details();
+            details.resize(13, "");
             WordEntry::load(&details)?
         };
         Ok((&self.text, entry))

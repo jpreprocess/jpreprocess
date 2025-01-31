@@ -145,7 +145,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         } => {
             let builder: Box<dyn DictionaryBuilder> = match serializer_config {
                 Serializer::Lindera => {
-                    Box::new(lindera_dictionary::dictionary_builder::ipadic::IpadicBuilder::new())
+                    Box::new(lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new())
                 }
                 Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder {}),
             };

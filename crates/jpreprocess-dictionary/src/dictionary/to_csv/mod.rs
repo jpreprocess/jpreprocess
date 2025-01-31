@@ -93,7 +93,8 @@ mod tests {
     fn inverse_lindera() -> Result<(), Box<dyn Error>> {
         let input_file = PathBuf::from("./test.csv");
 
-        let builder = lindera_dictionary::dictionary_builder::ipadic::IpadicBuilder::new();
+        let builder =
+            lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
         let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoder>(&user_dict.dict)?;
