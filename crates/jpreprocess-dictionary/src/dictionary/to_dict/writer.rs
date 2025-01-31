@@ -44,10 +44,10 @@ impl PrefixDictionaryWriter for PrefixDictionaryFileWriter {
         data: &[u8],
     ) -> Result<(), LinderaError> {
         let file_path = match dict_type {
-            PrefixDictionaryDataType::DoubleArray => self.output_dir.join("double_array.bin"),
-            PrefixDictionaryDataType::Vals => self.output_dir.join("vals.bin"),
-            PrefixDictionaryDataType::Words => self.output_dir.join("words.bin"),
-            PrefixDictionaryDataType::WordsIdx => self.output_dir.join("words_idx.bin"),
+            PrefixDictionaryDataType::DoubleArray => self.output_dir.join("dict.da"),
+            PrefixDictionaryDataType::Vals => self.output_dir.join("dict.vals"),
+            PrefixDictionaryDataType::Words => self.output_dir.join("dict.words"),
+            PrefixDictionaryDataType::WordsIdx => self.output_dir.join("dict.wordsidx"),
         };
 
         let mut wtr = io::BufWriter::new(

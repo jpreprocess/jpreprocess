@@ -35,6 +35,8 @@ lindera-dictionary.workspace = true
 serde.workspace = true
 yada.workspace = true
 
+rayon.workspace = true
+
 jpreprocess-core.workspace = true
 
 clap = { workspace = true, features = ["derive"], optional = true }

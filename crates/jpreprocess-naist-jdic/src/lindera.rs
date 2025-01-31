@@ -8,37 +8,43 @@ use lindera_dictionary::{
 
 #[cfg(feature = "naist-jdic")]
 const CHAR_DEFINITION_DATA: &[u8] =
-    include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/char_def.bin"));
+    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/char_def.bin"));
 #[cfg(not(feature = "naist-jdic"))]
 const CHAR_DEFINITION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const CONNECTION_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/matrix.mtx"));
+const CONNECTION_DATA: &[u8] =
+    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/matrix.mtx"));
 #[cfg(not(feature = "naist-jdic"))]
 const CONNECTION_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/double_array.bin"));
+const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.da"));
 #[cfg(not(feature = "naist-jdic"))]
 const IPADIC_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const IPADIC_VALS: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/vals.bin"));
+const IPADIC_VALS: &[u8] =
+    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.vals"));
 #[cfg(not(feature = "naist-jdic"))]
 const IPADIC_VALS: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/unk.bin"));
+const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/unk.bin"));
 #[cfg(not(feature = "naist-jdic"))]
 const UNKNOWN_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/words_idx.bin"));
+const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(
+    env!("LINDERA_WORKDIR"),
+    "/naist-jdic/dict.wordsidx"
+));
 #[cfg(not(feature = "naist-jdic"))]
 const WORDS_IDX_DATA: &[u8] = &[];
 
 #[cfg(feature = "naist-jdic")]
-const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/naist-jdic/words.bin"));
+const WORDS_DATA: &[u8] =
+    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.words"));
 #[cfg(not(feature = "naist-jdic"))]
 const WORDS_DATA: &[u8] = &[];
 

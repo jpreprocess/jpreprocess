@@ -30,6 +30,7 @@ use byteorder::{LittleEndian, WriteBytesExt};
 use csv::StringRecord;
 use derive_builder::Builder;
 use log::warn;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use yada::builder::DoubleArrayBuilder;
 
 use lindera_dictionary::error::LinderaErrorKind;
@@ -139,26 +140,35 @@ impl PrefixDictionaryBuilder {
             });
         }
 
-        let mut dict_words_buffer = Vec::new();
-        let mut dict_wordsidx_buffer = Vec::new();
+        let dict_words = rows
+            .par_iter()
+            .map(|row| {
+                let details = if self.is_user_dict && row.len() == self.simple_userdic_fields_num {
+                    row.iter().skip(1).collect::<Vec<_>>()
+                } else {
+                    row.iter().skip(4).collect::<Vec<_>>()
+                };
 
-        dict_words_buffer
-            .write(E::identifier().as_bytes())
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+                E::encode(&details)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
 
-        for row in rows.iter() {
-            let offset = dict_words_buffer.len();
+        let ident = E::identifier().as_bytes();
+
+        let mut dict_wordsidx_buffer = Vec::with_capacity(4 + dict_words.len() * 4);
+        let mut dict_words_len = ident.len();
+        for word in &dict_words {
             dict_wordsidx_buffer
-                .write_u32::<LittleEndian>(offset as u32)
+                .write_u32::<LittleEndian>(dict_words_len as u32)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+            dict_words_len += word.len();
+        }
 
-            let details = if self.is_user_dict && row.len() == self.simple_userdic_fields_num {
-                row.iter().skip(1).collect::<Vec<_>>()
-            } else {
-                row.iter().skip(4).collect::<Vec<_>>()
-            };
-
-            let word = E::encode(&details)?;
+        let mut dict_words_buffer = Vec::with_capacity(dict_words_len);
+        dict_words_buffer
+            .write(ident)
+            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
+        for word in dict_words {
             dict_words_buffer
                 .write(&word)
                 .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
