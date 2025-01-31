@@ -26,7 +26,7 @@ impl NJD {
         let mut nodes = Vec::new();
         for mut token in tokens {
             let (string, entry) = token.fetch()?;
-            nodes.extend(NJDNode::load(&string, &entry));
+            nodes.extend(NJDNode::load(string, &entry));
         }
 
         Ok(Self { nodes })

@@ -61,7 +61,7 @@ pub struct LruToken<'a> {
     text: Cow<'a, str>,
     entry: WordEntry,
 }
-impl<'a> Token for LruToken<'a> {
+impl Token for LruToken<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
         Ok((&self.text, self.entry.clone()))
     }

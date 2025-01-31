@@ -99,7 +99,7 @@ impl<'a> DefaultToken<'a> {
     }
 }
 
-impl<'a> Token for DefaultToken<'a> {
+impl Token for DefaultToken<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
         self.inner.fetch()
     }

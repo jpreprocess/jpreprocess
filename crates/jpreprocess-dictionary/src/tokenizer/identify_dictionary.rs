@@ -12,7 +12,7 @@ impl DictionaryIdent {
         };
 
         match std::str::from_utf8(data) {
-            Ok(s) if s.is_empty() => DictionaryIdent::Lindera,
+            Ok("") => DictionaryIdent::Lindera,
             Ok(ident) if ident.starts_with("jpreprocess") => DictionaryIdent::JPreprocess,
             Err(e) => {
                 log::warn!("Error parsing dictionary type: {}", e);

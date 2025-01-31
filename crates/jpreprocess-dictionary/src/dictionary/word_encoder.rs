@@ -18,8 +18,8 @@ impl DictionaryWordEncoder for JPreprocessDictionaryWordEncoder {
         let mut row = row.to_vec();
         row.resize(13, "");
         let data = jpreprocess_core::word_entry::WordEntry::load(&row)
-            .map_err(|err| LinderaErrorKind::Serialize.with_error(err).into())?;
-        bincode::serialize(&data).map_err(|err| LinderaErrorKind::Serialize.with_error(err).into())
+            .map_err(|err| LinderaErrorKind::Serialize.with_error(err))?;
+        bincode::serialize(&data).map_err(|err| LinderaErrorKind::Serialize.with_error(err))
     }
 
     fn decode(string: String, data: &[u8]) -> LinderaResult<Vec<String>> {
@@ -41,7 +41,7 @@ impl DictionaryWordEncoder for LinderaSystemDictionaryWordEncoder {
 
     fn decode(_string: String, data: &[u8]) -> LinderaResult<Vec<String>> {
         let len = LittleEndian::read_u32(data) as usize;
-        let data = &data[4..4+len];
+        let data = &data[4..4 + len];
 
         let mut details = Vec::new();
         for bytes in data.split(|&b| b == 0) {

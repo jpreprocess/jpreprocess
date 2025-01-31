@@ -169,10 +169,7 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
 }
 
 pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDictionary> {
-    let data = data
-        .into_iter()
-        .map(|inner| csv::StringRecord::from_iter(inner.into_iter()))
-        .collect();
+    let data = data.into_iter().map(csv::StringRecord::from_iter).collect();
 
     let mut writer = PrefixDictionaryDataWriter::new();
 

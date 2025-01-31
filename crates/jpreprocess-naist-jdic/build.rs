@@ -10,7 +10,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             output_dir: "naist-jdic",
             download_url:
                 "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.3.tar.gz",
-            dummy_input: "テスト,1343,1343,3195,名詞,サ変接続,*,*,*,*,テスト,テスト,テスト,1/3,C1\n",
+            dummy_input:
+                "テスト,1343,1343,3195,名詞,サ変接続,*,*,*,*,テスト,テスト,テスト,1/3,C1\n",
         },
         jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder {},
     )
