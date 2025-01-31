@@ -19,26 +19,34 @@ impl JPreprocessTokenizer {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else if word_id.is_system() {
-            let system = &self.tokenizer.segmenter.dictionary.prefix_dictionary;
-            let data = get_word_data(
-                &system.words_idx_data,
-                &system.words_data,
-                Some(word_id.id as usize),
+            Self::get_word_from_prefixdict(
+                &self.tokenizer.segmenter.dictionary.prefix_dictionary,
+                word_id,
             )
-            .ok_or(DictionaryError::IdNotFound(word_id.id))?;
-            Ok(bincode::deserialize(data)?)
         } else {
             let user = &self.tokenizer.segmenter.user_dictionary;
             user.as_ref()
                 .map_or(Err(DictionaryError::UserDictionaryNotProvided), |user| {
-                    let data = get_word_data(
-                        &user.dict.words_idx_data,
-                        &user.dict.words_data,
-                        Some(word_id.id as usize),
-                    )
-                    .ok_or(DictionaryError::IdNotFound(word_id.id))?;
-                    Ok(bincode::deserialize(data)?)
+                    Self::get_word_from_prefixdict(&user.dict, word_id)
                 })
+        }
+    }
+
+    /// SAFETY: It must be ensured that the prefix_dict is the correct dictionary for the word_id.
+    pub(crate) fn get_word_from_prefixdict(
+        prefix_dict: &lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary,
+        word_id: lindera::dictionary::WordId,
+    ) -> Result<WordEntry, DictionaryError> {
+        if word_id.is_unknown() {
+            Ok(WordEntry::default())
+        } else {
+            let data = get_word_data(
+                &prefix_dict.words_idx_data,
+                &prefix_dict.words_data,
+                Some(word_id.id as usize),
+            )
+            .ok_or(DictionaryError::IdNotFound(word_id.id))?;
+            Ok(bincode::deserialize(data)?)
         }
     }
 }
@@ -49,10 +57,10 @@ impl Tokenizer for JPreprocessTokenizer {
         words
             .into_iter()
             .map(|token| {
-                Ok(JPreprocessToken {
-                    text: token.text,
-                    entry: self.get_word(token.word_id)?,
-                })
+                Ok(JPreprocessToken::new(
+                    token.text,
+                    self.get_word(token.word_id)?,
+                ))
             })
             .collect::<Result<_, _>>()
     }
@@ -61,6 +69,12 @@ impl Tokenizer for JPreprocessTokenizer {
 pub struct JPreprocessToken<'a> {
     text: Cow<'a, str>,
     entry: WordEntry,
+}
+
+impl<'a> JPreprocessToken<'a> {
+    pub(crate) fn new(text: Cow<'a, str>, entry: WordEntry) -> Self {
+        Self { text, entry }
+    }
 }
 
 impl Token for JPreprocessToken<'_> {
