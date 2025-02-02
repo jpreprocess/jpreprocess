@@ -12,6 +12,13 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-dictionary"
 
+[features]
+binary = ["dep:clap"]
+
+[[bin]]
+name = "dict_tools"
+required-features = ["binary"]
+
 [dependencies]
 bincode.workspace = true
 byteorder.workspace = true
@@ -30,3 +37,5 @@ lindera-dictionary.workspace = true
 serde.workspace = true
 
 jpreprocess-core.workspace = true
+
+clap = { workspace = true, features = ["derive"], optional = true }
