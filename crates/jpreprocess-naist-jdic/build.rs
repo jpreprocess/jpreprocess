@@ -9,8 +9,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         path::Path,
     };
 
-    use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
-    use jpreprocess_dictionary::builder::ipadic_builder::IpadicBuilder;
+    use jpreprocess_dictionary::{
+        dictionary::to_dict::ipadic_builder::IpadicBuilder,
+        serializer::jpreprocess::JPreprocessSerializer,
+    };
     use lindera_core::dictionary_builder::DictionaryBuilder;
 
     use encoding::{

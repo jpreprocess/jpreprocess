@@ -4,8 +4,8 @@ use clap::{Parser, Subcommand, ValueEnum};
 
 use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
 use jpreprocess_dictionary::{
-    builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv},
     default::WordDictionaryMode,
+    dictionary::{to_csv::dict_to_csv, to_dict::ipadic_builder::IpadicBuilder},
     DictionaryStore,
 };
 

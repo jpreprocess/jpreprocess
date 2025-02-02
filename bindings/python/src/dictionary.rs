@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
-use jpreprocess_dictionary::{builder::ipadic_builder::IpadicBuilder, default::WordDictionaryMode};
+use jpreprocess_dictionary::{
+    default::WordDictionaryMode, dictionary::to_dict::ipadic_builder::IpadicBuilder,
+};
 use lindera_core::dictionary_builder::DictionaryBuilder;
 
 use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
