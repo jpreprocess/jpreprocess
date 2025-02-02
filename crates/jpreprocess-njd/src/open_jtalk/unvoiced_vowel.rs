@@ -105,9 +105,11 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 state_next.is_voiced_flag = if state_next.atype == state_next.midx + 1 {
                     /* rule 4 */
                     Some(true)
-                } else {
+                } else if let Some(state_nextnext) = &mut state_nextnext {
                     /* rule 5 */
-                    apply_unvoice_rule(state_curr.mora, Some(state_next.mora))
+                    apply_unvoice_rule(state_next.mora, Some(state_nextnext.mora))
+                } else {
+                    Some(true)
                 };
                 if matches!(state_next.is_voiced_flag, Some(false)) {
                     state_curr.is_voiced_flag.get_or_insert(true);
