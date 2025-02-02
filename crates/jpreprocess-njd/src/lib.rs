@@ -31,12 +31,6 @@ impl NJD {
 
         Ok(Self { nodes })
     }
-    #[deprecated(since = "0.11.0", note = "Please use `from_iter` instead")]
-    pub fn from_entries<'a>(
-        entries: impl 'a + IntoIterator<Item = (&'a str, &'a WordEntry)>,
-    ) -> Self {
-        entries.into_iter().collect()
-    }
     pub fn from_strings(njd_features: Vec<String>) -> Self {
         Self {
             nodes: njd_features
