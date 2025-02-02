@@ -1,5 +1,10 @@
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
+use crate::{
+    serializer::{lindera::LinderaSerializer, DictionarySerializer},
+    word_data::get_word_data,
+};
+
 pub mod default;
 mod identify_dictionary;
 pub mod jpreprocess;
@@ -51,11 +56,26 @@ impl Token for lindera_tokenizer::token::Token<'_> {
 
         let entry = if self.word_id.is_unknown() {
             WordEntry::default()
+        } else if self.word_id.is_system() {
+            let word_data = get_word_data(
+                &self.dictionary.words_idx_data,
+                &self.dictionary.words_data,
+                Some(self.word_id.0 as usize),
+            )
+            .ok_or(DictionaryError::IdNotFound(self.word_id.0))?;
+
+            LinderaSerializer {}.deserialize(word_data)?
+        } else if let Some(user_dictionary) = self.user_dictionary {
+            let word_data = get_word_data(
+                &user_dictionary.words_idx_data,
+                &user_dictionary.words_data,
+                Some(self.word_id.0 as usize),
+            )
+            .ok_or(DictionaryError::IdNotFound(self.word_id.0))?;
+
+            LinderaSerializer {}.deserialize(word_data)?
         } else {
-            let id = self.word_id.0;
-            let mut details = self.get_details().ok_or(DictionaryError::IdNotFound(id))?;
-            details.resize(13, "");
-            WordEntry::load(&details)?
+            return Err(DictionaryError::UserDictionaryNotProvided.into());
         };
 
         Ok((self.text, entry))
