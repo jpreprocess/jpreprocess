@@ -1,8 +1,4 @@
-pub(crate) fn get_word_data<'a>(
-    idx: &[u8],
-    data: &'a [u8],
-    word_id: Option<usize>,
-) -> Option<&'a [u8]> {
+pub fn get_word_data<'a>(idx: &[u8], data: &'a [u8], word_id: Option<usize>) -> Option<&'a [u8]> {
     let get_idx = |word_id: usize| -> Option<usize> {
         if word_id * 4 + 4 > idx.len() {
             return None;
