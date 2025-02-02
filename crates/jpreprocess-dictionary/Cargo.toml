@@ -17,8 +17,8 @@ bincode.workspace = true
 byteorder.workspace = true
 anyhow.workspace = true
 once_cell.workspace = true
-
 csv.workspace = true
+derive_builder.workspace = true
 glob.workspace = true
 log.workspace = true
 yada.workspace = true

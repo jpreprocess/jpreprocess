@@ -1016,6 +1016,7 @@ dependencies = [
  "bincode",
  "byteorder",
  "csv",
+ "derive_builder",
  "glob",
  "jpreprocess-core",
  "lindera",
