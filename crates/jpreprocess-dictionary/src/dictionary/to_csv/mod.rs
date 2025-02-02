@@ -1,5 +1,7 @@
 use byteorder::{ByteOrder, LittleEndian};
-use lindera_core::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
+use lindera_dictionary::{
+    dictionary::prefix_dictionary::PrefixDictionary, viterbi::WordEntry, LinderaResult,
+};
 use std::collections::BTreeMap;
 
 use crate::serializer::DictionarySerializer;
@@ -15,12 +17,10 @@ mod da;
 /// The third column (right_id) cannot be recovered
 /// because it is already lost while building the dictionary.
 pub fn dict_to_csv<S: DictionarySerializer>(
-    prefix_dict: &PrefixDict,
-    words_idx_data: &[u8],
-    words_data: &[u8],
+    prefix_dictionary: &PrefixDictionary,
     serializer: &S,
 ) -> LinderaResult<Vec<String>> {
-    let word_entry_map = inverse_prefix_dict(prefix_dict, true);
+    let word_entry_map = inverse_prefix_dict(prefix_dictionary, true);
 
     let rows: Vec<(String, WordEntry)> = word_entry_map
         .into_iter()
@@ -35,7 +35,12 @@ pub fn dict_to_csv<S: DictionarySerializer>(
 
     Ok(rows
         .into_iter()
-        .zip(words_to_csv(words_idx_data, words_data, words, serializer)?)
+        .zip(words_to_csv(
+            &prefix_dictionary.words_idx_data,
+            &prefix_dictionary.words_data,
+            words,
+            serializer,
+        )?)
         .map(|((string, word_entry), right)| {
             format!(
                 "{},{},{},{},{}",
@@ -49,15 +54,15 @@ pub fn dict_to_csv<S: DictionarySerializer>(
 ///
 /// This is considered to be inverse of build_prefix_dict,
 /// and no data is expected to be lost.
-pub fn inverse_prefix_dict(prefix_dict: &PrefixDict, is_system: bool) -> WordEntryMap {
+pub fn inverse_prefix_dict(prefix_dictionary: &PrefixDictionary, is_system: bool) -> WordEntryMap {
     let mut result: WordEntryMap = BTreeMap::new();
 
-    let keyset = DoubleArrayParser(&prefix_dict.da.0).inverse_da();
+    let keyset = DoubleArrayParser(&prefix_dictionary.da.0).inverse_da();
     for (s, offset_len) in keyset {
         let len = offset_len & 0x1f;
         let offset = offset_len >> 5;
         let offset_bytes = (offset as usize) * WordEntry::SERIALIZED_LEN;
-        let data: &[u8] = &prefix_dict.vals_data[offset_bytes..];
+        let data: &[u8] = &prefix_dictionary.vals_data[offset_bytes..];
         result.insert(
             s,
             (0..len as usize)
@@ -116,12 +121,7 @@ mod tests {
         let builder = IpadicBuilder::new(Box::new(LinderaSerializer));
         let user_dict = builder.build_user_dict_from_data(&rows_split)?;
 
-        let inverse = dict_to_csv(
-            &user_dict.dict,
-            &user_dict.words_idx_data,
-            &user_dict.words_data,
-            &LinderaSerializer,
-        )?;
+        let inverse = dict_to_csv(&user_dict.dict, &LinderaSerializer)?;
 
         assert_eq!(inverse[0], rows[0]);
         assert_eq!(inverse[1], rows[2]);

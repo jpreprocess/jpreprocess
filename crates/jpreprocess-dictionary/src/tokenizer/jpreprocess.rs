@@ -3,42 +3,37 @@ use std::borrow::Cow;
 use jpreprocess_core::{
     error::DictionaryError, word_entry::WordEntry, JPreprocessError, JPreprocessResult,
 };
+use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
 
 use crate::{
     serializer::{jpreprocess::JPreprocessSerializer, DictionarySerializer},
     word_data::get_word_data,
 };
 
-use super::{PrefixDictionary, Token, Tokenizer};
+use super::{Token, Tokenizer};
 
 pub struct JPreprocessTokenizer {
-    tokenizer: lindera_tokenizer::tokenizer::Tokenizer,
+    tokenizer: lindera::tokenizer::Tokenizer,
 }
 
 impl JPreprocessTokenizer {
-    pub fn new(tokenizer: lindera_tokenizer::tokenizer::Tokenizer) -> Self {
+    pub fn new(tokenizer: lindera::tokenizer::Tokenizer) -> Self {
         Self { tokenizer }
     }
 
     fn get_word(
         &self,
-        word_id: lindera_core::word_entry::WordId,
+        word_id: lindera_dictionary::viterbi::WordId,
     ) -> Result<WordEntry, DictionaryError> {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else if word_id.is_system() {
-            Self::get_word_from_prefixdict(
-                &PrefixDictionary::from_dictionary(&self.tokenizer.dictionary),
-                word_id,
-            )
+            Self::get_word_from_prefixdict(&self.tokenizer.dictionary, word_id)
         } else {
             let user = &self.tokenizer.user_dictionary;
             user.as_ref()
                 .map_or(Err(DictionaryError::UserDictionaryNotProvided), |user| {
-                    Self::get_word_from_prefixdict(
-                        &PrefixDictionary::from_user_dictionary(user),
-                        word_id,
-                    )
+                    Self::get_word_from_prefixdict(user, word_id)
                 })
         }
     }
@@ -46,14 +41,14 @@ impl JPreprocessTokenizer {
     /// PANIC: It must be ensured that the prefix_dict is the correct dictionary for the word_id.
     pub(super) fn get_word_from_prefixdict(
         prefix_dict: &PrefixDictionary,
-        word_id: lindera_core::word_entry::WordId,
+        word_id: lindera_dictionary::viterbi::WordId,
     ) -> Result<WordEntry, DictionaryError> {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else {
             let data = get_word_data(
-                prefix_dict.words_idx_data,
-                prefix_dict.words_data,
+                &prefix_dict.words_idx_data,
+                &prefix_dict.words_data,
                 Some(word_id.0 as usize),
             )
             .ok_or(DictionaryError::IdNotFound(word_id.0))?;
@@ -89,11 +84,8 @@ pub struct JPreprocessToken<'a> {
 }
 
 impl<'a> JPreprocessToken<'a> {
-    pub(crate) fn new(text: &'a str, entry: WordEntry) -> Self {
-        Self {
-            text: Cow::Borrowed(text),
-            entry,
-        }
+    pub(crate) fn new(text: Cow<'a, str>, entry: WordEntry) -> Self {
+        Self { text, entry }
     }
 }
 

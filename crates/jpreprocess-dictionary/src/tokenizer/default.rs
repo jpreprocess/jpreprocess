@@ -1,6 +1,5 @@
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-
-use crate::tokenizer::PrefixDictionary;
+use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
 
 use super::{
     identify_dictionary::DictionaryIdent,
@@ -9,7 +8,7 @@ use super::{
 };
 
 pub struct DefaultTokenizer {
-    lindera_tokenizer: lindera_tokenizer::tokenizer::Tokenizer,
+    lindera_tokenizer: lindera::tokenizer::Tokenizer,
     system: TokenizerType,
     user: Option<TokenizerType>,
 }
@@ -20,11 +19,11 @@ enum TokenizerType {
 }
 
 impl DefaultTokenizer {
-    pub fn new(tokenizer: lindera_tokenizer::tokenizer::Tokenizer) -> Self {
+    pub fn new(tokenizer: lindera::tokenizer::Tokenizer) -> Self {
         fn identify_tokenizer(prefix_dictionary: &PrefixDictionary) -> TokenizerType {
             let ident = DictionaryIdent::from_idx_data(
-                prefix_dictionary.words_idx_data,
-                prefix_dictionary.words_data,
+                &prefix_dictionary.words_idx_data,
+                &prefix_dictionary.words_data,
             );
             match ident {
                 DictionaryIdent::JPreprocess => TokenizerType::JPreprocessTokenizer,
@@ -33,7 +32,7 @@ impl DefaultTokenizer {
         }
 
         Self {
-            system: identify_tokenizer(&PrefixDictionary::from_dictionary(&tokenizer.dictionary)),
+            system: identify_tokenizer(&tokenizer.dictionary),
             user: tokenizer
                 .user_dictionary
                 .as_ref()
@@ -58,7 +57,7 @@ impl Tokenizer for DefaultTokenizer {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
                                 token.text,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
-                                    &PrefixDictionary::from_dictionary(token.dictionary),
+                                    &token.dictionary.prefix_dictionary,
                                     token.word_id,
                                 )?,
                             )))
@@ -71,9 +70,7 @@ impl Tokenizer for DefaultTokenizer {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
                                 token.text,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
-                                    &PrefixDictionary::from_user_dictionary(
-                                        token.user_dictionary.as_ref().unwrap(),
-                                    ),
+                                    &token.user_dictionary.as_ref().unwrap().dict,
                                     token.word_id,
                                 )?,
                             )))
