@@ -121,7 +121,7 @@ impl TryFrom<NjdObject> for NJDNode {
             )
             .into());
         }
-        let node = NJDNode::load(&value.string, WordEntry::Single(details));
+        let node = NJDNode::load(&value.string, &WordEntry::Single(details));
         Ok(node[0].to_owned())
     }
 }

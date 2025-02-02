@@ -415,9 +415,12 @@ dependencies = [
 name = "example-lru"
 version = "0.10.0"
 dependencies = [
+ "bincode",
  "jpreprocess",
  "jpreprocess-core",
  "jpreprocess-dictionary",
+ "lindera-core",
+ "lindera-dictionary",
  "lindera-tokenizer",
  "lru",
 ]

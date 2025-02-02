@@ -4,9 +4,8 @@ use clap::{Parser, Subcommand, ValueEnum};
 
 use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
 use jpreprocess_dictionary::{
-    default::WordDictionaryMode,
     dictionary::{to_csv::dict_to_csv, to_dict::ipadic_builder::IpadicBuilder},
-    DictionaryStore,
+    serializer::DictionarySerializer,
 };
 
 use lindera_core::dictionary_builder::DictionaryBuilder;
@@ -72,10 +71,11 @@ enum Serializer {
     Jpreprocess,
 }
 impl Serializer {
-    pub fn into_mode(self) -> WordDictionaryMode {
+    pub fn into_serializer(self) -> Box<dyn DictionarySerializer + Send + Sync + 'static> {
+        use jpreprocess_dictionary::serializer::*;
         match self {
-            Self::Lindera => WordDictionaryMode::Lindera,
-            Self::Jpreprocess => WordDictionaryMode::JPreprocess,
+            Self::Lindera => Box::new(lindera::LinderaSerializer),
+            Self::Jpreprocess => Box::new(jpreprocess::JPreprocessSerializer),
         }
     }
 }
@@ -106,21 +106,28 @@ fn main() -> Result<(), Box<dyn Error>> {
                     QueryDict::User(dict)
                 };
 
-                if let Some(metadata) = dict.identifier() {
+                let serializer = if let Some(metadata) = dict.identifier() {
                     println!("Dictionary metadata: {}", metadata);
+                    if metadata.starts_with("jpreprocess") {
+                        Serializer::Jpreprocess
+                    } else {
+                        Serializer::Lindera
+                    }
                 } else {
-                    println!("No metadata found. Assuming lindera dictionary.")
-                }
+                    println!("No metadata found. Assuming lindera dictionary.");
+                    Serializer::Lindera
+                };
 
                 if let Some(word_id) = word_id {
                     let word_bin = match dict.get_bytes(word_id) {
-                        Ok(word_bin) => word_bin,
-                        Err(err) => {
-                            eprintln!("Error: {:?}", err);
+                        Some(word_bin) => word_bin,
+                        None => {
+                            eprintln!("Word not found");
                             std::process::exit(-1);
                         }
                     };
-                    let message = dict.mode().into_serializer().deserialize_debug(word_bin);
+
+                    let message = serializer.into_serializer().deserialize_debug(word_bin);
                     println!("{}", message);
                 }
             }
@@ -131,7 +138,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             input,
             output,
         } => {
-            let builder = IpadicBuilder::new(serializer_config.into_mode().into_serializer());
+            let builder = IpadicBuilder::new(serializer_config.into_serializer());
 
             if user {
                 println!("Building user dictionary...");
@@ -178,7 +185,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 prefix_dict,
                 words_idx_data,
                 words_data,
-                &serializer_config.into_mode().into_serializer(),
+                &serializer_config.into_serializer(),
             )?;
             println!("done.");
 

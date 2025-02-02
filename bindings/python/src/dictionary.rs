@@ -1,7 +1,10 @@
 use std::path::PathBuf;
 
 use jpreprocess_dictionary::{
-    default::WordDictionaryMode, dictionary::to_dict::ipadic_builder::IpadicBuilder,
+    dictionary::to_dict::ipadic_builder::IpadicBuilder,
+    serializer::{
+        jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer, DictionarySerializer,
+    },
 };
 use lindera_core::dictionary_builder::DictionaryBuilder;
 
@@ -17,9 +20,9 @@ pub fn build_dictionary(
     user: Option<bool>,
     serializer: Option<&str>,
 ) -> PyResult<()> {
-    let serializer = match serializer {
-        Some("lindera") => WordDictionaryMode::Lindera,
-        Some("jpreprocess") | None => WordDictionaryMode::JPreprocess,
+    let serializer: Box<dyn DictionarySerializer + Send + Sync + 'static> = match serializer {
+        Some("lindera") => Box::new(LinderaSerializer),
+        Some("jpreprocess") | None => Box::new(JPreprocessSerializer),
         _ => {
             return Err(PyAssertionError::new_err(
                 "serializer must be either `lindera` or `jpreprocess`.",
@@ -28,7 +31,7 @@ pub fn build_dictionary(
     };
     let user = user.unwrap_or(false);
 
-    let builder = IpadicBuilder::new(serializer.into_serializer());
+    let builder = IpadicBuilder::new(serializer);
 
     if user {
         builder

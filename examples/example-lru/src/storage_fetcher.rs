@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs::File,
     io::{Read, Seek},
     num::NonZeroUsize,
@@ -7,35 +8,78 @@ use std::{
 };
 
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryFetcher};
-use lindera_tokenizer::token::Token;
+use jpreprocess_dictionary::tokenizer::{Token, Tokenizer};
+use lindera_core::dictionary::Dictionary;
 use lru::LruCache;
 
-pub struct StorageFetcher {
-    inner: Mutex<CachedStorage>,
+pub struct LruTokenizer {
+    tokenizer: lindera_tokenizer::tokenizer::Tokenizer,
+    words: Mutex<CachedStorage>,
 }
+impl LruTokenizer {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
+        let dictionary = load_dictionary(path.as_ref());
+        let tokenizer = lindera_tokenizer::tokenizer::Tokenizer::new(
+            dictionary,
+            None,
+            lindera_core::mode::Mode::Normal,
+        );
 
-impl StorageFetcher {
-    pub fn new<P: AsRef<Path>>(dir: P) -> Result<Self, std::io::Error> {
+        let storage = CachedStorage::new(path)?;
+
         Ok(Self {
-            inner: Mutex::new(CachedStorage::new(dir)?),
+            tokenizer,
+            words: Mutex::new(storage),
         })
     }
 }
+impl Tokenizer for LruTokenizer {
+    fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
+        let mut tokens = Vec::new();
+        let mut words = self.words.lock().unwrap();
+        for token in self.tokenizer.tokenize(text)? {
+            let entry = if token.word_id.is_unknown() {
+                WordEntry::default()
+            } else if token.word_id.is_system() {
+                words.get_word(token.word_id.0)?
+            } else {
+                todo!("User dictionary support is not complete in this example")
+            };
 
-impl DictionaryFetcher for StorageFetcher {
-    fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
-        if token.word_id.is_unknown() {
-            return Ok(WordEntry::default());
+            tokens.push(LruToken {
+                text: token.text,
+                entry,
+            });
         }
 
-        let mut g = self.inner.lock().unwrap();
-        g.get_word(token.word_id.0)
+        Ok(tokens)
+    }
+}
+
+pub struct LruToken<'a> {
+    text: &'a str,
+    entry: WordEntry,
+}
+impl Token for LruToken<'_> {
+    fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
+        Ok((self.text, self.entry.clone()))
+    }
+}
+
+fn load_dictionary(path: &Path) -> Dictionary {
+    use lindera_dictionary::DictionaryLoader;
+
+    Dictionary {
+        dict: DictionaryLoader::prefix_dict(path.to_path_buf()).unwrap(),
+        cost_matrix: DictionaryLoader::connection(path.to_path_buf()).unwrap(),
+        char_definitions: DictionaryLoader::char_def(path.to_path_buf()).unwrap(),
+        unknown_dictionary: DictionaryLoader::unknown_dict(path.to_path_buf()).unwrap(),
+        words_idx_data: Cow::Borrowed(&[]),
+        words_data: Cow::Borrowed(&[]),
     }
 }
 
 struct CachedStorage {
-    mode: WordDictionaryMode,
     index_file: File,
     words_file: File,
     cache: LruCache<u32, WordEntry>,
@@ -43,20 +87,10 @@ struct CachedStorage {
 
 impl CachedStorage {
     pub fn new<P: AsRef<Path>>(dir: P) -> Result<Self, std::io::Error> {
-        let mut index = File::open(dir.as_ref().join("dict.wordsidx"))?;
-        let mut words = File::open(dir.as_ref().join("dict.words"))?;
-
-        let mut index_buf = vec![0u8; 4];
-        index.read_exact(&mut index_buf)?;
-        let start = u32::from_be_bytes([index_buf[0], index_buf[1], index_buf[2], index_buf[3]]);
-
-        let mut identifier_buf = vec![0u8; start as usize];
-        words.read_exact(&mut identifier_buf)?;
-
-        let mode = WordDictionaryMode::from_metadata(String::from_utf8(identifier_buf).ok());
+        let index = File::open(dir.as_ref().join("dict.wordsidx"))?;
+        let words = File::open(dir.as_ref().join("dict.words"))?;
 
         Ok(Self {
-            mode,
             index_file: index,
             words_file: words,
             cache: LruCache::new(NonZeroUsize::new(1000).unwrap()),
@@ -71,7 +105,7 @@ impl CachedStorage {
         println!("Word #{} not found in cache", index);
 
         let bytes = self.get_bytes(index)?;
-        let entry = self.mode.into_serializer().deserialize(&bytes)?;
+        let entry: WordEntry = bincode::deserialize(&bytes).unwrap();
         self.cache.push(index, entry.clone());
 
         Ok(entry)

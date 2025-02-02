@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 
 use jpreprocess::{
-    DefaultFetcher, DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig,
-    UserDictionaryConfig,
+    DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig, UserDictionaryConfig,
 };
 use jpreprocess_core::pos::POS;
+use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 use jpreprocess_jpcommon::njdnodes_to_features;
 use jpreprocess_njd::NJDNode;
 
@@ -14,7 +14,7 @@ use crate::{into_runtime_error, structs::*};
 
 #[pyclass(name = "JPreprocess")]
 pub struct JPreprocessPyBinding {
-    inner: JPreprocess<DefaultFetcher>,
+    inner: JPreprocess<DefaultTokenizer>,
 }
 
 #[pymethods]

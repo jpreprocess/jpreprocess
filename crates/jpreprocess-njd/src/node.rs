@@ -44,9 +44,9 @@ impl NJDNode {
     }
     pub fn load_str(string: &str, details: &[&str]) -> Vec<Self> {
         let entry = WordEntry::load(details).unwrap();
-        Self::load(string, entry)
+        Self::load(string, &entry)
     }
-    pub fn load(string: &str, entry: WordEntry) -> Vec<Self> {
+    pub fn load(string: &str, entry: &WordEntry) -> Vec<Self> {
         entry
             .get_with_string(string)
             .into_iter()
