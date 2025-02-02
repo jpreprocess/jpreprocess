@@ -21,7 +21,8 @@ jobs:
           chmod +x openjtalk_bin
 
           gh release download --repo jpreprocess/jpreprocess v0.0.1-rc0
-          tar xJvf dictionaries.tar.xz
+          tar xJvf lindera.tar.xz
+          tar xJvf mecab-naist-jdic.tar.xz
 
           rm *.tar.gz *.tar.xz
       - name: Build
