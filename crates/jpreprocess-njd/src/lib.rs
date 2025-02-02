@@ -31,14 +31,11 @@ impl NJD {
 
         Ok(Self { nodes })
     }
+    #[deprecated(since = "0.11.0", note = "Please use `from_iter` instead")]
     pub fn from_entries<'a>(
         entries: impl 'a + IntoIterator<Item = (&'a str, &'a WordEntry)>,
     ) -> Self {
-        let nodes = entries
-            .into_iter()
-            .flat_map(|(text, word_entry)| NJDNode::load(text, word_entry))
-            .collect();
-        Self { nodes }
+        entries.into_iter().collect()
     }
     pub fn from_strings(njd_features: Vec<String>) -> Self {
         Self {
@@ -60,6 +57,16 @@ impl NJD {
         unvoiced_vowel::njd_set_unvoiced_vowel(self);
         // long vowel estimator is deprecated
         // long_vowel::njd_set_long_vowel(self);
+    }
+}
+
+impl<'a> FromIterator<(&'a str, &'a WordEntry)> for NJD {
+    fn from_iter<I: IntoIterator<Item = (&'a str, &'a WordEntry)>>(iter: I) -> Self {
+        let nodes = iter
+            .into_iter()
+            .flat_map(|(text, word_entry)| NJDNode::load(text, word_entry))
+            .collect();
+        Self { nodes }
     }
 }
 
