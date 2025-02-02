@@ -32,11 +32,12 @@ impl DefaultTokenizer {
         }
 
         Self {
-            system: identify_tokenizer(&tokenizer.dictionary),
+            system: identify_tokenizer(&tokenizer.segmenter.dictionary.prefix_dictionary),
             user: tokenizer
+                .segmenter
                 .user_dictionary
                 .as_ref()
-                .map(|d| identify_tokenizer(&PrefixDictionary::from_user_dictionary(d))),
+                .map(|d| identify_tokenizer(&d.dict)),
             lindera_tokenizer: tokenizer,
         }
     }

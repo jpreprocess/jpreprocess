@@ -1,14 +1,8 @@
 use std::borrow::Cow;
 
-use jpreprocess_core::{
-    error::DictionaryError, word_entry::WordEntry, JPreprocessError, JPreprocessResult,
-};
-use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
+use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
-use crate::{
-    serializer::{jpreprocess::JPreprocessSerializer, DictionarySerializer},
-    word_data::get_word_data,
-};
+use crate::word_data::get_word_data;
 
 use super::{Token, Tokenizer};
 
@@ -28,19 +22,22 @@ impl JPreprocessTokenizer {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else if word_id.is_system() {
-            Self::get_word_from_prefixdict(&self.tokenizer.dictionary, word_id)
+            Self::get_word_from_prefixdict(
+                &self.tokenizer.segmenter.dictionary.prefix_dictionary,
+                word_id,
+            )
         } else {
-            let user = &self.tokenizer.user_dictionary;
+            let user = &self.tokenizer.segmenter.user_dictionary;
             user.as_ref()
                 .map_or(Err(DictionaryError::UserDictionaryNotProvided), |user| {
-                    Self::get_word_from_prefixdict(user, word_id)
+                    Self::get_word_from_prefixdict(&user.dict, word_id)
                 })
         }
     }
 
     /// PANIC: It must be ensured that the prefix_dict is the correct dictionary for the word_id.
     pub(super) fn get_word_from_prefixdict(
-        prefix_dict: &PrefixDictionary,
+        prefix_dict: &lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary,
         word_id: lindera_dictionary::viterbi::WordId,
     ) -> Result<WordEntry, DictionaryError> {
         if word_id.is_unknown() {
@@ -49,16 +46,10 @@ impl JPreprocessTokenizer {
             let data = get_word_data(
                 &prefix_dict.words_idx_data,
                 &prefix_dict.words_data,
-                Some(word_id.0 as usize),
+                Some(word_id.id as usize),
             )
-            .ok_or(DictionaryError::IdNotFound(word_id.0))?;
-
-            JPreprocessSerializer {}
-                .deserialize(data)
-                .map_err(|err| match err {
-                    JPreprocessError::DictionaryError(e) => e,
-                    _ => unreachable!(),
-                })
+            .ok_or(DictionaryError::IdNotFound(word_id.id))?;
+            Ok(bincode::deserialize(data)?)
         }
     }
 }
