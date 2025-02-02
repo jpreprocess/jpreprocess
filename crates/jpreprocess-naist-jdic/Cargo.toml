@@ -27,4 +27,3 @@ ureq = { workspace = true, features = ["tls"], optional = true }
 lindera-core.workspace = true
 
 jpreprocess-dictionary.workspace = true
-jpreprocess-dictionary-builder.workspace = true

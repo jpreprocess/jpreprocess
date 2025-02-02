@@ -149,8 +149,6 @@ jobs:
           sleep 5
           publish_package "jpreprocess-dictionary"
           sleep 5
-          publish_package "jpreprocess-dictionary-builder"
-          sleep 5
           publish_package "jpreprocess-naist-jdic"
           sleep 5
           publish_package "jpreprocess-window"

@@ -3,8 +3,11 @@ use std::{error::Error, fs::File, io::Write, path::PathBuf};
 use clap::{Parser, Subcommand, ValueEnum};
 
 use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
-use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryStore};
-use jpreprocess_dictionary_builder::{ipadic_builder::IpadicBuilder, to_csv::dict_to_csv};
+use jpreprocess_dictionary::{
+    default::WordDictionaryMode,
+    dictionary::{to_csv::dict_to_csv, to_dict::ipadic_builder::IpadicBuilder},
+    DictionaryStore,
+};
 
 use lindera_core::dictionary_builder::DictionaryBuilder;
 use lindera_dictionary::UserDictionaryConfig;

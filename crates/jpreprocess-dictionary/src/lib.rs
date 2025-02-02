@@ -7,6 +7,8 @@ pub mod default;
 pub mod serializer;
 pub mod store;
 
+pub mod dictionary;
+
 /// Fetch [`WordEntry`] corresponding to the given [`Token`].
 pub trait DictionaryFetcher {
     fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry>;

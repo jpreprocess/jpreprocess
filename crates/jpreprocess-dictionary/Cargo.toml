@@ -18,6 +18,12 @@ byteorder.workspace = true
 anyhow.workspace = true
 once_cell.workspace = true
 
+csv.workspace = true
+glob.workspace = true
+log.workspace = true
+yada.workspace = true
+rayon.workspace = true
+
 lindera-core.workspace = true
 lindera-ipadic-builder.workspace = true
 lindera-tokenizer.workspace = true
