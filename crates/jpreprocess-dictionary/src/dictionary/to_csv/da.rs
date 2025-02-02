@@ -60,7 +60,7 @@ impl DoubleArrayParser<'_> {
 mod tests {
     use yada::builder::DoubleArrayBuilder;
 
-    use crate::builder::to_csv::da::DoubleArrayParser;
+    use crate::dictionary::to_csv::da::DoubleArrayParser;
 
     #[test]
     fn test_build_search() {

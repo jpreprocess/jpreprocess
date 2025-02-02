@@ -1,10 +1,11 @@
-use super::build_dict::WordEntryMap;
-use byteorder::{ByteOrder, LittleEndian};
 use crate::DictionarySerializer;
+use byteorder::{ByteOrder, LittleEndian};
 use lindera_core::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
 use std::collections::BTreeMap;
 
 use self::da::DoubleArrayParser;
+
+use super::WordEntryMap;
 
 mod da;
 
@@ -95,9 +96,9 @@ pub fn words_to_csv<S: DictionarySerializer>(
 mod tests {
     use std::error::Error;
 
-    use crate::serializer::lindera::LinderaSerializer;
-
-    use crate::builder::ipadic_builder::IpadicBuilder;
+    use crate::{
+        dictionary::to_dict::ipadic_builder::IpadicBuilder, serializer::lindera::LinderaSerializer,
+    };
 
     use super::dict_to_csv;
 

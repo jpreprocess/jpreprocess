@@ -7,7 +7,7 @@ pub mod default;
 pub mod serializer;
 pub mod store;
 
-pub mod builder;
+pub mod dictionary;
 
 /// Fetch [`WordEntry`] corresponding to the given [`Token`].
 pub trait DictionaryFetcher {
