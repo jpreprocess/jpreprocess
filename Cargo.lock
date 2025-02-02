@@ -1068,9 +1068,11 @@ dependencies = [
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
  "lindera",
+ "lindera-dictionary",
  "pyo3",
  "pythonize",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
