@@ -62,7 +62,7 @@ pub struct LruToken<'a> {
 }
 impl Token for LruToken<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
-        Ok((&self.text, self.entry.clone()))
+        Ok((self.text, self.entry.clone()))
     }
 }
 

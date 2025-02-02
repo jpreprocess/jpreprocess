@@ -31,7 +31,7 @@ impl JPreprocessTokenizer {
             user.as_ref()
                 .map_or(Err(DictionaryError::UserDictionaryNotProvided), |user| {
                     Self::get_word_from_prefixdict(
-                        &&PrefixDictionary::from_user_dictionary(user),
+                        &PrefixDictionary::from_user_dictionary(user),
                         word_id,
                     )
                 })
@@ -47,8 +47,8 @@ impl JPreprocessTokenizer {
             Ok(WordEntry::default())
         } else {
             let data = get_word_data(
-                &prefix_dict.words_idx_data,
-                &prefix_dict.words_data,
+                prefix_dict.words_idx_data,
+                prefix_dict.words_data,
                 Some(word_id.0 as usize),
             )
             .ok_or(DictionaryError::IdNotFound(word_id.0))?;

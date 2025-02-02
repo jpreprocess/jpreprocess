@@ -23,8 +23,8 @@ impl DefaultTokenizer {
     pub fn new(tokenizer: lindera_tokenizer::tokenizer::Tokenizer) -> Self {
         fn identify_tokenizer(prefix_dictionary: &PrefixDictionary) -> TokenizerType {
             let ident = DictionaryIdent::from_idx_data(
-                &prefix_dictionary.words_idx_data,
-                &prefix_dictionary.words_data,
+                prefix_dictionary.words_idx_data,
+                prefix_dictionary.words_data,
             );
             match ident {
                 DictionaryIdent::JPreprocess => TokenizerType::JPreprocessTokenizer,
@@ -58,7 +58,7 @@ impl Tokenizer for DefaultTokenizer {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
                                 token.text,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
-                                    &PrefixDictionary::from_dictionary(&token.dictionary),
+                                    &PrefixDictionary::from_dictionary(token.dictionary),
                                     token.word_id,
                                 )?,
                             )))

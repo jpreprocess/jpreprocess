@@ -58,6 +58,6 @@ impl Token for lindera_tokenizer::token::Token<'_> {
             WordEntry::load(&details)?
         };
 
-        Ok((&self.text, entry))
+        Ok((self.text, entry))
     }
 }
