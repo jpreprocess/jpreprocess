@@ -1,7 +1,8 @@
-use crate::DictionarySerializer;
 use byteorder::{ByteOrder, LittleEndian};
 use lindera_core::{prefix_dict::PrefixDict, word_entry::WordEntry, LinderaResult};
 use std::collections::BTreeMap;
+
+use crate::serializer::DictionarySerializer;
 
 use self::da::DoubleArrayParser;
 

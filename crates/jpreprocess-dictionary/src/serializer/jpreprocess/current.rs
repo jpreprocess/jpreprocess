@@ -3,7 +3,7 @@ use lindera_core::{error::LinderaErrorKind, LinderaResult};
 
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
-use crate::DictionarySerializer;
+use crate::serializer::DictionarySerializer;
 
 use self::bincode_serializer::SERIALIZE_OPTION;
 
@@ -66,7 +66,7 @@ impl DictionarySerializer for JPreprocessSerializer {
 
 #[cfg(test)]
 mod tests {
-    use crate::DictionarySerializer;
+    use crate::serializer::DictionarySerializer;
 
     use super::JPreprocessSerializer;
 
