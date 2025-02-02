@@ -499,7 +499,8 @@ version = "0.10.0"
 dependencies = [
  "jpreprocess",
  "js-sys",
- "lindera-core",
+ "lindera",
+ "lindera-dictionary",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",

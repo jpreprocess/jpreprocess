@@ -9,21 +9,21 @@ use std::{
 
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
 use jpreprocess_dictionary::tokenizer::{Token, Tokenizer};
-use lindera_core::dictionary::Dictionary;
+use lindera_dictionary::dictionary::Dictionary;
 use lru::LruCache;
 
 pub struct LruTokenizer {
-    tokenizer: lindera_tokenizer::tokenizer::Tokenizer,
+    tokenizer: lindera::tokenizer::Tokenizer,
     words: Mutex<CachedStorage>,
 }
 impl LruTokenizer {
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
         let dictionary = load_dictionary(path.as_ref());
-        let tokenizer = lindera_tokenizer::tokenizer::Tokenizer::new(
+        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            lindera_dictionary::mode::Mode::Normal,
             dictionary,
             None,
-            lindera_core::mode::Mode::Normal,
-        );
+        ));
 
         let storage = CachedStorage::new(path)?;
 
@@ -41,7 +41,7 @@ impl Tokenizer for LruTokenizer {
             let entry = if token.word_id.is_unknown() {
                 WordEntry::default()
             } else if token.word_id.is_system() {
-                words.get_word(token.word_id.0)?
+                words.get_word(token.word_id.id)?
             } else {
                 todo!("User dictionary support is not complete in this example")
             };
@@ -57,25 +57,37 @@ impl Tokenizer for LruTokenizer {
 }
 
 pub struct LruToken<'a> {
-    text: &'a str,
+    text: Cow<'a, str>,
     entry: WordEntry,
 }
 impl Token for LruToken<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
-        Ok((self.text, self.entry.clone()))
+        Ok((&self.text, self.entry.clone()))
     }
 }
 
 fn load_dictionary(path: &Path) -> Dictionary {
-    use lindera_dictionary::DictionaryLoader;
+    use lindera_dictionary::{
+        dictionary::prefix_dictionary::PrefixDictionary,
+        dictionary_loader::{
+            character_definition::CharacterDefinitionLoader,
+            connection_cost_matrix::ConnectionCostMatrixLoader,
+            unknown_dictionary::UnknownDictionaryLoader,
+        },
+        util::read_file,
+    };
+
+    let da_data = read_file(path.join("dict.da").as_path()).unwrap();
+    let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
+
+    let prefix_dictionary =
+        PrefixDictionary::load(da_data.as_slice(), vals_data.as_slice(), &[], &[]);
 
     Dictionary {
-        dict: DictionaryLoader::prefix_dict(path.to_path_buf()).unwrap(),
-        cost_matrix: DictionaryLoader::connection(path.to_path_buf()).unwrap(),
-        char_definitions: DictionaryLoader::char_def(path.to_path_buf()).unwrap(),
-        unknown_dictionary: DictionaryLoader::unknown_dict(path.to_path_buf()).unwrap(),
-        words_idx_data: Cow::Borrowed(&[]),
-        words_data: Cow::Borrowed(&[]),
+        prefix_dictionary,
+        connection_cost_matrix: ConnectionCostMatrixLoader::load(path).unwrap(),
+        character_definition: CharacterDefinitionLoader::load(path).unwrap(),
+        unknown_dictionary: UnknownDictionaryLoader::load(path).unwrap(),
     }
 }
 
