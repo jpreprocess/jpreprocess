@@ -2,7 +2,7 @@ use lindera_core::{error::LinderaErrorKind, LinderaResult};
 
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
-use crate::DictionarySerializer;
+use super::DictionarySerializer;
 
 pub struct LinderaSerializer;
 impl DictionarySerializer for LinderaSerializer {

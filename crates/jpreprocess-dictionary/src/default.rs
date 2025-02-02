@@ -1,9 +1,11 @@
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 use lindera_tokenizer::token::Token;
 
+use crate::serializer::DictionarySerializer;
+
 use super::{
     serializer::{jpreprocess::JPreprocessSerializer, lindera::LinderaSerializer},
-    DictionaryFetcher, DictionarySerializer, DictionaryStore,
+    DictionaryFetcher, DictionaryStore,
 };
 
 /// Default [`DictionaryFetcher`] of JPreprocess.

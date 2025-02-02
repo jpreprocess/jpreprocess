@@ -5,7 +5,7 @@ use std::{
     str::FromStr,
 };
 
-use crate::{serializer::lindera::LinderaSerializer, DictionarySerializer};
+use crate::serializer::{lindera::LinderaSerializer, DictionarySerializer};
 use rayon::prelude::*;
 
 use byteorder::{LittleEndian, WriteBytesExt};
