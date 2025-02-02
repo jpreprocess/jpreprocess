@@ -1,8 +1,13 @@
 use std::borrow::Cow;
 
-use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{
+    error::DictionaryError, word_entry::WordEntry, JPreprocessError, JPreprocessResult,
+};
 
-use crate::word_data::get_word_data;
+use crate::{
+    serializer::{jpreprocess::JPreprocessSerializer, DictionarySerializer},
+    word_data::get_word_data,
+};
 
 use super::{PrefixDictionary, Token, Tokenizer};
 
@@ -52,7 +57,13 @@ impl JPreprocessTokenizer {
                 Some(word_id.0 as usize),
             )
             .ok_or(DictionaryError::IdNotFound(word_id.0))?;
-            Ok(bincode::deserialize(data)?)
+
+            JPreprocessSerializer {}
+                .deserialize(data)
+                .map_err(|err| match err {
+                    JPreprocessError::DictionaryError(e) => e,
+                    _ => unreachable!(),
+                })
         }
     }
 }
