@@ -107,7 +107,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                     Some(true)
                 } else {
                     /* rule 5 */
-                    apply_unvoice_rule(state_curr.mora, Some(state_next.mora))
+                    apply_unvoice_rule(state_next.mora, state_nextnext.as_ref().map(|n| &*n.mora))
                 };
                 if matches!(state_next.is_voiced_flag, Some(false)) {
                     state_curr.is_voiced_flag.get_or_insert(true);
