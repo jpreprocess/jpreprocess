@@ -27,10 +27,8 @@ jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.
 jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.10.0" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.10.0" }
 
-lindera-core = "0.32"
-lindera-tokenizer = "0.32"
-lindera-dictionary = "0.32"
-lindera-ipadic-builder = "0.32"
+lindera = "0.38"
+lindera-dictionary = "0.38"
 
 jlabel = "0.1.4"
 

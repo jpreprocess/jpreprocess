@@ -16,8 +16,6 @@ documentation = "https://docs.rs/jpreprocess-njd"
 phf = { workspace = true, features = ["macros"] }
 aho-corasick.workspace = true
 
-lindera-tokenizer.workspace = true
-
 jpreprocess-core.workspace = true
 jpreprocess-window.workspace = true
 jpreprocess-dictionary.workspace = true
