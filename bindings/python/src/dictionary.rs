@@ -1,9 +1,8 @@
 use std::path::PathBuf;
 
-use jpreprocess_dictionary::default::WordDictionaryMode;
+use jpreprocess_dictionary::{builder::ipadic_builder::IpadicBuilder, default::WordDictionaryMode};
 use lindera_core::dictionary_builder::DictionaryBuilder;
 
-use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
 use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
 
 use crate::into_runtime_error;
