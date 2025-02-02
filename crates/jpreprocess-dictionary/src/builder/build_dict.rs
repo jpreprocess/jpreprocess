@@ -9,7 +9,7 @@ use rayon::prelude::*;
 use std::{collections::BTreeMap, str::FromStr};
 use yada::{builder::DoubleArrayBuilder, DoubleArray};
 
-use jpreprocess_dictionary::DictionarySerializer;
+use crate::DictionarySerializer;
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
