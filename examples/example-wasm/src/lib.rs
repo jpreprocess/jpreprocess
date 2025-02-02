@@ -106,7 +106,7 @@ impl From<IVecString> for Vec<String> {
 
 #[wasm_bindgen]
 pub struct JPreprocess {
-    inner: jpreprocess::JPreprocess<jpreprocess::DefaultFetcher>,
+    inner: jpreprocess::JPreprocess<jpreprocess::DefaultTokenizer>,
 }
 #[wasm_bindgen]
 impl JPreprocess {
