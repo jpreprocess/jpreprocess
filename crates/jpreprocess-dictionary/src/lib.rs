@@ -7,6 +7,8 @@ pub mod serializer;
 pub mod store;
 
 pub mod dictionary;
+pub mod tokenizer;
+mod word_data;
 
 /// Fetch [`WordEntry`] corresponding to the given [`Token`].
 pub trait DictionaryFetcher {
