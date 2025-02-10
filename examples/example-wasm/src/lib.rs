@@ -40,12 +40,13 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             prefix_dictionary: PrefixDictionary::load(
-                &value.dict_da,
-                &value.dict_vals,
-                &value.words_idx_data,
-                &value.words_data,
+                value.dict_da,
+                value.dict_vals,
+                value.words_idx_data,
+                value.words_data,
+                true,
             ),
-            connection_cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
+            connection_cost_matrix: ConnectionCostMatrix::load(value.cost_matrix),
             character_definition: CharacterDefinition::load(&value.char_definitions)?,
             unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
         };
@@ -66,10 +67,11 @@ impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             dict: PrefixDictionary::load(
-                &value.dict_da,
-                &value.dict_vals,
-                &value.words_idx_data,
-                &value.words_data,
+                value.dict_da,
+                value.dict_vals,
+                value.words_idx_data,
+                value.words_data,
+                false,
             ),
         };
         Ok(this)
