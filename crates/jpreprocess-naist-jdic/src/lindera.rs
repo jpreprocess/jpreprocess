@@ -66,7 +66,7 @@ pub fn connection() -> ConnectionCostMatrix {
 }
 
 pub fn prefix_dict() -> PrefixDictionary {
-    PrefixDictionary::load(IPADIC_DATA, IPADIC_VALS, WORDS_IDX_DATA, WORDS_DATA)
+    PrefixDictionary::load(IPADIC_DATA, IPADIC_VALS, WORDS_IDX_DATA, WORDS_DATA, true)
 }
 
 pub fn unknown_dict() -> LinderaResult<UnknownDictionary> {

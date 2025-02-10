@@ -80,8 +80,13 @@ fn load_dictionary(path: &Path) -> Dictionary {
     let da_data = read_file(path.join("dict.da").as_path()).unwrap();
     let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
 
-    let prefix_dictionary =
-        PrefixDictionary::load(da_data.as_slice(), vals_data.as_slice(), &[], &[]);
+    let prefix_dictionary = PrefixDictionary::load(
+        da_data,
+        vals_data,
+        &[] as &'static [u8],
+        &[] as &'static [u8],
+        true,
+    );
 
     Dictionary {
         prefix_dictionary,

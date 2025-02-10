@@ -6,7 +6,7 @@ use std::{
 
 use lindera::error::LinderaError;
 use lindera_dictionary::{
-    dictionary::prefix_dictionary::PrefixDictionary, error::LinderaErrorKind,
+    dictionary::prefix_dictionary::PrefixDictionary, error::LinderaErrorKind, util::Data,
 };
 use yada::DoubleArray;
 
@@ -63,10 +63,10 @@ impl PrefixDictionaryWriter for PrefixDictionaryFileWriter {
 }
 
 pub struct PrefixDictionaryDataWriter {
-    da: Option<DoubleArray<Vec<u8>>>,
-    vals_data: Option<Vec<u8>>,
-    words_idx_data: Option<Vec<u8>>,
-    words_data: Option<Vec<u8>>,
+    da: Option<DoubleArray<Data>>,
+    vals_data: Option<Data>,
+    words_idx_data: Option<Data>,
+    words_data: Option<Data>,
 }
 
 impl PrefixDictionaryDataWriter {
@@ -97,16 +97,16 @@ impl PrefixDictionaryWriter for PrefixDictionaryDataWriter {
     ) -> Result<(), LinderaError> {
         match dict_type {
             PrefixDictionaryDataType::DoubleArray => {
-                self.da = Some(DoubleArray::new(data.to_vec()));
+                self.da = Some(DoubleArray::new(data.to_vec().into()));
             }
             PrefixDictionaryDataType::Vals => {
-                self.vals_data = Some(data.to_vec());
+                self.vals_data = Some(data.to_vec().into());
             }
             PrefixDictionaryDataType::Words => {
-                self.words_data = Some(data.to_vec());
+                self.words_data = Some(data.to_vec().into());
             }
             PrefixDictionaryDataType::WordsIdx => {
-                self.words_idx_data = Some(data.to_vec());
+                self.words_idx_data = Some(data.to_vec().into());
             }
         }
 
