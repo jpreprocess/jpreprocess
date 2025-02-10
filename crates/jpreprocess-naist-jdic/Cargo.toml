@@ -21,5 +21,5 @@ lindera-dictionary.workspace = true
 [build-dependencies]
 tokio = { workspace = true, optional = true }
 
-lindera-dictionary.workspace = true
+lindera-dictionary = { workspace = true, default-features = true }
 jpreprocess-dictionary.workspace = true

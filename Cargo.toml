@@ -28,7 +28,7 @@ jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.10.0" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.10.0" }
 
 lindera = "0.39"
-lindera-dictionary = "0.39"
+lindera-dictionary = { version = "0.39", default-features = false }
 
 jlabel = "0.1.4"
 
