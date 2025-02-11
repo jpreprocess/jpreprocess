@@ -2,14 +2,14 @@ use byteorder::{ByteOrder, LittleEndian};
 use lindera_dictionary::{error::LinderaErrorKind, LinderaResult};
 
 /// A trait for encoding and decoding as dictionary entry.
-pub trait DictionaryWordEncoder: Sized {
+pub trait DictionaryWordEncoding: Sized {
     fn identifier() -> &'static str;
     fn encode(row: &[&str]) -> LinderaResult<Vec<u8>>;
     fn decode(string: String, details: &[u8]) -> LinderaResult<Vec<String>>;
 }
 
-pub struct JPreprocessDictionaryWordEncoder;
-impl DictionaryWordEncoder for JPreprocessDictionaryWordEncoder {
+pub struct JPreprocessDictionaryWordEncoding;
+impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
     fn identifier() -> &'static str {
         concat!("jpreprocess ", env!("CARGO_PKG_VERSION"))
     }
@@ -29,8 +29,8 @@ impl DictionaryWordEncoder for JPreprocessDictionaryWordEncoder {
     }
 }
 
-pub struct LinderaSystemDictionaryWordEncoder;
-impl DictionaryWordEncoder for LinderaSystemDictionaryWordEncoder {
+pub struct LinderaSystemDictionaryWordEncoding;
+impl DictionaryWordEncoding for LinderaSystemDictionaryWordEncoding {
     fn identifier() -> &'static str {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }
@@ -55,8 +55,8 @@ impl DictionaryWordEncoder for LinderaSystemDictionaryWordEncoder {
     }
 }
 
-pub struct LinderaUserDictionaryWordEncoder;
-impl DictionaryWordEncoder for LinderaUserDictionaryWordEncoder {
+pub struct LinderaUserDictionaryWordEncoding;
+impl DictionaryWordEncoding for LinderaUserDictionaryWordEncoding {
     fn identifier() -> &'static str {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }

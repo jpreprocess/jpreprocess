@@ -37,7 +37,7 @@ use lindera_dictionary::error::LinderaErrorKind;
 use lindera_dictionary::viterbi::{WordEntry, WordId};
 use lindera_dictionary::LinderaResult;
 
-use crate::dictionary::word_encoder::DictionaryWordEncoder;
+use crate::dictionary::word_encoding::DictionaryWordEncoding;
 
 use super::writer::{PrefixDictionaryDataType, PrefixDictionaryWriter};
 
@@ -63,7 +63,7 @@ pub struct PrefixDictionaryBuilder {
 impl PrefixDictionaryBuilder {
     pub fn build<E, W>(&self, mut rows: Vec<StringRecord>, writer: &mut W) -> LinderaResult<()>
     where
-        E: DictionaryWordEncoder,
+        E: DictionaryWordEncoding,
         W: PrefixDictionaryWriter,
     {
         if self.normalize_details {

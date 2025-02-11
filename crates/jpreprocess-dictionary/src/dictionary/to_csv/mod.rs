@@ -7,12 +7,12 @@ use crate::word_data::get_word_data;
 
 use self::da::DoubleArrayParser;
 
-use super::{word_encoder::DictionaryWordEncoder, WordEntryMap};
+use super::{word_encoding::DictionaryWordEncoding, WordEntryMap};
 
 mod da;
 
 /// Converts prefix dictionary back to csv.
-pub fn dict_to_csv<E: DictionaryWordEncoder>(
+pub fn dict_to_csv<E: DictionaryWordEncoding>(
     prefix_dictionary: &PrefixDictionary,
 ) -> LinderaResult<Vec<String>> {
     let word_entry_map = inverse_prefix_dict(prefix_dictionary, true);
@@ -80,8 +80,8 @@ pub fn inverse_prefix_dict(prefix_dictionary: &PrefixDictionary, is_system: bool
 mod tests {
     use lindera_dictionary::dictionary_builder::DictionaryBuilder;
 
-    use crate::dictionary::word_encoder::{
-        JPreprocessDictionaryWordEncoder, LinderaUserDictionaryWordEncoder,
+    use crate::dictionary::word_encoding::{
+        JPreprocessDictionaryWordEncoding, LinderaUserDictionaryWordEncoding,
     };
 
     use super::dict_to_csv;
@@ -95,7 +95,7 @@ mod tests {
             lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
-        let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoder>(&user_dict.dict)?;
+        let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoding>(&user_dict.dict)?;
 
         let input_content = std::fs::read_to_string(input_file).unwrap();
         let rows = input_content.split('\n').collect::<Vec<_>>();
@@ -113,7 +113,7 @@ mod tests {
         let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder::new();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
-        let inverse = dict_to_csv::<JPreprocessDictionaryWordEncoder>(&user_dict.dict)?;
+        let inverse = dict_to_csv::<JPreprocessDictionaryWordEncoding>(&user_dict.dict)?;
 
         let input_content = std::fs::read_to_string(input_file).unwrap();
         let rows = input_content.split('\n').collect::<Vec<_>>();
