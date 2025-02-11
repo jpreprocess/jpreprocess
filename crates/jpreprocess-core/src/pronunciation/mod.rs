@@ -306,12 +306,8 @@ mod test {
                     is_voiced: true
                 },
                 Mora {
-                    mora_enum: MoraEnum::I,
-                    is_voiced: true
-                },
-                Mora {
                     mora_enum: MoraEnum::Long,
-                    is_voiced: false
+                    is_voiced: true
                 },
                 Mora {
                     mora_enum: MoraEnum::Touten,
@@ -323,7 +319,7 @@ mod test {
                 },
                 Mora {
                     mora_enum: MoraEnum::Long,
-                    is_voiced: false
+                    is_voiced: true
                 },
                 Mora {
                     mora_enum: MoraEnum::N,
