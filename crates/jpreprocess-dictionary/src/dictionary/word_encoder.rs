@@ -11,7 +11,7 @@ pub trait DictionaryWordEncoder: Sized {
 pub struct JPreprocessDictionaryWordEncoder;
 impl DictionaryWordEncoder for JPreprocessDictionaryWordEncoder {
     fn identifier() -> &'static str {
-        concat!("jpreprocess", env!("CARGO_PKG_VERSION"))
+        concat!("jpreprocess ", env!("CARGO_PKG_VERSION"))
     }
 
     fn encode(row: &[&str]) -> LinderaResult<Vec<u8>> {
