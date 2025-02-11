@@ -14,7 +14,7 @@ documentation = "https://docs.rs/jpreprocess"
 
 [features]
 naist-jdic = ["dep:jpreprocess-naist-jdic", "jpreprocess-naist-jdic/naist-jdic"]
-binary = ["dep:clap"]
+binary = ["dep:clap", "dep:serde_json"]
 
 [[bin]]
 name = "jpreprocess"
@@ -35,3 +35,4 @@ jpreprocess-dictionary.workspace = true
 jpreprocess-naist-jdic = { workspace = true, optional = true }
 
 clap = { workspace = true, features = ["derive"], optional = true }
+serde_json = { workspace = true, optional = true }

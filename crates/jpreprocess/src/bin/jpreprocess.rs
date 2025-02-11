@@ -4,7 +4,6 @@ use std::path::PathBuf;
 use jpreprocess::*;
 
 use clap::{Args, Parser};
-use lindera_dictionary::UserDictionaryConfig;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -45,9 +44,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
     };
 
-    let user_dictionary = cli.user_dictionary.map(|user_dict| UserDictionaryConfig {
-        path: user_dict,
-        kind: Some(lindera_dictionary::DictionaryKind::IPADIC),
+    let user_dictionary = cli.user_dictionary.map(|user_dict| {
+        serde_json::json!({
+            "path": user_dict,
+            "kind": "ipadic"
+        })
     });
 
     let jpreprocess = JPreprocess::from_config(JPreprocessConfig {

@@ -1,7 +1,6 @@
 use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
-use jpreprocess_core::word_entry::WordEntry;
 use jpreprocess_dictionary::dictionary::{
     to_csv::dict_to_csv,
     to_dict::JPreprocessDictionaryBuilder,
@@ -114,24 +113,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                 };
 
                 if let Some(word_id) = word_id {
-                    let word_bin = match dict.get_bytes(word_id) {
-                        Some(word_bin) => word_bin,
-                        None => {
-                            eprintln!("Word not found");
-                            std::process::exit(-1);
-                        }
-                    };
-
                     match serializer {
                         Serializer::Lindera => {
-                            let word_details: Vec<String> = bincode::deserialize(word_bin).unwrap();
+                            let Some(word_details) = dict.get_as_lindera(word_id) else {
+                                eprintln!("Word not found");
+                                std::process::exit(-1);
+                            };
                             for detail in word_details {
                                 println!("{}", detail);
                             }
                         }
                         Serializer::Jpreprocess => {
-                            let word_details: WordEntry =
-                                JPreprocessDictionaryWordEncoding::deserialize(word_bin).unwrap();
+                            let Some(word_details) = dict.get_as_jpreprocess(word_id) else {
+                                eprintln!("Word not found");
+                                std::process::exit(-1);
+                            };
                             println!("{}", word_details.to_str_vec("".to_owned()).join(","));
                         }
                     }
