@@ -17,7 +17,7 @@ impl DictionaryIdent {
                 DictionaryIdent::JPreprocess
             }
             Err(e) => {
-                log::warn!("Error parsing dictionary type: {}", e);
+                eprintln!("Error parsing dictionary type: {}", e);
                 DictionaryIdent::Lindera
             }
             _ => DictionaryIdent::Lindera,
