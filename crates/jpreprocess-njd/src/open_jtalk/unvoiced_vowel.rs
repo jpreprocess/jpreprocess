@@ -34,13 +34,15 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
     let mut states: Vec<MoraState> = Vec::new();
 
     let mut midx = 0;
+    let mut acc = 0;
     for (node_index, node) in njd.nodes.iter_mut().enumerate() {
-        /* reset mora index for new word */
+        // If not chained, reset mora index for new word.
+        // Otherwise, use the same accent position.
         if matches!(node.get_chain_flag(), None | Some(false)) {
             midx = 0;
+            acc = node.get_pron().accent();
         }
 
-        let acc = node.get_pron().accent();
         let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
@@ -202,4 +204,32 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
         ) => false,
         _ => true,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use jpreprocess_core::pronunciation::{Mora, MoraEnum};
+
+    use crate::{unvoiced_vowel::njd_set_unvoiced_vowel, NJD};
+
+    #[test]
+    fn gold() {
+        let mut njd: NJD = [
+            "少,接頭詞,名詞接続,*,*,*,*,少,ショウ,ショー,3/2,P2,-1",
+            "し金,名詞,一般,*,*,*,*,し金,シキン,シキン,1/3,C1,1",
+        ]
+        .into_iter()
+        .collect();
+
+        njd_set_unvoiced_vowel(&mut njd);
+
+        let pron = njd.nodes[1].get_pron();
+        assert_eq!(
+            pron.moras()[0],
+            Mora {
+                mora_enum: MoraEnum::Shi,
+                is_voiced: true
+            }
+        );
+    }
 }

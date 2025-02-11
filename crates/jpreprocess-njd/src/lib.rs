@@ -63,6 +63,12 @@ impl<'a> FromIterator<(&'a str, &'a WordEntry)> for NJD {
         Self { nodes }
     }
 }
+impl<'a> FromIterator<&'a str> for NJD {
+    fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
+        let nodes = iter.into_iter().flat_map(NJDNode::load_csv).collect();
+        Self { nodes }
+    }
+}
 
 impl IterQuintMutTrait for NJD {
     type Item = NJDNode;
