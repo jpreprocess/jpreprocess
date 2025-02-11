@@ -12,15 +12,14 @@ pub struct JPreprocessDictionaryWordEncoding;
 impl JPreprocessDictionaryWordEncoding {
     pub fn serialize(data: &jpreprocess_core::word_entry::WordEntry) -> bincode::Result<Vec<u8>> {
         use bincode::Options;
-
-        bincode::config::DefaultOptions::new()
-            .with_no_limit()
-            .with_little_endian()
-            .with_varint_encoding()
-            .allow_trailing_bytes()
-            .serialize(data)
+        Self::bincode_option().serialize(data)
     }
     pub fn deserialize(data: &[u8]) -> bincode::Result<jpreprocess_core::word_entry::WordEntry> {
+        use bincode::Options;
+        Self::bincode_option().deserialize(data)
+    }
+
+    fn bincode_option() -> impl bincode::Options {
         use bincode::Options;
 
         bincode::config::DefaultOptions::new()
@@ -28,7 +27,6 @@ impl JPreprocessDictionaryWordEncoding {
             .with_little_endian()
             .with_varint_encoding()
             .allow_trailing_bytes()
-            .deserialize(data)
     }
 }
 impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
