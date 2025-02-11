@@ -1,8 +1,6 @@
 use jpreprocess_dictionary::word_data::get_word_data;
-use lindera_core::{
-    dictionary::{Dictionary, UserDictionary},
-    prefix_dict::PrefixDict,
-};
+use lindera::dictionary::{Dictionary, UserDictionary};
+use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
 
 pub enum QueryDict {
     System(Dictionary),
@@ -10,28 +8,31 @@ pub enum QueryDict {
 }
 
 impl QueryDict {
-    pub fn dictionary_data(&self) -> (&PrefixDict, &[u8], &[u8]) {
+    pub fn dictionary_data(&self) -> &PrefixDictionary {
         match &self {
-            Self::System(dict) => (&dict.dict, &dict.words_idx_data, &dict.words_data),
-            Self::User(dict) => (&dict.dict, &dict.words_idx_data, &dict.words_data),
+            Self::System(dict) => &dict.prefix_dictionary,
+            Self::User(dict) => &dict.dict,
         }
     }
     pub fn identifier(&self) -> Option<&str> {
         match self {
-            Self::System(dict) => get_dict_preamble(&dict.words_idx_data, &dict.words_data),
-            Self::User(dict) => get_dict_preamble(&dict.words_idx_data, &dict.words_data),
+            Self::System(dict) => get_dict_preamble(
+                &dict.prefix_dictionary.words_idx_data,
+                &dict.prefix_dictionary.words_data,
+            ),
+            Self::User(dict) => get_dict_preamble(&dict.dict.words_idx_data, &dict.dict.words_data),
         }
     }
     pub fn get_bytes(&self, word_id: u32) -> Option<&[u8]> {
         match self {
             Self::System(dict) => get_word_data(
-                &dict.words_idx_data,
-                &dict.words_data,
+                &dict.prefix_dictionary.words_idx_data,
+                &dict.prefix_dictionary.words_data,
                 Some(word_id as usize),
             ),
             Self::User(dict) => get_word_data(
-                &dict.words_idx_data,
-                &dict.words_data,
+                &dict.dict.words_idx_data,
+                &dict.dict.words_data,
                 Some(word_id as usize),
             ),
         }

@@ -51,10 +51,11 @@ pub use normalize_text::normalize_text_for_naist_jdic;
 pub use jpreprocess_core::error;
 pub use jpreprocess_dictionary::tokenizer::{default::DefaultTokenizer, Tokenizer};
 pub use jpreprocess_njd::NJD;
-pub use lindera_core::dictionary::{Dictionary, UserDictionary};
-pub use lindera_dictionary::{DictionaryKind, DictionaryLoader, UserDictionaryConfig};
+pub use lindera::dictionary::UserDictionaryConfig;
+pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
 
 use jpreprocess_core::*;
+use lindera::dictionary::load_user_dictionary_from_config;
 
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,
@@ -115,9 +116,7 @@ impl JPreprocess<DefaultTokenizer> {
         let dictionary = config.dictionary.load()?;
 
         let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(DictionaryLoader::load_user_dictionary_from_config(
-                user_dict_conf,
-            )?),
+            Some(user_dict_conf) => Some(load_user_dictionary_from_config(&user_dict_conf)?),
             None => None,
         };
 
@@ -129,11 +128,11 @@ impl JPreprocess<DefaultTokenizer> {
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
     ) -> Self {
-        let tokenizer = lindera_tokenizer::tokenizer::Tokenizer::new(
+        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            lindera_dictionary::mode::Mode::Normal,
             dictionary,
             user_dictionary,
-            lindera_core::mode::Mode::Normal,
-        );
+        ));
 
         let tokenizer = DefaultTokenizer::new(tokenizer);
 

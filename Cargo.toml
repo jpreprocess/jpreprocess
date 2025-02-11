@@ -15,7 +15,7 @@ repository = "https://github.com/jpreprocess/jpreprocess"
 keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
 
-rust-version = "1.75.0"
+rust-version = "1.77.0"
 
 [workspace.dependencies]
 jpreprocess = { path = "crates/jpreprocess", version = "0.10.0" }
@@ -27,10 +27,8 @@ jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.
 jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.10.0" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.10.0" }
 
-lindera-core = "0.32"
-lindera-tokenizer = "0.32"
-lindera-dictionary = "0.32"
-lindera-ipadic-builder = "0.32"
+lindera = "0.39"
+lindera-dictionary = { version = "0.39", default-features = false }
 
 jlabel = "0.1.4"
 
@@ -40,6 +38,7 @@ anyhow = "1.0.82"
 bincode = "1.3.3"
 byteorder = "1.5.0"
 csv = "1.3.0"
+derive_builder = "0.20.2"
 encoding = "0.2.33"
 flate2 = "1.0.29"
 glob = "0.3.1"
@@ -51,7 +50,10 @@ ureq = { version = "2.9.7", default-features = false }
 yada = "0.5.1"
 rayon = "1.10"
 
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
+
 serde = "1.0.200"
+serde_json = "1.0.138"
 
 aho-corasick = "1.1"
 regex = "1.10.4"
