@@ -34,13 +34,15 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
     let mut states: Vec<MoraState> = Vec::new();
 
     let mut midx = 0;
+    let mut acc = 0;
     for (node_index, node) in njd.nodes.iter_mut().enumerate() {
-        /* reset mora index for new word */
+        // If not chained, reset mora index for new word.
+        // Otherwise, use the same accent position.
         if matches!(node.get_chain_flag(), None | Some(false)) {
             midx = 0;
+            acc = node.get_pron().accent();
         }
 
-        let acc = node.get_pron().accent();
         let pos = node.get_pos().to_owned();
         let pron = node.get_pron_mut();
 
