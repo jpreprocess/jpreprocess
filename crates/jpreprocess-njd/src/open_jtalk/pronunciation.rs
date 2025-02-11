@@ -13,16 +13,17 @@ use jpreprocess_window::*;
 pub fn njd_set_pronunciation(njd: &mut NJD) {
     for node in &mut njd.nodes {
         if node.get_pron().mora_size() == 0 {
-            let pron = Pronunciation::parse(node.get_string(), 0).unwrap_or_default();
+            // Parse as many moras as possible
+            let pron = Pronunciation::parse(node.get_string(), 0, true).unwrap_or_default();
             let mora_size = pron.mora_size();
 
             /* if filler, overwrite pos */
-            if mora_size != 0 {
+            if mora_size == 0 {
+                if pron.is_touten() {
+                    node.get_pos_mut().convert_to_kigou();
+                }
+            } else {
                 *node.get_pos_mut() = POS::Filler;
-            }
-
-            if pron.is_touten() {
-                node.get_pos_mut().convert_to_kigou();
             }
 
             if pron.is_empty() {
