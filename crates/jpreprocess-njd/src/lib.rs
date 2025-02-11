@@ -65,10 +65,7 @@ impl<'a> FromIterator<(&'a str, &'a WordEntry)> for NJD {
 }
 impl<'a> FromIterator<&'a str> for NJD {
     fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
-        let nodes = iter
-            .into_iter()
-            .flat_map(|text| NJDNode::load_csv(text))
-            .collect();
+        let nodes = iter.into_iter().flat_map(NJDNode::load_csv).collect();
         Self { nodes }
     }
 }
