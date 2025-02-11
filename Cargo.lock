@@ -467,7 +467,6 @@ dependencies = [
 name = "example-lru"
 version = "0.10.0"
 dependencies = [
- "bincode",
  "jpreprocess",
  "jpreprocess-core",
  "jpreprocess-dictionary",

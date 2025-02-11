@@ -2,7 +2,9 @@ use std::borrow::Cow;
 
 use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
 
-use crate::word_data::get_word_data;
+use crate::{
+    dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::get_word_data,
+};
 
 use super::{Token, Tokenizer};
 
@@ -49,7 +51,7 @@ impl JPreprocessTokenizer {
                 Some(word_id.id as usize),
             )
             .ok_or(DictionaryError::IdNotFound(word_id.id))?;
-            Ok(bincode::deserialize(data)?)
+            Ok(JPreprocessDictionaryWordEncoding::deserialize(data)?)
         }
     }
 }

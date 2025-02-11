@@ -130,7 +130,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                             }
                         }
                         Serializer::Jpreprocess => {
-                            let word_details: WordEntry = bincode::deserialize(word_bin).unwrap();
+                            let word_details: WordEntry =
+                                JPreprocessDictionaryWordEncoding::deserialize(word_bin).unwrap();
                             println!("{}", word_details.to_str_vec("".to_owned()).join(","));
                         }
                     }
