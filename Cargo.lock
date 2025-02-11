@@ -937,6 +937,7 @@ dependencies = [
  "lindera",
  "lindera-dictionary",
  "phf",
+ "serde_json",
 ]
 
 [[package]]
