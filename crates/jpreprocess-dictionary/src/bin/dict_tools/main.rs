@@ -92,7 +92,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
                     if input.extension().unwrap() != "bin" {
-                        eprintln!("User dictionary must be a bin file.");
+                        eprintln!("User dictionary must be a `.bin` file.");
                         std::process::exit(-1);
                     }
 
@@ -180,7 +180,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 QueryDict::System(dict)
             } else {
                 if input.extension().unwrap() != "bin" {
-                    eprintln!("User dictionary must be a bin file.");
+                    eprintln!("User dictionary must be a `.bin` file.");
                     std::process::exit(-1);
                 }
 
