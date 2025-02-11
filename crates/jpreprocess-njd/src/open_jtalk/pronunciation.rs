@@ -92,3 +92,23 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{pronunciation::njd_set_pronunciation, NJD};
+
+    #[test]
+    fn barry_payne() {
+        let mut njd: NJD = [
+            "バリー・ペーン,名詞,*,*,*,*,*,バリー・ペーン,*,,0/0,*,-1",
+            "は,名詞,*,*,*,*,*,は,*,,0/0,*,-1",
+        ]
+        .into_iter()
+        .collect();
+
+        njd_set_pronunciation(&mut njd);
+
+        assert_eq!(njd.nodes[0].get_pron().mora_size(), 6);
+        assert_eq!(njd.nodes[1].get_pron().mora_size(), 1);
+    }
+}
