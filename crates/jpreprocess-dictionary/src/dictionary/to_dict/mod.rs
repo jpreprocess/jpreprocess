@@ -33,6 +33,12 @@ impl JPreprocessDictionaryBuilder {
     }
 }
 
+impl Default for JPreprocessDictionaryBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DictionaryBuilder for JPreprocessDictionaryBuilder {
     fn build_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
         fs::create_dir_all(output_dir)
