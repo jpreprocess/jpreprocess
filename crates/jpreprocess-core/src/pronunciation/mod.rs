@@ -136,7 +136,7 @@ impl Pronunciation {
                 acc => (Some(acc.parse()?), None),
             },
         };
-        let pronunciation = Self::parse(pron, accent.unwrap_or(0))?;
+        let pronunciation = Self::parse(pron, accent.unwrap_or(0), false)?;
 
         if let Some(mora_size) = mora_size {
             if pronunciation.mora_size() != mora_size {
@@ -150,18 +150,29 @@ impl Pronunciation {
         Ok(pronunciation)
     }
 
-    pub fn parse(moras: &str, accent: usize) -> Result<Self, PronunciationParseError> {
-        Ok(Self::new(Self::parse_mora_str(moras)?, accent))
+    pub fn parse(
+        moras: &str,
+        accent: usize,
+        permissive: bool,
+    ) -> Result<Self, PronunciationParseError> {
+        Ok(Self::new(Self::parse_mora_str(moras, permissive)?, accent))
     }
 
-    fn parse_mora_str(s: &str) -> Result<Vec<Mora>, PronunciationParseError> {
+    fn parse_mora_str(s: &str, permissive: bool) -> Result<Vec<Mora>, PronunciationParseError> {
         let mut result = Vec::new();
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
-                return Err(PronunciationParseError::UnknownMora(
-                    s[current_position..match_result.start()].to_string(),
-                ));
+                if permissive {
+                    result.push(Mora {
+                        mora_enum: MoraEnum::Touten,
+                        is_voiced: true,
+                    });
+                } else {
+                    return Err(PronunciationParseError::UnknownMora(
+                        s[current_position..match_result.start()].to_string(),
+                    ));
+                }
             }
 
             let quotation = s[match_result.end()..].starts_with(QUOTATION);
@@ -215,7 +226,7 @@ mod test {
 
     #[test]
     fn from_str_normal() {
-        let pron = Pronunciation::parse_mora_str("オツカレサマデシ’タ").unwrap();
+        let pron = Pronunciation::parse_mora_str("オツカレサマデシ’タ", false).unwrap();
         assert_eq!(
             pron,
             vec![
@@ -262,7 +273,7 @@ mod test {
     #[test]
     fn from_str_symbol() {
         assert_eq!(
-            Pronunciation::parse_mora_str("；").unwrap(),
+            Pronunciation::parse_mora_str("；", false).unwrap(),
             vec![Mora {
                 mora_enum: MoraEnum::Touten,
                 is_voiced: true
@@ -273,10 +284,52 @@ mod test {
     #[test]
     fn to_string() {
         assert_eq!(
-            Pronunciation::parse("オツカレサマデシ’タ", 0)
+            Pronunciation::parse("オツカレサマデシ’タ", 0, false)
                 .unwrap()
                 .to_string(),
             "オツカレサマデシ’タ"
         );
+    }
+
+    #[test]
+    fn permissive_pron_parse() {
+        let pron = Pronunciation::parse_mora_str("バリー・ペーン", true).unwrap();
+        assert_eq!(
+            pron,
+            vec![
+                Mora {
+                    mora_enum: MoraEnum::Ba,
+                    is_voiced: true
+                },
+                Mora {
+                    mora_enum: MoraEnum::Ri,
+                    is_voiced: true
+                },
+                Mora {
+                    mora_enum: MoraEnum::I,
+                    is_voiced: true
+                },
+                Mora {
+                    mora_enum: MoraEnum::Long,
+                    is_voiced: false
+                },
+                Mora {
+                    mora_enum: MoraEnum::Touten,
+                    is_voiced: true
+                },
+                Mora {
+                    mora_enum: MoraEnum::Pe,
+                    is_voiced: true
+                },
+                Mora {
+                    mora_enum: MoraEnum::Long,
+                    is_voiced: false
+                },
+                Mora {
+                    mora_enum: MoraEnum::N,
+                    is_voiced: true
+                }
+            ]
+        )
     }
 }
