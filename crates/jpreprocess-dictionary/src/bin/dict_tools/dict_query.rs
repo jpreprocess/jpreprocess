@@ -1,6 +1,8 @@
-use jpreprocess_dictionary::word_data::get_word_data;
+use jpreprocess_dictionary::{
+    dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::get_word_data,
+};
 use lindera::dictionary::{Dictionary, UserDictionary};
-use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
+use lindera_dictionary::dictionary::{prefix_dictionary::PrefixDictionary, UNK};
 
 pub enum QueryDict {
     System(Dictionary),
@@ -23,8 +25,12 @@ impl QueryDict {
             Self::User(dict) => get_dict_preamble(&dict.dict.words_idx_data, &dict.dict.words_data),
         }
     }
-    pub fn get_bytes(&self, word_id: u32) -> Option<&[u8]> {
-        match self {
+
+    pub fn get_as_jpreprocess(
+        &self,
+        word_id: u32,
+    ) -> Option<jpreprocess_core::word_entry::WordEntry> {
+        let word_bin = match self {
             Self::System(dict) => get_word_data(
                 &dict.prefix_dictionary.words_idx_data,
                 &dict.prefix_dictionary.words_data,
@@ -35,6 +41,20 @@ impl QueryDict {
                 &dict.dict.words_data,
                 Some(word_id as usize),
             ),
+        };
+
+        JPreprocessDictionaryWordEncoding::deserialize(word_bin?).ok()
+    }
+    pub fn get_as_lindera(&self, word_id: u32) -> Option<Vec<&str>> {
+        let result = match self {
+            Self::System(dict) => dict.word_details(word_id as usize),
+            Self::User(dict) => dict.word_details(word_id as usize),
+        };
+
+        if result == *UNK {
+            None
+        } else {
+            Some(result)
         }
     }
 }
