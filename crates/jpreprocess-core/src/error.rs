@@ -1,4 +1,4 @@
-use lindera_core::error::LinderaError;
+use lindera::error::LinderaError;
 
 use crate::{
     accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError,

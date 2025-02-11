@@ -1,15 +1,17 @@
 use std::{error::Error, fs::File, io::Write, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
-
-use jpreprocess::{DictionaryLoader, SystemDictionaryConfig};
-use jpreprocess_dictionary::{
-    dictionary::{to_csv::dict_to_csv, to_dict::ipadic_builder::IpadicBuilder},
-    serializer::DictionarySerializer,
+use jpreprocess_core::word_entry::WordEntry;
+use jpreprocess_dictionary::dictionary::{
+    to_csv::dict_to_csv,
+    to_dict::JPreprocessDictionaryBuilder,
+    word_encoding::{
+        JPreprocessDictionaryWordEncoding, LinderaSystemDictionaryWordEncoding,
+        LinderaUserDictionaryWordEncoding,
+    },
 };
-
-use lindera_core::dictionary_builder::DictionaryBuilder;
-use lindera_dictionary::UserDictionaryConfig;
+use lindera::dictionary::{load_dictionary_from_path, load_user_dictionary_from_bin};
+use lindera_dictionary::dictionary_builder::DictionaryBuilder;
 
 use crate::dict_query::QueryDict;
 
@@ -70,15 +72,6 @@ enum Serializer {
     /// Build jpreprocess dictionary
     Jpreprocess,
 }
-impl Serializer {
-    pub fn into_serializer(self) -> Box<dyn DictionarySerializer + Send + Sync + 'static> {
-        use jpreprocess_dictionary::serializer::*;
-        match self {
-            Self::Lindera => Box::new(lindera::LinderaSerializer),
-            Self::Jpreprocess => Box::new(jpreprocess::JPreprocessSerializer),
-        }
-    }
-}
 
 fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
@@ -94,15 +87,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             if is_system_dict || is_user_bin_dict {
                 let dict = if is_system_dict {
                     println!("Lindera/JPreprocess system dictionary.");
-                    let dict = SystemDictionaryConfig::File(input).load()?;
+                    let dict = load_dictionary_from_path(&input)?;
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
-                    let dict =
-                        DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
-                            path: input,
-                            kind: None,
-                        })?;
+                    if input.extension().unwrap() != "bin" {
+                        eprintln!("User dictionary must be a `.bin` file.");
+                        std::process::exit(-1);
+                    }
+
+                    let dict = load_user_dictionary_from_bin(&input)?;
+
                     QueryDict::User(dict)
                 };
 
@@ -127,8 +122,18 @@ fn main() -> Result<(), Box<dyn Error>> {
                         }
                     };
 
-                    let message = serializer.into_serializer().deserialize_debug(word_bin);
-                    println!("{}", message);
+                    match serializer {
+                        Serializer::Lindera => {
+                            let word_details: Vec<String> = bincode::deserialize(word_bin).unwrap();
+                            for detail in word_details {
+                                println!("{}", detail);
+                            }
+                        }
+                        Serializer::Jpreprocess => {
+                            let word_details: WordEntry = bincode::deserialize(word_bin).unwrap();
+                            println!("{}", word_details.to_str_vec("".to_owned()).join(","));
+                        }
+                    }
                 }
             }
         }
@@ -138,7 +143,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             input,
             output,
         } => {
-            let builder = IpadicBuilder::new(serializer_config.into_serializer());
+            let builder: Box<dyn DictionaryBuilder> = match serializer_config {
+                Serializer::Lindera => {
+                    Box::new(lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new())
+                }
+                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder::new()),
+            };
 
             if user {
                 println!("Building user dictionary...");
@@ -166,27 +176,35 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Loading dictionary...");
             let dict = if !user {
-                let dict = SystemDictionaryConfig::File(input).load()?;
+                let dict = load_dictionary_from_path(&input)?;
                 QueryDict::System(dict)
             } else {
-                let dict =
-                    DictionaryLoader::load_user_dictionary_from_config(UserDictionaryConfig {
-                        path: input,
-                        kind: None,
-                    })?;
+                if input.extension().unwrap() != "bin" {
+                    eprintln!("User dictionary must be a `.bin` file.");
+                    std::process::exit(-1);
+                }
+
+                let dict = load_user_dictionary_from_bin(&input)?;
                 QueryDict::User(dict)
             };
             println!("Successfully loaded source dictionary.");
 
-            let (prefix_dict, words_idx_data, words_data) = dict.dictionary_data();
+            let prefix_dict = dict.dictionary_data();
 
             println!("Converting dictionary csv...");
-            let csv = dict_to_csv(
-                prefix_dict,
-                words_idx_data,
-                words_data,
-                &serializer_config.into_serializer(),
-            )?;
+            let csv = match serializer_config {
+                Serializer::Lindera => match dict {
+                    QueryDict::System(_) => {
+                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(&prefix_dict)?
+                    }
+                    QueryDict::User(_) => {
+                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(&prefix_dict)?
+                    }
+                },
+                Serializer::Jpreprocess => {
+                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(&prefix_dict)?
+                }
+            };
             println!("done.");
 
             println!("Writing csv file...");

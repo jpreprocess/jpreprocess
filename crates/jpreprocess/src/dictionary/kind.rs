@@ -1,4 +1,4 @@
-use lindera_core::dictionary::Dictionary;
+use lindera_dictionary::dictionary::Dictionary;
 
 /// Specifies the kind of self-contained dictionary used for tokenization and preprocessing.
 pub enum JPreprocessDictionaryKind {

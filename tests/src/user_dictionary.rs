@@ -1,13 +1,10 @@
 use std::error::Error;
 
 use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
-use jpreprocess_dictionary::{
-    dictionary::to_dict::ipadic_builder::IpadicBuilder,
-    serializer::jpreprocess::JPreprocessSerializer,
-};
 
 #[cfg(feature = "naist-jdic")]
 use jpreprocess::kind::*;
+use jpreprocess_dictionary::dictionary::to_dict::build_user_dict_from_data;
 
 #[cfg(not(feature = "naist-jdic"))]
 use std::path::PathBuf;
@@ -61,8 +58,7 @@ fn lindera_user_dictionary() -> Result<(), Box<dyn Error>> {
     rows.sort_by_key(|row| row[0].to_string());
 
     let dictionary = config.load()?;
-    let user_dictionary =
-        IpadicBuilder::new(Box::new(JPreprocessSerializer)).build_user_dict_from_data(&rows)?;
+    let user_dictionary = build_user_dict_from_data(rows)?;
 
     let jpreprocess = JPreprocess::with_dictionaries(dictionary, Some(user_dictionary));
     let njd = jpreprocess.text_to_njd("クーバネティス")?;
