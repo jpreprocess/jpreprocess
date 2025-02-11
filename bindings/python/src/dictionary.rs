@@ -18,7 +18,7 @@ pub fn build_dictionary(
 ) -> PyResult<()> {
     let builder: Box<dyn DictionaryBuilder> = match serializer {
         Some("lindera") => Box::new(IpadicNeologdBuilder::new()),
-        Some("jpreprocess") | None => Box::new(JPreprocessDictionaryBuilder {}),
+        Some("jpreprocess") | None => Box::new(JPreprocessDictionaryBuilder::new()),
         _ => {
             return Err(PyAssertionError::new_err(
                 "serializer must be either `lindera` or `jpreprocess`.",

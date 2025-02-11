@@ -147,7 +147,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Serializer::Lindera => {
                     Box::new(lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new())
                 }
-                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder {}),
+                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder::new()),
             };
 
             if user {

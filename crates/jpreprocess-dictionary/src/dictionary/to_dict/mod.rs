@@ -27,6 +27,12 @@ const UNK_FIELDS_NUM: usize = 11;
 
 pub struct JPreprocessDictionaryBuilder {}
 
+impl JPreprocessDictionaryBuilder {
+    pub fn new() -> Self {
+        JPreprocessDictionaryBuilder {}
+    }
+}
+
 impl DictionaryBuilder for JPreprocessDictionaryBuilder {
     fn build_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
         fs::create_dir_all(output_dir)
