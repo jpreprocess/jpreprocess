@@ -8,7 +8,10 @@ use std::{
 };
 
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use jpreprocess_dictionary::tokenizer::{Token, Tokenizer};
+use jpreprocess_dictionary::{
+    dictionary::word_encoding::JPreprocessDictionaryWordEncoding,
+    tokenizer::{Token, Tokenizer},
+};
 use lindera_dictionary::dictionary::Dictionary;
 use lru::LruCache;
 
@@ -122,7 +125,7 @@ impl CachedStorage {
         println!("Word #{} not found in cache", index);
 
         let bytes = self.get_bytes(index)?;
-        let entry: WordEntry = bincode::deserialize(&bytes).unwrap();
+        let entry: WordEntry = JPreprocessDictionaryWordEncoding::deserialize(&bytes).unwrap();
         self.cache.push(index, entry.clone());
 
         Ok(entry)
