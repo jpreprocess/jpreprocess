@@ -48,7 +48,7 @@ fn get_dict_preamble<'a>(idx: &[u8], data: &'a [u8]) -> Option<&'a str> {
             return Some(s);
         }
         Err(e) => {
-            log::warn!("Error parsing dictionary type: {}", e);
+            eprintln!("Error parsing dictionary type: {}", e);
             return None;
         }
     }
