@@ -206,7 +206,7 @@ impl ChainRules {
 
     pub fn get_rule(&self, pos: &POS) -> Option<&ChainRule> {
         let rule = match pos {
-            POS::Doushi(_) => self.doushi.as_ref(),
+            POS::Doushi(_) | POS::Jodoushi => self.doushi.as_ref(),
             POS::Joshi(_) => self.joshi.as_ref(),
             POS::Keiyoushi(_) => self.keiyoushi.as_ref(),
             POS::Meishi(_) => self.meishi.as_ref(),
