@@ -163,12 +163,7 @@ impl Pronunciation {
         let mut current_position = 0;
         for match_result in mora_dict::MORA_DICT_AHO_CORASICK.find_iter(s) {
             if current_position != match_result.start() {
-                if permissive {
-                    result.push(Mora {
-                        mora_enum: MoraEnum::Touten,
-                        is_voiced: true,
-                    });
-                } else {
+                if !permissive  {
                     return Err(PronunciationParseError::UnknownMora(
                         s[current_position..match_result.start()].to_string(),
                     ));
@@ -307,10 +302,6 @@ mod test {
                 },
                 Mora {
                     mora_enum: MoraEnum::Long,
-                    is_voiced: true
-                },
-                Mora {
-                    mora_enum: MoraEnum::Touten,
                     is_voiced: true
                 },
                 Mora {
