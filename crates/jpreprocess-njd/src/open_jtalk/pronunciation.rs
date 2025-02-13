@@ -26,7 +26,7 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
             for (range, moras) in prons {
                 let string = &node.get_string()[range.clone()];
                 let mut node = node.clone();
-                node.replace_string(&string);
+                node.replace_string(string);
 
                 let pron = Pronunciation::new(moras, 0);
 
