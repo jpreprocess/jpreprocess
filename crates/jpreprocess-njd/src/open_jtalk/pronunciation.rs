@@ -122,7 +122,9 @@ mod tests {
 
         njd_set_pronunciation(&mut njd);
 
-        assert_eq!(njd.nodes[0].get_pron().mora_size(), 6);
-        assert_eq!(njd.nodes[1].get_pron().mora_size(), 1);
+        assert_eq!(njd.nodes[0].get_pron().mora_size(), 3);
+        assert_eq!(njd.nodes[1].get_pron().mora_size(), 0);
+        assert_eq!(njd.nodes[2].get_pron().mora_size(), 3);
+        assert_eq!(njd.nodes[3].get_pron().mora_size(), 1);
     }
 }

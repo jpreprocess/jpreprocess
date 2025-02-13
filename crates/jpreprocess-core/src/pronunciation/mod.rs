@@ -151,29 +151,32 @@ impl Pronunciation {
     }
 
     pub fn parse(moras: &str, accent: usize) -> Result<Self, PronunciationParseError> {
-        let result = if moras == QUESTION {
-            vec![Mora {
-                mora_enum: MoraEnum::Question,
-                is_voiced: true,
-            }]
-        } else if moras == "*" {
-            vec![]
+        let parsed = Self::parse_mora_str(moras);
+        let result = if parsed.len() > 1 {
+            let range = parsed[1].0.clone();
+            return Err(PronunciationParseError::UnknownMora(
+                moras[range].to_string(),
+            ));
         } else {
-            let parsed = Self::parse_mora_str(moras);
-            if parsed.len() > 1 {
-                let range = parsed[1].0.clone();
-                return Err(PronunciationParseError::UnknownMora(
-                    moras[range].to_string(),
-                ));
-            } else {
-                parsed.first().cloned().unwrap_or_default().1
-            }
+            parsed.first().cloned().unwrap_or_default().1
         };
 
         Ok(Self::new(result, accent))
     }
 
     pub fn parse_mora_str(s: &str) -> Vec<(Range<usize>, Vec<Mora>)> {
+        if s == "*" {
+            return vec![];
+        } else if s == QUESTION {
+            return vec![(
+                0..QUESTION.len(),
+                vec![Mora {
+                    mora_enum: MoraEnum::Question,
+                    is_voiced: true,
+                }],
+            )];
+        }
+
         let mut result = Vec::new();
 
         let mut segment_start_point = 0;
@@ -380,23 +383,8 @@ mod test {
                 .to_string(),
             "オツカレサマデシ’タ"
         );
-        assert_eq!(
-            Pronunciation::parse("？", 0)
-                .unwrap()
-                .to_string(),
-            "？"
-        );
-        assert_eq!(
-            Pronunciation::parse("．？", 0)
-                .unwrap()
-                .to_string(),
-            "、"
-        );
-        assert_eq!(
-            Pronunciation::parse("*", 0)
-                .unwrap()
-                .to_string(),
-            ""
-        );
+        assert_eq!(Pronunciation::parse("？", 0).unwrap().to_string(), "？");
+        assert_eq!(Pronunciation::parse("．？", 0).unwrap().to_string(), "、");
+        assert_eq!(Pronunciation::parse("*", 0).unwrap().to_string(), "");
     }
 }
