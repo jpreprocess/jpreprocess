@@ -107,7 +107,7 @@ impl TryFrom<NjdObject> for NJDNode {
                 "*" => None,
                 read => Some(read.to_string()),
             },
-            pron: Pronunciation::parse(&value.pron, value.acc, false)?,
+            pron: Pronunciation::parse(&value.pron, value.acc)?,
             chain_rule: ChainRules::new(&value.chain_rule),
             chain_flag: match value.chain_flag {
                 1 => Some(true),
