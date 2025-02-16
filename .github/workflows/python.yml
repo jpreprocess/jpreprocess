@@ -100,10 +100,14 @@ jobs:
           cd bindings/python && pytest
 
   macos:
-    runs-on: macos-latest
     strategy:
       matrix:
-        target: [x86_64, aarch64]
+        include:
+          - target: x86_64
+            runs-on: macos-13
+          - target: aarch64
+            runs-on: macos-14
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
@@ -121,7 +125,6 @@ jobs:
           name: wheels-macos-${{ matrix.target }}
           path: dist
       - name: pytest
-        if: ${{ !startsWith(matrix.target, 'aarch64') }}
         shell: bash
         run: |
           set -e
