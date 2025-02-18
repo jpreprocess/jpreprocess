@@ -56,11 +56,8 @@ impl JPreprocessPyBinding {
             .map_err(into_runtime_error)?;
         Ok(labels.into_iter().map(|l| l.to_string()).collect())
     }
-    #[pyo3(signature = (text, kana=None, join=None))]
-    fn g2p(&self, text: &str, kana: Option<bool>, join: Option<bool>) -> PyResult<StringOrArray> {
-        let kana = kana.unwrap_or(false);
-        let join = join.unwrap_or(true);
-
+    #[pyo3(signature = (text, kana=false, join=true))]
+    fn g2p(&self, text: &str, kana: bool, join: bool) -> PyResult<StringOrArray> {
         let prons = if kana {
             let mut njd = self.inner.text_to_njd(text).map_err(into_runtime_error)?;
             njd.preprocess();
