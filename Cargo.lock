@@ -471,7 +471,7 @@ dependencies = [
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "lru",
 ]
 
@@ -489,7 +489,7 @@ dependencies = [
  "jpreprocess",
  "js-sys",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",
@@ -935,7 +935,7 @@ dependencies = [
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "phf",
  "serde_json",
 ]
@@ -966,7 +966,7 @@ dependencies = [
  "glob",
  "jpreprocess-core",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "log",
  "once_cell",
  "rayon",
@@ -988,7 +988,7 @@ name = "jpreprocess-naist-jdic"
 version = "0.12.0"
 dependencies = [
  "jpreprocess-dictionary",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "tokio",
 ]
 
@@ -1013,7 +1013,7 @@ dependencies = [
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.39.0",
  "pyo3",
  "pythonize",
  "serde",
@@ -1062,15 +1062,16 @@ dependencies = [
 
 [[package]]
 name = "lindera"
-version = "0.39.0"
-source = "git+https://github.com/jpreprocess/lindera.git?rev=4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e#4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e"
+version = "0.40.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1a7befb5d88825458151ab9c1a70d36d695b023e79d57333f9e6bb42614115e"
 dependencies = [
  "anyhow",
  "bincode",
  "byteorder",
  "csv",
  "kanaria",
- "lindera-dictionary",
+ "lindera-dictionary 0.40.0",
  "once_cell",
  "regex",
  "serde",
@@ -1102,6 +1103,30 @@ dependencies = [
  "log",
  "once_cell",
  "reqwest",
+ "serde",
+ "tar",
+ "thiserror 2.0.11",
+ "yada",
+]
+
+[[package]]
+name = "lindera-dictionary"
+version = "0.40.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9cd2c590cbe3d625884a91173402d26d6ea462b846dd21f7866cb186301832f3"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "byteorder",
+ "csv",
+ "derive_builder",
+ "encoding",
+ "encoding_rs",
+ "encoding_rs_io",
+ "flate2",
+ "glob",
+ "log",
+ "once_cell",
  "serde",
  "tar",
  "thiserror 2.0.11",
@@ -1761,18 +1786,18 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "strum"
-version = "0.26.3"
+version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
+checksum = "f64def088c51c9510a8579e3c5d67c65349dcf755e5479ad3d010aa6454e2c32"
 dependencies = [
  "strum_macros",
 ]
 
 [[package]]
 name = "strum_macros"
-version = "0.26.4"
+version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c6bee85a5a24955dc440386795aa378cd9cf82acd5f764469152d2270e581be"
+checksum = "c77a8c5abcaf0f9ce05d62342b7d298c346515365c36b673df4ebe3ced01fde8"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -2437,3 +2462,8 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[patch.unused]]
+name = "lindera"
+version = "0.39.0"
+source = "git+https://github.com/jpreprocess/lindera.git?rev=4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e#4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e"
