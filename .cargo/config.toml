@@ -1,7 +1,0 @@
-[patch.crates-io.lindera]
-git = "https://github.com/jpreprocess/lindera.git"
-rev = "4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e" # The latest commit in optional-default-assets branch
-
-[patch.crates-io.lindera-dictionary]
-git = "https://github.com/jpreprocess/lindera.git"
-rev = "4203d3b21cc26ffa43018bc85aa0b6f3bcdf7a0e" # The latest commit in optional-default-assets branch
