@@ -52,6 +52,10 @@ def test_extract_fullcontext(jpre: jpreprocess.JPreprocess) -> None:
 
 
 def test_g2p(jpre: jpreprocess.JPreprocess) -> None:
+    assert jpre.g2p("本日は晴天なり") == "h o N j i ts u w a s e e t e N n a r i"
+    assert jpre.g2p("おはようございます", kana=True) == "オハヨーゴザイマス"
+    assert jpre.g2p("おはようございます", join=False) == ["o", "h", "a", "y", "o", "o", "g", "o", "z", "a", "i", "m", "a", "s", "U"]
+
     assert jpre.g2p("本日は晴天なり", kana=False,
                     join=True) == "h o N j i ts u w a s e e t e N n a r i"
     assert jpre.g2p("本日は晴天なり", kana=False,
