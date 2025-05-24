@@ -470,7 +470,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33d852cb9b869c2a9b3df2f71a3074817f01e1844f839a144f5fcef059a4eb5d"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -481,7 +481,7 @@ dependencies = [
  "jpreprocess-core",
  "jpreprocess-dictionary",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "lru",
 ]
 
@@ -499,7 +499,7 @@ dependencies = [
  "jpreprocess",
  "js-sys",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",
@@ -991,7 +991,7 @@ dependencies = [
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "phf",
  "serde_json",
 ]
@@ -1022,7 +1022,7 @@ dependencies = [
  "glob",
  "jpreprocess-core",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "log",
  "once_cell",
  "rayon",
@@ -1044,7 +1044,7 @@ name = "jpreprocess-naist-jdic"
 version = "0.12.0"
 dependencies = [
  "jpreprocess-dictionary",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "tokio",
 ]
 
@@ -1069,7 +1069,7 @@ dependencies = [
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
  "lindera",
- "lindera-dictionary",
+ "lindera-dictionary 0.42.2",
  "pyo3",
  "pythonize",
  "serde",
@@ -1118,16 +1118,16 @@ dependencies = [
 
 [[package]]
 name = "lindera"
-version = "0.42.2"
+version = "0.43.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a2505be2fdb869346a4cc36d99a7a76609f616fb7630d3e8c638ffd3a90b19c"
+checksum = "81d34246e86e9ecfe343138b0a3be858c6310b6443b31dff94b80fd6b4be3d87"
 dependencies = [
  "anyhow",
  "bincode",
  "byteorder",
  "csv",
  "kanaria",
- "lindera-dictionary",
+ "lindera-dictionary 0.43.0",
  "once_cell",
  "regex",
  "serde",
@@ -1162,6 +1162,33 @@ dependencies = [
  "once_cell",
  "rand 0.9.1",
  "reqwest",
+ "serde",
+ "tar",
+ "thiserror 2.0.12",
+ "tokio",
+ "yada",
+]
+
+[[package]]
+name = "lindera-dictionary"
+version = "0.43.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c4fe8cb9397c7ca4e4059776efdaf57deaae569c4bc230ab3017ff2a70b3f7a"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "byteorder",
+ "csv",
+ "derive_builder",
+ "encoding",
+ "encoding_rs",
+ "encoding_rs_io",
+ "flate2",
+ "glob",
+ "log",
+ "md5",
+ "once_cell",
+ "rand 0.9.1",
  "serde",
  "tar",
  "thiserror 2.0.12",
@@ -1657,7 +1684,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.4.15",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1670,7 +1697,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.9.4",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -1986,7 +2013,7 @@ dependencies = [
  "getrandom 0.3.2",
  "once_cell",
  "rustix 1.0.7",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
