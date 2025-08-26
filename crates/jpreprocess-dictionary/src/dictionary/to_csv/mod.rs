@@ -78,8 +78,6 @@ pub fn inverse_prefix_dict(prefix_dictionary: &PrefixDictionary, is_system: bool
 
 #[cfg(test)]
 mod tests {
-    use lindera_dictionary::dictionary_builder::DictionaryBuilder;
-
     use crate::dictionary::word_encoding::{
         JPreprocessDictionaryWordEncoding, LinderaUserDictionaryWordEncoding,
     };
@@ -92,8 +90,8 @@ mod tests {
         let input_file = PathBuf::from("./test.csv");
 
         let builder =
-            lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new();
-        let user_dict = builder.build_user_dict(&input_file).unwrap();
+            lindera_dictionary::dictionary_builder::user_dictionary::UserDictionaryBuilderOptions::default().builder().unwrap();
+        let user_dict = builder.build(&input_file).unwrap();
 
         let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoding>(&user_dict.dict)?;
 
