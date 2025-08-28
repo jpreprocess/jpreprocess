@@ -43,23 +43,9 @@ where
                     .with_error(anyhow::anyhow!(err))
                     .add_context("Failed to encode word details")
             })?;
-        let encoded_details_len = u32::try_from(encoded_details.len()).map_err(|err| {
-            LinderaErrorKind::Serialize
-                .with_error(anyhow::anyhow!(err))
-                .add_context(format!(
-                    "Word details length too large: {} bytes",
-                    encoded_details.len()
-                ))
-        })?;
 
         // Write to dict.words buffer
-        dict_words_buffer
-            .write_u32::<LittleEndian>(encoded_details_len)
-            .map_err(|err| {
-                LinderaErrorKind::Serialize
-                    .with_error(anyhow::anyhow!(err))
-                    .add_context("Failed to write word details length to dict.words buffer")
-            })?;
+        // Unlike lindera dictionary, jpreprocess dictionary does not write the length of encoded details to reduce memory consumption.
         dict_words_buffer
             .write_all(&encoded_details)
             .map_err(|err| {

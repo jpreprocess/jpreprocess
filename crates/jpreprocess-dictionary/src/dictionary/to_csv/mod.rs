@@ -28,12 +28,11 @@ pub fn dict_to_csv<E: DictionaryWordEncoding>(
 
     Ok(rows
         .into_iter()
-        .enumerate()
-        .map(|(i, (string, word_entry))| {
+        .map(|(string, word_entry)| {
             let word_data = get_word_data(
                 &prefix_dictionary.words_idx_data,
                 &prefix_dictionary.words_data,
-                Some(i),
+                Some(word_entry.word_id.id as usize),
             )
             .unwrap();
             let details = E::decode(string.clone(), word_data).unwrap();
