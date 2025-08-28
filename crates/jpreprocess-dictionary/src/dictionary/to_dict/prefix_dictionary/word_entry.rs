@@ -71,7 +71,9 @@ pub fn generate_double_array(
 }
 
 /// Generate values (dict.vals)
-pub fn generate_values(word_entry_map: &BTreeMap<String, Vec<WordEntry>>) -> LinderaResult<Vec<u8>> {
+pub fn generate_values(
+    word_entry_map: &BTreeMap<String, Vec<WordEntry>>,
+) -> LinderaResult<Vec<u8>> {
     let mut dict_vals_buffer = Vec::new();
     for word_entries in word_entry_map.values() {
         for word_entry in word_entries {

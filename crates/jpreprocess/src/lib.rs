@@ -8,12 +8,9 @@
 //! use jpreprocess::*;
 //!
 //! # fn main() -> Result<(), Box<dyn Error>> {
-//! #     let path = PathBuf::from("../../tests/data/min-dict");
-//! let config = JPreprocessConfig {
-//!      dictionary: SystemDictionaryConfig::File(path),
-//!      user_dictionary: None,
-//!  };
-//! let jpreprocess = JPreprocess::from_config(config)?;
+//! # let path = PathBuf::from("../../tests/data/min-dict");
+//! let system = SystemDictionaryConfig::File(path).load()?;
+//! let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
 //!
 //! let jpcommon_label = jpreprocess
 //!     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
@@ -46,6 +43,7 @@ mod dictionary;
 mod normalize_text;
 
 pub use dictionary::*;
+use lindera::dictionary::load_user_dictionary_from_bin;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
@@ -55,7 +53,6 @@ pub use lindera::dictionary::UserDictionaryConfig;
 pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
 
 use jpreprocess_core::*;
-use lindera::dictionary::load_user_dictionary_from_config;
 
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,
@@ -67,12 +64,48 @@ pub struct JPreprocess<T: Tokenizer> {
 }
 
 impl JPreprocess<DefaultTokenizer> {
+    /// > [!WARNING]
+    /// > 1. This function is deprecated and will be removed in a future version. Use [`with_dictionaries`] instead.
+    /// > 2. Meanwhile, this function will continue to work, but it cannot load CSV-type user dictionaries.
+    ///
     /// Loads the dictionary from JPreprocessConfig.
     ///
     /// This supports importing files and built-in dictionary (needs feature).
     /// If you need to import from data, please use [`with_dictionaries`] instead.
     ///
     /// [`with_dictionaries`]: #method.with_dictionaries
+    #[deprecated(since = "0.13.0", note = "Use `with_dictionaries` instead")]
+    pub fn from_config(config: JPreprocessConfig) -> JPreprocessResult<Self> {
+        let dictionary = config.dictionary.load()?;
+
+        let user_dictionary = match config.user_dictionary {
+            Some(user_dict_conf) => {
+                let path = user_dict_conf
+                    .get("path")
+                    .and_then(|path_value| path_value.as_str())
+                    .map(|s| std::path::PathBuf::from(s))
+                    .ok_or_else(|| {
+                        JPreprocessError::DictionaryError(
+                            error::DictionaryError::UserDictionaryNotProvided,
+                        )
+                    })?;
+
+                match path.extension().and_then(|ext| ext.to_str()) {
+                    Some("bin") => Some(load_user_dictionary_from_bin(&path)?),
+                    _ => {
+                        eprintln!("CSV-type user dictionary can no longer be loaded with `JPreprocess::from_config` since JPreprocess v0.13.0. Please use `JPreprocess::with_dictionaries` instead.");
+                        eprintln!("Skipping user dictionary loading.");
+                        None
+                    }
+                }
+            }
+            None => None,
+        };
+
+        Ok(Self::with_dictionaries(dictionary, user_dictionary))
+    }
+
+    /// Creates JPreprocess with provided dictionary data.
     ///
     /// ## Example 1: Load from file
     ///
@@ -83,12 +116,8 @@ impl JPreprocess<DefaultTokenizer> {
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("../../tests/data/min-dict");
-    ///  let config = JPreprocessConfig {
-    ///      dictionary: SystemDictionaryConfig::File(path),
-    ///      user_dictionary: None,
-    ///  };
-    /// let jpreprocess = JPreprocess::from_config(config)?;
-    /// #
+    /// let system = SystemDictionaryConfig::File(path).load()?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
     /// #     Ok(())
     /// # }
     /// ```
@@ -101,29 +130,13 @@ impl JPreprocess<DefaultTokenizer> {
     ///
     /// # #[cfg(feature = "naist-jdic")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    ///  let config = JPreprocessConfig {
-    ///      dictionary: SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic),
-    ///      user_dictionary: None,
-    ///  };
-    /// let jpreprocess = JPreprocess::from_config(config)?;
-    /// #
+    /// let system = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic).load()?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
     /// #     Ok(())
     /// # }
     /// # #[cfg(not(feature = "naist-jdic"))]
     /// # fn main() {}
     /// ```
-    pub fn from_config(config: JPreprocessConfig) -> JPreprocessResult<Self> {
-        let dictionary = config.dictionary.load()?;
-
-        let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => Some(load_user_dictionary_from_config(&user_dict_conf)?),
-            None => None,
-        };
-
-        Ok(Self::with_dictionaries(dictionary, user_dictionary))
-    }
-
-    /// Creates JPreprocess with provided dictionary data.
     pub fn with_dictionaries(
         dictionary: Dictionary,
         user_dictionary: Option<UserDictionary>,
@@ -157,12 +170,9 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// use jpreprocess_jpcommon::*;
     ///
     /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("../../tests/data/min-dict");
-    /// #  let config = JPreprocessConfig {
-    /// #      dictionary: SystemDictionaryConfig::File(path),
-    /// #      user_dictionary: None,
-    /// #  };
-    /// let jpreprocess = JPreprocess::from_config(config)?;
+    /// # let path = PathBuf::from("../../tests/data/min-dict");
+    /// let system = SystemDictionaryConfig::File(path).load()?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
     ///
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();

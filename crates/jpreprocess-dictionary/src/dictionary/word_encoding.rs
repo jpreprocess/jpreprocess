@@ -86,6 +86,6 @@ impl DictionaryWordEncoding for LinderaUserDictionaryWordEncoding {
     }
 
     fn decode(_string: String, data: &[u8]) -> LinderaResult<Vec<String>> {
-        bincode::deserialize(data).map_err(|err| LinderaErrorKind::Deserialize.with_error(err))
+        LinderaSystemDictionaryWordEncoding::decode(_string, data)
     }
 }

@@ -55,23 +55,21 @@ pub struct DefaultParser {
 }
 
 impl DefaultParser {
-    /// Get common field value by type
-    fn get_common_field_value(
-        &self,
-        row: &StringRecord,
-        field: lindera_dictionary::dictionary::schema::CommonField,
-    ) -> Option<String> {
-        let index = self.schema.get_common_field_index(field);
+    /// Get field value
+    fn get_field_value(&self, row: &StringRecord, field_name: &str) -> Option<String> {
+        if let Some(index) = self.schema.get_field_index(field_name) {
+            if index >= row.len() {
+                return None;
+            }
 
-        if index >= row.len() {
-            return None;
-        }
-
-        let value = row[index].trim();
-        if value.is_empty() {
-            None
+            let value = row[index].trim();
+            if value.is_empty() {
+                None
+            } else {
+                Some(value.to_string())
+            }
         } else {
-            Some(value.to_string())
+            None
         }
     }
 }
@@ -79,10 +77,7 @@ impl DefaultParser {
 impl CSVParser for DefaultParser {
     fn surface(&self, row: &StringRecord) -> Result<String, CSVParseError> {
         let surface = self
-            .get_common_field_value(
-                row,
-                lindera_dictionary::dictionary::schema::CommonField::Surface,
-            )
+            .get_field_value(row, "surface")
             .ok_or(CSVParseError::FieldNotFound(CSVField::Surface))?;
         if self.normalize_details {
             Ok(normalize(&surface))
@@ -94,10 +89,7 @@ impl CSVParser for DefaultParser {
     /// Parse word cost using schema
     fn cost(&self, row: &StringRecord) -> Result<i16, CSVParseError> {
         let cost_str = self
-            .get_common_field_value(
-                row,
-                lindera_dictionary::dictionary::schema::CommonField::Cost,
-            )
+            .get_field_value(row, "cost")
             .ok_or(CSVParseError::FieldNotFound(CSVField::Cost))?;
         match i16::from_str(&cost_str) {
             Ok(cost) => Ok(cost),
@@ -114,10 +106,7 @@ impl CSVParser for DefaultParser {
     /// Parse left context ID using schema
     fn left_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError> {
         let left_id_str = self
-            .get_common_field_value(
-                row,
-                lindera_dictionary::dictionary::schema::CommonField::LeftContextId,
-            )
+            .get_field_value(row, "left_context_id")
             .ok_or(CSVParseError::FieldNotFound(CSVField::LeftContextId))?;
         match u16::from_str(&left_id_str) {
             Ok(id) => Ok(id),
@@ -137,10 +126,7 @@ impl CSVParser for DefaultParser {
     /// Parse right context ID using schema
     fn right_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError> {
         let right_id_str = self
-            .get_common_field_value(
-                row,
-                lindera_dictionary::dictionary::schema::CommonField::RightContextId,
-            )
+            .get_field_value(row, "right_context_id")
             .ok_or(CSVParseError::FieldNotFound(CSVField::RightContextId))?;
         match u16::from_str(&right_id_str) {
             Ok(id) => Ok(id),

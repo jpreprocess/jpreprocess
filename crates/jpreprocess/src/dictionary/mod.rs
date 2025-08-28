@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::JPreprocessResult;
-use lindera::dictionary::load_dictionary_from_path;
+use lindera::dictionary::load_fs_dictionary;
 use lindera_dictionary::dictionary::Dictionary;
 
 pub mod kind;
@@ -23,7 +23,7 @@ impl SystemDictionaryConfig {
     pub fn load(self) -> JPreprocessResult<Dictionary> {
         let dictionary = match self {
             Self::Bundled(kind) => kind.load(),
-            Self::File(dictionary_path) => load_dictionary_from_path(dictionary_path.as_path())?,
+            Self::File(dictionary_path) => load_fs_dictionary(dictionary_path.as_path())?,
         };
 
         Ok(dictionary)

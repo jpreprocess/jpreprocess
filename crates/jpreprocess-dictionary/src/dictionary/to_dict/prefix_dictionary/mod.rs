@@ -65,6 +65,10 @@ pub struct CSVReader {
 
 /// Get encoding configuration
 fn get_encoding(encoding_str: &str) -> Result<&'static Encoding, CSVReaderOptionsError> {
+    if encoding_str.is_empty() {
+        return Ok(UTF_8);
+    }
+
     Encoding::for_label_no_replacement(encoding_str.as_bytes()).ok_or_else(|| {
         CSVReaderOptionsError::ValidationError(format!("Invalid encoding: {}", encoding_str))
     })

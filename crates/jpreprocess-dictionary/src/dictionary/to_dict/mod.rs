@@ -29,7 +29,6 @@ const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
 const COMPRESS_ALGORITHM: Algorithm = Algorithm::Raw;
-const UNK_FIELDS_NUM: usize = 11;
 
 pub struct JPreprocessDictionaryBuilder {}
 
@@ -87,7 +86,6 @@ impl JPreprocessDictionaryBuilder {
     ) -> LinderaResult<()> {
         UnknownDictionaryBuilderOptions::default()
             .compress_algorithm(COMPRESS_ALGORITHM)
-            .unk_fields_num(UNK_FIELDS_NUM)
             .builder()
             .unwrap()
             .build(input_dir, chardef, output_dir)
