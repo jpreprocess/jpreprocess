@@ -156,11 +156,13 @@ impl CSVParser for DefaultParser {
 #[builder(build_fn(name = "builder"))]
 pub struct UserDictionaryParser {
     #[builder(default = "3")]
-    simple_userdic_fields_num: usize,
+    user_dictionary_fields_num: usize,
     #[builder(default = "-10000")]
-    simple_word_cost: i16,
+    default_word_cost: i16,
     #[builder(default = "0")]
-    simple_context_id: u16,
+    default_left_context_id: u16,
+    #[builder(default = "0")]
+    default_right_context_id: u16,
 }
 
 impl CSVParser for UserDictionaryParser {
@@ -172,8 +174,8 @@ impl CSVParser for UserDictionaryParser {
     }
 
     fn cost(&self, row: &StringRecord) -> Result<i16, CSVParseError> {
-        if row.len() == self.simple_userdic_fields_num {
-            Ok(self.simple_word_cost)
+        if row.len() == self.user_dictionary_fields_num {
+            Ok(self.default_word_cost)
         } else {
             let column = row
                 .get(3)
@@ -185,8 +187,8 @@ impl CSVParser for UserDictionaryParser {
     }
 
     fn left_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError> {
-        if row.len() == self.simple_userdic_fields_num {
-            Ok(self.simple_context_id)
+        if row.len() == self.user_dictionary_fields_num {
+            Ok(self.default_left_context_id)
         } else {
             let column = row
                 .get(1)
@@ -198,8 +200,8 @@ impl CSVParser for UserDictionaryParser {
     }
 
     fn right_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError> {
-        if row.len() == self.simple_userdic_fields_num {
-            Ok(self.simple_context_id)
+        if row.len() == self.user_dictionary_fields_num {
+            Ok(self.default_right_context_id)
         } else {
             let column = row
                 .get(2)
@@ -211,7 +213,7 @@ impl CSVParser for UserDictionaryParser {
     }
 
     fn details(&self, row: &StringRecord) -> Result<Vec<String>, CSVParseError> {
-        if row.len() == self.simple_userdic_fields_num {
+        if row.len() == self.user_dictionary_fields_num {
             let details = row.iter().skip(1).map(|s| s.to_string()).collect();
             Ok(details)
         } else {

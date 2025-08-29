@@ -1,11 +1,10 @@
 use std::{fs, path::Path};
 
 use lindera_dictionary::{
-    decompress::Algorithm,
-    dictionary::{character_definition::CharacterDefinition, UserDictionary},
+    dictionary::{character_definition::CharacterDefinition, metadata::Metadata, UserDictionary},
     dictionary_builder::{
         character_definition::CharacterDefinitionBuilderOptions,
-        connection_cost_matrix::ConnectionCostMatrixBuilderOptions,
+        connection_cost_matrix::ConnectionCostMatrixBuilderOptions, metadata::MetadataBuilder,
         unknown_dictionary::UnknownDictionaryBuilderOptions,
         user_dictionary::build_user_dictionary,
     },
@@ -28,13 +27,16 @@ mod prefix_dictionary;
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
-const COMPRESS_ALGORITHM: Algorithm = Algorithm::Raw;
 
-pub struct JPreprocessDictionaryBuilder {}
+pub struct JPreprocessDictionaryBuilder {
+    metadata: Metadata,
+}
 
 impl JPreprocessDictionaryBuilder {
     pub fn new() -> Self {
-        JPreprocessDictionaryBuilder {}
+        Self {
+            metadata: Metadata::default(),
+        }
     }
 }
 
@@ -49,12 +51,17 @@ impl JPreprocessDictionaryBuilder {
         fs::create_dir_all(output_dir)
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
 
+        self.build_metadata(output_dir)?;
         let chardef = self.build_character_definition(input_dir, output_dir)?;
         self.build_unknown_dictionary(input_dir, &chardef, output_dir)?;
         self.build_prefix_dictionary(input_dir, output_dir)?;
         self.build_connection_cost_matrix(input_dir, output_dir)?;
 
         Ok(())
+    }
+
+    pub fn build_metadata(&self, output_dir: &Path) -> LinderaResult<()> {
+        MetadataBuilder::new().build(&self.metadata, output_dir)
     }
 
     pub fn build_user_dictionary(
@@ -72,7 +79,8 @@ impl JPreprocessDictionaryBuilder {
         output_dir: &Path,
     ) -> LinderaResult<CharacterDefinition> {
         CharacterDefinitionBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
@@ -85,7 +93,8 @@ impl JPreprocessDictionaryBuilder {
         output_dir: &Path,
     ) -> LinderaResult<()> {
         UnknownDictionaryBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, chardef, output_dir)
@@ -96,17 +105,26 @@ impl JPreprocessDictionaryBuilder {
         input_dir: &Path,
         output_dir: &Path,
     ) -> LinderaResult<()> {
-        let reader = CSVReaderOptions::default().builder().unwrap();
+        let reader = CSVReaderOptions::default()
+            .flexible_csv(self.metadata.flexible_csv)
+            .encoding(self.metadata.encoding.clone())
+            .normalize_details(self.metadata.normalize_details)
+            .builder()
+            .unwrap();
         let rows = reader.load_csv_data(input_dir)?;
 
-        let parser = DefaultParserOptions::default().builder().unwrap();
-        let compress_algorithm = COMPRESS_ALGORITHM;
+        let parser = DefaultParserOptions::default()
+            .skip_invalid_cost_or_id(self.metadata.skip_invalid_cost_or_id)
+            .schema(self.metadata.dictionary_schema.clone())
+            .normalize_details(self.metadata.normalize_details)
+            .builder()
+            .unwrap();
 
         write_prefix_dictionary::<DefaultParser, JPreprocessDictionaryWordEncoding>(
             &parser,
             &rows,
             output_dir,
-            compress_algorithm,
+            self.metadata.compress_algorithm,
         )
     }
 
@@ -116,20 +134,25 @@ impl JPreprocessDictionaryBuilder {
         output_dir: &Path,
     ) -> LinderaResult<()> {
         ConnectionCostMatrixBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
     }
 
     pub fn build_user_dict(&self, input_file: &Path) -> LinderaResult<UserDictionary> {
-        let reader = CSVReaderOptions::default().builder().unwrap();
+        let reader = CSVReaderOptions::default()
+            .flexible_csv(self.metadata.flexible_csv)
+            .builder()
+            .unwrap();
         let rows = reader.read_csv_files(&[input_file.to_path_buf()])?;
 
         let parser = UserDictionaryParserOptions::default()
-            .simple_userdic_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
-            .simple_context_id(SIMPLE_CONTEXT_ID)
-            .simple_word_cost(SIMPLE_WORD_COST)
+            .user_dictionary_fields_num(self.metadata.user_dictionary_schema.field_count())
+            .default_word_cost(self.metadata.default_word_cost)
+            .default_left_context_id(self.metadata.default_left_context_id)
+            .default_right_context_id(self.metadata.default_right_context_id)
             .builder()
             .unwrap();
 
@@ -149,9 +172,10 @@ pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDict
         .collect::<Vec<_>>();
 
     let parser = UserDictionaryParserOptions::default()
-        .simple_userdic_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
-        .simple_context_id(SIMPLE_CONTEXT_ID)
-        .simple_word_cost(SIMPLE_WORD_COST)
+        .user_dictionary_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
+        .default_left_context_id(SIMPLE_CONTEXT_ID)
+        .default_right_context_id(SIMPLE_CONTEXT_ID)
+        .default_word_cost(SIMPLE_WORD_COST)
         .builder()
         .unwrap();
 

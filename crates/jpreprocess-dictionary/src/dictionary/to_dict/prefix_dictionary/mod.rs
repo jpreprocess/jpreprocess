@@ -57,7 +57,7 @@ pub struct CSVReader {
     #[builder(default = "true")]
     flexible_csv: bool,
     /* If set to UTF-8, it can also read UTF-16 files with BOM. */
-    #[builder(field(ty = "&'static str", build = "get_encoding(self.encoding)?"))]
+    #[builder(field(ty = "String", build = "get_encoding(&self.encoding)?"))]
     encoding: &'static Encoding,
     #[builder(default = "false")]
     normalize_details: bool,
