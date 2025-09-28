@@ -10,23 +10,22 @@ pub trait DictionaryWordEncoding: Sized {
 
 pub struct JPreprocessDictionaryWordEncoding;
 impl JPreprocessDictionaryWordEncoding {
-    pub fn serialize(data: &jpreprocess_core::word_entry::WordEntry) -> bincode::Result<Vec<u8>> {
-        use bincode::Options;
-        Self::bincode_option().serialize(data)
+    pub fn serialize(
+        data: &jpreprocess_core::word_entry::WordEntry,
+    ) -> Result<Vec<u8>, bincode::error::EncodeError> {
+        bincode::serde::encode_to_vec(data, Self::bincode_option())
     }
-    pub fn deserialize(data: &[u8]) -> bincode::Result<jpreprocess_core::word_entry::WordEntry> {
-        use bincode::Options;
-        Self::bincode_option().deserialize(data)
+    pub fn deserialize(
+        data: &[u8],
+    ) -> Result<jpreprocess_core::word_entry::WordEntry, bincode::error::DecodeError> {
+        let (decoded, _size) = bincode::serde::decode_from_slice(data, Self::bincode_option())?;
+        Ok(decoded)
     }
 
-    fn bincode_option() -> impl bincode::Options {
-        use bincode::Options;
-
-        bincode::config::DefaultOptions::new()
+    fn bincode_option() -> bincode::config::Configuration {
+        bincode::config::standard()
             .with_no_limit()
             .with_little_endian()
-            .with_varint_encoding()
-            .allow_trailing_bytes()
     }
 }
 impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
