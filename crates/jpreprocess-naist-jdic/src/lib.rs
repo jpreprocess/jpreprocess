@@ -1,2 +1,2 @@
-// #[cfg(feature = "naist-jdic")]
+#[cfg(feature = "naist-jdic")]
 pub mod lindera;
