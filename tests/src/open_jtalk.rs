@@ -38,11 +38,7 @@ fn test_one(input_text: &'static str) {
     #[cfg(not(feature = "naist-jdic"))]
     let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
-    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
-        dictionary: config,
-        user_dictionary: None,
-    })
-    .unwrap();
+    let jpreprocess = JPreprocess::with_dictionaries(config.load().unwrap(), None);
 
     let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
 
