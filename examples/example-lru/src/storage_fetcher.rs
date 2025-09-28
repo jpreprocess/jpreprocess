@@ -12,7 +12,7 @@ use jpreprocess_dictionary::{
     dictionary::word_encoding::JPreprocessDictionaryWordEncoding,
     tokenizer::{Token, Tokenizer},
 };
-use lindera_dictionary::dictionary::Dictionary;
+use lindera_dictionary::{dictionary::Dictionary, dictionary_loader::metadata::MetadataLoader};
 use lru::LruCache;
 
 pub struct LruTokenizer {
@@ -80,6 +80,8 @@ fn load_dictionary(path: &Path) -> Dictionary {
         util::read_file,
     };
 
+    let metadata = MetadataLoader::load(path).unwrap();
+
     let da_data = read_file(path.join("dict.da").as_path()).unwrap();
     let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
 
@@ -92,6 +94,7 @@ fn load_dictionary(path: &Path) -> Dictionary {
     );
 
     Dictionary {
+        metadata,
         prefix_dictionary,
         connection_cost_matrix: ConnectionCostMatrixLoader::load(path).unwrap(),
         character_definition: CharacterDefinitionLoader::load(path).unwrap(),

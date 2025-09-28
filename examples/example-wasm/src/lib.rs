@@ -1,6 +1,6 @@
 use lindera_dictionary::dictionary::{
     character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
-    prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary,
+    metadata::Metadata, prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -8,6 +8,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(typescript_custom_section)]
 const TYPESCRIPT: &'static str = r#"
 interface Dictionary {
+  metadata: Metadata,
   dict_da: Uint8Array,
   dict_vals: Uint8Array,
   cost_matrix: Uint8Array,
@@ -17,6 +18,7 @@ interface Dictionary {
   words_data: Uint8Array,
 }
 interface UserDictionary {
+  metadata: Metadata,
   dict_da: Uint8Array,
   dict_vals: Uint8Array,
   words_idx_data: Uint8Array,
@@ -26,6 +28,7 @@ interface UserDictionary {
 
 #[derive(Serialize, Deserialize)]
 struct JsDictionary {
+    metadata: Metadata,
     dict_da: Vec<u8>,
     dict_vals: Vec<u8>,
     cost_matrix: Vec<u8>,
@@ -39,6 +42,7 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
     type Error = lindera::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
+            metadata: Metadata::default(),
             prefix_dictionary: PrefixDictionary::load(
                 value.dict_da,
                 value.dict_vals,
@@ -56,6 +60,7 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
 
 #[derive(Serialize, Deserialize)]
 struct JsUserDictionary {
+    metadata: Metadata,
     dict_da: Vec<u8>,
     dict_vals: Vec<u8>,
     words_idx_data: Vec<u8>,
