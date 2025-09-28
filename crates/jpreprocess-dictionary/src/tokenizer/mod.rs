@@ -29,6 +29,6 @@ impl Token for lindera::token::Token<'_> {
             WordEntry::load(&details)?
         };
 
-        Ok((&self.text, entry))
+        Ok((&self.surface, entry))
     }
 }

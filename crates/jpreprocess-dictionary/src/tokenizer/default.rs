@@ -56,7 +56,7 @@ impl Tokenizer for DefaultTokenizer {
                     match self.system {
                         TokenizerType::JPreprocessTokenizer => {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
-                                token.text,
+                                token.surface,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
                                     &token.dictionary.prefix_dictionary,
                                     token.word_id,
@@ -69,7 +69,7 @@ impl Tokenizer for DefaultTokenizer {
                     match self.user {
                         Some(TokenizerType::JPreprocessTokenizer) => {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
-                                token.text,
+                                token.surface,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
                                     &token.user_dictionary.as_ref().unwrap().dict,
                                     token.word_id,

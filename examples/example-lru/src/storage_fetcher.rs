@@ -50,7 +50,7 @@ impl Tokenizer for LruTokenizer {
             };
 
             tokens.push(LruToken {
-                text: token.text,
+                text: token.surface,
                 entry,
             });
         }
