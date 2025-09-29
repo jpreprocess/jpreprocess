@@ -9,8 +9,8 @@ use jpreprocess_dictionary::dictionary::{
         LinderaUserDictionaryWordEncoding,
     },
 };
-use lindera::dictionary::{load_dictionary_from_path, load_user_dictionary_from_bin};
-use lindera_dictionary::dictionary_builder::DictionaryBuilder;
+use lindera::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
+use lindera_dictionary::{dictionary::metadata::Metadata, dictionary_builder::DictionaryBuilder};
 
 use crate::dict_query::QueryDict;
 
@@ -86,7 +86,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             if is_system_dict || is_user_bin_dict {
                 let dict = if is_system_dict {
                     println!("Lindera/JPreprocess system dictionary.");
-                    let dict = load_dictionary_from_path(&input)?;
+                    let dict = load_fs_dictionary(&input)?;
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
@@ -140,22 +140,28 @@ fn main() -> Result<(), Box<dyn Error>> {
             input,
             output,
         } => {
-            let builder: Box<dyn DictionaryBuilder> = match serializer_config {
+            println!("Building dictionary...");
+            match serializer_config {
                 Serializer::Lindera => {
-                    Box::new(lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new())
-                }
-                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder::new()),
-            };
+                    let builder = DictionaryBuilder::new(Metadata::default());
 
-            if user {
-                println!("Building user dictionary...");
-                builder.build_user_dictionary(&input, &output)?;
-                println!("done.");
-            } else {
-                println!("Building system dictionary...");
-                builder.build_dictionary(&input, &output)?;
-                println!("done.");
+                    if user {
+                        builder.build_user_dictionary(&input, &output)?;
+                    } else {
+                        builder.build_dictionary(&input, &output)?;
+                    }
+                }
+                Serializer::Jpreprocess => {
+                    let builder = JPreprocessDictionaryBuilder::new();
+
+                    if user {
+                        builder.build_user_dictionary(&input, &output)?;
+                    } else {
+                        builder.build_dictionary(&input, &output)?;
+                    }
+                }
             }
+            println!("done.");
         }
         Commands::Csv {
             user,
@@ -173,7 +179,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Loading dictionary...");
             let dict = if !user {
-                let dict = load_dictionary_from_path(&input)?;
+                let dict = load_fs_dictionary(&input)?;
                 QueryDict::System(dict)
             } else {
                 if input.extension().unwrap() != "bin" {
