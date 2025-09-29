@@ -20,6 +20,14 @@ where
     let mut dict_words_buffer = Vec::new();
     let mut dict_wordsidx_buffer = Vec::new();
 
+    dict_words_buffer
+        .write_all(b"jpreprocess\0")
+        .map_err(|err| {
+            LinderaErrorKind::Io
+                .with_error(anyhow::anyhow!(err))
+                .add_context("Failed to write dictionary identifier to dict.words buffer")
+        })?;
+
     for row in rows.iter() {
         let offset = dict_words_buffer.len();
         dict_wordsidx_buffer
