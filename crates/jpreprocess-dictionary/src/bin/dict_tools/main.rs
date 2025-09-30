@@ -10,7 +10,7 @@ use jpreprocess_dictionary::dictionary::{
     },
 };
 use lindera::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
-use lindera_dictionary::{dictionary::metadata::Metadata, dictionary_builder::DictionaryBuilder};
+use lindera_dictionary::{builder::DictionaryBuilder, dictionary::metadata::Metadata};
 
 use crate::dict_query::QueryDict;
 
@@ -143,7 +143,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("Building dictionary...");
             match serializer_config {
                 Serializer::Lindera => {
-                    let builder = DictionaryBuilder::new(Metadata::default());
+                    let builder = DictionaryBuilder::new(Metadata {
+                        name: "IPADIC".to_string(),
+                        encoding: "UTF-8".to_string(),
+                        compress_algorithm: lindera_dictionary::decompress::Algorithm::Raw,
+                        ..Default::default()
+                    });
 
                     if user {
                         builder.build_user_dictionary(&input, &output)?;

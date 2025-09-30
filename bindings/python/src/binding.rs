@@ -7,8 +7,8 @@ use jpreprocess_jpcommon::njdnodes_to_features;
 use jpreprocess_njd::NJDNode;
 
 use lindera_dictionary::{
-    dictionary::metadata::Metadata, dictionary_builder::DictionaryBuilder,
-    dictionary_loader::user_dictionary::UserDictionaryLoader,
+    builder::DictionaryBuilder, dictionary::metadata::Metadata,
+    loader::user_dictionary::UserDictionaryLoader,
 };
 use pyo3::prelude::*;
 

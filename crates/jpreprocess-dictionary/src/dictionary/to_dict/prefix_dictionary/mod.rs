@@ -33,6 +33,7 @@ use encoding_rs::{Encoding, UTF_8};
 use encoding_rs_io::DecodeReaderBytesBuilder;
 use glob::glob;
 use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
+use lindera_dictionary::viterbi::LexType;
 use log::debug;
 
 use lindera_dictionary::decompress::Algorithm;
@@ -180,7 +181,7 @@ pub fn write_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     output_dir: &Path,
     compress_algorithm: Algorithm,
 ) -> LinderaResult<()> {
-    let word_entry_map = build_word_entry_map(parser, rows)?;
+    let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
     // Write dict.da
     let mut dict_da_writer = File::create(output_dir.join("dict.da")).map_err(|err| {
@@ -224,7 +225,7 @@ pub fn generate_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     rows: &[StringRecord],
     is_system: bool,
 ) -> LinderaResult<PrefixDictionary> {
-    let word_entry_map = build_word_entry_map(parser, rows)?;
+    let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
     let da = generate_double_array(&word_entry_map)?;
     let vals = generate_values(&word_entry_map)?;

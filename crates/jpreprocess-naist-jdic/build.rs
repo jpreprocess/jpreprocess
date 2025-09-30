@@ -46,7 +46,10 @@ mod fetch_dictionary {
         let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
         let dict_dir = out_dir.join("naist-jdic");
 
-        println!("cargo::rustc-env=JPREPROCESS_WORKDIR={}", dict_dir.display());
+        println!(
+            "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
+            dict_dir.display()
+        );
 
         if !force_build {
             println!("Attempting to download prebuilt naist-jdic...");

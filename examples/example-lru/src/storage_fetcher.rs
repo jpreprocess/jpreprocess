@@ -12,7 +12,7 @@ use jpreprocess_dictionary::{
     dictionary::word_encoding::JPreprocessDictionaryWordEncoding,
     tokenizer::{Token, Tokenizer},
 };
-use lindera_dictionary::{dictionary::Dictionary, dictionary_loader::metadata::MetadataLoader};
+use lindera_dictionary::{dictionary::Dictionary, loader::metadata::MetadataLoader};
 use lru::LruCache;
 
 pub struct LruTokenizer {
@@ -72,7 +72,7 @@ impl Token for LruToken<'_> {
 fn load_dictionary(path: &Path) -> Dictionary {
     use lindera_dictionary::{
         dictionary::prefix_dictionary::PrefixDictionary,
-        dictionary_loader::{
+        loader::{
             character_definition::CharacterDefinitionLoader,
             connection_cost_matrix::ConnectionCostMatrixLoader,
             unknown_dictionary::UnknownDictionaryLoader,

@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use csv::StringRecord;
 use lindera_dictionary::{
     error::LinderaErrorKind,
-    viterbi::{WordEntry, WordId},
+    viterbi::{LexType, WordEntry, WordId},
     LinderaResult,
 };
 use yada::builder::DoubleArrayBuilder;
@@ -14,6 +14,7 @@ use super::parser::CSVParser;
 pub fn build_word_entry_map<P: CSVParser>(
     parser: &P,
     rows: &[StringRecord],
+    lex_type: LexType,
 ) -> LinderaResult<BTreeMap<String, Vec<WordEntry>>> {
     let mut word_entry_map: BTreeMap<String, Vec<WordEntry>> = BTreeMap::new();
 
@@ -31,10 +32,7 @@ pub fn build_word_entry_map<P: CSVParser>(
         };
 
         word_entry_map.entry(surface).or_default().push(WordEntry {
-            word_id: WordId {
-                id: row_id as u32,
-                is_system: true,
-            },
+            word_id: WordId::new(lex_type, row_id as u32),
             word_cost,
             left_id,
             right_id,

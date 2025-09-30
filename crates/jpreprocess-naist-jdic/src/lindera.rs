@@ -7,31 +7,21 @@ use lindera_dictionary::{
     LinderaResult,
 };
 
-const METADATA_DATA: &[u8] = include_bytes!(concat!(
-    env!("JPREPROCESS_WORKDIR"),
-    "/metadata.json"
-));
+const METADATA_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/metadata.json"));
 
 const CHAR_DEFINITION_DATA: &[u8] =
     include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/char_def.bin"));
-const CONNECTION_DATA: &[u8] =
-    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/matrix.mtx"));
+const CONNECTION_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/matrix.mtx"));
 const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.da"));
-const IPADIC_VALS: &[u8] =
-    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.vals"));
+const IPADIC_VALS: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.vals"));
 const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/unk.bin"));
-const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(
-    env!("JPREPROCESS_WORKDIR"),
-    "/dict.wordsidx"
-));
-const WORDS_DATA: &[u8] =
-    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.words"));
+const WORDS_IDX_DATA: &[u8] =
+    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.wordsidx"));
+const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.words"));
 
 #[cfg(feature = "compress")]
 fn try_decompress(data: &[u8]) -> LinderaResult<Vec<u8>> {
-    use lindera_dictionary::{
-        decompress::{CompressedData, decompress},
-    };
+    use lindera_dictionary::decompress::{decompress, CompressedData};
     match bincode::serde::decode_from_slice::<CompressedData, _>(
         &data[..],
         bincode::config::legacy(),

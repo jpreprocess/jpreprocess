@@ -1,13 +1,13 @@
 use std::{fs, path::Path};
 
 use lindera_dictionary::{
-    dictionary::{character_definition::CharacterDefinition, metadata::Metadata, UserDictionary},
-    dictionary_builder::{
+    builder::{
         character_definition::CharacterDefinitionBuilderOptions,
         connection_cost_matrix::ConnectionCostMatrixBuilderOptions, metadata::MetadataBuilder,
         unknown_dictionary::UnknownDictionaryBuilderOptions,
         user_dictionary::build_user_dictionary,
     },
+    dictionary::{character_definition::CharacterDefinition, metadata::Metadata, UserDictionary},
     error::LinderaErrorKind,
     LinderaResult,
 };

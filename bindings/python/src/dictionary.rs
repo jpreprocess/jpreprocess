@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
-use lindera_dictionary::{dictionary::metadata::Metadata, dictionary_builder::DictionaryBuilder};
+use lindera_dictionary::{builder::DictionaryBuilder, dictionary::metadata::Metadata};
 use pyo3::{exceptions::PyAssertionError, pyfunction, PyResult};
 
 use crate::into_runtime_error;

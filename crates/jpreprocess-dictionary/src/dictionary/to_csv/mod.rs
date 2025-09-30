@@ -89,7 +89,9 @@ mod tests {
         let input_file = PathBuf::from("./test.csv");
 
         let builder =
-            lindera_dictionary::dictionary_builder::user_dictionary::UserDictionaryBuilderOptions::default().builder().unwrap();
+            lindera_dictionary::builder::user_dictionary::UserDictionaryBuilderOptions::default()
+                .builder()
+                .unwrap();
         let user_dict = builder.build(&input_file).unwrap();
 
         let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoding>(&user_dict.dict)?;
