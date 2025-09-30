@@ -24,6 +24,24 @@ interface UserDictionary {
   words_idx_data: Uint8Array,
   words_data: Uint8Array,
 }
+interface Metadata {
+  name: string;
+  encoding: string;
+  compress_algorithm: "deflate" | "zlib" | "gzip" | "raw";
+  default_word_cost: number;
+  default_left_context_id: number;
+  default_right_context_id: number;
+  default_field_value: string;
+  flexible_csv: boolean;
+  skip_invalid_cost_or_id: boolean;
+  normalize_details: boolean;
+  dictionary_schema: Schema;
+  user_dictionary_schema: Schema;
+  model_info?: any;
+}
+interface Schema {
+  fields: string[];
+}
 "#;
 
 #[derive(Serialize, Deserialize)]
