@@ -10,7 +10,7 @@
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! # let path = PathBuf::from("../../tests/data/min-dict");
 //! let system = SystemDictionaryConfig::File(path).load()?;
-//! let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
+//! let jpreprocess = JPreprocess::with_dictionaries(system, None);
 //!
 //! let jpcommon_label = jpreprocess
 //!     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
@@ -117,7 +117,7 @@ impl JPreprocess<DefaultTokenizer> {
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// #     let path = PathBuf::from("../../tests/data/min-dict");
     /// let system = SystemDictionaryConfig::File(path).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
     /// #     Ok(())
     /// # }
     /// ```
