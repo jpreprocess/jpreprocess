@@ -83,7 +83,7 @@ impl JPreprocess<DefaultTokenizer> {
                 let path = user_dict_conf
                     .get("path")
                     .and_then(|path_value| path_value.as_str())
-                    .map(|s| std::path::PathBuf::from(s))
+                    .map(std::path::PathBuf::from)
                     .ok_or_else(|| {
                         JPreprocessError::DictionaryError(
                             error::DictionaryError::UserDictionaryNotProvided,
