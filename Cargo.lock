@@ -482,6 +482,7 @@ dependencies = [
 name = "example-wasm"
 version = "0.12.0"
 dependencies = [
+ "bincode",
  "jpreprocess",
  "js-sys",
  "lindera",
