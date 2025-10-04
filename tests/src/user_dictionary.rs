@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
+use jpreprocess::{JPreprocess, SystemDictionaryConfig};
 
 #[cfg(feature = "naist-jdic")]
 use jpreprocess::kind::*;
@@ -17,11 +17,8 @@ fn system_dictionary() -> Result<(), Box<dyn Error>> {
     #[cfg(not(feature = "naist-jdic"))]
     let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
-    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
-        dictionary: config,
-        user_dictionary: None,
-    })
-    .unwrap();
+    let jpreprocess = JPreprocess::with_dictionaries(config.load()?, None);
+
     let njd = jpreprocess.text_to_njd("クーバネティス")?;
 
     assert_eq!(njd.nodes[0].get_string(), "ク");

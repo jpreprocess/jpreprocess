@@ -1,35 +1,42 @@
 use std::{fs, path::Path};
 
 use lindera_dictionary::{
-    decompress::Algorithm,
-    dictionary::{character_definition::CharacterDefinition, UserDictionary},
-    dictionary_builder::{
-        build_user_dictionary, CharacterDefinitionBuilderOptions,
-        ConnectionCostMatrixBuilderOptions, DictionaryBuilder, UnknownDictionaryBuilderOptions,
+    builder::{
+        character_definition::CharacterDefinitionBuilderOptions,
+        connection_cost_matrix::ConnectionCostMatrixBuilderOptions, metadata::MetadataBuilder,
+        unknown_dictionary::UnknownDictionaryBuilderOptions,
+        user_dictionary::build_user_dictionary,
     },
+    dictionary::{character_definition::CharacterDefinition, metadata::Metadata, UserDictionary},
     error::LinderaErrorKind,
     LinderaResult,
 };
-use prefix_dictionary::PrefixDictionaryBuilderOptions;
-use writer::{PrefixDictionaryDataWriter, PrefixDictionaryFileWriter};
+
+use crate::dictionary::to_dict::prefix_dictionary::{
+    generate_prefix_dictionary,
+    parser::{
+        DefaultParser, DefaultParserOptions, UserDictionaryParser, UserDictionaryParserOptions,
+    },
+    write_prefix_dictionary, CSVReaderOptions,
+};
 
 use super::word_encoding::JPreprocessDictionaryWordEncoding;
 
 mod prefix_dictionary;
-mod writer;
 
 const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
 const SIMPLE_WORD_COST: i16 = -10000;
 const SIMPLE_CONTEXT_ID: u16 = 0;
-// const DETAILED_USERDIC_FIELDS_NUM: usize = 13;
-const COMPRESS_ALGORITHM: Algorithm = Algorithm::Raw;
-const UNK_FIELDS_NUM: usize = 11;
 
-pub struct JPreprocessDictionaryBuilder {}
+pub struct JPreprocessDictionaryBuilder {
+    metadata: Metadata,
+}
 
 impl JPreprocessDictionaryBuilder {
     pub fn new() -> Self {
-        JPreprocessDictionaryBuilder {}
+        Self {
+            metadata: Metadata::default(),
+        }
     }
 }
 
@@ -39,11 +46,12 @@ impl Default for JPreprocessDictionaryBuilder {
     }
 }
 
-impl DictionaryBuilder for JPreprocessDictionaryBuilder {
-    fn build_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
+impl JPreprocessDictionaryBuilder {
+    pub fn build_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
         fs::create_dir_all(output_dir)
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
 
+        self.build_metadata(output_dir)?;
         let chardef = self.build_character_definition(input_dir, output_dir)?;
         self.build_unknown_dictionary(input_dir, &chardef, output_dir)?;
         self.build_prefix_dictionary(input_dir, output_dir)?;
@@ -52,149 +60,128 @@ impl DictionaryBuilder for JPreprocessDictionaryBuilder {
         Ok(())
     }
 
-    fn build_user_dictionary(&self, input_file: &Path, output_file: &Path) -> LinderaResult<()> {
+    pub fn build_metadata(&self, output_dir: &Path) -> LinderaResult<()> {
+        MetadataBuilder::new().build(&self.metadata, output_dir)
+    }
+
+    pub fn build_user_dictionary(
+        &self,
+        input_file: &Path,
+        output_file: &Path,
+    ) -> LinderaResult<()> {
         let user_dict = self.build_user_dict(input_file)?;
         build_user_dictionary(user_dict, output_file)
     }
 
-    fn build_character_definition(
+    pub fn build_character_definition(
         &self,
         input_dir: &Path,
         output_dir: &Path,
     ) -> LinderaResult<CharacterDefinition> {
         CharacterDefinitionBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
     }
 
-    fn build_unknown_dictionary(
+    pub fn build_unknown_dictionary(
         &self,
         input_dir: &Path,
         chardef: &CharacterDefinition,
         output_dir: &Path,
     ) -> LinderaResult<()> {
         UnknownDictionaryBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
-            .unk_fields_num(UNK_FIELDS_NUM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, chardef, output_dir)
     }
 
-    fn build_prefix_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
-        let pattern = if let Some(path) = input_dir.to_str() {
-            format!("{}/*.csv", path)
-        } else {
-            return Err(
-                LinderaErrorKind::Io.with_error(anyhow::anyhow!("Failed to convert path to &str."))
-            );
-        };
-
-        let mut filenames = Vec::new();
-        for entry in glob::glob(&pattern)
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?
-        {
-            match entry {
-                Ok(path) => {
-                    if let Some(filename) = path.file_name() {
-                        filenames.push(Path::new(input_dir).join(filename));
-                    } else {
-                        return Err(LinderaErrorKind::Io
-                            .with_error(anyhow::anyhow!("failed to get filename")));
-                    };
-                }
-                Err(err) => return Err(LinderaErrorKind::Content.with_error(anyhow::anyhow!(err))),
-            }
-        }
-
-        let mut rows = vec![];
-        for filename in filenames {
-            log::debug!("reading {:?}", filename);
-
-            let file = std::fs::File::open(filename)
-                .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-            let reader = Box::new(file);
-            let mut rdr = csv::ReaderBuilder::new()
-                .has_headers(false)
-                .flexible(false)
-                .from_reader(reader);
-
-            for result in rdr.records() {
-                let record = result
-                    .map_err(|err| LinderaErrorKind::Content.with_error(anyhow::anyhow!(err)))?;
-                rows.push(record);
-            }
-        }
-
-        let mut writer = PrefixDictionaryFileWriter::new(output_dir);
-
-        PrefixDictionaryBuilderOptions::default()
-            .normalize_details(true)
+    pub fn build_prefix_dictionary(
+        &self,
+        input_dir: &Path,
+        output_dir: &Path,
+    ) -> LinderaResult<()> {
+        let reader = CSVReaderOptions::default()
+            .flexible_csv(self.metadata.flexible_csv)
+            .encoding(self.metadata.encoding.clone())
+            .normalize_details(self.metadata.normalize_details)
             .builder()
-            .unwrap()
-            .build::<JPreprocessDictionaryWordEncoding, _>(rows, &mut writer)
+            .unwrap();
+        let rows = reader.load_csv_data(input_dir)?;
+
+        let parser = DefaultParserOptions::default()
+            .skip_invalid_cost_or_id(self.metadata.skip_invalid_cost_or_id)
+            .schema(self.metadata.dictionary_schema.clone())
+            .normalize_details(self.metadata.normalize_details)
+            .builder()
+            .unwrap();
+
+        write_prefix_dictionary::<DefaultParser, JPreprocessDictionaryWordEncoding>(
+            &parser,
+            &rows,
+            output_dir,
+            self.metadata.compress_algorithm,
+        )
     }
 
-    fn build_connection_cost_matrix(
+    pub fn build_connection_cost_matrix(
         &self,
         input_dir: &Path,
         output_dir: &Path,
     ) -> LinderaResult<()> {
         ConnectionCostMatrixBuilderOptions::default()
-            .compress_algorithm(COMPRESS_ALGORITHM)
+            .encoding(self.metadata.encoding.clone())
+            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
     }
 
-    fn build_user_dict(&self, input_file: &Path) -> LinderaResult<UserDictionary> {
-        let mut rdr = csv::ReaderBuilder::new()
-            .has_headers(false)
-            .flexible(true)
-            .from_path(input_file)
-            .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
-
-        let mut rows = vec![];
-        for result in rdr.records() {
-            let record =
-                result.map_err(|err| LinderaErrorKind::Content.with_error(anyhow::anyhow!(err)))?;
-            rows.push(record);
-        }
-
-        let mut writer = PrefixDictionaryDataWriter::new();
-
-        PrefixDictionaryBuilderOptions::default()
-            .is_user_dict(true)
-            .simple_userdic_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
-            .simple_word_cost(SIMPLE_WORD_COST)
-            .simple_context_id(SIMPLE_CONTEXT_ID)
+    pub fn build_user_dict(&self, input_file: &Path) -> LinderaResult<UserDictionary> {
+        let reader = CSVReaderOptions::default()
+            .flexible_csv(self.metadata.flexible_csv)
             .builder()
-            .unwrap()
-            .build::<JPreprocessDictionaryWordEncoding, _>(rows, &mut writer)?;
+            .unwrap();
+        let rows = reader.read_csv_files(&[input_file.to_path_buf()])?;
 
-        Ok(UserDictionary {
-            dict: writer.build_prefix_dictionary(false),
-        })
+        let parser = UserDictionaryParserOptions::default()
+            .user_dictionary_fields_num(self.metadata.user_dictionary_schema.field_count())
+            .default_word_cost(self.metadata.default_word_cost)
+            .default_left_context_id(self.metadata.default_left_context_id)
+            .default_right_context_id(self.metadata.default_right_context_id)
+            .builder()
+            .unwrap();
+
+        let dict = generate_prefix_dictionary::<
+            UserDictionaryParser,
+            JPreprocessDictionaryWordEncoding,
+        >(&parser, &rows, false)?;
+
+        Ok(UserDictionary { dict })
     }
 }
 
 pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDictionary> {
-    let data = data.into_iter().map(csv::StringRecord::from_iter).collect();
+    let rows = data
+        .into_iter()
+        .map(csv::StringRecord::from_iter)
+        .collect::<Vec<_>>();
 
-    let mut writer = PrefixDictionaryDataWriter::new();
-
-    PrefixDictionaryBuilderOptions::default()
-        .is_user_dict(true)
-        .simple_userdic_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
-        .simple_word_cost(SIMPLE_WORD_COST)
-        .simple_context_id(SIMPLE_CONTEXT_ID)
+    let parser = UserDictionaryParserOptions::default()
+        .user_dictionary_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
+        .default_left_context_id(SIMPLE_CONTEXT_ID)
+        .default_right_context_id(SIMPLE_CONTEXT_ID)
+        .default_word_cost(SIMPLE_WORD_COST)
         .builder()
-        .unwrap()
-        .build::<JPreprocessDictionaryWordEncoding, _>(data, &mut writer)?;
+        .unwrap();
 
-    Ok(UserDictionary {
-        dict: writer.build_prefix_dictionary(false),
-    })
+    let dict = generate_prefix_dictionary::<UserDictionaryParser, JPreprocessDictionaryWordEncoding>(
+        &parser, &rows, false,
+    )?;
+
+    Ok(UserDictionary { dict })
 }
