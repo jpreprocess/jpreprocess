@@ -131,7 +131,7 @@ impl JPreprocess<DefaultTokenizer> {
     /// # #[cfg(feature = "naist-jdic")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// let system = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None)?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
     /// #     Ok(())
     /// # }
     /// # #[cfg(not(feature = "naist-jdic"))]

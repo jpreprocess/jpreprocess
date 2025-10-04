@@ -13,8 +13,6 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-naist-jdic"
 
 [features]
-default = []
-
 naist-jdic = ["dep:tokio", "dep:reqwest", "dep:md5", "dep:flate2", "dep:tar"]
 compress = ["lindera-dictionary/compress", "dep:bincode"]
 
