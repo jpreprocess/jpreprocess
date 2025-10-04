@@ -21,7 +21,7 @@ where
     let mut dict_wordsidx_buffer = Vec::new();
 
     dict_words_buffer
-        .write_all(b"jpreprocess\0")
+        .write_all(E::identifier().as_bytes())
         .map_err(|err| {
             LinderaErrorKind::Io
                 .with_error(anyhow::anyhow!(err))
