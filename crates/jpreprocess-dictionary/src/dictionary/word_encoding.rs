@@ -35,7 +35,7 @@ impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
 
     fn encode(row: &[&str]) -> LinderaResult<Vec<u8>> {
         let mut row = row.to_vec();
-        row.resize(13, "");
+        row.resize(12, "");
         let data = jpreprocess_core::word_entry::WordEntry::load(&row)
             .map_err(|err| LinderaErrorKind::Serialize.with_error(err))?;
         Self::serialize(&data).map_err(|err| LinderaErrorKind::Serialize.with_error(err))
