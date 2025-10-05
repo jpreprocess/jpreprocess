@@ -43,8 +43,8 @@ impl WordDetails {
 
         [
             format!("{},{},{},{}", line.pos, line.pos_group1, line.pos_group2, line.pos_group3),
-            line.cform.to_string(),
             line.ctype.to_string(),
+            line.cform.to_string(),
             // Ideally, this should be `self.orig`, but jpreprocess njdnode does not have orig
             // and in most cases, orig is the same as string.
             orig,

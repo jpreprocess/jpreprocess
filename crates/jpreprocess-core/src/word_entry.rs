@@ -51,8 +51,8 @@ impl WordEntry {
 
         [
             format!("{},{},{},{}", line.pos, line.pos_group1, line.pos_group2, line.pos_group3),
-            line.cform.to_string(),
             line.ctype.to_string(),
+            line.cform.to_string(),
             line.orig.to_string(),
             line.read.to_string(),
             line.pron.to_string(),
