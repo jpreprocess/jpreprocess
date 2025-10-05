@@ -42,7 +42,10 @@ impl WordDetails {
         let line = WordDetailsLine::from(self);
 
         [
-            format!("{},{},{},{}", line.pos, line.pos_group1, line.pos_group2, line.pos_group3),
+            format!(
+                "{},{},{},{}",
+                line.pos, line.pos_group1, line.pos_group2, line.pos_group3
+            ),
             line.ctype.to_string(),
             line.cform.to_string(),
             // Ideally, this should be `self.orig`, but jpreprocess njdnode does not have orig
@@ -63,7 +66,12 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
         // orig: not used
 
         Ok(Self {
-            pos: POS::from_strs(&value.pos, &value.pos_group1, &value.pos_group2, &value.pos_group3)?,
+            pos: POS::from_strs(
+                &value.pos,
+                &value.pos_group1,
+                &value.pos_group2,
+                &value.pos_group3,
+            )?,
             ctype: CType::from_str(&value.ctype)?,
             cform: CForm::from_str(&value.cform)?,
             chain_rule: ChainRules::new(&value.chain_rule),
