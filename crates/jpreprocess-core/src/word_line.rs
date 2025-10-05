@@ -21,23 +21,6 @@ pub struct WordDetailsLine<'a> {
 }
 
 impl<'a> WordDetailsLine<'a> {
-    pub fn from_str(details: &'a str) -> Option<Self> {
-        let mut parts = details.split(',').map(Cow::from);
-        Some(Self {
-            pos: parts.next()?,
-            pos_group1: parts.next()?,
-            pos_group2: parts.next()?,
-            pos_group3: parts.next()?,
-            ctype: parts.next()?,
-            cform: parts.next()?,
-            orig: parts.next()?,
-            read: parts.next()?,
-            pron: parts.next()?,
-            acc_morasize: parts.next()?,
-            chain_rule: parts.next()?,
-            chain_flag: parts.next()?,
-        })
-    }
     pub fn from_strs(details: &[&'a str]) -> Self {
         assert_eq!(details.len(), 12, "line must have exactly 12 columns");
 
