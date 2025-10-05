@@ -1,5 +1,9 @@
 use std::{borrow::Cow, fmt::Display};
 
+/// A struct to represent a line in a word dictionary file.
+///
+/// > [!WARNING]
+/// > This struct is experimental and may change in the future.
 #[derive(Clone, PartialEq, Debug)]
 pub struct WordDetailsLine<'a> {
     pub pos: Cow<'a, str>,
