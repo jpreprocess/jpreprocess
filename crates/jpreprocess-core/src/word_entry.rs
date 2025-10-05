@@ -50,7 +50,7 @@ impl WordEntry {
         }
 
         [
-            format!("{},{},{},{}", line.pos1, line.pos2, line.pos3, line.pos4),
+            format!("{},{},{},{}", line.pos, line.pos_group1, line.pos_group2, line.pos_group3),
             line.cform.to_string(),
             line.ctype.to_string(),
             line.orig.to_string(),

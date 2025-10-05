@@ -2,10 +2,10 @@ use std::{borrow::Cow, fmt::Display};
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct WordDetailsLine<'a> {
-    pub pos1: Cow<'a, str>,
-    pub pos2: Cow<'a, str>,
-    pub pos3: Cow<'a, str>,
-    pub pos4: Cow<'a, str>,
+    pub pos: Cow<'a, str>,
+    pub pos_group1: Cow<'a, str>,
+    pub pos_group2: Cow<'a, str>,
+    pub pos_group3: Cow<'a, str>,
     pub ctype: Cow<'a, str>,
     pub cform: Cow<'a, str>,
     pub orig: Cow<'a, str>,
@@ -20,10 +20,10 @@ impl<'a> WordDetailsLine<'a> {
     pub fn from_str(details: &'a str) -> Option<Self> {
         let mut parts = details.split(',').map(Cow::from);
         Some(Self {
-            pos1: parts.next()?,
-            pos2: parts.next()?,
-            pos3: parts.next()?,
-            pos4: parts.next()?,
+            pos: parts.next()?,
+            pos_group1: parts.next()?,
+            pos_group2: parts.next()?,
+            pos_group3: parts.next()?,
             ctype: parts.next()?,
             cform: parts.next()?,
             orig: parts.next()?,
@@ -38,10 +38,10 @@ impl<'a> WordDetailsLine<'a> {
         assert_eq!(details.len(), 12, "line must have exactly 12 columns");
 
         Self {
-            pos1: details[0].into(),
-            pos2: details[1].into(),
-            pos3: details[2].into(),
-            pos4: details[3].into(),
+            pos: details[0].into(),
+            pos_group1: details[1].into(),
+            pos_group2: details[2].into(),
+            pos_group3: details[3].into(),
             ctype: details[4].into(),
             cform: details[5].into(),
             orig: details[6].into(),
@@ -55,10 +55,10 @@ impl<'a> WordDetailsLine<'a> {
 
     pub fn to_str_vec(&self, orig: String) -> [String; 12] {
         [
-            self.pos1.to_string(),
-            self.pos2.to_string(),
-            self.pos3.to_string(),
-            self.pos4.to_string(),
+            self.pos.to_string(),
+            self.pos_group1.to_string(),
+            self.pos_group2.to_string(),
+            self.pos_group3.to_string(),
             self.ctype.to_string(),
             self.cform.to_string(),
             orig,
@@ -76,10 +76,10 @@ impl Display for WordDetailsLine<'_> {
         write!(
             f,
             "{},{},{},{},{},{},{},{},{},{},{},{}",
-            self.pos1,
-            self.pos2,
-            self.pos3,
-            self.pos4,
+            self.pos,
+            self.pos_group1,
+            self.pos_group2,
+            self.pos_group3,
             self.ctype,
             self.cform,
             self.orig,

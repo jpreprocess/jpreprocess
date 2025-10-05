@@ -42,7 +42,7 @@ impl WordDetails {
         let line = WordDetailsLine::from(self);
 
         [
-            format!("{},{},{},{}", line.pos1, line.pos2, line.pos3, line.pos4),
+            format!("{},{},{},{}", line.pos, line.pos_group1, line.pos_group2, line.pos_group3),
             line.cform.to_string(),
             line.ctype.to_string(),
             // Ideally, this should be `self.orig`, but jpreprocess njdnode does not have orig
@@ -63,7 +63,7 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
         // orig: not used
 
         Ok(Self {
-            pos: POS::from_strs(&value.pos1, &value.pos2, &value.pos3, &value.pos4)?,
+            pos: POS::from_strs(&value.pos, &value.pos_group1, &value.pos_group2, &value.pos_group3)?,
             ctype: CType::from_str(&value.ctype)?,
             cform: CForm::from_str(&value.cform)?,
             chain_rule: ChainRules::new(&value.chain_rule),
@@ -88,10 +88,10 @@ impl From<&WordDetails> for WordDetailsLine<'static> {
         assert_eq!(pos_parts.len(), 4, "POS must have exactly 4 parts");
 
         Self {
-            pos1: pos_parts[0].to_string().into(),
-            pos2: pos_parts[1].to_string().into(),
-            pos3: pos_parts[2].to_string().into(),
-            pos4: pos_parts[3].to_string().into(),
+            pos: pos_parts[0].to_string().into(),
+            pos_group1: pos_parts[1].to_string().into(),
+            pos_group2: pos_parts[2].to_string().into(),
+            pos_group3: pos_parts[3].to_string().into(),
             ctype: value.ctype.to_string().into(),
             cform: value.cform.to_string().into(),
             orig: "*".into(), // orig is not stored in WordDetails
