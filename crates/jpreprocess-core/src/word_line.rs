@@ -1,0 +1,93 @@
+use std::{borrow::Cow, fmt::Display};
+
+#[derive(Clone, PartialEq, Debug)]
+pub struct WordDetailsLine<'a> {
+    pub pos1: Cow<'a, str>,
+    pub pos2: Cow<'a, str>,
+    pub pos3: Cow<'a, str>,
+    pub pos4: Cow<'a, str>,
+    pub ctype: Cow<'a, str>,
+    pub cform: Cow<'a, str>,
+    pub orig: Cow<'a, str>,
+    pub read: Cow<'a, str>,
+    pub pron: Cow<'a, str>,
+    pub acc_morasize: Cow<'a, str>,
+    pub chain_rule: Cow<'a, str>,
+    pub chain_flag: Cow<'a, str>,
+}
+
+impl<'a> WordDetailsLine<'a> {
+    pub fn from_str(details: &'a str) -> Option<Self> {
+        let mut parts = details.split(',').map(Cow::from);
+        Some(Self {
+            pos1: parts.next()?,
+            pos2: parts.next()?,
+            pos3: parts.next()?,
+            pos4: parts.next()?,
+            ctype: parts.next()?,
+            cform: parts.next()?,
+            orig: parts.next()?,
+            read: parts.next()?,
+            pron: parts.next()?,
+            acc_morasize: parts.next()?,
+            chain_rule: parts.next()?,
+            chain_flag: parts.next()?,
+        })
+    }
+    pub fn from_strs(details: &[&'a str]) -> Self {
+        assert_eq!(details.len(), 12, "line must have exactly 12 columns");
+
+        Self {
+            pos1: details[0].into(),
+            pos2: details[1].into(),
+            pos3: details[2].into(),
+            pos4: details[3].into(),
+            ctype: details[4].into(),
+            cform: details[5].into(),
+            orig: details[6].into(),
+            read: details[7].into(),
+            pron: details[8].into(),
+            acc_morasize: details[9].into(),
+            chain_rule: details[10].into(),
+            chain_flag: details[11].into(),
+        }
+    }
+
+    pub fn to_str_vec(&self, orig: String) -> [String; 12] {
+        [
+            self.pos1.to_string(),
+            self.pos2.to_string(),
+            self.pos3.to_string(),
+            self.pos4.to_string(),
+            self.ctype.to_string(),
+            self.cform.to_string(),
+            orig,
+            self.read.to_string(),
+            self.pron.to_string(),
+            self.acc_morasize.to_string(),
+            self.chain_rule.to_string(),
+            self.chain_flag.to_string(),
+        ]
+    }
+}
+
+impl Display for WordDetailsLine<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{},{},{},{},{},{},{},{},{},{},{},{}",
+            self.pos1,
+            self.pos2,
+            self.pos3,
+            self.pos4,
+            self.ctype,
+            self.cform,
+            self.orig,
+            self.read,
+            self.pron,
+            self.acc_morasize,
+            self.chain_rule,
+            self.chain_flag
+        )
+    }
+}
