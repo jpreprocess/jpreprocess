@@ -203,14 +203,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             let csv = match serializer_config {
                 Serializer::Lindera => match dict {
                     QueryDict::System(_) => {
-                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(&prefix_dict)?
+                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(prefix_dict)?
                     }
                     QueryDict::User(_) => {
-                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(&prefix_dict)?
+                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(prefix_dict)?
                     }
                 },
                 Serializer::Jpreprocess => {
-                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(&prefix_dict)?
+                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(prefix_dict)?
                 }
             };
             println!("done.");
