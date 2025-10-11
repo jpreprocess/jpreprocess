@@ -41,6 +41,9 @@ enum Commands {
         /// The serlializer to be used
         #[arg(value_enum)]
         serializer: Serializer,
+        /// The path to the metadata file
+        #[arg(short, long)]
+        metadata: Option<PathBuf>,
 
         input: PathBuf,
         /// The directory(system dictionary) or file(user dictionary) to put the dictionary.
@@ -137,18 +140,31 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Build {
             user,
             serializer: serializer_config,
+            metadata: metadata_path,
             input,
             output,
         } => {
+            let metadata = if let Some(metadata_path) = metadata_path {
+                println!("Loading metadata from {:?}", metadata_path);
+                let data = std::fs::read(&metadata_path)?;
+                Metadata::load(&data)?
+            } else {
+                match serializer_config {
+                    Serializer::Lindera => {
+                        println!("Using default lindera metadata.");
+                        Metadata::default()
+                    }
+                    Serializer::Jpreprocess => {
+                        println!("Using default jpreprocess metadata.");
+                        JPreprocessDictionaryBuilder::default_metadata()
+                    }
+                }
+            };
+
             println!("Building dictionary...");
             match serializer_config {
                 Serializer::Lindera => {
-                    let builder = DictionaryBuilder::new(Metadata {
-                        name: "IPADIC".to_string(),
-                        encoding: "UTF-8".to_string(),
-                        compress_algorithm: lindera_dictionary::decompress::Algorithm::Raw,
-                        ..Default::default()
-                    });
+                    let builder = DictionaryBuilder::new(metadata);
 
                     if user {
                         builder.build_user_dictionary(&input, &output)?;
@@ -157,7 +173,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
                 Serializer::Jpreprocess => {
-                    let builder = JPreprocessDictionaryBuilder::default();
+                    let builder = JPreprocessDictionaryBuilder::new(metadata);
 
                     if user {
                         builder.build_user_dictionary(&input, &output)?;

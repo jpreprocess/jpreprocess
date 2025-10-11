@@ -46,7 +46,7 @@ impl Default for JPreprocessDictionaryBuilder {
 }
 
 impl JPreprocessDictionaryBuilder {
-    fn default_metadata() -> Metadata {
+    pub fn default_metadata() -> Metadata {
         Metadata {
             dictionary_schema: Schema::new(vec![
                 "surface".to_string(),
