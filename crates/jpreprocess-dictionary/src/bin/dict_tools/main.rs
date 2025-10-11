@@ -100,15 +100,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                     QueryDict::User(dict)
                 };
 
-                let serializer = if let Some(metadata) = dict.identifier() {
-                    println!("Dictionary metadata: {}", metadata);
-                    if metadata.starts_with("jpreprocess") {
+                let serializer = if let Some(identifier) = dict.identifier() {
+                    println!("Dictionary identifier: {}", identifier);
+                    if identifier.starts_with("jpreprocess") {
                         Serializer::Jpreprocess
                     } else {
                         Serializer::Lindera
                     }
                 } else {
-                    println!("No metadata found. Assuming lindera dictionary.");
+                    println!("No identifier found. Assuming lindera dictionary.");
                     Serializer::Lindera
                 };
 
