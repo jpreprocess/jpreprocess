@@ -1,64 +1,83 @@
-use std::{borrow::Cow, fmt::Display};
+use std::fmt::Display;
 
 /// A struct to represent a line in a word dictionary file.
 ///
 /// > [!WARNING]
 /// > This struct is experimental and may change in the future.
 #[derive(Clone, PartialEq, Debug)]
-pub struct WordDetailsLine<'a> {
-    pub pos: Cow<'a, str>,
-    pub pos_group1: Cow<'a, str>,
-    pub pos_group2: Cow<'a, str>,
-    pub pos_group3: Cow<'a, str>,
-    pub ctype: Cow<'a, str>,
-    pub cform: Cow<'a, str>,
-    pub orig: Cow<'a, str>,
-    pub read: Cow<'a, str>,
-    pub pron: Cow<'a, str>,
-    pub acc_morasize: Cow<'a, str>,
-    pub chain_rule: Cow<'a, str>,
-    pub chain_flag: Cow<'a, str>,
+pub struct WordDetailsLine {
+    pub pos: String,
+    pub pos_group1: String,
+    pub pos_group2: String,
+    pub pos_group3: String,
+    pub ctype: String,
+    pub cform: String,
+    pub orig: String,
+    pub read: String,
+    pub pron: String,
+    pub acc_morasize: String,
+    pub chain_rule: String,
+    pub chain_flag: String,
 }
 
-impl<'a> WordDetailsLine<'a> {
-    pub fn from_strs(details: &[&'a str]) -> Self {
+impl Default for WordDetailsLine {
+    fn default() -> Self {
+        Self {
+            pos: "*".to_string(),
+            pos_group1: "*".to_string(),
+            pos_group2: "*".to_string(),
+            pos_group3: "*".to_string(),
+            ctype: "*".to_string(),
+            cform: "*".to_string(),
+            orig: "*".to_string(),
+            read: "*".to_string(),
+            pron: "".to_string(),
+            acc_morasize: "0/0".to_string(),
+            chain_rule: "*".to_string(),
+            chain_flag: "-1".to_string(),
+        }
+    }
+}
+
+impl WordDetailsLine {
+    pub fn from_strs(details: &[&str]) -> Self {
         assert_eq!(details.len(), 12, "line must have exactly 12 columns");
 
         Self {
-            pos: details[0].into(),
-            pos_group1: details[1].into(),
-            pos_group2: details[2].into(),
-            pos_group3: details[3].into(),
-            ctype: details[4].into(),
-            cform: details[5].into(),
-            orig: details[6].into(),
-            read: details[7].into(),
-            pron: details[8].into(),
-            acc_morasize: details[9].into(),
-            chain_rule: details[10].into(),
-            chain_flag: details[11].into(),
+            pos: details[0].to_string(),
+            pos_group1: details[1].to_string(),
+            pos_group2: details[2].to_string(),
+            pos_group3: details[3].to_string(),
+            ctype: details[4].to_string(),
+            cform: details[5].to_string(),
+            orig: details[6].to_string(),
+            read: details[7].to_string(),
+            pron: details[8].to_string(),
+            acc_morasize: details[9].to_string(),
+            chain_rule: details[10].to_string(),
+            chain_flag: details[11].to_string(),
         }
     }
 
     pub fn to_str_vec(&self, orig: String) -> [String; 12] {
         [
-            self.pos.to_string(),
-            self.pos_group1.to_string(),
-            self.pos_group2.to_string(),
-            self.pos_group3.to_string(),
-            self.ctype.to_string(),
-            self.cform.to_string(),
+            self.pos.clone(),
+            self.pos_group1.clone(),
+            self.pos_group2.clone(),
+            self.pos_group3.clone(),
+            self.ctype.clone(),
+            self.cform.clone(),
             orig,
-            self.read.to_string(),
-            self.pron.to_string(),
-            self.acc_morasize.to_string(),
-            self.chain_rule.to_string(),
-            self.chain_flag.to_string(),
+            self.read.clone(),
+            self.pron.clone(),
+            self.acc_morasize.clone(),
+            self.chain_rule.clone(),
+            self.chain_flag.clone(),
         ]
     }
 }
 
-impl Display for WordDetailsLine<'_> {
+impl Display for WordDetailsLine {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -76,5 +95,19 @@ impl Display for WordDetailsLine<'_> {
             self.chain_rule,
             self.chain_flag
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::word_details::WordDetails;
+
+    use super::WordDetailsLine;
+
+    #[test]
+    fn default_same_with_details() {
+        let default: WordDetailsLine = (&WordDetails::default()).into();
+        let details = WordDetailsLine::default();
+        assert_eq!(default, details);
     }
 }

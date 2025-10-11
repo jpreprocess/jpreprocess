@@ -31,7 +31,7 @@ pub fn build_dictionary(
             }
         }
         Some("jpreprocess") | None => {
-            let builder = JPreprocessDictionaryBuilder::new();
+            let builder = JPreprocessDictionaryBuilder::default();
 
             if user {
                 builder

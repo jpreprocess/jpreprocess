@@ -109,7 +109,7 @@ mod tests {
     fn inverse_jpreprocess() -> Result<(), Box<dyn Error>> {
         let input_file = PathBuf::from("./test.csv");
 
-        let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder::new();
+        let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder::default();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
         let inverse = dict_to_csv::<JPreprocessDictionaryWordEncoding>(&user_dict.dict)?;

@@ -46,7 +46,7 @@ impl WordEntry {
         let mut line = WordDetailsLine::from(self);
 
         if matches!(self, Self::Single(_)) {
-            line.orig = orig.into();
+            line.orig = orig;
         }
 
         [
@@ -66,9 +66,9 @@ impl WordEntry {
     }
 }
 
-impl<'a> TryFrom<WordDetailsLine<'a>> for WordEntry {
+impl TryFrom<WordDetailsLine> for WordEntry {
     type Error = crate::JPreprocessError;
-    fn try_from(value: WordDetailsLine<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: WordDetailsLine) -> Result<Self, Self::Error> {
         if value.orig.contains(':') {
             let mut iter = value
                 .orig
@@ -84,10 +84,10 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordEntry {
                 let (orig, read, pron, acc_morasize) = iter.next().unwrap();
 
                 let details = WordDetailsLine {
-                    orig: orig.into(),
-                    read: read.into(),
-                    pron: pron.into(),
-                    acc_morasize: acc_morasize.into(),
+                    orig: orig.to_string(),
+                    read: read.to_string(),
+                    pron: pron.to_string(),
+                    acc_morasize: acc_morasize.to_string(),
                     ..value
                 };
 
@@ -109,7 +109,7 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordEntry {
     }
 }
 
-impl From<&WordEntry> for WordDetailsLine<'static> {
+impl From<&WordEntry> for WordDetailsLine {
     fn from(value: &WordEntry) -> Self {
         match value {
             WordEntry::Single(details) => details.into(),
@@ -118,7 +118,7 @@ impl From<&WordEntry> for WordDetailsLine<'static> {
                     {
                         let first_elem = &details_vec[0];
                         Self {
-                            orig: first_elem.0.to_owned().into(),
+                            orig: first_elem.0.to_owned(),
                             ..(&first_elem.1).into()
                         }
                     },
@@ -126,10 +126,10 @@ impl From<&WordEntry> for WordDetailsLine<'static> {
                         let v: Self = details.into();
 
                         Self {
-                            orig: format!("{}:{}", acc.orig, orig).into(),   // orig
-                            read: format!("{}:{}", acc.read, v.read).into(), // read
-                            pron: format!("{}:{}", acc.pron, v.pron).into(), // pron
-                            acc_morasize: format!("{}:{}", acc.acc_morasize, v.acc_morasize).into(), // acc/mora_size
+                            orig: format!("{}:{}", acc.orig, orig),   // orig
+                            read: format!("{}:{}", acc.read, v.read), // read
+                            pron: format!("{}:{}", acc.pron, v.pron), // pron
+                            acc_morasize: format!("{}:{}", acc.acc_morasize, v.acc_morasize), // acc/mora_size
                             ..acc
                         }
                     },

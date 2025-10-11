@@ -97,7 +97,7 @@ mod fetch_dictionary {
             .file_name();
         let src_dir = src_download_dir.join(src_name);
 
-        jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::new()
+        jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::default()
             .build_dictionary(&src_dir, &dict_dir)?;
 
         Ok(())

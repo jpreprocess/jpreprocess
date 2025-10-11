@@ -60,9 +60,9 @@ impl WordDetails {
     }
 }
 
-impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
+impl TryFrom<WordDetailsLine> for WordDetails {
     type Error = crate::JPreprocessError;
-    fn try_from(value: WordDetailsLine<'a>) -> Result<WordDetails, Self::Error> {
+    fn try_from(value: WordDetailsLine) -> Result<WordDetails, Self::Error> {
         // orig: not used
 
         Ok(Self {
@@ -89,24 +89,24 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
     }
 }
 
-impl From<&WordDetails> for WordDetailsLine<'static> {
+impl From<&WordDetails> for WordDetailsLine {
     fn from(value: &WordDetails) -> Self {
         let pos = value.pos.to_string();
         let pos_parts: Vec<&str> = pos.split(',').collect();
         assert_eq!(pos_parts.len(), 4, "POS must have exactly 4 parts");
 
         Self {
-            pos: pos_parts[0].to_string().into(),
-            pos_group1: pos_parts[1].to_string().into(),
-            pos_group2: pos_parts[2].to_string().into(),
-            pos_group3: pos_parts[3].to_string().into(),
-            ctype: value.ctype.to_string().into(),
-            cform: value.cform.to_string().into(),
-            orig: "*".into(), // orig is not stored in WordDetails
-            read: value.read.as_deref().unwrap_or("*").to_string().into(),
-            pron: value.pron.to_string().into(),
-            acc_morasize: format!("{}/{}", value.pron.accent(), value.pron.mora_size()).into(),
-            chain_rule: value.chain_rule.to_string().into(),
+            pos: pos_parts[0].to_string(),
+            pos_group1: pos_parts[1].to_string(),
+            pos_group2: pos_parts[2].to_string(),
+            pos_group3: pos_parts[3].to_string(),
+            ctype: value.ctype.to_string(),
+            cform: value.cform.to_string(),
+            orig: "*".to_string(), // orig is not stored in WordDetails
+            read: value.read.as_deref().unwrap_or("*").to_string(),
+            pron: value.pron.to_string(),
+            acc_morasize: format!("{}/{}", value.pron.accent(), value.pron.mora_size()),
+            chain_rule: value.chain_rule.to_string(),
             chain_flag: match value.chain_flag {
                 Some(true) => "1",
                 Some(false) => "0",
