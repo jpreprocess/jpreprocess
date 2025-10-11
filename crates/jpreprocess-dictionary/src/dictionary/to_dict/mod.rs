@@ -7,7 +7,10 @@ use lindera_dictionary::{
         unknown_dictionary::UnknownDictionaryBuilderOptions,
         user_dictionary::build_user_dictionary,
     },
-    dictionary::{character_definition::CharacterDefinition, metadata::Metadata, UserDictionary},
+    dictionary::{
+        character_definition::CharacterDefinition, metadata::Metadata, schema::Schema,
+        UserDictionary,
+    },
     error::LinderaErrorKind,
     LinderaResult,
 };
@@ -24,29 +27,50 @@ use super::word_encoding::JPreprocessDictionaryWordEncoding;
 
 mod prefix_dictionary;
 
-const SIMPLE_USERDIC_FIELDS_NUM: usize = 3;
-const SIMPLE_WORD_COST: i16 = -10000;
-const SIMPLE_CONTEXT_ID: u16 = 0;
-
 pub struct JPreprocessDictionaryBuilder {
     metadata: Metadata,
 }
 
 impl JPreprocessDictionaryBuilder {
-    pub fn new() -> Self {
-        Self {
-            metadata: Metadata::default(),
-        }
+    pub fn new(metadata: Metadata) -> Self {
+        Self { metadata }
     }
 }
 
 impl Default for JPreprocessDictionaryBuilder {
     fn default() -> Self {
-        Self::new()
+        Self {
+            metadata: Self::default_metadata(),
+        }
     }
 }
 
 impl JPreprocessDictionaryBuilder {
+    fn default_metadata() -> Metadata {
+        Metadata {
+            dictionary_schema: Schema::new(vec![
+                "surface".to_string(),
+                "left_context_id".to_string(),
+                "right_context_id".to_string(),
+                "cost".to_string(),
+                "major_pos".to_string(),
+                "middle_pos".to_string(),
+                "small_pos".to_string(),
+                "fine_pos".to_string(),
+                "conjugation_type".to_string(),
+                "conjugation_form".to_string(),
+                "base_form".to_string(),
+                "reading".to_string(),
+                "pronunciation".to_string(),
+                // Additional fields
+                "accent_morasize".to_string(),
+                "chain_rule".to_string(),
+                "chain_flag".to_string(),
+            ]),
+            ..Default::default()
+        }
+    }
+
     pub fn build_dictionary(&self, input_dir: &Path, output_dir: &Path) -> LinderaResult<()> {
         fs::create_dir_all(output_dir)
             .map_err(|err| LinderaErrorKind::Io.with_error(anyhow::anyhow!(err)))?;
@@ -148,11 +172,41 @@ impl JPreprocessDictionaryBuilder {
             .unwrap();
         let rows = reader.read_csv_files(&[input_file.to_path_buf()])?;
 
+        self.build_user_dict_from_rows(rows)
+    }
+    pub fn build_user_dict_from_data(&self, data: Vec<Vec<&str>>) -> LinderaResult<UserDictionary> {
+        let rows = data
+            .into_iter()
+            .map(csv::StringRecord::from_iter)
+            .collect::<Vec<_>>();
+
+        self.build_user_dict_from_rows(rows)
+    }
+
+    fn build_user_dict_from_rows(
+        &self,
+        rows: Vec<csv::StringRecord>,
+    ) -> LinderaResult<UserDictionary> {
         let parser = UserDictionaryParserOptions::default()
             .user_dictionary_fields_num(self.metadata.user_dictionary_schema.field_count())
             .default_word_cost(self.metadata.default_word_cost)
             .default_left_context_id(self.metadata.default_left_context_id)
             .default_right_context_id(self.metadata.default_right_context_id)
+            .dictionary_parser(
+                DefaultParserOptions::default()
+                    .skip_invalid_cost_or_id(self.metadata.skip_invalid_cost_or_id)
+                    .schema(self.metadata.dictionary_schema.clone())
+                    .normalize_details(self.metadata.normalize_details)
+                    .builder()
+                    .unwrap(),
+            )
+            .user_dictionary_parser(
+                DefaultParserOptions::default()
+                    .schema(self.metadata.user_dictionary_schema.clone())
+                    .normalize_details(self.metadata.normalize_details)
+                    .builder()
+                    .unwrap(),
+            )
             .builder()
             .unwrap();
 
@@ -165,23 +219,22 @@ impl JPreprocessDictionaryBuilder {
     }
 }
 
+#[deprecated(
+    note = "Use JPreprocessDictionaryBuilder::build_user_dict_from_data instead",
+    since = "0.13.0"
+)]
 pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDictionary> {
     let rows = data
         .into_iter()
         .map(csv::StringRecord::from_iter)
         .collect::<Vec<_>>();
 
-    let parser = UserDictionaryParserOptions::default()
-        .user_dictionary_fields_num(SIMPLE_USERDIC_FIELDS_NUM)
-        .default_left_context_id(SIMPLE_CONTEXT_ID)
-        .default_right_context_id(SIMPLE_CONTEXT_ID)
-        .default_word_cost(SIMPLE_WORD_COST)
-        .builder()
-        .unwrap();
+    let builder = JPreprocessDictionaryBuilder::new(Metadata {
+        default_word_cost: -10000,
+        default_left_context_id: 0,
+        default_right_context_id: 0,
+        ..JPreprocessDictionaryBuilder::default_metadata()
+    });
 
-    let dict = generate_prefix_dictionary::<UserDictionaryParser, JPreprocessDictionaryWordEncoding>(
-        &parser, &rows, false,
-    )?;
-
-    Ok(UserDictionary { dict })
+    builder.build_user_dict_from_rows(rows)
 }

@@ -45,12 +45,11 @@ where
                 .add_context("Failed to parse word details from CSV row")
         })?;
 
-        let encoded_details = E::encode(&details.iter().map(String::as_str).collect::<Vec<&str>>())
-            .map_err(|err| {
-                LinderaErrorKind::Serialize
-                    .with_error(anyhow::anyhow!(err))
-                    .add_context("Failed to encode word details")
-            })?;
+        let encoded_details = E::encode(details).map_err(|err| {
+            LinderaErrorKind::Serialize
+                .with_error(anyhow::anyhow!(err))
+                .add_context("Failed to encode word details")
+        })?;
 
         // Write to dict.words buffer
         // Unlike lindera dictionary, jpreprocess dictionary does not write the length of encoded details to reduce memory consumption.

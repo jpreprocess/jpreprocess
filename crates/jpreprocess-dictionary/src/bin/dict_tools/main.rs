@@ -157,7 +157,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
                 Serializer::Jpreprocess => {
-                    let builder = JPreprocessDictionaryBuilder::new();
+                    let builder = JPreprocessDictionaryBuilder::default();
 
                     if user {
                         builder.build_user_dictionary(&input, &output)?;

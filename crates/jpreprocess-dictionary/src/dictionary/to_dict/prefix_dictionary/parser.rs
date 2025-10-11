@@ -3,6 +3,7 @@ use std::str::FromStr;
 use csv::StringRecord;
 use derive_builder::Builder;
 
+use jpreprocess_core::word_line::WordDetailsLine;
 use lindera_dictionary::dictionary::schema::Schema;
 
 use thiserror::Error;
@@ -12,7 +13,7 @@ pub trait CSVParser {
     fn left_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError>;
     fn right_context_id(&self, row: &StringRecord) -> Result<u16, CSVParseError>;
     fn cost(&self, row: &StringRecord) -> Result<i16, CSVParseError>;
-    fn details(&self, row: &StringRecord) -> Result<Vec<String>, CSVParseError>;
+    fn details(&self, row: &StringRecord) -> Result<WordDetailsLine, CSVParseError>;
 }
 
 #[derive(Error, Debug)]
@@ -50,8 +51,17 @@ pub struct DefaultParser {
     normalize_details: bool,
     #[builder(default = "false")]
     skip_invalid_cost_or_id: bool,
+    #[builder(default = "WordDetailsLine::default()")]
+    default_details: WordDetailsLine,
+
     #[builder(default = "Schema::default()")]
     schema: Schema,
+}
+
+impl Default for DefaultParser {
+    fn default() -> Self {
+        DefaultParserOptions::default().builder().unwrap()
+    }
 }
 
 impl DefaultParser {
@@ -144,9 +154,45 @@ impl CSVParser for DefaultParser {
     }
 
     /// Get word details from the row
-    fn details(&self, row: &StringRecord) -> Result<Vec<String>, CSVParseError> {
-        let details = row.iter().skip(4).map(|s| s.to_string()).collect();
-        Ok(details)
+    fn details(&self, row: &StringRecord) -> Result<WordDetailsLine, CSVParseError> {
+        Ok(WordDetailsLine {
+            pos: self
+                .get_field_value(row, "major_pos")
+                .unwrap_or(self.default_details.pos.to_string()),
+            pos_group1: self
+                .get_field_value(row, "middle_pos")
+                .unwrap_or(self.default_details.pos_group1.to_string()),
+            pos_group2: self
+                .get_field_value(row, "small_pos")
+                .unwrap_or(self.default_details.pos_group2.to_string()),
+            pos_group3: self
+                .get_field_value(row, "fine_pos")
+                .unwrap_or(self.default_details.pos_group3.to_string()),
+            ctype: self
+                .get_field_value(row, "conjugation_type")
+                .unwrap_or(self.default_details.ctype.to_string()),
+            cform: self
+                .get_field_value(row, "conjugation_form")
+                .unwrap_or(self.default_details.cform.to_string()),
+            orig: self
+                .get_field_value(row, "base_form")
+                .unwrap_or(self.default_details.orig.to_string()),
+            read: self
+                .get_field_value(row, "reading")
+                .unwrap_or(self.default_details.read.to_string()),
+            pron: self
+                .get_field_value(row, "pronunciation")
+                .unwrap_or(self.default_details.pron.to_string()),
+            acc_morasize: self
+                .get_field_value(row, "accent_morasize")
+                .unwrap_or(self.default_details.acc_morasize.to_string()),
+            chain_rule: self
+                .get_field_value(row, "chain_rule")
+                .unwrap_or(self.default_details.chain_rule.to_string()),
+            chain_flag: self
+                .get_field_value(row, "chain_flag")
+                .unwrap_or(self.default_details.chain_flag.to_string()),
+        })
     }
 }
 
@@ -157,32 +203,34 @@ impl CSVParser for DefaultParser {
 pub struct UserDictionaryParser {
     #[builder(default = "3")]
     user_dictionary_fields_num: usize,
+
     #[builder(default = "-10000")]
     default_word_cost: i16,
     #[builder(default = "0")]
     default_left_context_id: u16,
     #[builder(default = "0")]
     default_right_context_id: u16,
+
+    #[builder(default = "DefaultParser::default()")]
+    dictionary_parser: DefaultParser,
+    #[builder(default = "DefaultParser::default()")]
+    user_dictionary_parser: DefaultParser,
 }
 
 impl CSVParser for UserDictionaryParser {
     fn surface(&self, row: &StringRecord) -> Result<String, CSVParseError> {
-        let column = row
-            .get(0)
-            .ok_or(CSVParseError::FieldNotFound(CSVField::Surface))?;
-        Ok(column.to_string())
+        if row.len() == self.user_dictionary_fields_num {
+            self.user_dictionary_parser.surface(row)
+        } else {
+            self.dictionary_parser.surface(row)
+        }
     }
 
     fn cost(&self, row: &StringRecord) -> Result<i16, CSVParseError> {
         if row.len() == self.user_dictionary_fields_num {
             Ok(self.default_word_cost)
         } else {
-            let column = row
-                .get(3)
-                .ok_or(CSVParseError::FieldNotFound(CSVField::Cost))?;
-            column
-                .parse::<i16>()
-                .map_err(|_| CSVParseError::InvalidValue(CSVField::Cost, column.to_string()))
+            self.dictionary_parser.cost(row)
         }
     }
 
@@ -190,12 +238,7 @@ impl CSVParser for UserDictionaryParser {
         if row.len() == self.user_dictionary_fields_num {
             Ok(self.default_left_context_id)
         } else {
-            let column = row
-                .get(1)
-                .ok_or(CSVParseError::FieldNotFound(CSVField::LeftContextId))?;
-            column.parse::<u16>().map_err(|_| {
-                CSVParseError::InvalidValue(CSVField::LeftContextId, column.to_string())
-            })
+            self.dictionary_parser.left_context_id(row)
         }
     }
 
@@ -203,22 +246,15 @@ impl CSVParser for UserDictionaryParser {
         if row.len() == self.user_dictionary_fields_num {
             Ok(self.default_right_context_id)
         } else {
-            let column = row
-                .get(2)
-                .ok_or(CSVParseError::FieldNotFound(CSVField::RightContextId))?;
-            column.parse::<u16>().map_err(|_| {
-                CSVParseError::InvalidValue(CSVField::RightContextId, column.to_string())
-            })
+            self.dictionary_parser.right_context_id(row)
         }
     }
 
-    fn details(&self, row: &StringRecord) -> Result<Vec<String>, CSVParseError> {
+    fn details(&self, row: &StringRecord) -> Result<WordDetailsLine, CSVParseError> {
         if row.len() == self.user_dictionary_fields_num {
-            let details = row.iter().skip(1).map(|s| s.to_string()).collect();
-            Ok(details)
+            self.user_dictionary_parser.details(row)
         } else {
-            let details = row.iter().skip(4).map(|s| s.to_string()).collect();
-            Ok(details)
+            self.dictionary_parser.details(row)
         }
     }
 }

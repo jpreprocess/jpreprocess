@@ -20,6 +20,25 @@ pub struct WordDetailsLine {
     pub chain_flag: String,
 }
 
+impl Default for WordDetailsLine {
+    fn default() -> Self {
+        Self {
+            pos: "*".to_string(),
+            pos_group1: "*".to_string(),
+            pos_group2: "*".to_string(),
+            pos_group3: "*".to_string(),
+            ctype: "*".to_string(),
+            cform: "*".to_string(),
+            orig: "*".to_string(),
+            read: "*".to_string(),
+            pron: "".to_string(),
+            acc_morasize: "0/0".to_string(),
+            chain_rule: "*".to_string(),
+            chain_flag: "-1".to_string(),
+        }
+    }
+}
+
 impl WordDetailsLine {
     pub fn from_strs(details: &[&str]) -> Self {
         assert_eq!(details.len(), 12, "line must have exactly 12 columns");
@@ -76,5 +95,19 @@ impl Display for WordDetailsLine {
             self.chain_rule,
             self.chain_flag
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::word_details::WordDetails;
+
+    use super::WordDetailsLine;
+
+    #[test]
+    fn default_same_with_details() {
+        let default: WordDetailsLine = (&WordDetails::default()).into();
+        let details = WordDetailsLine::default();
+        assert_eq!(default, details);
     }
 }
