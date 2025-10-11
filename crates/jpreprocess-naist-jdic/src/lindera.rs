@@ -1,4 +1,5 @@
 use lindera_dictionary::{
+    decompress::{decompress, CompressedData},
     dictionary::{
         character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
         metadata::Metadata, prefix_dictionary::PrefixDictionary,
@@ -20,9 +21,7 @@ const WORDS_IDX_DATA: &[u8] =
     include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.wordsidx"));
 const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.words"));
 
-#[cfg(feature = "compress")]
 fn try_decompress(data: &'static [u8]) -> LinderaResult<Data> {
-    use lindera_dictionary::decompress::{decompress, CompressedData};
     match bincode::serde::decode_from_slice::<CompressedData, _>(
         &data[..],
         bincode::config::legacy(),
@@ -42,11 +41,6 @@ fn try_decompress(data: &'static [u8]) -> LinderaResult<Data> {
             Ok(Data::Static(data))
         }
     }
-}
-
-#[cfg(not(feature = "compress"))]
-fn try_decompress(data: &'static [u8]) -> LinderaResult<Data> {
-    Ok(Data::Static(data))
 }
 
 pub fn load() -> LinderaResult<Dictionary> {
