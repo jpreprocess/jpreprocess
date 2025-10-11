@@ -31,10 +31,10 @@ impl Default for WordDetailsLine {
             cform: "*".to_string(),
             orig: "*".to_string(),
             read: "*".to_string(),
-            pron: "".to_string(),
-            acc_morasize: "0/0".to_string(),
+            pron: "*".to_string(),
+            acc_morasize: "*/*".to_string(),
             chain_rule: "*".to_string(),
-            chain_flag: "-1".to_string(),
+            chain_flag: "*".to_string(),
         }
     }
 }
@@ -106,8 +106,8 @@ mod tests {
 
     #[test]
     fn default_same_with_details() {
-        let default: WordDetailsLine = (&WordDetails::default()).into();
-        let details = WordDetailsLine::default();
+        let default = WordDetails::default();
+        let details = WordDetailsLine::default().try_into().unwrap();
         assert_eq!(default, details);
     }
 }
