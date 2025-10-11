@@ -13,14 +13,22 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess-naist-jdic"
 
 [features]
-naist-jdic = ["dep:tokio", "dep:reqwest", "dep:md5", "dep:flate2", "dep:tar"]
-compress = ["lindera-dictionary/compress", "dep:bincode"]
+naist-jdic = [
+  "dep:tokio",
+  "dep:reqwest",
+  "dep:md5",
+  "dep:flate2",
+  "dep:tar",
+  "dep:bincode",
+  "lindera-dictionary/compress",
+]
 
 [dependencies]
 lindera-dictionary.workspace = true
 bincode = { workspace = true, optional = true }
 
 [build-dependencies]
+lindera-dictionary.workspace = true
 jpreprocess-dictionary.workspace = true
 
 tokio = { workspace = true, optional = true }
