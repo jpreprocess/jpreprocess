@@ -60,9 +60,9 @@ impl WordDetails {
     }
 }
 
-impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
+impl TryFrom<WordDetailsLine> for WordDetails {
     type Error = crate::JPreprocessError;
-    fn try_from(value: WordDetailsLine<'a>) -> Result<WordDetails, Self::Error> {
+    fn try_from(value: WordDetailsLine) -> Result<WordDetails, Self::Error> {
         // orig: not used
 
         Ok(Self {
@@ -89,7 +89,7 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordDetails {
     }
 }
 
-impl From<&WordDetails> for WordDetailsLine<'static> {
+impl From<&WordDetails> for WordDetailsLine {
     fn from(value: &WordDetails) -> Self {
         let pos = value.pos.to_string();
         let pos_parts: Vec<&str> = pos.split(',').collect();

@@ -66,9 +66,9 @@ impl WordEntry {
     }
 }
 
-impl<'a> TryFrom<WordDetailsLine<'a>> for WordEntry {
+impl TryFrom<WordDetailsLine> for WordEntry {
     type Error = crate::JPreprocessError;
-    fn try_from(value: WordDetailsLine<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: WordDetailsLine) -> Result<Self, Self::Error> {
         if value.orig.contains(':') {
             let mut iter = value
                 .orig
@@ -109,7 +109,7 @@ impl<'a> TryFrom<WordDetailsLine<'a>> for WordEntry {
     }
 }
 
-impl From<&WordEntry> for WordDetailsLine<'static> {
+impl From<&WordEntry> for WordDetailsLine {
     fn from(value: &WordEntry) -> Self {
         match value {
             WordEntry::Single(details) => details.into(),
