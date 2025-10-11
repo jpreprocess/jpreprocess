@@ -22,10 +22,7 @@ const WORDS_IDX_DATA: &[u8] =
 const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.words"));
 
 fn try_decompress(data: &'static [u8]) -> LinderaResult<Data> {
-    match bincode::serde::decode_from_slice::<CompressedData, _>(
-        &data[..],
-        bincode::config::legacy(),
-    ) {
+    match bincode::serde::decode_from_slice::<CompressedData, _>(data, bincode::config::legacy()) {
         Ok((compressed_data, _)) => {
             // Successfully decoded as CompressedData, now decompress it
             match decompress(compressed_data) {

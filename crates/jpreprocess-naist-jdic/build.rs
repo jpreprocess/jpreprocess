@@ -101,8 +101,7 @@ mod fetch_dictionary {
             .file_name();
         let src_dir = src_download_dir.join(src_name);
 
-        let metadata =
-            lindera_dictionary::loader::metadata::MetadataLoader::load(Path::new("."))?;
+        let metadata = lindera_dictionary::loader::metadata::MetadataLoader::load(Path::new("."))?;
 
         jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::new(metadata)
             .build_dictionary(&src_dir, &dict_dir)?;
@@ -124,13 +123,10 @@ mod fetch_dictionary {
         let digest = context.finalize();
         let hash = format!("{:x}", digest);
         if hash != md5hash {
-            return Err(Box::new(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!(
-                    "MD5 hash mismatch for prebuilt dictionary: expected {}, got {}",
-                    md5hash, hash
-                ),
-            )));
+            return Err(Box::new(std::io::Error::other(format!(
+                "MD5 hash mismatch for prebuilt dictionary: expected {}, got {}",
+                md5hash, hash
+            ))));
         }
 
         let tar = flate2::read::GzDecoder::new(&bytes[..]);
