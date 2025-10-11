@@ -5,6 +5,7 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=Cargo.toml");
+    println!("cargo:rerun-if-changed=metadata.json");
 
     if std::env::var("DOCS_RS").is_ok() {
         // Skip building the dictionary when building docs.rs
@@ -21,7 +22,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 #[cfg(feature = "naist-jdic")]
 mod fetch_dictionary {
-    use std::{error::Error, path::PathBuf};
+    use std::{
+        error::Error,
+        path::{Path, PathBuf},
+    };
 
     const DICTIONARY_PREBUILT_URL: &str = concat!(
         "https://github.com/jpreprocess/jpreprocess/releases/download/",
@@ -97,7 +101,10 @@ mod fetch_dictionary {
             .file_name();
         let src_dir = src_download_dir.join(src_name);
 
-        jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::default()
+        let metadata =
+            lindera_dictionary::loader::metadata::MetadataLoader::load(Path::new("."))?;
+
+        jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::new(metadata)
             .build_dictionary(&src_dir, &dict_dir)?;
 
         Ok(())

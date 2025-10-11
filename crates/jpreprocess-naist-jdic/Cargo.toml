@@ -28,6 +28,7 @@ lindera-dictionary.workspace = true
 bincode = { workspace = true, optional = true }
 
 [build-dependencies]
+lindera-dictionary.workspace = true
 jpreprocess-dictionary.workspace = true
 
 tokio = { workspace = true, optional = true }
