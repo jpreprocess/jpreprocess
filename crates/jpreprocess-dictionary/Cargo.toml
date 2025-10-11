@@ -12,16 +12,32 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-dictionary"
 
+[features]
+binary = ["dep:clap"]
+
+[[bin]]
+name = "dict_tools"
+required-features = ["binary"]
+
 [dependencies]
+thiserror.workspace = true
 bincode.workspace = true
 byteorder.workspace = true
 anyhow.workspace = true
 once_cell.workspace = true
+csv.workspace = true
+derive_builder.workspace = true
+glob.workspace = true
+log.workspace = true
+yada.workspace = true
+encoding_rs.workspace = true
+encoding_rs_io.workspace = true
 
-lindera-core.workspace = true
-lindera-ipadic-builder.workspace = true
-lindera-tokenizer.workspace = true
+lindera.workspace = true
+lindera-dictionary.workspace = true
 
 serde.workspace = true
 
 jpreprocess-core.workspace = true
+
+clap = { workspace = true, features = ["derive"], optional = true }

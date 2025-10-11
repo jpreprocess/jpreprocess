@@ -64,17 +64,13 @@ assert_eq!(
 
 ### jpreprocess-dictionary
 
-jpreprocess-dictionary-builderで生成される単語辞書をメモリ上に読み込み，単語を検索できるようにします．
+単語辞書の作成と読み込みを担当します．
 
-この際，辞書の形式を自動で判別します．
+元となる辞書はMecab同様のcsv形式ですが，[Lindera](https://github.com/lindera-morphology/lindera)で高速に解析できるよう，事前に専用の辞書を生成する必要があります．
 
-### jpreprocess-dictionary-builder
+なお，Linderaの[lindera-ipadic-builder](https://crates.io/crates/lindera-ipadic-builder)を元にして作られていますが，jpreprocess-dictionary-builderは文字列のパースも事前に行い，JPreprocessで直接処理できる辞書（JPreprocess辞書）を生成できます．
 
-元となる辞書はMecab同様のcsv形式ですが，[Lindera](https://github.com/lindera-morphology/lindera)で高速に解析できるよう，
-事前に専用の辞書を生成する必要があります．
-
-Linderaの[lindera-ipadic-builder](https://crates.io/crates/lindera-ipadic-builder)を元にして作られていますが，
-jpreprocess-dictionary-builderは文字列のパースも事前に行い，JPreprocessで直接処理できる辞書（JPreprocess辞書）を生成できます．
+また，実行時には単語辞書をメモリ上に読み込み，辞書の形式を自動で判別し，単語を検索できるようにします．
 
 ### jpreprocess-naist-jdic
 

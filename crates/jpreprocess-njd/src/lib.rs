@@ -2,10 +2,9 @@ mod contrib;
 mod node;
 mod open_jtalk;
 
-use jpreprocess_core::JPreprocessResult;
-use jpreprocess_dictionary::DictionaryFetcher;
+use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_dictionary::tokenizer::Token;
 use jpreprocess_window::{IterQuintMut, IterQuintMutTrait};
-use lindera_tokenizer::token::Token;
 
 pub use contrib::*;
 pub use node::*;
@@ -21,19 +20,17 @@ impl NJD {
         self.nodes.retain(|node| !node.get_pron().is_empty())
     }
 
-    pub fn from_tokens<S: DictionaryFetcher>(
-        tokens: &[Token],
-        fetcher: &S,
+    pub fn from_tokens<'a, T: Token>(
+        tokens: impl 'a + IntoIterator<Item = T>,
     ) -> JPreprocessResult<Self> {
-        let nodes = fetcher
-            .get_word_vectored(tokens)?
-            .into_iter()
-            .zip(tokens)
-            .flat_map(|(word_entry, token)| NJDNode::load(token.text, word_entry))
-            .collect();
+        let mut nodes = Vec::new();
+        for mut token in tokens {
+            let (string, entry) = token.fetch()?;
+            nodes.extend(NJDNode::load(string, &entry));
+        }
+
         Ok(Self { nodes })
     }
-
     pub fn from_strings(njd_features: Vec<String>) -> Self {
         Self {
             nodes: njd_features
@@ -54,6 +51,22 @@ impl NJD {
         unvoiced_vowel::njd_set_unvoiced_vowel(self);
         // long vowel estimator is deprecated
         // long_vowel::njd_set_long_vowel(self);
+    }
+}
+
+impl<'a> FromIterator<(&'a str, &'a WordEntry)> for NJD {
+    fn from_iter<I: IntoIterator<Item = (&'a str, &'a WordEntry)>>(iter: I) -> Self {
+        let nodes = iter
+            .into_iter()
+            .flat_map(|(text, word_entry)| NJDNode::load(text, word_entry))
+            .collect();
+        Self { nodes }
+    }
+}
+impl<'a> FromIterator<&'a str> for NJD {
+    fn from_iter<I: IntoIterator<Item = &'a str>>(iter: I) -> Self {
+        let nodes = iter.into_iter().flat_map(NJDNode::load_csv).collect();
+        Self { nodes }
     }
 }
 

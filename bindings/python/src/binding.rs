@@ -1,20 +1,22 @@
 use std::path::PathBuf;
 
-use jpreprocess::{
-    DefaultFetcher, DictionaryKind, JPreprocess, JPreprocessConfig, SystemDictionaryConfig,
-    UserDictionaryConfig,
-};
+use jpreprocess::{JPreprocess, SystemDictionaryConfig};
 use jpreprocess_core::pos::POS;
+use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 use jpreprocess_jpcommon::njdnodes_to_features;
 use jpreprocess_njd::NJDNode;
 
+use lindera_dictionary::{
+    builder::DictionaryBuilder, dictionary::metadata::Metadata,
+    loader::user_dictionary::UserDictionaryLoader,
+};
 use pyo3::prelude::*;
 
 use crate::{into_runtime_error, structs::*};
 
 #[pyclass(name = "JPreprocess")]
 pub struct JPreprocessPyBinding {
-    inner: JPreprocess<DefaultFetcher>,
+    inner: JPreprocess<DefaultTokenizer>,
 }
 
 #[pymethods]
@@ -23,14 +25,27 @@ impl JPreprocessPyBinding {
     #[pyo3(signature = (dictionary, user_dictionary=None))]
     fn new(dictionary: PathBuf, user_dictionary: Option<PathBuf>) -> PyResult<Self> {
         Ok(Self {
-            inner: JPreprocess::from_config(JPreprocessConfig {
-                dictionary: SystemDictionaryConfig::File(dictionary),
-                user_dictionary: user_dictionary.map(|path| UserDictionaryConfig {
-                    path,
-                    kind: Some(DictionaryKind::IPADIC),
-                }),
-            })
-            .map_err(into_runtime_error)?,
+            inner: JPreprocess::with_dictionaries(
+                SystemDictionaryConfig::File(dictionary)
+                    .load()
+                    .map_err(into_runtime_error)?,
+                user_dictionary
+                    .map(|path| match path.extension() {
+                        Some(ext) if ext == "csv" => UserDictionaryLoader::load_from_csv(
+                            DictionaryBuilder::new(Metadata::default()),
+                            path,
+                        )
+                        .map_err(into_runtime_error),
+                        Some(ext) if ext == "bin" => {
+                            UserDictionaryLoader::load_from_bin(path).map_err(into_runtime_error)
+                        }
+                        _ => Err(into_runtime_error(format!(
+                            "Unsupported user dictionary format: {}",
+                            path.display()
+                        ))),
+                    })
+                    .transpose()?,
+            ),
         })
     }
     fn run_frontend(&self, text: &str) -> PyResult<Vec<NjdObject>> {

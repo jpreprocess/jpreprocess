@@ -4,6 +4,7 @@ pub mod pos;
 pub mod pronunciation;
 pub mod word_details;
 pub mod word_entry;
+pub mod word_line;
 
 pub mod cform;
 pub mod ctype;

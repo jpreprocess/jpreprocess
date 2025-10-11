@@ -1,107 +1,138 @@
 use std::error::Error;
 
 #[cfg(feature = "naist-jdic")]
-fn main() -> Result<(), Box<dyn Error>> {
-    use std::{
-        env,
-        fs::{copy, create_dir, rename, File},
-        io::{self, Cursor, Read, Write},
-        path::Path,
-    };
-
-    use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
-    use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
-    use lindera_core::dictionary_builder::DictionaryBuilder;
-
-    use encoding::{
-        all::UTF_8,
-        {EncoderTrap, Encoding},
-    };
-    use flate2::read::GzDecoder;
-    use tar::Archive;
-
+#[tokio::main(flavor = "current_thread")]
+async fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=Cargo.toml");
-
-    // Directory path for build package
-    let build_dir = env::var_os("OUT_DIR").unwrap(); // ex) target/debug/build/<pkg>/out
-
-    // Dictionary file name
-    let file_name = "v0.1.3.tar.gz";
-
-    // MeCab IPADIC directory
-    let input_dir = Path::new(&build_dir).join("naist-jdic-0.1.3");
+    println!("cargo:rerun-if-changed=metadata.json");
 
     if std::env::var("DOCS_RS").is_ok() {
-        // Create directory for dummy input directory for build docs
-        create_dir(&input_dir)?;
-
-        // Create dummy char.def
-        let mut dummy_char_def = File::create(input_dir.join("char.def"))?;
-        dummy_char_def.write_all(b"DEFAULT 0 1 0\n")?;
-
-        // Create dummy CSV file
-        let mut dummy_dict_csv = File::create(input_dir.join("dummy_dict.csv"))?;
-        dummy_dict_csv.write_all(
-            &UTF_8
-                .encode(
-                    "テスト,1343,1343,3195,名詞,サ変接続,*,*,*,*,テスト,テスト,テスト,1/3,C1\n",
-                    EncoderTrap::Ignore,
-                )
-                .unwrap(),
-        )?;
-
-        // Create dummy unk.def
-        File::create(input_dir.join("unk.def"))?;
-        let mut dummy_matrix_def = File::create(input_dir.join("matrix.def"))?;
-        dummy_matrix_def.write_all(b"0 1 0\n")?;
+        // Skip building the dictionary when building docs.rs
+        return Ok(());
     } else {
-        // Source file path for build package
-        let source_path_for_build = Path::new(&build_dir).join(file_name);
-
-        // Download source file to build directory
-        if !source_path_for_build.exists() {
-            // copy(&source_path, &source_path_for_build)?;
-            let tmp_path = Path::new(&build_dir).join(file_name.to_owned() + ".download");
-
-            // Download a tarball
-            let download_url =
-                "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.3.tar.gz";
-            let resp = ureq::get(download_url).call()?;
-            let mut dest = File::create(&tmp_path)?;
-
-            io::copy(&mut resp.into_reader(), &mut dest)?;
-            dest.flush()?;
-
-            rename(tmp_path, &source_path_for_build).expect("Failed to rename temporary file");
-        }
-
-        // Decompress a tar.gz file
-        let mut tar_gz = File::open(source_path_for_build)?;
-        let mut buffer = Vec::new();
-        tar_gz.read_to_end(&mut buffer)?;
-        let cursor = Cursor::new(buffer);
-        let gzdecoder = GzDecoder::new(cursor);
-        let mut archive = Archive::new(gzdecoder);
-        archive.unpack(&build_dir)?;
+        fetch_dictionary::download(false).await
     }
-
-    // Lindera IPADIC directory
-    let output_dir = Path::new(&build_dir).join("naist-jdic");
-
-    // Build a dictionary
-    let builder = IpadicBuilder::new(Box::new(JPreprocessSerializer));
-    builder.build_dictionary(&input_dir, &output_dir)?;
-
-    let license_file = &input_dir.join(Path::new("COPYING"));
-    if license_file.exists() {
-        copy(license_file, output_dir.join(Path::new("COPYING")))?;
-    }
-
-    Ok(())
 }
 
 #[cfg(not(feature = "naist-jdic"))]
 fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
+}
+
+#[cfg(feature = "naist-jdic")]
+mod fetch_dictionary {
+    use std::{
+        error::Error,
+        path::{Path, PathBuf},
+    };
+
+    const DICTIONARY_PREBUILT_URL: &str = concat!(
+        "https://github.com/jpreprocess/jpreprocess/releases/download/",
+        env!("CARGO_PKG_VERSION"),
+        "/naist-jdic-jpreprocess.tar.gz"
+    );
+    const DICTIONARY_PREBUILT_MD5: &str = "a27d2548ecc8e76242c056e5644a2e57";
+
+    const DICTIONARY_SRC_URL: &str =
+        "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.3.tar.gz";
+    const DICTIONARY_SRC_MD5: &str = "a27d2548ecc8e76242c056e5644a2e57";
+
+    pub async fn download(force_build: bool) -> Result<(), Box<dyn Error>> {
+        let client = reqwest::ClientBuilder::new()
+            .timeout(std::time::Duration::from_secs(30))
+            .user_agent(concat!(
+                "jpreprocess-naist-jdic/",
+                env!("CARGO_PKG_VERSION"),
+            ))
+            .build()?;
+
+        let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+        let dict_dir = out_dir.join("naist-jdic");
+
+        println!(
+            "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
+            dict_dir.display()
+        );
+
+        if !force_build {
+            println!("Attempting to download prebuilt naist-jdic...");
+
+            let prebuilt_download_dir = out_dir.join("naist-jdic-prebuilt");
+
+            let prebuilt_result = fetch(
+                &client,
+                DICTIONARY_PREBUILT_URL,
+                DICTIONARY_PREBUILT_MD5,
+                prebuilt_download_dir.clone(),
+            )
+            .await;
+
+            if prebuilt_result.is_ok() {
+                println!("Successfully downloaded prebuilt naist-jdic.");
+
+                let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
+                let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
+                std::fs::rename(&prebuilt_dir, &dict_dir)?;
+
+                return Ok(());
+            } else {
+                println!("Failed to download prebuilt naist-jdic, falling back to building from source: {}", prebuilt_result.unwrap_err());
+            }
+        }
+
+        println!("Downloading and building naist-jdic from source...");
+
+        let src_download_dir = out_dir.join("naist-jdic-src");
+
+        fetch(
+            &client,
+            DICTIONARY_SRC_URL,
+            DICTIONARY_SRC_MD5,
+            src_download_dir.clone(),
+        )
+        .await?;
+
+        println!("Successfully downloaded source dictionary.");
+
+        let src_name = std::fs::read_dir(&src_download_dir)?
+            .next()
+            .ok_or("No directory found in source download dir")??
+            .file_name();
+        let src_dir = src_download_dir.join(src_name);
+
+        let metadata = lindera_dictionary::loader::metadata::MetadataLoader::load(Path::new("."))?;
+
+        jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::new(metadata)
+            .build_dictionary(&src_dir, &dict_dir)?;
+
+        Ok(())
+    }
+
+    async fn fetch(
+        client: &reqwest::Client,
+        url: &str,
+        md5hash: &str,
+        path: PathBuf,
+    ) -> Result<(), Box<dyn Error>> {
+        let response = client.get(url).send().await?;
+        let bytes = response.bytes().await?;
+
+        let mut context = md5::Context::new();
+        context.consume(&bytes);
+        let digest = context.finalize();
+        let hash = format!("{:x}", digest);
+        if hash != md5hash {
+            return Err(Box::new(std::io::Error::other(format!(
+                "MD5 hash mismatch for prebuilt dictionary: expected {}, got {}",
+                md5hash, hash
+            ))));
+        }
+
+        let tar = flate2::read::GzDecoder::new(&bytes[..]);
+        let mut archive = tar::Archive::new(tar);
+        archive.unpack(path)?;
+
+        Ok(())
+    }
 }

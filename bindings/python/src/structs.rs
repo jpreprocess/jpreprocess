@@ -24,16 +24,17 @@ pub enum StringOrArray {
     #[pyo3(transparent, annotation = "list[str]")]
     Array(Vec<String>),
 }
-impl IntoPy<PyObject> for StringOrArray {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        self.to_object(py)
-    }
-}
-impl ToPyObject for StringOrArray {
-    fn to_object(&self, py: Python<'_>) -> PyObject {
+impl<'py> IntoPyObject<'py> for StringOrArray {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
         match self {
-            Self::String(s) => s.to_object(py),
-            Self::Array(arr) => arr.to_object(py),
+            Self::String(s) => s
+                .into_pyobject(py)
+                .map(|obj| obj.into_any())
+                .map_err(|_| unreachable!("String to PyObject is infallible")),
+            Self::Array(arr) => arr.into_pyobject(py),
         }
     }
 }
@@ -121,14 +122,18 @@ impl TryFrom<NjdObject> for NJDNode {
             )
             .into());
         }
-        let node = NJDNode::load(&value.string, WordEntry::Single(details));
+        let node = NJDNode::load(&value.string, &WordEntry::Single(details));
         Ok(node[0].to_owned())
     }
 }
 
-impl IntoPy<PyObject> for NjdObject {
-    fn into_py(self, py: Python<'_>) -> PyObject {
-        pythonize(py, &self).expect("Failed to pythonize").into()
+impl<'py> IntoPyObject<'py> for NjdObject {
+    type Target = PyAny;
+    type Output = Bound<'py, Self::Target>;
+    type Error = PyErr;
+
+    fn into_pyobject(self, py: Python<'py>) -> Result<Self::Output, Self::Error> {
+        Ok(pythonize(py, &self).expect("Failed to pythonize"))
     }
 }
 

@@ -152,3 +152,28 @@ fn calc_digit_acc(prev: &NJDNode, current: &NJDNode, next: Option<&NJDNode>) -> 
         _ => None,
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{accent_type::njd_set_accent_type, NJD};
+
+    #[test]
+    fn cow() {
+        let mut njd: NJD = [
+            "牛飼,名詞,固有名詞,地域,一般,*,*,牛飼,ウシカイ,ウシカイ,2/4,C2,-1",
+            "じゃ,助詞,副助詞,*,*,*,*,じゃ,ジャ,ジャ,0/1,名詞%F1,1",
+            "あり,助動詞,*,*,*,五段・ラ行アル,連用形,あり,アリ,アリ,2/2,動詞%F1,1",
+            "ませ,助動詞,*,*,*,特殊・マス,未然形,ませ,マセ,マセ,1/2,動詞%F4@1/助詞%F2@1,1",
+            "ん,助動詞,*,*,*,不変化型,基本形,ん,ン,ン,1/1,動詞%F4,1",
+            "よ,助詞,終助詞,*,*,*,*,よ,ヨ,ヨ,0/1,動詞%F1/形容詞%F1/名詞%F1,1",
+        ]
+        .into_iter()
+        .collect();
+
+        njd_set_accent_type(&mut njd);
+
+        // This is different from Open JTalk.
+        // Open JTalk treats "助動詞" as a match for "動詞%F1".
+        assert_eq!(njd.nodes[0].get_pron().accent(), 2);
+    }
+}

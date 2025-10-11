@@ -9,11 +9,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         std::process::exit(-1);
     }
 
-    let config = JPreprocessConfig {
-        dictionary: SystemDictionaryConfig::File(path.unwrap()),
-        user_dictionary: None,
-    };
-    let jpreprocess = JPreprocess::from_config(config)?;
+    let jpreprocess =
+        JPreprocess::with_dictionaries(SystemDictionaryConfig::File(path.unwrap()).load()?, None);
 
     let mut text = String::new();
     while std::io::stdin().read_line(&mut text).is_ok() {

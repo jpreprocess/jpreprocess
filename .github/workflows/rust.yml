@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
 
     - name: setup integration test
       working-directory: tests/data
@@ -30,7 +30,8 @@ jobs:
         chmod +x openjtalk_bin
 
         gh release download --repo jpreprocess/jpreprocess v0.0.1-rc0
-        tar xJvf dictionaries.tar.xz
+        tar xJvf lindera.tar.xz
+        tar xJvf mecab-naist-jdic.tar.xz
 
         rm *.tar.gz *.tar.xz
 
@@ -50,7 +51,7 @@ jobs:
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17 # master
+      uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # master
       with:
           toolchain: stable
           targets: wasm32-unknown-unknown
@@ -59,7 +60,7 @@ jobs:
       run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
 
     - name: Build
       run: |
@@ -70,7 +71,7 @@ jobs:
       with:
         version: 8
 
-    - uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+    - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
       with:
         node-version: 20
         cache: 'pnpm'
@@ -92,12 +93,12 @@ jobs:
       run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@21dc36fb71dd22e3317045c0c31a3f4249868b17 # master
+      uses: dtolnay/rust-toolchain@b3b07ba8b418998c39fb20f53e8b695cdcc8de1b # master
       with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
 
     - name: Cache Cargo dependencies
-      uses: Swatinem/rust-cache@23bce251a8cd2ffc3c1075eaa2367cf899916d84 # v2.7.3
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
 
     - name: Print version
       run: |

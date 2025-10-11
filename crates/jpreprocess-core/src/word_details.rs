@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
-    JPreprocessResult,
+    word_line::WordDetailsLine, JPreprocessResult,
 };
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
@@ -20,28 +20,7 @@ pub struct WordDetails {
 
 impl WordDetails {
     pub fn load(details: &[&str]) -> JPreprocessResult<Self> {
-        // let orig = details[6];
-        let read = details[7];
-        let pron = details[8];
-        let acc_morasize = details[9];
-        let chain_rule = details[10];
-
-        Ok(Self {
-            pos: POS::from_strs(details[0], details[1], details[2], details[3])?,
-            ctype: CType::from_str(details[4])?,
-            cform: CForm::from_str(details[5])?,
-            chain_rule: ChainRules::new(chain_rule),
-            chain_flag: match details[11] {
-                "1" => Some(true),
-                "0" => Some(false),
-                _ => None,
-            },
-            read: match read {
-                "*" => None,
-                _ => Some(read.to_string()),
-            },
-            pron: Pronunciation::parse_csv_pron(pron, acc_morasize)?,
-        })
+        WordDetailsLine::from_strs(details).try_into()
     }
 
     pub fn extend_splited(
@@ -60,23 +39,80 @@ impl WordDetails {
     }
 
     pub fn to_str_vec(&self, orig: String) -> [String; 9] {
+        let line = WordDetailsLine::from(self);
+
         [
-            self.pos.to_string(),
-            self.ctype.to_string(),
-            self.cform.to_string(),
+            format!(
+                "{},{},{},{}",
+                line.pos, line.pos_group1, line.pos_group2, line.pos_group3
+            ),
+            line.ctype.to_string(),
+            line.cform.to_string(),
             // Ideally, this should be `self.orig`, but jpreprocess njdnode does not have orig
             // and in most cases, orig is the same as string.
             orig,
-            self.read.to_owned().unwrap_or("*".to_string()),
-            self.pron.to_string(),
-            format!("{}/{}", self.pron.accent(), self.pron.mora_size()),
-            self.chain_rule.to_string(),
-            match self.chain_flag {
-                Some(true) => 1,
-                Some(false) => 0,
-                None => -1,
-            }
-            .to_string(),
+            line.read.to_string(),
+            line.pron.to_string(),
+            line.acc_morasize.to_string(),
+            line.chain_rule.to_string(),
+            line.chain_flag.to_string(),
         ]
+    }
+}
+
+impl TryFrom<WordDetailsLine> for WordDetails {
+    type Error = crate::JPreprocessError;
+    fn try_from(value: WordDetailsLine) -> Result<WordDetails, Self::Error> {
+        // orig: not used
+
+        Ok(Self {
+            pos: POS::from_strs(
+                &value.pos,
+                &value.pos_group1,
+                &value.pos_group2,
+                &value.pos_group3,
+            )?,
+            ctype: CType::from_str(&value.ctype)?,
+            cform: CForm::from_str(&value.cform)?,
+            chain_rule: ChainRules::new(&value.chain_rule),
+            chain_flag: match value.chain_flag.as_ref() {
+                "1" => Some(true),
+                "0" => Some(false),
+                _ => None,
+            },
+            read: match value.read.as_ref() {
+                "*" => None,
+                _ => Some(value.read.to_string()),
+            },
+            pron: Pronunciation::parse_csv_pron(&value.pron, &value.acc_morasize)?,
+        })
+    }
+}
+
+impl From<&WordDetails> for WordDetailsLine {
+    fn from(value: &WordDetails) -> Self {
+        let pos = value.pos.to_string();
+        let pos_parts: Vec<&str> = pos.split(',').collect();
+        assert_eq!(pos_parts.len(), 4, "POS must have exactly 4 parts");
+
+        Self {
+            pos: pos_parts[0].to_string(),
+            pos_group1: pos_parts[1].to_string(),
+            pos_group2: pos_parts[2].to_string(),
+            pos_group3: pos_parts[3].to_string(),
+            ctype: value.ctype.to_string(),
+            cform: value.cform.to_string(),
+            orig: "*".to_string(), // orig is not stored in WordDetails
+            read: value.read.as_deref().unwrap_or("*").to_string(),
+            pron: value.pron.to_string(),
+            acc_morasize: format!("{}/{}", value.pron.accent(), value.pron.mora_size()),
+            chain_rule: value.chain_rule.to_string(),
+            chain_flag: match value.chain_flag {
+                Some(true) => "1",
+                Some(false) => "0",
+                None => "-1",
+            }
+            .into(),
+        }
     }
 }

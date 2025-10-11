@@ -18,8 +18,7 @@ bincode.workspace = true
 
 once_cell.workspace = true
 
-lindera-core.workspace = true
-lindera-tokenizer.workspace = true
+lindera.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 

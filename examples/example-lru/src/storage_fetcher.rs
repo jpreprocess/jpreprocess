@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs::File,
     io::{Read, Seek},
     num::NonZeroUsize,
@@ -7,35 +8,101 @@ use std::{
 };
 
 use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use jpreprocess_dictionary::{default::WordDictionaryMode, DictionaryFetcher};
-use lindera_tokenizer::token::Token;
+use jpreprocess_dictionary::{
+    dictionary::word_encoding::JPreprocessDictionaryWordEncoding,
+    tokenizer::{Token, Tokenizer},
+};
+use lindera_dictionary::{dictionary::Dictionary, loader::metadata::MetadataLoader};
 use lru::LruCache;
 
-pub struct StorageFetcher {
-    inner: Mutex<CachedStorage>,
+pub struct LruTokenizer {
+    tokenizer: lindera::tokenizer::Tokenizer,
+    words: Mutex<CachedStorage>,
 }
+impl LruTokenizer {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
+        let dictionary = load_dictionary(path.as_ref());
+        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            lindera_dictionary::mode::Mode::Normal,
+            dictionary,
+            None,
+        ));
 
-impl StorageFetcher {
-    pub fn new<P: AsRef<Path>>(dir: P) -> Result<Self, std::io::Error> {
+        let storage = CachedStorage::new(path)?;
+
         Ok(Self {
-            inner: Mutex::new(CachedStorage::new(dir)?),
+            tokenizer,
+            words: Mutex::new(storage),
         })
     }
 }
+impl Tokenizer for LruTokenizer {
+    fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
+        let mut tokens = Vec::new();
+        let mut words = self.words.lock().unwrap();
+        for token in self.tokenizer.tokenize(text)? {
+            let entry = if token.word_id.is_unknown() {
+                WordEntry::default()
+            } else if token.word_id.is_system() {
+                words.get_word(token.word_id.id)?
+            } else {
+                todo!("User dictionary support is not complete in this example")
+            };
 
-impl DictionaryFetcher for StorageFetcher {
-    fn get_word(&self, token: &Token) -> JPreprocessResult<WordEntry> {
-        if token.word_id.is_unknown() {
-            return Ok(WordEntry::default());
+            tokens.push(LruToken {
+                text: token.surface,
+                entry,
+            });
         }
 
-        let mut g = self.inner.lock().unwrap();
-        g.get_word(token.word_id.0)
+        Ok(tokens)
+    }
+}
+
+pub struct LruToken<'a> {
+    text: Cow<'a, str>,
+    entry: WordEntry,
+}
+impl Token for LruToken<'_> {
+    fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
+        Ok((&self.text, self.entry.clone()))
+    }
+}
+
+fn load_dictionary(path: &Path) -> Dictionary {
+    use lindera_dictionary::{
+        dictionary::prefix_dictionary::PrefixDictionary,
+        loader::{
+            character_definition::CharacterDefinitionLoader,
+            connection_cost_matrix::ConnectionCostMatrixLoader,
+            unknown_dictionary::UnknownDictionaryLoader,
+        },
+        util::read_file,
+    };
+
+    let metadata = MetadataLoader::load(path).unwrap();
+
+    let da_data = read_file(path.join("dict.da").as_path()).unwrap();
+    let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
+
+    let prefix_dictionary = PrefixDictionary::load(
+        da_data,
+        vals_data,
+        &[] as &'static [u8],
+        &[] as &'static [u8],
+        true,
+    );
+
+    Dictionary {
+        metadata,
+        prefix_dictionary,
+        connection_cost_matrix: ConnectionCostMatrixLoader::load(path).unwrap(),
+        character_definition: CharacterDefinitionLoader::load(path).unwrap(),
+        unknown_dictionary: UnknownDictionaryLoader::load(path).unwrap(),
     }
 }
 
 struct CachedStorage {
-    mode: WordDictionaryMode,
     index_file: File,
     words_file: File,
     cache: LruCache<u32, WordEntry>,
@@ -43,20 +110,10 @@ struct CachedStorage {
 
 impl CachedStorage {
     pub fn new<P: AsRef<Path>>(dir: P) -> Result<Self, std::io::Error> {
-        let mut index = File::open(dir.as_ref().join("dict.wordsidx"))?;
-        let mut words = File::open(dir.as_ref().join("dict.words"))?;
-
-        let mut index_buf = vec![0u8; 4];
-        index.read_exact(&mut index_buf)?;
-        let start = u32::from_be_bytes([index_buf[0], index_buf[1], index_buf[2], index_buf[3]]);
-
-        let mut identifier_buf = vec![0u8; start as usize];
-        words.read_exact(&mut identifier_buf)?;
-
-        let mode = WordDictionaryMode::from_metadata(String::from_utf8(identifier_buf).ok());
+        let index = File::open(dir.as_ref().join("dict.wordsidx"))?;
+        let words = File::open(dir.as_ref().join("dict.words"))?;
 
         Ok(Self {
-            mode,
             index_file: index,
             words_file: words,
             cache: LruCache::new(NonZeroUsize::new(1000).unwrap()),
@@ -71,7 +128,7 @@ impl CachedStorage {
         println!("Word #{} not found in cache", index);
 
         let bytes = self.get_bytes(index)?;
-        let entry = self.mode.into_serializer().deserialize(&bytes)?;
+        let entry: WordEntry = JPreprocessDictionaryWordEncoding::deserialize(&bytes).unwrap();
         self.cache.push(index, entry.clone());
 
         Ok(entry)

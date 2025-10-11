@@ -1,8 +1,12 @@
-use std::borrow::Cow;
-
-use lindera_core::{
-    character_definition::CharacterDefinitions, connection::ConnectionCostMatrix,
-    prefix_dict::PrefixDict, unknown_dictionary::UnknownDictionary,
+use lindera::LinderaResult;
+use lindera_dictionary::{
+    decompress::decompress,
+    dictionary::{
+        character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
+        metadata::Metadata, prefix_dictionary::PrefixDictionary,
+        unknown_dictionary::UnknownDictionary,
+    },
+    error::LinderaErrorKind,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -10,6 +14,7 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(typescript_custom_section)]
 const TYPESCRIPT: &'static str = r#"
 interface Dictionary {
+  metadata: Metadata,
   dict_da: Uint8Array,
   dict_vals: Uint8Array,
   cost_matrix: Uint8Array,
@@ -19,15 +24,49 @@ interface Dictionary {
   words_data: Uint8Array,
 }
 interface UserDictionary {
+  metadata: Metadata,
   dict_da: Uint8Array,
   dict_vals: Uint8Array,
   words_idx_data: Uint8Array,
   words_data: Uint8Array,
 }
+interface Metadata {
+  name: string;
+  encoding: string;
+  compress_algorithm: "deflate" | "zlib" | "gzip" | "raw";
+  default_word_cost: number;
+  default_left_context_id: number;
+  default_right_context_id: number;
+  default_field_value: string;
+  flexible_csv: boolean;
+  skip_invalid_cost_or_id: boolean;
+  normalize_details: boolean;
+  dictionary_schema: Schema;
+  user_dictionary_schema: Schema;
+  model_info?: any;
+}
+interface Schema {
+  fields: string[];
+}
 "#;
+
+fn decompress_if_compressed(data: &[u8]) -> LinderaResult<Vec<u8>> {
+    if let Ok((compressed_data, _)) =
+        bincode::serde::decode_from_slice(data, bincode::config::legacy())
+    {
+        decompress(compressed_data).map_err(|err| {
+            LinderaErrorKind::Compression
+                .with_error(err)
+                .add_context("Failed to decompress data")
+        })
+    } else {
+        Ok(data.to_vec())
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 struct JsDictionary {
+    metadata: Metadata,
     dict_da: Vec<u8>,
     dict_vals: Vec<u8>,
     cost_matrix: Vec<u8>,
@@ -37,16 +76,27 @@ struct JsDictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsDictionary> for lindera_core::dictionary::Dictionary {
-    type Error = lindera_core::error::LinderaError;
+impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
+    type Error = lindera::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
-            cost_matrix: ConnectionCostMatrix::load(&value.cost_matrix),
-            char_definitions: CharacterDefinitions::load(&value.char_definitions)?,
-            unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
-            words_idx_data: Cow::Owned(value.words_idx_data),
-            words_data: Cow::Owned(value.words_data),
+            metadata: value.metadata,
+            prefix_dictionary: PrefixDictionary::load(
+                decompress_if_compressed(&value.dict_da)?,
+                decompress_if_compressed(&value.dict_vals)?,
+                decompress_if_compressed(&value.words_idx_data)?,
+                decompress_if_compressed(&value.words_data)?,
+                true,
+            ),
+            connection_cost_matrix: ConnectionCostMatrix::load(decompress_if_compressed(
+                &value.cost_matrix,
+            )?),
+            character_definition: CharacterDefinition::load(&decompress_if_compressed(
+                &value.char_definitions,
+            )?)?,
+            unknown_dictionary: UnknownDictionary::load(&decompress_if_compressed(
+                &value.unknown_dictionary,
+            )?)?,
         };
         Ok(this)
     }
@@ -54,19 +104,24 @@ impl TryFrom<JsDictionary> for lindera_core::dictionary::Dictionary {
 
 #[derive(Serialize, Deserialize)]
 struct JsUserDictionary {
+    metadata: Metadata,
     dict_da: Vec<u8>,
     dict_vals: Vec<u8>,
     words_idx_data: Vec<u8>,
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsUserDictionary> for lindera_core::dictionary::UserDictionary {
-    type Error = lindera_core::error::LinderaError;
+impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
+    type Error = lindera::error::LinderaError;
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            dict: PrefixDict::from_static_slice(&value.dict_da, &value.dict_vals),
-            words_idx_data: value.words_idx_data,
-            words_data: value.words_data,
+            dict: PrefixDictionary::load(
+                value.dict_da,
+                value.dict_vals,
+                value.words_idx_data,
+                value.words_data,
+                false,
+            ),
         };
         Ok(this)
     }
@@ -106,7 +161,7 @@ impl From<IVecString> for Vec<String> {
 
 #[wasm_bindgen]
 pub struct JPreprocess {
-    inner: jpreprocess::JPreprocess<jpreprocess::DefaultFetcher>,
+    inner: jpreprocess::JPreprocess<jpreprocess::DefaultTokenizer>,
 }
 #[wasm_bindgen]
 impl JPreprocess {

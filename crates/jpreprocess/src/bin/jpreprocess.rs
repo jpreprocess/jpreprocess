@@ -4,7 +4,10 @@ use std::path::PathBuf;
 use jpreprocess::*;
 
 use clap::{Args, Parser};
-use lindera_dictionary::UserDictionaryConfig;
+use lindera_dictionary::{
+    builder::DictionaryBuilder, dictionary::metadata::Metadata,
+    loader::user_dictionary::UserDictionaryLoader,
+};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -45,15 +48,19 @@ fn main() -> Result<(), Box<dyn Error>> {
         SystemDictionaryConfig::Bundled(kind::JPreprocessDictionaryKind::NaistJdic)
     };
 
-    let user_dictionary = cli.user_dictionary.map(|user_dict| UserDictionaryConfig {
-        path: user_dict,
-        kind: Some(lindera_dictionary::DictionaryKind::IPADIC),
-    });
+    let user_dictionary = cli
+        .user_dictionary
+        .map(|path| match path.extension() {
+            Some(ext) if ext == "csv" => UserDictionaryLoader::load_from_csv(
+                DictionaryBuilder::new(Metadata::default()),
+                path,
+            ),
+            Some(ext) if ext == "bin" => UserDictionaryLoader::load_from_bin(path),
+            _ => panic!("Unsupported user dictionary format: {}", path.display()),
+        })
+        .transpose()?;
 
-    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
-        dictionary,
-        user_dictionary,
-    })?;
+    let jpreprocess = JPreprocess::with_dictionaries(dictionary.load()?, user_dictionary);
 
     let njd_texts: Vec<String> = jpreprocess.text_to_njd(&cli.input)?.into();
     for line in njd_texts {

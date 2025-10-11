@@ -29,18 +29,18 @@ jobs:
         target: [x86_64, x86, aarch64, armv7, s390x, ppc64le]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+      - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
         with:
           python-version: '3.10'
       - name: Build wheels
-        uses: PyO3/maturin-action@2c5c1560848aaa364c3545136054932db5fa27b7 # v1.44.0
+        uses: PyO3/maturin-action@aef21716ff3dcae8a1c301d23ec3e4446972a6e3 # v1.49.1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
           manylinux: auto
       - name: Upload wheels
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: wheels-linux-${{ matrix.target }}
           path: dist
@@ -54,7 +54,7 @@ jobs:
           cd bindings/python && pytest
       - name: pytest
         if: ${{ !startsWith(matrix.target, 'x86') && matrix.target != 'ppc64' }}
-        uses: uraimo/run-on-arch-action@b0ffb25eb00af00468375982384441f063da1741 # v2.7.2
+        uses: uraimo/run-on-arch-action@5397f9e30a9b62422f302092631c99ae1effcd9e # v2.8.1
         with:
           arch: ${{ matrix.target }}
           distro: ubuntu22.04
@@ -72,21 +72,21 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        target: [x64, x86]
+        target: [x64]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+      - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
         with:
           python-version: '3.10'
           architecture: ${{ matrix.target }}
       - name: Build wheels
-        uses: PyO3/maturin-action@2c5c1560848aaa364c3545136054932db5fa27b7 # v1.44.0
+        uses: PyO3/maturin-action@aef21716ff3dcae8a1c301d23ec3e4446972a6e3 # v1.49.1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: wheels-windows-${{ matrix.target }}
           path: dist
@@ -100,28 +100,31 @@ jobs:
           cd bindings/python && pytest
 
   macos:
-    runs-on: macos-latest
     strategy:
       matrix:
-        target: [x86_64, aarch64]
+        include:
+          - target: x86_64
+            runs-on: macos-13
+          - target: aarch64
+            runs-on: macos-14
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
+      - uses: actions/setup-python@f677139bbe7f9c59b41e40162b753c062f5d49a3 # v5.2.0
         with:
           python-version: '3.10'
       - name: Build wheels
-        uses: PyO3/maturin-action@2c5c1560848aaa364c3545136054932db5fa27b7 # v1.44.0
+        uses: PyO3/maturin-action@aef21716ff3dcae8a1c301d23ec3e4446972a6e3 # v1.49.1
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter --manifest-path bindings/python/Cargo.toml
           sccache: 'true'
       - name: Upload wheels
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: wheels-macos-${{ matrix.target }}
           path: dist
       - name: pytest
-        if: ${{ !startsWith(matrix.target, 'aarch64') }}
         shell: bash
         run: |
           set -e
@@ -134,12 +137,12 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Build sdist
-        uses: PyO3/maturin-action@2c5c1560848aaa364c3545136054932db5fa27b7 # v1.44.0
+        uses: PyO3/maturin-action@aef21716ff3dcae8a1c301d23ec3e4446972a6e3 # v1.49.1
         with:
           command: sdist
           args: --out dist --manifest-path bindings/python/Cargo.toml
       - name: Upload sdist
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
         with:
           name: wheels-sdist
           path: dist
@@ -153,12 +156,12 @@ jobs:
       id-token: write
     needs: [linux, windows, macos, sdist]
     steps:
-      - uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           pattern: wheels-*
           merge-multiple: true
       - name: Publish to PyPI
-        uses: PyO3/maturin-action@2c5c1560848aaa364c3545136054932db5fa27b7 # v1.44.0
+        uses: PyO3/maturin-action@aef21716ff3dcae8a1c301d23ec3e4446972a6e3 # v1.49.1
         with:
           command: upload
           args: --non-interactive --skip-existing *

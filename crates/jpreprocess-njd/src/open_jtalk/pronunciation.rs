@@ -11,26 +11,41 @@ use jpreprocess_core::{
 use jpreprocess_window::*;
 
 pub fn njd_set_pronunciation(njd: &mut NJD) {
-    for node in &mut njd.nodes {
-        if node.get_pron().mora_size() == 0 {
-            let pron = Pronunciation::parse(node.get_string(), 0).unwrap_or_default();
-            let mora_size = pron.mora_size();
-
-            /* if filler, overwrite pos */
-            if mora_size != 0 {
-                *node.get_pos_mut() = POS::Filler;
+    {
+        let nodes = std::mem::take(&mut njd.nodes);
+        for node in nodes {
+            if node.get_pron().mora_size() != 0 {
+                njd.nodes.push(node);
+                continue;
             }
 
-            if pron.is_touten() {
-                node.get_pos_mut().convert_to_kigou();
+            let prons = Pronunciation::parse_mora_str(node.get_string());
+            if prons.is_empty() {
+                continue;
             }
+            for (range, moras) in prons {
+                let string = &node.get_string()[range.clone()];
+                let mut node = node.clone();
+                node.replace_string(string);
 
-            if pron.is_empty() {
-                node.reset();
-            } else {
-                let read_string = pron.to_pure_string();
-                node.set_pron(pron);
-                node.set_read(&read_string);
+                let pron = Pronunciation::new(moras, 0);
+
+                let mora_size = pron.mora_size();
+                if mora_size == 0 {
+                    if pron.is_touten() {
+                        node.get_pos_mut().convert_to_kigou();
+                    }
+                } else {
+                    *node.get_pos_mut() = POS::Filler;
+                }
+                if pron.is_empty() {
+                    node.reset();
+                } else {
+                    let read_string = pron.to_pure_string();
+                    node.set_pron(pron);
+                    node.set_read(&read_string);
+                    njd.nodes.push(node);
+                }
             }
         }
     }
@@ -89,5 +104,27 @@ pub fn njd_set_pronunciation(njd: &mut NJD) {
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{pronunciation::njd_set_pronunciation, NJD};
+
+    #[test]
+    fn barry_payne() {
+        let mut njd: NJD = [
+            "バリー・ペーン,名詞,*,*,*,*,*,バリー・ペーン,*,,0/0,*,-1",
+            "は,名詞,*,*,*,*,*,は,*,,0/0,*,-1",
+        ]
+        .into_iter()
+        .collect();
+
+        njd_set_pronunciation(&mut njd);
+
+        assert_eq!(njd.nodes[0].get_pron().mora_size(), 3);
+        assert_eq!(njd.nodes[1].get_pron().mora_size(), 0);
+        assert_eq!(njd.nodes[2].get_pron().mora_size(), 3);
+        assert_eq!(njd.nodes[3].get_pron().mora_size(), 1);
     }
 }

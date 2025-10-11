@@ -1,4 +1,4 @@
-use crate::{pos::*, word_details::WordDetails, JPreprocessResult};
+use crate::{pos::*, word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -18,44 +18,7 @@ impl Default for WordEntry {
 
 impl WordEntry {
     pub fn load(details: &[&str]) -> JPreprocessResult<Self> {
-        let orig = details[6];
-        let read = details[7];
-        let pron = details[8];
-        let acc_morasize = details[9];
-
-        if orig.contains(':') {
-            let mut iter = orig
-                .split(':')
-                .zip(read.split(':'))
-                .zip(pron.split(':'))
-                .zip(acc_morasize.split(':'))
-                .map(|(((orig, read), pron), acc_morasize)| (orig, read, pron, acc_morasize));
-
-            let mut word_details = Vec::new();
-
-            let (orig_base, base) = {
-                let (orig, read, pron, acc_morasize) = iter.next().unwrap();
-                let mut details_vec = details[0..6].to_vec();
-                details_vec.push(orig);
-                details_vec.push(read);
-                details_vec.push(pron);
-                details_vec.push(acc_morasize);
-                details_vec.extend(&details[10..]);
-                (orig.to_string(), WordDetails::load(details_vec.as_slice())?)
-            };
-
-            word_details.push((orig_base, base.clone()));
-
-            for (orig, read, pron, acc_morasize) in iter {
-                let mut extended = base.clone();
-                extended.extend_splited(read, pron, acc_morasize)?;
-                word_details.push((orig.to_string(), extended))
-            }
-
-            Ok(Self::Multiple(word_details))
-        } else {
-            Ok(Self::Single(WordDetails::load(details)?))
-        }
+        WordDetailsLine::from_strs(details).try_into()
     }
 
     pub fn get_with_string(&self, string: &str) -> Vec<(String, WordDetails)> {
@@ -80,21 +43,95 @@ impl WordEntry {
     }
 
     pub fn to_str_vec(&self, orig: String) -> [String; 9] {
-        match self {
-            Self::Single(details) => details.to_str_vec(orig),
-            Self::Multiple(details_vec) => {
+        let mut line = WordDetailsLine::from(self);
+
+        if matches!(self, Self::Single(_)) {
+            line.orig = orig;
+        }
+
+        [
+            format!(
+                "{},{},{},{}",
+                line.pos, line.pos_group1, line.pos_group2, line.pos_group3
+            ),
+            line.ctype.to_string(),
+            line.cform.to_string(),
+            line.orig.to_string(),
+            line.read.to_string(),
+            line.pron.to_string(),
+            line.acc_morasize.to_string(),
+            line.chain_rule.to_string(),
+            line.chain_flag.to_string(),
+        ]
+    }
+}
+
+impl TryFrom<WordDetailsLine> for WordEntry {
+    type Error = crate::JPreprocessError;
+    fn try_from(value: WordDetailsLine) -> Result<Self, Self::Error> {
+        if value.orig.contains(':') {
+            let mut iter = value
+                .orig
+                .split(':')
+                .zip(value.read.split(':'))
+                .zip(value.pron.split(':'))
+                .zip(value.acc_morasize.split(':'))
+                .map(|(((orig, read), pron), acc_morasize)| (orig, read, pron, acc_morasize));
+
+            let mut word_details = Vec::new();
+
+            let (orig_base, base) = {
+                let (orig, read, pron, acc_morasize) = iter.next().unwrap();
+
+                let details = WordDetailsLine {
+                    orig: orig.to_string(),
+                    read: read.to_string(),
+                    pron: pron.to_string(),
+                    acc_morasize: acc_morasize.to_string(),
+                    ..value
+                };
+
+                (orig.to_string(), WordDetails::try_from(details)?)
+            };
+
+            word_details.push((orig_base, base.clone()));
+
+            for (orig, read, pron, acc_morasize) in iter {
+                let mut extended = base.clone();
+                extended.extend_splited(read, pron, acc_morasize)?;
+                word_details.push((orig.to_string(), extended))
+            }
+
+            Ok(Self::Multiple(word_details))
+        } else {
+            Ok(Self::Single(WordDetails::try_from(value)?))
+        }
+    }
+}
+
+impl From<&WordEntry> for WordDetailsLine {
+    fn from(value: &WordEntry) -> Self {
+        match value {
+            WordEntry::Single(details) => details.into(),
+            WordEntry::Multiple(details_vec) => {
                 details_vec.iter().skip(1).fold(
                     {
                         let first_elem = &details_vec[0];
-                        first_elem.1.to_str_vec(first_elem.0.to_owned())
+                        Self {
+                            orig: first_elem.0.to_owned(),
+                            ..(&first_elem.1).into()
+                        }
                     },
-                    |mut acc, (orig, details)| {
-                        let v = details.to_str_vec(orig.to_owned());
-                        acc[3] = format!("{}:{}", acc[3], v[3]); // orig
-                        acc[4] = format!("{}:{}", acc[4], v[4]); // read
-                        acc[5] = format!("{}:{}", acc[5], v[5]); // pron
-                        acc[6] = format!("{}:{}", acc[6], v[6]); // acc/mora_size
-                        acc
+                    |acc, (orig, details)| {
+                        let v: Self = details.into();
+
+                        Self {
+                            orig: format!("{}:{}", acc.orig, orig),   // orig
+                            read: format!("{}:{}", acc.read, v.read), // read
+                            pron: format!("{}:{}", acc.pron, v.pron), // pron
+                            acc_morasize: format!("{}:{}", acc.acc_morasize, v.acc_morasize), // acc/mora_size
+                            ..acc
+                        }
                     },
                 )
             }

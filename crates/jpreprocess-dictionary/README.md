@@ -1,9 +1,9 @@
 # jpreprocess-dictionary
 
-The dictionary reader library for [jpreprocess](https://crates.io/crates/jpreprocess),
+The dictionary reader/writer library for [jpreprocess](https://crates.io/crates/jpreprocess),
 Japanese text preprocessor for Text-to-Speech application.
 
-This package contains dictionary parsing utilities for jpreprocess and lindera dictionary.
+This package contains dictionary parsing/building utilities for jpreprocess and lindera dictionary.
 
 This project is a rewrite of [OpenJTalk](http://open-jtalk.sourceforge.net/) in Rust language.
 
@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-dictionary = "0.10.0"
+jpreprocess-dictionary = "0.12.0"
 ```
 
 ## License

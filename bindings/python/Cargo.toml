@@ -1,7 +1,7 @@
 [package]
 name = "jpreprocess-python"
 edition = "2021"
-version = "0.1.4"
+version = "0.1.5"
 
 description.workspace = true
 license.workspace = true
@@ -11,16 +11,17 @@ categories.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-pyo3 = "0.22.0"
-pythonize = "0.22.0"
+pyo3 = "0.26.0"
+pythonize = "0.26.0"
 
 serde.workspace = true
+serde_json.workspace = true
 
 jpreprocess.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true
-jpreprocess-dictionary-builder.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
 
-lindera-core.workspace = true
+lindera.workspace = true
+lindera-dictionary.workspace = true

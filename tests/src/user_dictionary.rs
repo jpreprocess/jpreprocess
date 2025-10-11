@@ -1,11 +1,10 @@
 use std::error::Error;
 
-use jpreprocess::{JPreprocess, JPreprocessConfig, SystemDictionaryConfig};
-use jpreprocess_dictionary::serializer::jpreprocess::JPreprocessSerializer;
-use jpreprocess_dictionary_builder::ipadic_builder::IpadicBuilder;
+use jpreprocess::{JPreprocess, SystemDictionaryConfig};
 
 #[cfg(feature = "naist-jdic")]
 use jpreprocess::kind::*;
+use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
 
 #[cfg(not(feature = "naist-jdic"))]
 use std::path::PathBuf;
@@ -18,11 +17,8 @@ fn system_dictionary() -> Result<(), Box<dyn Error>> {
     #[cfg(not(feature = "naist-jdic"))]
     let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
-    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
-        dictionary: config,
-        user_dictionary: None,
-    })
-    .unwrap();
+    let jpreprocess = JPreprocess::with_dictionaries(config.load()?, None);
+
     let njd = jpreprocess.text_to_njd("クーバネティス")?;
 
     assert_eq!(njd.nodes[0].get_string(), "ク");
@@ -60,7 +56,7 @@ fn lindera_user_dictionary() -> Result<(), Box<dyn Error>> {
 
     let dictionary = config.load()?;
     let user_dictionary =
-        IpadicBuilder::new(Box::new(JPreprocessSerializer)).build_user_dict_from_data(&rows)?;
+        JPreprocessDictionaryBuilder::default().build_user_dict_from_data(rows)?;
 
     let jpreprocess = JPreprocess::with_dictionaries(dictionary, Some(user_dictionary));
     let njd = jpreprocess.text_to_njd("クーバネティス")?;
