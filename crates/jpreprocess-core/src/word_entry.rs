@@ -1,4 +1,4 @@
-use crate::{pos::*, word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
+use crate::{word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -9,10 +9,7 @@ pub enum WordEntry {
 
 impl Default for WordEntry {
     fn default() -> Self {
-        Self::Single(WordDetails {
-            pos: POS::Meishi(Meishi::None),
-            ..Default::default()
-        })
+        Self::Single(WordDetails::default())
     }
 }
 

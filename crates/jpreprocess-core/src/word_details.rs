@@ -3,11 +3,16 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    accent_rule::ChainRules, cform::CForm, ctype::CType, pos::POS, pronunciation::Pronunciation,
-    word_line::WordDetailsLine, JPreprocessResult,
+    accent_rule::ChainRules,
+    cform::CForm,
+    ctype::CType,
+    pos::{Meishi, POS},
+    pronunciation::Pronunciation,
+    word_line::WordDetailsLine,
+    JPreprocessResult,
 };
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct WordDetails {
     pub pos: POS,
     pub ctype: CType,
@@ -16,6 +21,20 @@ pub struct WordDetails {
     pub pron: Pronunciation,
     pub chain_rule: ChainRules,
     pub chain_flag: Option<bool>,
+}
+
+impl Default for WordDetails {
+    fn default() -> Self {
+        Self {
+            pos: POS::Meishi(Meishi::None),
+            ctype: CType::default(),
+            cform: CForm::default(),
+            read: None,
+            pron: Pronunciation::default(),
+            chain_rule: ChainRules::default(),
+            chain_flag: None,
+        }
+    }
 }
 
 impl WordDetails {
