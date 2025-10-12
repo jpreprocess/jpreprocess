@@ -77,7 +77,7 @@ fn test_one(input_text: &'static str) {
 
         if node_ans.get_pos() == &POS::Kigou(Kigou::Space) {
             // Pass the difference introduced between Lindera 0.42.0 and 1.3.0
-            // TODO: Find the cause
+            // This is because Lindera dictionary builder trims spaces from v1.0.0.
             assert_eq!(node.get_string(), "\u{3000}");
             assert_eq!(node.get_pos(), &POS::Kigou(Kigou::None));
             continue;
