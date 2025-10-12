@@ -23,7 +23,7 @@ pub struct WordDetailsLine {
 impl Default for WordDetailsLine {
     fn default() -> Self {
         Self {
-            pos: "*".to_string(),
+            pos: "名詞".to_string(),
             pos_group1: "*".to_string(),
             pos_group2: "*".to_string(),
             pos_group3: "*".to_string(),
