@@ -5,6 +5,7 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=Cargo.toml");
+    println!("cargo:rerun-if-changed=prebuilt.json");
     println!("cargo:rerun-if-changed=build.json");
 
     if std::env::var("DOCS_RS").is_ok() {
@@ -29,71 +30,70 @@ mod fetch_dictionary {
     };
 
     pub async fn download(force_build: bool) -> Result<(), Box<dyn Error>> {
-        let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("build.json");
-        let config_data = std::fs::read_to_string(&config_path)?;
-        let mut config: Config = serde_json::from_str(&config_data)?;
-        if force_build {
-            config.force_build();
-        }
-        config.download().await
-    }
+        let client = reqwest::ClientBuilder::new()
+            .timeout(std::time::Duration::from_secs(30))
+            .user_agent(concat!(
+                "jpreprocess-naist-jdic/",
+                env!("CARGO_PKG_VERSION"),
+            ))
+            .build()?;
 
-    /// Configuration for downloading and building the dictionary
-    #[derive(Clone, Serialize, Deserialize)]
-    struct Config {
-        prebuilt: Option<FetchConfig>,
-        build: BuildConfig,
-    }
+        let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+        let work_dir = out_dir.join("work");
+        let dict_dir = out_dir.join("naist-jdic");
 
-    impl Config {
-        fn force_build(&mut self) {
-            self.prebuilt = None;
-        }
-        async fn download(&self) -> Result<(), Box<dyn Error>> {
-            let client = reqwest::ClientBuilder::new()
-                .timeout(std::time::Duration::from_secs(30))
-                .user_agent(concat!(
-                    "jpreprocess-naist-jdic/",
-                    env!("CARGO_PKG_VERSION"),
-                ))
-                .build()?;
+        println!(
+            "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
+            dict_dir.display()
+        );
 
-            let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-            let dict_dir = out_dir.join("naist-jdic");
-
-            println!(
-                "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
-                dict_dir.display()
-            );
-
-            if let Some(prebuilt) = &self.prebuilt {
-                println!("Attempting to download prebuilt naist-jdic...");
-
-                let prebuilt_download_dir = out_dir.join("naist-jdic-prebuilt");
-
-                let prebuilt_result = prebuilt.fetch(&client, prebuilt_download_dir.clone()).await;
-
-                if prebuilt_result.is_ok() {
-                    println!("Successfully downloaded prebuilt naist-jdic.");
-
-                    let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
-                    let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
-                    std::fs::rename(&prebuilt_dir, &dict_dir)?;
-
-                    return Ok(());
-                } else {
-                    println!("Failed to download prebuilt naist-jdic, falling back to building from source: {}", prebuilt_result.unwrap_err());
+        if !force_build {
+            match download_prebuilt(&client, &work_dir, &out_dir).await {
+                Ok(_) => return Ok(()),
+                Err(e) => {
+                    println!(
+                    "Failed to download prebuilt naist-jdic, falling back to building from source: {}",
+                    e
+                );
                 }
             }
-
-            println!("Downloading and building naist-jdic from source...");
-
-            self.build
-                .build(&client, out_dir.join("work"), dict_dir)
-                .await?;
-
-            Ok(())
         }
+
+        println!("Downloading and building naist-jdic from source...");
+
+        let build = {
+            let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("build.json");
+            let config_data = std::fs::read_to_string(config_path)?;
+            serde_json::from_str::<BuildConfig>(&config_data)?
+        };
+
+        build.build(&client, &work_dir, &dict_dir).await?;
+
+        Ok(())
+    }
+
+    async fn download_prebuilt(
+        client: &reqwest::Client,
+        work_dir: &Path,
+        out_dir: &Path,
+    ) -> Result<(), Box<dyn Error>> {
+        let prebuilt = {
+            let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("prebuilt.json");
+            let config_data = std::fs::read_to_string(config_path)?;
+            serde_json::from_str::<FetchConfig>(&config_data)?
+        };
+
+        println!("Attempting to download prebuilt naist-jdic...");
+        let prebuilt_download_dir = work_dir.join("naist-jdic-prebuilt");
+        prebuilt.fetch(client, &prebuilt_download_dir).await?;
+
+        println!("Successfully downloaded prebuilt naist-jdic.");
+
+        let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
+        let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
+        std::fs::rename(&prebuilt_dir, out_dir)?;
+
+        Ok(())
     }
 
     /// Configuration for building the dictionary from source (fallback)
@@ -107,11 +107,11 @@ mod fetch_dictionary {
         async fn build(
             &self,
             client: &reqwest::Client,
-            work_dir: PathBuf,
-            out_dir: PathBuf,
+            work_dir: &Path,
+            out_dir: &Path,
         ) -> Result<(), Box<dyn Error>> {
             let src_download_dir = work_dir.join("src");
-            self.src.fetch(client, src_download_dir.clone()).await?;
+            self.src.fetch(client, &src_download_dir).await?;
 
             let src_name = std::fs::read_dir(&src_download_dir)?
                 .next()
@@ -122,7 +122,7 @@ mod fetch_dictionary {
             jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder::new(
                 self.metadata.clone(),
             )
-            .build_dictionary(&src_dir, &out_dir)?;
+            .build_dictionary(&src_dir, out_dir)?;
 
             Ok(())
         }
@@ -135,11 +135,7 @@ mod fetch_dictionary {
     }
 
     impl FetchConfig {
-        async fn fetch(
-            &self,
-            client: &reqwest::Client,
-            path: PathBuf,
-        ) -> Result<(), Box<dyn Error>> {
+        async fn fetch(&self, client: &reqwest::Client, path: &Path) -> Result<(), Box<dyn Error>> {
             let response = client.get(&self.url).send().await?;
             let bytes = response.bytes().await?;
 
