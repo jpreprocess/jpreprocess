@@ -90,64 +90,6 @@ mod fetch_dictionary {
         Ok(())
     }
 
-    /// Configuration for downloading and building the dictionary
-    #[derive(Clone, Serialize, Deserialize)]
-    struct Config {
-        prebuilt: Option<FetchConfig>,
-        build: BuildConfig,
-    }
-
-    impl Config {
-        fn force_build(&mut self) {
-            self.prebuilt = None;
-        }
-        async fn download(&self) -> Result<(), Box<dyn Error>> {
-            let client = reqwest::ClientBuilder::new()
-                .timeout(std::time::Duration::from_secs(30))
-                .user_agent(concat!(
-                    "jpreprocess-naist-jdic/",
-                    env!("CARGO_PKG_VERSION"),
-                ))
-                .build()?;
-
-            let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-            let dict_dir = out_dir.join("naist-jdic");
-
-            println!(
-                "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
-                dict_dir.display()
-            );
-
-            if let Some(prebuilt) = &self.prebuilt {
-                println!("Attempting to download prebuilt naist-jdic...");
-
-                let prebuilt_download_dir = out_dir.join("naist-jdic-prebuilt");
-
-                let prebuilt_result = prebuilt.fetch(&client, prebuilt_download_dir.clone()).await;
-
-                if prebuilt_result.is_ok() {
-                    println!("Successfully downloaded prebuilt naist-jdic.");
-
-                    let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
-                    let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
-                    std::fs::rename(&prebuilt_dir, &dict_dir)?;
-
-                    return Ok(());
-                } else {
-                    println!("Failed to download prebuilt naist-jdic, falling back to building from source: {}", prebuilt_result.unwrap_err());
-                }
-            }
-
-            println!("Downloading and building naist-jdic from source...");
-
-            self.build
-                .build(&client, out_dir.join("work"), dict_dir)
-                .await?;
-
-            Ok(())
-        }
-    }
-
     /// Configuration for building the dictionary from source (fallback)
     #[derive(Clone, Serialize, Deserialize)]
     struct BuildConfig {
