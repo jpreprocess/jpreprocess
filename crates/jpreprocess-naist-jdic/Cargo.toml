@@ -20,6 +20,8 @@ naist-jdic = [
   "dep:flate2",
   "dep:tar",
   "dep:bincode",
+  "dep:serde",
+  "dep:serde_json",
   "lindera-dictionary/compress",
 ]
 
@@ -36,3 +38,5 @@ reqwest = { workspace = true, optional = true }
 md5 = { workspace = true, optional = true }
 flate2 = { workspace = true, optional = true }
 tar = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
