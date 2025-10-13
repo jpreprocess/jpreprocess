@@ -145,54 +145,52 @@ jobs:
           name: naist-jdic
           path: naist-jdic-jpreprocess.tar.gz
 
-  check-naist-jdic-digest:
+  generate-prebuilt-json:
     runs-on: ubuntu-latest
     needs: [build-naist-jdic]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - name: Download naist-jdic
+      - name: Download naist-jdic artifact
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: naist-jdic
-      - name: Check digest
+      - name: Generate prebuilt.json
         run: |
-          CURRENT_DIGEST=$(jq -r '.prebuilt.digest' crates/jpreprocess-naist-jdic/build.json)
-          NEW_DIGEST=$(md5sum naist-jdic-jpreprocess.tar.gz | awk '{print $1}')
-          echo "Current digest: $CURRENT_DIGEST"
-          echo "New digest: $NEW_DIGEST"
-          if [ "$CURRENT_DIGEST" != "$NEW_DIGEST" ]; then
-            echo "Digest mismatch! Please update the digest in crates/jpreprocess-naist-jdic/build.json"
-            exit 1
-          else
-            echo "Digest matches."
-          fi
+          URL="https://github.com/jpreprocess/jpreprocess/releases/download/${{ github.ref_name }}/naist-jdic-jpreprocess.tar.gz"
+          MD5HASH=$(md5sum naist-jdic-jpreprocess.tar.gz | awk '{ print $1 }')
+          echo "{\"url\": \"$URL\", \"digest\": \"$MD5HASH\"}" > prebuilt.json
+      - name: Upload prebuilt.json
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: prebuilt-json
+          path: prebuilt.json
 
   publish-crates:
     runs-on: ubuntu-latest
-    needs: [pre-publish-test, check-prerelease]
-    if: needs.check-prerelease.outputs.release == 'true'
-    # To prevent accident
-    # env:
-    #   CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    needs: [pre-publish-test, check-prerelease, generate-prebuilt-json]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Download prebuilt.json artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: prebuilt-json
+          path: crates/jpreprocess-naist-jdic
+      - name: Show prebuilt.json
+        run: cat crates/jpreprocess-naist-jdic/prebuilt.json
       - name: Publish crates
+        if: needs.check-prerelease.outputs.release == 'true'
+        # env:
+        #   CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: cargo publish --workspace --all-features
-
-  publish-dry-run:
-    runs-on: ubuntu-latest
-    needs: [pre-publish-test, check-prerelease]
-    if: needs.check-prerelease.outputs.release == 'false'
-    steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
       - name: Publish crates (dry run)
+        if: needs.check-prerelease.outputs.release == 'false'
         run: cargo publish --workspace --all-features --dry-run
 
   create-release:
     name: Create Release
     permissions:
       contents: write
-    needs: [build-binary, build-naist-jdic, check-prerelease, check-naist-jdic-digest]
+    needs: [build-binary, build-naist-jdic, check-prerelease]
     runs-on: ubuntu-latest
     steps:
       - name: Download All Artifacts
