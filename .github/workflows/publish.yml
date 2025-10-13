@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - v*.*.*
+    branches:
+      - fix-release-process
 
 jobs:
   pre-publish-test:
