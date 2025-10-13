@@ -63,7 +63,7 @@ impl Tokenizer for JPreprocessTokenizer {
             .into_iter()
             .map(|token| {
                 Ok(JPreprocessToken::new(
-                    token.text,
+                    token.surface,
                     self.get_word(token.word_id)?,
                 ))
             })

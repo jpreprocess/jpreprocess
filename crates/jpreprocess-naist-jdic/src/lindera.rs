@@ -1,74 +1,57 @@
 use lindera_dictionary::{
+    decompress::{decompress, CompressedData},
     dictionary::{
         character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
-        prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary, Dictionary,
+        metadata::Metadata, prefix_dictionary::PrefixDictionary,
+        unknown_dictionary::UnknownDictionary, Dictionary,
     },
+    util::Data,
     LinderaResult,
 };
 
-#[cfg(feature = "naist-jdic")]
+const METADATA_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/metadata.json"));
+
 const CHAR_DEFINITION_DATA: &[u8] =
-    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/char_def.bin"));
-#[cfg(not(feature = "naist-jdic"))]
-const CHAR_DEFINITION_DATA: &[u8] = &[];
+    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/char_def.bin"));
+const CONNECTION_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/matrix.mtx"));
+const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.da"));
+const IPADIC_VALS: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.vals"));
+const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/unk.bin"));
+const WORDS_IDX_DATA: &[u8] =
+    include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.wordsidx"));
+const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.words"));
 
-#[cfg(feature = "naist-jdic")]
-const CONNECTION_DATA: &[u8] =
-    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/matrix.mtx"));
-#[cfg(not(feature = "naist-jdic"))]
-const CONNECTION_DATA: &[u8] = &[];
+fn try_decompress(data: &'static [u8]) -> LinderaResult<Data> {
+    match bincode::serde::decode_from_slice::<CompressedData, _>(data, bincode::config::legacy()) {
+        Ok((compressed_data, _)) => {
+            // Successfully decoded as CompressedData, now decompress it
+            match decompress(compressed_data) {
+                Ok(decompressed) => Ok(Data::Vec(decompressed)),
+                Err(_) => {
+                    // Decompression failed, fall back to raw data
+                    Ok(Data::Static(data))
+                }
+            }
+        }
+        Err(_) => {
+            // Not compressed data format, use as raw binary
+            Ok(Data::Static(data))
+        }
+    }
+}
 
-#[cfg(feature = "naist-jdic")]
-const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.da"));
-#[cfg(not(feature = "naist-jdic"))]
-const IPADIC_DATA: &[u8] = &[];
-
-#[cfg(feature = "naist-jdic")]
-const IPADIC_VALS: &[u8] =
-    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.vals"));
-#[cfg(not(feature = "naist-jdic"))]
-const IPADIC_VALS: &[u8] = &[];
-
-#[cfg(feature = "naist-jdic")]
-const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/unk.bin"));
-#[cfg(not(feature = "naist-jdic"))]
-const UNKNOWN_DATA: &[u8] = &[];
-
-#[cfg(feature = "naist-jdic")]
-const WORDS_IDX_DATA: &[u8] = include_bytes!(concat!(
-    env!("LINDERA_WORKDIR"),
-    "/naist-jdic/dict.wordsidx"
-));
-#[cfg(not(feature = "naist-jdic"))]
-const WORDS_IDX_DATA: &[u8] = &[];
-
-#[cfg(feature = "naist-jdic")]
-const WORDS_DATA: &[u8] =
-    include_bytes!(concat!(env!("LINDERA_WORKDIR"), "/naist-jdic/dict.words"));
-#[cfg(not(feature = "naist-jdic"))]
-const WORDS_DATA: &[u8] = &[];
-
-pub fn load_dictionary() -> LinderaResult<Dictionary> {
+pub fn load() -> LinderaResult<Dictionary> {
     Ok(Dictionary {
-        prefix_dictionary: prefix_dict(),
-        connection_cost_matrix: connection(),
-        character_definition: char_def()?,
-        unknown_dictionary: unknown_dict()?,
+        metadata: Metadata::load(METADATA_DATA)?,
+        prefix_dictionary: PrefixDictionary::load(
+            try_decompress(IPADIC_DATA)?,
+            try_decompress(IPADIC_VALS)?,
+            try_decompress(WORDS_IDX_DATA)?,
+            try_decompress(WORDS_DATA)?,
+            true,
+        ),
+        connection_cost_matrix: ConnectionCostMatrix::load(try_decompress(CONNECTION_DATA)?),
+        character_definition: CharacterDefinition::load(&try_decompress(CHAR_DEFINITION_DATA)?)?,
+        unknown_dictionary: UnknownDictionary::load(&try_decompress(UNKNOWN_DATA)?)?,
     })
-}
-
-pub fn char_def() -> LinderaResult<CharacterDefinition> {
-    CharacterDefinition::load(CHAR_DEFINITION_DATA)
-}
-
-pub fn connection() -> ConnectionCostMatrix {
-    ConnectionCostMatrix::load(CONNECTION_DATA)
-}
-
-pub fn prefix_dict() -> PrefixDictionary {
-    PrefixDictionary::load(IPADIC_DATA, IPADIC_VALS, WORDS_IDX_DATA, WORDS_DATA, true)
-}
-
-pub fn unknown_dict() -> LinderaResult<UnknownDictionary> {
-    UnknownDictionary::load(UNKNOWN_DATA)
 }

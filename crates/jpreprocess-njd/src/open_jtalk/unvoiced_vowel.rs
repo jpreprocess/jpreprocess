@@ -106,7 +106,7 @@ pub fn njd_set_unvoiced_vowel(njd: &mut NJD) {
                 && state_curr.node_index != state_next.node_index
                 && state_nextnext
                     .as_ref()
-                    .map_or(true, |nn| nn.node_index != state_next.node_index);
+                    .is_none_or(|nn| nn.node_index != state_next.node_index);
             if is_voiced_ok && pos_ok && mora_ok {
                 state_next.is_voiced_flag = if state_next.atype == state_next.midx + 1 {
                     /* rule 4 */

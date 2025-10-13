@@ -32,7 +32,7 @@ pub enum DictionaryError {
     #[error("Word with id {0} not found")]
     IdNotFound(u32),
     #[error("Failed to decode: {0}")]
-    FailDecode(#[from] Box<bincode::ErrorKind>),
+    FailDecode(#[from] bincode::error::DecodeError),
     #[error("The word is flagged as UserDictionary, but Lindera UserDictionary is empty")]
     UserDictionaryNotProvided,
     #[error("The word is flagged as UserDictionary, but UserDictionary mode is not set")]

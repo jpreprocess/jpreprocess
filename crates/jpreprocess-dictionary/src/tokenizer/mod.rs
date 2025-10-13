@@ -25,10 +25,10 @@ impl Token for lindera::token::Token<'_> {
         let entry = if details == *UNK {
             WordEntry::default()
         } else {
-            details.resize(13, "");
+            details.resize(12, "");
             WordEntry::load(&details)?
         };
 
-        Ok((&self.text, entry))
+        Ok((&self.surface, entry))
     }
 }

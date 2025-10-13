@@ -9,8 +9,8 @@ use jpreprocess_dictionary::dictionary::{
         LinderaUserDictionaryWordEncoding,
     },
 };
-use lindera::dictionary::{load_dictionary_from_path, load_user_dictionary_from_bin};
-use lindera_dictionary::dictionary_builder::DictionaryBuilder;
+use lindera::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
+use lindera_dictionary::{builder::DictionaryBuilder, dictionary::metadata::Metadata};
 
 use crate::dict_query::QueryDict;
 
@@ -41,6 +41,9 @@ enum Commands {
         /// The serlializer to be used
         #[arg(value_enum)]
         serializer: Serializer,
+        /// The path to the metadata file
+        #[arg(short, long)]
+        metadata: Option<PathBuf>,
 
         input: PathBuf,
         /// The directory(system dictionary) or file(user dictionary) to put the dictionary.
@@ -86,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             if is_system_dict || is_user_bin_dict {
                 let dict = if is_system_dict {
                     println!("Lindera/JPreprocess system dictionary.");
-                    let dict = load_dictionary_from_path(&input)?;
+                    let dict = load_fs_dictionary(&input)?;
                     QueryDict::System(dict)
                 } else {
                     println!("Lindera/JPreprocess user dictionary.");
@@ -100,15 +103,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                     QueryDict::User(dict)
                 };
 
-                let serializer = if let Some(metadata) = dict.identifier() {
-                    println!("Dictionary metadata: {}", metadata);
-                    if metadata.starts_with("jpreprocess") {
+                let serializer = if let Some(identifier) = dict.identifier() {
+                    println!("Dictionary identifier: {}", identifier);
+                    if identifier.starts_with("jpreprocess") {
                         Serializer::Jpreprocess
                     } else {
                         Serializer::Lindera
                     }
                 } else {
-                    println!("No metadata found. Assuming lindera dictionary.");
+                    println!("No identifier found. Assuming lindera dictionary.");
                     Serializer::Lindera
                 };
 
@@ -137,25 +140,49 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Build {
             user,
             serializer: serializer_config,
+            metadata: metadata_path,
             input,
             output,
         } => {
-            let builder: Box<dyn DictionaryBuilder> = match serializer_config {
-                Serializer::Lindera => {
-                    Box::new(lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new())
+            let metadata = if let Some(metadata_path) = metadata_path {
+                println!("Loading metadata from {:?}", metadata_path);
+                let data = std::fs::read(&metadata_path)?;
+                Metadata::load(&data)?
+            } else {
+                match serializer_config {
+                    Serializer::Lindera => {
+                        println!("Using default lindera metadata.");
+                        Metadata::default()
+                    }
+                    Serializer::Jpreprocess => {
+                        println!("Using default jpreprocess metadata.");
+                        JPreprocessDictionaryBuilder::default_metadata()
+                    }
                 }
-                Serializer::Jpreprocess => Box::new(JPreprocessDictionaryBuilder::new()),
             };
 
-            if user {
-                println!("Building user dictionary...");
-                builder.build_user_dictionary(&input, &output)?;
-                println!("done.");
-            } else {
-                println!("Building system dictionary...");
-                builder.build_dictionary(&input, &output)?;
-                println!("done.");
+            println!("Building dictionary...");
+            match serializer_config {
+                Serializer::Lindera => {
+                    let builder = DictionaryBuilder::new(metadata);
+
+                    if user {
+                        builder.build_user_dictionary(&input, &output)?;
+                    } else {
+                        builder.build_dictionary(&input, &output)?;
+                    }
+                }
+                Serializer::Jpreprocess => {
+                    let builder = JPreprocessDictionaryBuilder::new(metadata);
+
+                    if user {
+                        builder.build_user_dictionary(&input, &output)?;
+                    } else {
+                        builder.build_dictionary(&input, &output)?;
+                    }
+                }
             }
+            println!("done.");
         }
         Commands::Csv {
             user,
@@ -173,7 +200,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             println!("Loading dictionary...");
             let dict = if !user {
-                let dict = load_dictionary_from_path(&input)?;
+                let dict = load_fs_dictionary(&input)?;
                 QueryDict::System(dict)
             } else {
                 if input.extension().unwrap() != "bin" {
@@ -192,14 +219,14 @@ fn main() -> Result<(), Box<dyn Error>> {
             let csv = match serializer_config {
                 Serializer::Lindera => match dict {
                     QueryDict::System(_) => {
-                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(&prefix_dict)?
+                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(prefix_dict)?
                     }
                     QueryDict::User(_) => {
-                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(&prefix_dict)?
+                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(prefix_dict)?
                     }
                 },
                 Serializer::Jpreprocess => {
-                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(&prefix_dict)?
+                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(prefix_dict)?
                 }
             };
             println!("done.");

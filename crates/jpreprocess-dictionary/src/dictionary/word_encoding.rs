@@ -1,32 +1,32 @@
 use byteorder::{ByteOrder, LittleEndian};
+use jpreprocess_core::word_line::WordDetailsLine;
 use lindera_dictionary::{error::LinderaErrorKind, LinderaResult};
 
 /// A trait for encoding and decoding as dictionary entry.
 pub trait DictionaryWordEncoding: Sized {
     fn identifier() -> &'static str;
-    fn encode(row: &[&str]) -> LinderaResult<Vec<u8>>;
+    fn encode(row: WordDetailsLine) -> LinderaResult<Vec<u8>>;
     fn decode(string: String, details: &[u8]) -> LinderaResult<Vec<String>>;
 }
 
 pub struct JPreprocessDictionaryWordEncoding;
 impl JPreprocessDictionaryWordEncoding {
-    pub fn serialize(data: &jpreprocess_core::word_entry::WordEntry) -> bincode::Result<Vec<u8>> {
-        use bincode::Options;
-        Self::bincode_option().serialize(data)
+    pub fn serialize(
+        data: &jpreprocess_core::word_entry::WordEntry,
+    ) -> Result<Vec<u8>, bincode::error::EncodeError> {
+        bincode::serde::encode_to_vec(data, Self::bincode_option())
     }
-    pub fn deserialize(data: &[u8]) -> bincode::Result<jpreprocess_core::word_entry::WordEntry> {
-        use bincode::Options;
-        Self::bincode_option().deserialize(data)
+    pub fn deserialize(
+        data: &[u8],
+    ) -> Result<jpreprocess_core::word_entry::WordEntry, bincode::error::DecodeError> {
+        let (decoded, _size) = bincode::serde::decode_from_slice(data, Self::bincode_option())?;
+        Ok(decoded)
     }
 
-    fn bincode_option() -> impl bincode::Options {
-        use bincode::Options;
-
-        bincode::config::DefaultOptions::new()
+    fn bincode_option() -> bincode::config::Configuration {
+        bincode::config::standard()
             .with_no_limit()
             .with_little_endian()
-            .with_varint_encoding()
-            .allow_trailing_bytes()
     }
 }
 impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
@@ -34,10 +34,9 @@ impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
         concat!("jpreprocess ", env!("CARGO_PKG_VERSION"))
     }
 
-    fn encode(row: &[&str]) -> LinderaResult<Vec<u8>> {
-        let mut row = row.to_vec();
-        row.resize(13, "");
-        let data = jpreprocess_core::word_entry::WordEntry::load(&row)
+    fn encode(row: WordDetailsLine) -> LinderaResult<Vec<u8>> {
+        let data = row
+            .try_into()
             .map_err(|err| LinderaErrorKind::Serialize.with_error(err))?;
         Self::serialize(&data).map_err(|err| LinderaErrorKind::Serialize.with_error(err))
     }
@@ -55,7 +54,7 @@ impl DictionaryWordEncoding for LinderaSystemDictionaryWordEncoding {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }
 
-    fn encode(_row: &[&str]) -> LinderaResult<Vec<u8>> {
+    fn encode(_row: WordDetailsLine) -> LinderaResult<Vec<u8>> {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }
 
@@ -81,11 +80,11 @@ impl DictionaryWordEncoding for LinderaUserDictionaryWordEncoding {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }
 
-    fn encode(_row: &[&str]) -> LinderaResult<Vec<u8>> {
+    fn encode(_row: WordDetailsLine) -> LinderaResult<Vec<u8>> {
         unimplemented!("JPreprocess does not support building in Lindera dictionary format")
     }
 
     fn decode(_string: String, data: &[u8]) -> LinderaResult<Vec<String>> {
-        bincode::deserialize(data).map_err(|err| LinderaErrorKind::Deserialize.with_error(err))
+        LinderaSystemDictionaryWordEncoding::decode(_string, data)
     }
 }

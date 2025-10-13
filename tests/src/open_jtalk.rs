@@ -2,6 +2,7 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 use jpreprocess::*;
+use jpreprocess_core::pos::{Kigou, POS};
 use jpreprocess_njd::NJDNode;
 
 #[cfg(feature = "naist-jdic")]
@@ -38,11 +39,7 @@ fn test_one(input_text: &'static str) {
     #[cfg(not(feature = "naist-jdic"))]
     let config = SystemDictionaryConfig::File(PathBuf::from("data/dict"));
 
-    let jpreprocess = JPreprocess::from_config(JPreprocessConfig {
-        dictionary: config,
-        user_dictionary: None,
-    })
-    .unwrap();
+    let jpreprocess = JPreprocess::with_dictionaries(config.load().unwrap(), None);
 
     let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
 
@@ -77,6 +74,15 @@ fn test_one(input_text: &'static str) {
 
     for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
         let node_ans = NJDNode::new_single(ans);
+
+        if node_ans.get_pos() == &POS::Kigou(Kigou::Space) {
+            // Pass the difference introduced between Lindera 0.42.0 and 1.3.0
+            // This is because Lindera dictionary builder trims spaces from v1.0.0.
+            assert_eq!(node.get_string(), "\u{3000}");
+            assert_eq!(node.get_pos(), &POS::Kigou(Kigou::None));
+            continue;
+        }
+
         assert_eq!(node, &node_ans);
     }
 

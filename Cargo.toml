@@ -8,34 +8,34 @@ members = [
 ]
 
 [workspace.package]
-version = "0.11.0"
+version = "0.12.0"
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
 license = "BSD-3-Clause"
 repository = "https://github.com/jpreprocess/jpreprocess"
 keywords = ["tts", "openjtalk", "library"]
 categories = ["text-processing"]
 
-rust-version = "1.77.0"
+rust-version = "1.85.0"
 
 [workspace.dependencies]
-jpreprocess = { path = "crates/jpreprocess", version = "0.11.0" }
+jpreprocess = { path = "crates/jpreprocess", version = "0.12.0" }
 
-jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.11.0" }
-jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.11.0" }
-jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon", version = "0.11.0" }
-jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.11.0" }
-jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.11.0" }
-jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.11.0" }
+jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.12.0" }
+jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.12.0" }
+jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon", version = "0.12.0" }
+jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.12.0" }
+jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.12.0" }
+jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.12.0" }
 
-lindera = "0.39"
-lindera-dictionary = { version = "0.39", default-features = false }
+lindera = "1.3.2"
+lindera-dictionary = { version = "1.3.2", default-features = false }
 
 jlabel = "0.1.4"
 
 clap = "4.5.4"
 
 anyhow = "1.0.82"
-bincode = "1.3.3"
+bincode = "2.0.1"
 byteorder = "1.5.0"
 csv = "1.3.0"
 derive_builder = "0.20.2"
@@ -45,13 +45,25 @@ log = "0.4.21"
 once_cell = "1.19.0"
 thiserror = "1.0.59"
 yada = "0.5.1"
-rayon = "1.10"
+encoding_rs = "0.8.35"
+encoding_rs_io = "0.1.7"
 
-tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.43.0", features = [
+    "rt",
+    "macros",
+    "time",
+    "sync",
+    "io-util",
+] }
+reqwest = { version = "0.12.23", default-features = false, features = ["http2", "rustls-tls", "system-proxy"] }
+md5 = "0.8.0"
+flate2 = "1.1.2"
+tar = "0.4.44"
 
 serde = "1.0.200"
 serde_json = "1.0.138"
 
 aho-corasick = "1.1"
 regex = "1.10.4"
-phf = "0.11"
+phf = "0.13"
+

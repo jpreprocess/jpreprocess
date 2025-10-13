@@ -28,12 +28,11 @@ pub fn dict_to_csv<E: DictionaryWordEncoding>(
 
     Ok(rows
         .into_iter()
-        .enumerate()
-        .map(|(i, (string, word_entry))| {
+        .map(|(string, word_entry)| {
             let word_data = get_word_data(
                 &prefix_dictionary.words_idx_data,
                 &prefix_dictionary.words_data,
-                Some(i),
+                Some(word_entry.word_id.id as usize),
             )
             .unwrap();
             let details = E::decode(string.clone(), word_data).unwrap();
@@ -78,8 +77,6 @@ pub fn inverse_prefix_dict(prefix_dictionary: &PrefixDictionary, is_system: bool
 
 #[cfg(test)]
 mod tests {
-    use lindera_dictionary::dictionary_builder::DictionaryBuilder;
-
     use crate::dictionary::word_encoding::{
         JPreprocessDictionaryWordEncoding, LinderaUserDictionaryWordEncoding,
     };
@@ -92,8 +89,10 @@ mod tests {
         let input_file = PathBuf::from("./test.csv");
 
         let builder =
-            lindera_dictionary::dictionary_builder::ipadic_neologd::IpadicNeologdBuilder::new();
-        let user_dict = builder.build_user_dict(&input_file).unwrap();
+            lindera_dictionary::builder::user_dictionary::UserDictionaryBuilderOptions::default()
+                .builder()
+                .unwrap();
+        let user_dict = builder.build(&input_file).unwrap();
 
         let inverse = dict_to_csv::<LinderaUserDictionaryWordEncoding>(&user_dict.dict)?;
 
@@ -110,7 +109,7 @@ mod tests {
     fn inverse_jpreprocess() -> Result<(), Box<dyn Error>> {
         let input_file = PathBuf::from("./test.csv");
 
-        let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder::new();
+        let builder = crate::dictionary::to_dict::JPreprocessDictionaryBuilder::default();
         let user_dict = builder.build_user_dict(&input_file).unwrap();
 
         let inverse = dict_to_csv::<JPreprocessDictionaryWordEncoding>(&user_dict.dict)?;
