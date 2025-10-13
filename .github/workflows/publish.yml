@@ -32,6 +32,23 @@ jobs:
       - name: Run Clippy
         run: cargo clippy --all-targets
 
+  check-prerelease:
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.check-tag.outputs.release }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Check Tag
+        id: check-tag
+        run: |
+          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Not prerelease"
+            echo "release=true" >> $GITHUB_OUTPUT
+          else
+            echo "Prerelease"
+            echo "release=false" >> $GITHUB_OUTPUT
+          fi
+
   build-binary:
     strategy:
       fail-fast: false
@@ -126,64 +143,61 @@ jobs:
           name: naist-jdic
           path: naist-jdic-jpreprocess.tar.gz
 
-  publish-crates:
+  generate-prebuilt-json:
     runs-on: ubuntu-latest
-    needs: [pre-publish-test]
-    env:
-      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    needs: [build-naist-jdic]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-      - name: publish
+      - name: Download naist-jdic artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: naist-jdic
+      - name: Generate prebuilt.json
         run: |
-          publish_package () {
-            VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"$1\") | .version")
-            VERSIONS=$(curl -s -XGET "https://crates.io/api/v1/crates/$1" | jq -r 'select(.versions != null) | .versions[].num')
-            if echo "${VERSIONS}" | grep "${VERSION}" >/dev/null; then
-              echo "$1 ${VERSION} has already been published"
-            else
-              sleep 15
-              cargo publish -p "$1" --all-features
-            fi
-          }
+          URL="https://github.com/jpreprocess/jpreprocess/releases/download/${{ github.ref_name }}/naist-jdic-jpreprocess.tar.gz"
+          MD5HASH=$(md5sum naist-jdic-jpreprocess.tar.gz | awk '{ print $1 }')
+          echo "{\"url\": \"$URL\", \"digest\": \"$MD5HASH\"}" > prebuilt.json
+      - name: Upload prebuilt.json
+        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        with:
+          name: prebuilt-json
+          path: prebuilt.json
 
-          publish_package "jpreprocess-core"
-          sleep 5
-          publish_package "jpreprocess-dictionary"
-          sleep 5
-          publish_package "jpreprocess-naist-jdic"
-          sleep 5
-          publish_package "jpreprocess-window"
-          sleep 5
-          publish_package "jpreprocess-njd"
-          sleep 5
-          publish_package "jpreprocess-jpcommon"
-          sleep 5
-          publish_package "jpreprocess"
+  publish-crates:
+    runs-on: ubuntu-latest
+    needs: [pre-publish-test, check-prerelease, generate-prebuilt-json]
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      - name: Download prebuilt.json artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: prebuilt-json
+          path: crates/jpreprocess-naist-jdic
+      - name: Show prebuilt.json
+        run: cat crates/jpreprocess-naist-jdic/prebuilt.json
+      - name: Publish crates
+        if: needs.check-prerelease.outputs.release == 'true'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish --workspace --all-features
+      - name: Publish crates (dry run)
+        if: needs.check-prerelease.outputs.release == 'false'
+        run: cargo publish --workspace --all-features --dry-run
 
   create-release:
     name: Create Release
     permissions:
       contents: write
-    needs: [build-binary, build-naist-jdic, publish-crates]
+    needs: [pre-publish-test, check-prerelease, build-binary, build-naist-jdic]
     runs-on: ubuntu-latest
     steps:
       - name: Download All Artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
-      - name: Check Tag
-        id: check-tag
-        run: |
-          if [[ ${{ github.event.ref }} =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Not prerelease"
-            echo "prerelease=false" >> $GITHUB_OUTPUT
-          else
-            echo "Prerelease"
-            echo "prerelease=true" >> $GITHUB_OUTPUT
-          fi
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: ${{ steps.check-tag.outputs.prerelease == 'true' }}
+          prerelease: ${{ needs.check-prerelease.outputs.release == 'false' }}
           files: |
             **/*.zip
             **/*.tar.gz
