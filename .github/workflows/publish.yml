@@ -190,7 +190,7 @@ jobs:
     name: Create Release
     permissions:
       contents: write
-    needs: [build-binary, build-naist-jdic, check-prerelease]
+    needs: [pre-publish-test, check-prerelease, build-binary, build-naist-jdic]
     runs-on: ubuntu-latest
     steps:
       - name: Download All Artifacts
