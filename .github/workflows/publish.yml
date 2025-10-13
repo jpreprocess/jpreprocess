@@ -157,7 +157,7 @@ jobs:
       - name: Check digest
         run: |
           CURRENT_DIGEST=$(jq -r '.prebuilt.digest' crates/jpreprocess-naist-jdic/build.json)
-          NEW_DIGEST=$(sha256sum naist-jdic-jpreprocess.tar.gz | awk '{print $1}')
+          NEW_DIGEST=$(md5sum naist-jdic-jpreprocess.tar.gz | awk '{print $1}')
           echo "Current digest: $CURRENT_DIGEST"
           echo "New digest: $NEW_DIGEST"
           if [ "$CURRENT_DIGEST" != "$NEW_DIGEST" ]; then
