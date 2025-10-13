@@ -5,6 +5,7 @@ use std::error::Error;
 async fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=Cargo.toml");
+    println!("cargo:rerun-if-changed=prebuilt.json");
     println!("cargo:rerun-if-changed=build.json");
 
     if std::env::var("DOCS_RS").is_ok() {
@@ -29,13 +30,64 @@ mod fetch_dictionary {
     };
 
     pub async fn download(force_build: bool) -> Result<(), Box<dyn Error>> {
-        let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("build.json");
-        let config_data = std::fs::read_to_string(&config_path)?;
-        let mut config: Config = serde_json::from_str(&config_data)?;
-        if force_build {
-            config.force_build();
+        let client = reqwest::ClientBuilder::new()
+            .timeout(std::time::Duration::from_secs(30))
+            .user_agent(concat!(
+                "jpreprocess-naist-jdic/",
+                env!("CARGO_PKG_VERSION"),
+            ))
+            .build()?;
+
+        let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
+        let dict_dir = out_dir.join("naist-jdic");
+
+        println!(
+            "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
+            dict_dir.display()
+        );
+
+        let prebuilt = {
+            let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("prebuilt.json");
+            if !force_build && config_path.exists() {
+                let config_data = std::fs::read_to_string(config_path)?;
+                let config = serde_json::from_str::<FetchConfig>(&config_data)?;
+                Some(config)
+            } else {
+                None
+            }
+        };
+
+        if let Some(prebuilt) = &prebuilt {
+            println!("Attempting to download prebuilt naist-jdic...");
+
+            let prebuilt_download_dir = out_dir.join("naist-jdic-prebuilt");
+
+            let prebuilt_result = prebuilt.fetch(&client, prebuilt_download_dir.clone()).await;
+
+            if prebuilt_result.is_ok() {
+                println!("Successfully downloaded prebuilt naist-jdic.");
+
+                let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
+                let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
+                std::fs::rename(&prebuilt_dir, &dict_dir)?;
+
+                return Ok(());
+            } else {
+                println!("Failed to download prebuilt naist-jdic, falling back to building from source: {}", prebuilt_result.unwrap_err());
+            }
         }
-        config.download().await
+
+        println!("Downloading and building naist-jdic from source...");
+
+        let build = {
+            let config_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("build.json");
+            let config_data = std::fs::read_to_string(config_path)?;
+            serde_json::from_str::<BuildConfig>(&config_data)?
+        };
+
+        build.build(&client, out_dir.join("work"), dict_dir).await?;
+
+        Ok(())
     }
 
     /// Configuration for downloading and building the dictionary
