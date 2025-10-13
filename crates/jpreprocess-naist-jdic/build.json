@@ -1,0 +1,51 @@
+{
+  "prebuilt": {
+    "url": "https://github.com/jpreprocess/jpreprocess/releases/download/v0.12.0/naist-jdic-jpreprocess.tar.gz",
+    "digest": "a27d2548ecc8e76242c056e5644a2e57"
+  },
+  "build": {
+    "src": {
+      "url": "https://github.com/jpreprocess/naist-jdic/archive/refs/tags/v0.1.3.tar.gz",
+      "digest": "a27d2548ecc8e76242c056e5644a2e57"
+    },
+    "metadata": {
+      "name": "jpreprocess naist-jdic",
+      "encoding": "UTF-8",
+      "compress_algorithm": "deflate",
+      "default_word_cost": -10000,
+      "default_left_context_id": 1288,
+      "default_right_context_id": 1288,
+      "default_field_value": "*",
+      "flexible_csv": false,
+      "skip_invalid_cost_or_id": false,
+      "normalize_details": false,
+      "dictionary_schema": {
+        "fields": [
+          "surface",
+          "left_context_id",
+          "right_context_id",
+          "cost",
+          "major_pos",
+          "middle_pos",
+          "small_pos",
+          "fine_pos",
+          "conjugation_type",
+          "conjugation_form",
+          "base_form",
+          "reading",
+          "pronunciation",
+          "accent_morasize",
+          "chain_rule",
+          "chain_flag"
+        ]
+      },
+      "user_dictionary_schema": {
+        "fields": [
+          "surface",
+          "reading",
+          "pronunciation"
+        ]
+      }
+    }
+  }
+}
