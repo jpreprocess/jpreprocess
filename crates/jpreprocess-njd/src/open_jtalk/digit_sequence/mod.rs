@@ -210,7 +210,7 @@ impl DigitSequence {
                 have_digit_in_block = true;
             }
 
-            if rev_index % 4 == 0 {
+            if rev_index.is_multiple_of(4) {
                 if have_digit_in_block && rev_index > 0 {
                     njd.nodes.insert(
                         nodes_index + 1,
