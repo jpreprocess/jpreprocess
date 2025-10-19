@@ -2,8 +2,11 @@ use std::fmt::Display;
 
 /// A struct to represent a line in a word dictionary file.
 ///
-/// > [!WARNING]
-/// > This struct is experimental and may change in the future.
+/// <div class="warning">
+///
+/// This struct is experimental and may change in the future.
+///
+/// </div>
 #[derive(Clone, PartialEq, Debug)]
 pub struct WordDetailsLine {
     pub pos: String,
