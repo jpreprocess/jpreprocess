@@ -199,6 +199,5 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: ${{ needs.check-prerelease.outputs.release == 'false' }}
           files: |
-            **/*.zip
             **/*.tar.gz
             **/*.tgz
