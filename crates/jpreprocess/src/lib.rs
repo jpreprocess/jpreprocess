@@ -64,9 +64,12 @@ pub struct JPreprocess<T: Tokenizer> {
 }
 
 impl JPreprocess<DefaultTokenizer> {
-    /// > [!WARNING]
-    /// > 1. This function is deprecated and will be removed in a future version. Use [`with_dictionaries`] instead.
-    /// > 2. Meanwhile, this function will continue to work, but it cannot load CSV-type user dictionaries.
+    /// <div class="warning">
+    ///
+    /// 1. This function is deprecated and will be removed in a future version. Use [`with_dictionaries`] instead.
+    /// 2. Meanwhile, this function will continue to work, but it cannot load CSV-type user dictionaries.
+    ///
+    /// </div>
     ///
     /// Loads the dictionary from JPreprocessConfig.
     ///

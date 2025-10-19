@@ -26,11 +26,8 @@ preprocesses a text into jpcommon labels.
 ```rs
 use jpreprocess::*;
 
-let config = JPreprocessConfig {
-     dictionary: SystemDictionaryConfig::File(path),
-     user_dictionary: None,
- };
-let jpreprocess = JPreprocess::from_config(config)?;
+let system = SystemDictionaryConfig::File(path).load()?;
+let jpreprocess = JPreprocess::with_dictionaries(system, None);
 
 let jpcommon_label = jpreprocess
     .extract_fullcontext("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
