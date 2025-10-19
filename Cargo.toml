@@ -6,6 +6,9 @@ members = [
   "examples/*",
   "tests",
 ]
+default-members = [
+  "crates/*",
+]
 
 [workspace.package]
 version = "0.13.0"
