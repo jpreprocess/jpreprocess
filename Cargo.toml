@@ -11,7 +11,7 @@ default-members = [
 ]
 
 [workspace.package]
-version = "0.13.1"
+version = "0.13.2"
 description = "Japanese text preprocessor for Text-to-Speech application (OpenJTalk rewrite in rust language)."
 license = "BSD-3-Clause"
 repository = "https://github.com/jpreprocess/jpreprocess"
@@ -21,14 +21,14 @@ categories = ["text-processing"]
 rust-version = "1.88.0"
 
 [workspace.dependencies]
-jpreprocess = { path = "crates/jpreprocess", version = "0.13.1" }
+jpreprocess = { path = "crates/jpreprocess", version = "0.13.2" }
 
-jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.13.1" }
-jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.13.1" }
-jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon", version = "0.13.1" }
-jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.13.1" }
-jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.13.1" }
-jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.13.1" }
+jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.13.2" }
+jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.13.2" }
+jpreprocess-jpcommon = { path = "crates/jpreprocess-jpcommon", version = "0.13.2" }
+jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.13.2" }
+jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.13.2" }
+jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.13.2" }
 
 lindera = "~1.4.1"
 lindera-dictionary = { version = "~1.4.1", default-features = false }
