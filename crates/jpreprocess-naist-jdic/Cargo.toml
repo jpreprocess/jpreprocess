@@ -12,6 +12,15 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-naist-jdic"
 
+include = [
+  "src/**",
+  "build.json",
+  "build.rs",
+  "NOTICE.txt",
+  "prebuilt.json",
+  "README.md",
+]
+
 [features]
 naist-jdic = [
   "dep:tokio",
