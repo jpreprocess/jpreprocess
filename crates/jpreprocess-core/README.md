@@ -13,7 +13,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess-core = "0.13.0"
+jpreprocess-core = "0.13.1"
 ```
 
 ## Copyrights
