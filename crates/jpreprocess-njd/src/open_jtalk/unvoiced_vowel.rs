@@ -8,7 +8,7 @@
 //! 3. 続けて無声化しない
 //! 4. アクセント核で無声化しない
 //! 5. 無声子音(`k ky s sh t ty ch ts h f hy p py`)に囲まれた「`i`」と「`u`」が無声化
-//!    - 例外：`s->s`, `s->sh`, `f->f`, `f->h`, `f->hy`, `h->f`, `h->h`, `h->hy`
+//!    - 例外：`s->s`, `s->sh`, `f->f`, `f->hy`, `hy->f`, `hy->hy`
 
 use jpreprocess_core::pronunciation::{
     phoneme::{Consonant, Vowel},
@@ -159,8 +159,8 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
         return Some(true);
     };
 
-    let (curr_consonant, curr_vowel) = mora_curr.phonemes();
-    let (next_consonant, _) = mora_next.phonemes();
+    let (curr_consonant, curr_vowel) = mora_curr.phonemes_consistent();
+    let (next_consonant, _) = mora_next.phonemes_consistent();
 
     if !matches!(
         curr_vowel,
@@ -171,9 +171,7 @@ fn apply_unvoice_rule(mora_curr: &Mora, mora_next: Option<&Mora>) -> Option<bool
 
     Some(match (curr_consonant, next_consonant) {
         (Some(Consonant::S), Some(Consonant::S | Consonant::Sh)) => true,
-        (Some(Consonant::F | Consonant::H), Some(Consonant::F | Consonant::H | Consonant::Hy)) => {
-            true
-        }
+        (Some(Consonant::F | Consonant::Hy), Some(Consonant::F | Consonant::Hy)) => true,
         (
             Some(
                 Consonant::K
