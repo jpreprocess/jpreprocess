@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "jpreprocess"
-requires-python = ">=3.8, <=3.14"
+requires-python = ">=3.8, <3.15"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
