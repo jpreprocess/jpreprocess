@@ -47,12 +47,12 @@ use lindera::dictionary::load_user_dictionary_from_bin;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
-pub use jpreprocess_dictionary::tokenizer::{default::DefaultTokenizer, Tokenizer};
+pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
 pub use jpreprocess_njd::NJD;
 pub use lindera::dictionary::UserDictionaryConfig;
 pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
 
-use jpreprocess_core::*;
+use jpreprocess_core::{token::Tokenizer, *};
 
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,

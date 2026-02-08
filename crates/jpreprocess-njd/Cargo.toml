@@ -18,4 +18,3 @@ aho-corasick.workspace = true
 
 jpreprocess-core.workspace = true
 jpreprocess-window.workspace = true
-jpreprocess-dictionary.workspace = true

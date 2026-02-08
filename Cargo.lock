@@ -939,6 +939,7 @@ dependencies = [
  "aho-corasick",
  "bincode",
  "lindera",
+ "lindera-dictionary",
  "once_cell",
  "regex",
  "serde",
@@ -999,7 +1000,6 @@ version = "0.13.2"
 dependencies = [
  "aho-corasick",
  "jpreprocess-core",
- "jpreprocess-dictionary",
  "jpreprocess-window",
  "phf",
 ]
