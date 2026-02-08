@@ -50,6 +50,89 @@ pub struct JPreprocess<T: Tokenizer> {
     tokenizer: T,
 }
 
+impl<T: Tokenizer> JPreprocess<T> {
+    /// Creates JPreprocess from provided tokenizer.
+    pub fn from_tokenizer(tokenizer: T) -> Self {
+        Self { tokenizer }
+    }
+
+    /// Tokenize input text and return NJD.
+    ///
+    /// Useful for customizing text processing.
+    ///
+    /// ```rust
+    /// # use std::error::Error;
+    /// # use std::path::PathBuf;
+    /// use jpreprocess::*;
+    /// use jpreprocess_jpcommon::*;
+    ///
+    /// # fn main() -> Result<(), Box<dyn Error>> {
+    /// # let path = PathBuf::from("../../tests/data/min-dict");
+    /// let system = SystemDictionaryConfig::File(path).load()?;
+    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
+    ///
+    /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
+    /// njd.preprocess();
+    ///
+    /// // Do something with njd
+    ///
+    /// // jpcommon utterance
+    /// let utterance = Utterance::from(njd.nodes.as_slice());
+    ///
+    /// // Vec<([phoneme string], [context labels])>
+    /// let phoneme_vec = utterance_to_phoneme_vec(&utterance);
+    ///
+    /// assert_eq!(&phoneme_vec[2].0, "i");
+    ///
+    /// // fullcontext label
+    /// let fullcontext = overwrapping_phonemes(phoneme_vec);
+    ///
+    /// assert!(fullcontext[2].to_string().starts_with("sil^n-i+h=o"));
+    /// #
+    /// #     Ok(())
+    /// # }
+    /// ```
+    pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
+        let normalized_input_text = normalize_text_for_naist_jdic(text);
+        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
+
+        NJD::from_tokens(tokens)
+    }
+
+    /// Tokenize a text, preprocess, and return NJD converted to string.
+    ///
+    /// The returned string does not match that of openjtalk.
+    /// JPreprocess drops orig string and some of the CForm information,
+    /// which is unnecessary to preprocessing.
+    ///
+    /// If you need these infomation, please raise a feature request as an issue.
+    pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
+        let mut njd = Self::text_to_njd(self, text)?;
+        njd.preprocess();
+        Ok(njd.into())
+    }
+
+    /// Generate jpcommon features from NJD features(returned by [`run_frontend`]).
+    ///
+    /// [`run_frontend`]: #method.run_frontend
+    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<jlabel::Label> {
+        let njd = NJD::from_strings(njd_features);
+        jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
+    }
+
+    /// Generate jpcommon features from a text.
+    ///
+    /// This is not guaranteed to be same as calling [`run_frontend`] and [`make_label`].
+    ///
+    /// [`run_frontend`]: #method.run_frontend
+    /// [`make_label`]: #method.make_label
+    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
+        let mut njd = Self::text_to_njd(self, text)?;
+        njd.preprocess();
+        Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
+    }
+}
+
 #[cfg(feature = "tokenizer")]
 mod dictionary;
 #[cfg(feature = "tokenizer")]
@@ -164,89 +247,6 @@ mod default_tokenizer_impl {
 
             Self::from_tokenizer(tokenizer)
         }
-    }
-}
-
-impl<T: Tokenizer> JPreprocess<T> {
-    /// Creates JPreprocess from provided tokenizer.
-    pub fn from_tokenizer(tokenizer: T) -> Self {
-        Self { tokenizer }
-    }
-
-    /// Tokenize input text and return NJD.
-    ///
-    /// Useful for customizing text processing.
-    ///
-    /// ```rust
-    /// # use std::error::Error;
-    /// # use std::path::PathBuf;
-    /// use jpreprocess::*;
-    /// use jpreprocess_jpcommon::*;
-    ///
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// # let path = PathBuf::from("../../tests/data/min-dict");
-    /// let system = SystemDictionaryConfig::File(path).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
-    ///
-    /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
-    /// njd.preprocess();
-    ///
-    /// // Do something with njd
-    ///
-    /// // jpcommon utterance
-    /// let utterance = Utterance::from(njd.nodes.as_slice());
-    ///
-    /// // Vec<([phoneme string], [context labels])>
-    /// let phoneme_vec = utterance_to_phoneme_vec(&utterance);
-    ///
-    /// assert_eq!(&phoneme_vec[2].0, "i");
-    ///
-    /// // fullcontext label
-    /// let fullcontext = overwrapping_phonemes(phoneme_vec);
-    ///
-    /// assert!(fullcontext[2].to_string().starts_with("sil^n-i+h=o"));
-    /// #
-    /// #     Ok(())
-    /// # }
-    /// ```
-    pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
-        let normalized_input_text = normalize_text_for_naist_jdic(text);
-        let tokens = self.tokenizer.tokenize(normalized_input_text.as_str())?;
-
-        NJD::from_tokens(tokens)
-    }
-
-    /// Tokenize a text, preprocess, and return NJD converted to string.
-    ///
-    /// The returned string does not match that of openjtalk.
-    /// JPreprocess drops orig string and some of the CForm information,
-    /// which is unnecessary to preprocessing.
-    ///
-    /// If you need these infomation, please raise a feature request as an issue.
-    pub fn run_frontend(&self, text: &str) -> JPreprocessResult<Vec<String>> {
-        let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess();
-        Ok(njd.into())
-    }
-
-    /// Generate jpcommon features from NJD features(returned by [`run_frontend`]).
-    ///
-    /// [`run_frontend`]: #method.run_frontend
-    pub fn make_label(&self, njd_features: Vec<String>) -> Vec<jlabel::Label> {
-        let njd = NJD::from_strings(njd_features);
-        jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes)
-    }
-
-    /// Generate jpcommon features from a text.
-    ///
-    /// This is not guaranteed to be same as calling [`run_frontend`] and [`make_label`].
-    ///
-    /// [`run_frontend`]: #method.run_frontend
-    /// [`make_label`]: #method.make_label
-    pub fn extract_fullcontext(&self, text: &str) -> JPreprocessResult<Vec<jlabel::Label>> {
-        let mut njd = Self::text_to_njd(self, text)?;
-        njd.preprocess();
-        Ok(jpreprocess_jpcommon::njdnodes_to_features(&njd.nodes))
     }
 }
 
