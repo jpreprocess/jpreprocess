@@ -46,118 +46,124 @@ pub use jpreprocess_core::error;
 use jpreprocess_core::{token::Tokenizer, *};
 pub use jpreprocess_njd::NJD;
 
-#[cfg(feature = "tokenizer")]
-mod dictionary;
-#[cfg(feature = "tokenizer")]
-pub use dictionary::*;
-#[cfg(feature = "tokenizer")]
-pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
-#[cfg(feature = "tokenizer")]
-pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
-
-/// This struct is left for compatibility.
-/// Please use [`JPreprocess::with_dictionaries`] instead.
-#[cfg(feature = "tokenizer")]
-pub struct JPreprocessConfig {
-    pub dictionary: SystemDictionaryConfig,
-    pub user_dictionary: Option<lindera::dictionary::UserDictionaryConfig>,
-}
-
 pub struct JPreprocess<T: Tokenizer> {
     tokenizer: T,
 }
 
 #[cfg(feature = "tokenizer")]
-impl JPreprocess<DefaultTokenizer> {
-    /// <div class="warning">
-    ///
-    /// 1. This function is deprecated and will be removed in a future version. Use [`with_dictionaries`] instead.
-    /// 2. Meanwhile, this function will continue to work, but it cannot load CSV-type user dictionaries.
-    ///
-    /// </div>
-    ///
-    /// Loads the dictionary from JPreprocessConfig.
-    ///
-    /// This supports importing files and built-in dictionary (needs feature).
-    /// If you need to import from data, please use [`with_dictionaries`] instead.
-    ///
-    /// [`with_dictionaries`]: #method.with_dictionaries
-    #[deprecated(since = "0.13.0", note = "Use `with_dictionaries` instead")]
-    pub fn from_config(config: JPreprocessConfig) -> JPreprocessResult<Self> {
-        let dictionary = config.dictionary.load()?;
+mod dictionary;
+#[cfg(feature = "tokenizer")]
+pub use default_tokenizer_impl::*;
 
-        let user_dictionary = match config.user_dictionary {
-            Some(user_dict_conf) => {
-                let path = user_dict_conf
-                    .get("path")
-                    .and_then(|path_value| path_value.as_str())
-                    .map(std::path::PathBuf::from)
-                    .ok_or_else(|| {
-                        JPreprocessError::DictionaryError(
-                            error::DictionaryError::UserDictionaryNotProvided,
-                        )
-                    })?;
+#[cfg(feature = "tokenizer")]
+mod default_tokenizer_impl {
+    pub use crate::dictionary::*;
+    pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
+    pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
 
-                match path.extension().and_then(|ext| ext.to_str()) {
-                    Some("bin") => Some(lindera::dictionary::load_user_dictionary_from_bin(&path)?),
-                    _ => {
-                        eprintln!("CSV-type user dictionary can no longer be loaded with `JPreprocess::from_config` since JPreprocess v0.13.0. Please use `JPreprocess::with_dictionaries` instead.");
-                        eprintln!("Skipping user dictionary loading.");
-                        None
-                    }
-                }
-            }
-            None => None,
-        };
+    use crate::JPreprocess;
+    use jpreprocess_core::{error::DictionaryError, JPreprocessError, JPreprocessResult};
 
-        Ok(Self::with_dictionaries(dictionary, user_dictionary))
+    /// This struct is left for compatibility.
+    /// Please use [`JPreprocess::with_dictionaries`] instead.
+    pub struct JPreprocessConfig {
+        pub dictionary: SystemDictionaryConfig,
+        pub user_dictionary: Option<lindera::dictionary::UserDictionaryConfig>,
     }
 
-    /// Creates JPreprocess with provided dictionary data.
-    ///
-    /// ## Example 1: Load from file
-    ///
-    /// ```rust
-    /// # use std::error::Error;
-    /// # use std::path::PathBuf;
-    /// use jpreprocess::*;
-    ///
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// #     let path = PathBuf::from("../../tests/data/min-dict");
-    /// let system = SystemDictionaryConfig::File(path).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
-    /// #     Ok(())
-    /// # }
-    /// ```
-    ///
-    /// ## Example 2: Load bundled dictionary (This requires a feature to be enabled)
-    ///
-    /// ```rust
-    /// # use std::error::Error;
-    /// use jpreprocess::{*, kind::*};
-    ///
-    /// # #[cfg(feature = "naist-jdic")]
-    /// # fn main() -> Result<(), Box<dyn Error>> {
-    /// let system = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
-    /// #     Ok(())
-    /// # }
-    /// # #[cfg(not(feature = "naist-jdic"))]
-    /// # fn main() {}
-    /// ```
-    pub fn with_dictionaries(
-        dictionary: Dictionary,
-        user_dictionary: Option<UserDictionary>,
-    ) -> Self {
-        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
-            lindera_dictionary::mode::Mode::Normal,
-            dictionary,
-            user_dictionary,
-        ));
+    impl JPreprocess<DefaultTokenizer> {
+        /// <div class="warning">
+        ///
+        /// 1. This function is deprecated and will be removed in a future version. Use [`with_dictionaries`] instead.
+        /// 2. Meanwhile, this function will continue to work, but it cannot load CSV-type user dictionaries.
+        ///
+        /// </div>
+        ///
+        /// Loads the dictionary from JPreprocessConfig.
+        ///
+        /// This supports importing files and built-in dictionary (needs feature).
+        /// If you need to import from data, please use [`with_dictionaries`] instead.
+        ///
+        /// [`with_dictionaries`]: #method.with_dictionaries
+        #[deprecated(since = "0.13.0", note = "Use `with_dictionaries` instead")]
+        pub fn from_config(config: JPreprocessConfig) -> JPreprocessResult<Self> {
+            let dictionary = config.dictionary.load()?;
 
-        let tokenizer = DefaultTokenizer::new(tokenizer);
+            let user_dictionary = match config.user_dictionary {
+                Some(user_dict_conf) => {
+                    let path = user_dict_conf
+                        .get("path")
+                        .and_then(|path_value| path_value.as_str())
+                        .map(std::path::PathBuf::from)
+                        .ok_or_else(|| {
+                            JPreprocessError::DictionaryError(
+                                DictionaryError::UserDictionaryNotProvided,
+                            )
+                        })?;
 
-        Self::from_tokenizer(tokenizer)
+                    match path.extension().and_then(|ext| ext.to_str()) {
+                        Some("bin") => {
+                            Some(lindera::dictionary::load_user_dictionary_from_bin(&path)?)
+                        }
+                        _ => {
+                            eprintln!("CSV-type user dictionary can no longer be loaded with `JPreprocess::from_config` since JPreprocess v0.13.0. Please use `JPreprocess::with_dictionaries` instead.");
+                            eprintln!("Skipping user dictionary loading.");
+                            None
+                        }
+                    }
+                }
+                None => None,
+            };
+
+            Ok(Self::with_dictionaries(dictionary, user_dictionary))
+        }
+
+        /// Creates JPreprocess with provided dictionary data.
+        ///
+        /// ## Example 1: Load from file
+        ///
+        /// ```rust
+        /// # use std::error::Error;
+        /// # use std::path::PathBuf;
+        /// use jpreprocess::*;
+        ///
+        /// # fn main() -> Result<(), Box<dyn Error>> {
+        /// #     let path = PathBuf::from("../../tests/data/min-dict");
+        /// let system = SystemDictionaryConfig::File(path).load()?;
+        /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
+        /// #     Ok(())
+        /// # }
+        /// ```
+        ///
+        /// ## Example 2: Load bundled dictionary (This requires a feature to be enabled)
+        ///
+        /// ```rust
+        /// # use std::error::Error;
+        /// use jpreprocess::{*, kind::*};
+        ///
+        /// # #[cfg(feature = "naist-jdic")]
+        /// # fn main() -> Result<(), Box<dyn Error>> {
+        /// let system = SystemDictionaryConfig::Bundled(JPreprocessDictionaryKind::NaistJdic).load()?;
+        /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
+        /// #     Ok(())
+        /// # }
+        /// # #[cfg(not(feature = "naist-jdic"))]
+        /// # fn main() {}
+        /// ```
+        pub fn with_dictionaries(
+            dictionary: Dictionary,
+            user_dictionary: Option<UserDictionary>,
+        ) -> Self {
+            let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+                lindera_dictionary::mode::Mode::Normal,
+                dictionary,
+                user_dictionary,
+            ));
+
+            let tokenizer = DefaultTokenizer::new(tokenizer);
+
+            Self::from_tokenizer(tokenizer)
+        }
     }
 }
 
