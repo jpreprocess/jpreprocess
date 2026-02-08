@@ -39,30 +39,35 @@
 #[doc(hidden)]
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-mod dictionary;
 mod normalize_text;
-
-pub use dictionary::*;
-use lindera::dictionary::load_user_dictionary_from_bin;
 pub use normalize_text::normalize_text_for_naist_jdic;
 
 pub use jpreprocess_core::error;
-pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
+use jpreprocess_core::{token::Tokenizer, *};
 pub use jpreprocess_njd::NJD;
-pub use lindera::dictionary::UserDictionaryConfig;
+
+#[cfg(feature = "tokenizer")]
+mod dictionary;
+#[cfg(feature = "tokenizer")]
+pub use dictionary::*;
+#[cfg(feature = "tokenizer")]
+pub use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
+#[cfg(feature = "tokenizer")]
 pub use lindera_dictionary::dictionary::{Dictionary, UserDictionary};
 
-use jpreprocess_core::{token::Tokenizer, *};
-
+/// This struct is left for compatibility.
+/// Please use [`JPreprocess::with_dictionaries`] instead.
+#[cfg(feature = "tokenizer")]
 pub struct JPreprocessConfig {
     pub dictionary: SystemDictionaryConfig,
-    pub user_dictionary: Option<UserDictionaryConfig>,
+    pub user_dictionary: Option<lindera::dictionary::UserDictionaryConfig>,
 }
 
 pub struct JPreprocess<T: Tokenizer> {
     tokenizer: T,
 }
 
+#[cfg(feature = "tokenizer")]
 impl JPreprocess<DefaultTokenizer> {
     /// <div class="warning">
     ///
@@ -94,7 +99,7 @@ impl JPreprocess<DefaultTokenizer> {
                     })?;
 
                 match path.extension().and_then(|ext| ext.to_str()) {
-                    Some("bin") => Some(load_user_dictionary_from_bin(&path)?),
+                    Some("bin") => Some(lindera::dictionary::load_user_dictionary_from_bin(&path)?),
                     _ => {
                         eprintln!("CSV-type user dictionary can no longer be loaded with `JPreprocess::from_config` since JPreprocess v0.13.0. Please use `JPreprocess::with_dictionaries` instead.");
                         eprintln!("Skipping user dictionary loading.");
@@ -241,12 +246,11 @@ impl<T: Tokenizer> JPreprocess<T> {
 
 #[cfg(test)]
 mod tests {
-    use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
-
-    use crate::JPreprocess;
-
     #[test]
+    #[cfg(feature = "tokenizer")]
     fn multithread() {
+        use crate::JPreprocess;
+        use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
         fn tester<T: Send + Sync>() {}
         tester::<JPreprocess<DefaultTokenizer>>();
     }

@@ -15,14 +15,21 @@ documentation = "https://docs.rs/jpreprocess"
 [features]
 naist-jdic = ["dep:jpreprocess-naist-jdic", "jpreprocess-naist-jdic/naist-jdic"]
 binary = ["dep:clap", "dep:serde_json"]
+tokenizer = [
+  "dep:jpreprocess-dictionary",
+  "dep:lindera",
+  "dep:lindera-dictionary",
+]
+default = ["tokenizer"]
 
 [[bin]]
 name = "jpreprocess"
 required-features = ["binary"]
 
 [dependencies]
-lindera.workspace = true
-lindera-dictionary.workspace = true
+lindera = { workspace = true, optional = true }
+lindera-dictionary = { workspace = true, optional = true }
+jpreprocess-dictionary = { workspace = true, optional = true }
 
 phf = { workspace = true, features = ["macros"] }
 
@@ -30,7 +37,6 @@ jlabel.workspace = true
 jpreprocess-core.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
-jpreprocess-dictionary.workspace = true
 
 jpreprocess-naist-jdic = { workspace = true, optional = true }
 
