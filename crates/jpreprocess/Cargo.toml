@@ -13,8 +13,12 @@ rust-version.workspace = true
 documentation = "https://docs.rs/jpreprocess"
 
 [features]
-naist-jdic = ["dep:jpreprocess-naist-jdic", "jpreprocess-naist-jdic/naist-jdic"]
-binary = ["dep:clap", "dep:serde_json"]
+binary = ["dep:clap", "dep:serde_json", "tokenizer"]
+naist-jdic = [
+  "dep:jpreprocess-naist-jdic",
+  "jpreprocess-naist-jdic/naist-jdic",
+  "tokenizer",
+]
 tokenizer = [
   "dep:jpreprocess-dictionary",
   "dep:lindera",
