@@ -7,6 +7,7 @@
 //! # use std::path::PathBuf;
 //! use jpreprocess::*;
 //!
+//! # #[cfg(feature = "tokenizer")]
 //! # fn main() -> Result<(), Box<dyn Error>> {
 //! # let path = PathBuf::from("../../tests/data/min-dict");
 //! let system = SystemDictionaryConfig::File(path).load()?;
@@ -34,6 +35,9 @@
 //! #
 //! #     Ok(())
 //! # }
+//!
+//! # #[cfg(not(feature = "tokenizer"))]
+//! # fn main() {}
 //! ```
 
 #[doc(hidden)]
@@ -66,6 +70,7 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// use jpreprocess::*;
     /// use jpreprocess_jpcommon::*;
     ///
+    /// # #[cfg(feature = "tokenizer")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// # let path = PathBuf::from("../../tests/data/min-dict");
     /// let system = SystemDictionaryConfig::File(path).load()?;
@@ -91,6 +96,9 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// #
     /// #     Ok(())
     /// # }
+    ///
+    /// # #[cfg(not(feature = "tokenizer"))]
+    /// # fn main() {}
     /// ```
     pub fn text_to_njd(&self, text: &str) -> JPreprocessResult<NJD> {
         let normalized_input_text = normalize_text_for_naist_jdic(text);
@@ -248,16 +256,15 @@ mod default_tokenizer_impl {
             Self::from_tokenizer(tokenizer)
         }
     }
-}
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    #[cfg(feature = "tokenizer")]
-    fn multithread() {
-        use crate::JPreprocess;
-        use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
-        fn tester<T: Send + Sync>() {}
-        tester::<JPreprocess<DefaultTokenizer>>();
+    #[cfg(test)]
+    mod tests {
+        #[test]
+        fn multithread() {
+            use crate::JPreprocess;
+            use jpreprocess_dictionary::tokenizer::default::DefaultTokenizer;
+            fn tester<T: Send + Sync>() {}
+            tester::<JPreprocess<DefaultTokenizer>>();
+        }
     }
 }
