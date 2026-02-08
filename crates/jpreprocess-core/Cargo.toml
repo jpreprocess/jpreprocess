@@ -12,13 +12,17 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-core"
 
+[features]
+lindera = ["dep:lindera", "dep:lindera-dictionary"]
+
 [dependencies]
 thiserror.workspace = true
 bincode.workspace = true
 
 once_cell.workspace = true
 
-lindera.workspace = true
+lindera = { workspace = true, optional = true }
+lindera-dictionary = { workspace = true, optional = true }
 
 serde = { workspace = true, features = ["derive"] }
 
