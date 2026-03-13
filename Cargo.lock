@@ -109,6 +109,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bincode"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd6a120d2e16b3e1b4a24bd70f23b12d3e16b81f113364a26935f8db7245452d"
+
+[[package]]
 name = "bincode_derive"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -459,7 +465,7 @@ dependencies = [
 name = "example-wasm"
 version = "0.13.2"
 dependencies = [
- "bincode",
+ "bincode 3.0.0",
  "jpreprocess",
  "js-sys",
  "lindera",
@@ -937,7 +943,7 @@ name = "jpreprocess-core"
 version = "0.13.2"
 dependencies = [
  "aho-corasick",
- "bincode",
+ "bincode 3.0.0",
  "lindera",
  "lindera-dictionary",
  "once_cell",
@@ -951,7 +957,7 @@ name = "jpreprocess-dictionary"
 version = "0.13.2"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 3.0.0",
  "byteorder",
  "clap",
  "csv",
@@ -982,7 +988,7 @@ dependencies = [
 name = "jpreprocess-naist-jdic"
 version = "0.13.2"
 dependencies = [
- "bincode",
+ "bincode 3.0.0",
  "flate2",
  "jpreprocess-dictionary",
  "lindera-dictionary",
@@ -1068,7 +1074,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0e109baf46c2494539663466a49d54bd62f655a4356757269b72d1e1019ff2c"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "kanaria",
@@ -1100,7 +1106,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "965ef21c68d3f5453076366a58d05c154e639a5d1e9b0d86a048a6a3486fb1cc"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "lindera-dictionary",
@@ -1116,7 +1122,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d493e407b18951da7852d2b021b1f7e001a2963accb17a321c8fd48b60a9e343"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "derive_builder",
@@ -1150,7 +1156,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "567746f82c01052e05539f2731ce2ad62eddebe5ae96453e9534a87bc9cfafc9"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "lindera-dictionary",
@@ -1166,7 +1172,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "350f17ced5cbf2964ee29ddef1094703fd1df7c20d464dec6106b7b7ee038030"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "lindera-dictionary",
@@ -1182,7 +1188,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2dda2995055967b409c4d1f311b7db796a3279c78607838325f8892a1542960"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "lindera-dictionary",
@@ -1198,7 +1204,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6a03bdf3acbd493e95ac182fef6194c09556a04dcbebbaeddca47d5ae6ec5f6"
 dependencies = [
  "anyhow",
- "bincode",
+ "bincode 2.0.1",
  "byteorder",
  "csv",
  "lindera-dictionary",
