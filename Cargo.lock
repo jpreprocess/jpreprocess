@@ -943,7 +943,7 @@ dependencies = [
  "once_cell",
  "regex",
  "serde",
- "thiserror 1.0.69",
+ "thiserror 2.0.17",
 ]
 
 [[package]]
@@ -965,7 +965,7 @@ dependencies = [
  "log",
  "once_cell",
  "serde",
- "thiserror 1.0.69",
+ "thiserror 2.0.17",
  "yada",
 ]
 
