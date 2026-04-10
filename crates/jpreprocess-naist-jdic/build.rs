@@ -48,7 +48,7 @@ mod fetch_dictionary {
         );
 
         if !force_build {
-            match download_prebuilt(&client, &work_dir, &out_dir).await {
+            match download_prebuilt(&client, &work_dir, &dict_dir).await {
                 Ok(_) => return Ok(()),
                 Err(e) => {
                     println!(
@@ -89,7 +89,10 @@ mod fetch_dictionary {
 
         println!("Successfully downloaded prebuilt naist-jdic.");
 
-        let prebuilt_name = prebuilt_download_dir.iter().next().unwrap();
+        let prebuilt_name = std::fs::read_dir(&prebuilt_download_dir)?
+            .next()
+            .ok_or("No directory found in prebuilt download dir")??
+            .file_name();
         let prebuilt_dir = prebuilt_download_dir.join(prebuilt_name);
         std::fs::rename(&prebuilt_dir, out_dir)?;
 

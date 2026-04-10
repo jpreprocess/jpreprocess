@@ -1,5 +1,3 @@
-use lindera::error::LinderaError;
-
 use crate::{
     accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError,
     pronunciation::PronunciationParseError,
@@ -11,8 +9,9 @@ pub enum JPreprocessError {
     Io(#[from] std::io::Error),
     #[error("Failed to fetch word from dictionary: {0}")]
     DictionaryError(#[from] DictionaryError),
+    #[cfg(feature = "lindera")]
     #[error("Lindera error: {0}")]
-    LinderaError(#[from] LinderaError),
+    LinderaError(#[from] lindera::error::LinderaError),
     #[error("Failed to parse pronunciation: {0}")]
     PronunciationParseError(#[from] PronunciationParseError),
     #[error("Failed to parse part of speech (POS): {0}")]

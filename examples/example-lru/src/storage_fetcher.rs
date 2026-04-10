@@ -7,11 +7,12 @@ use std::{
     sync::Mutex,
 };
 
-use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
-use jpreprocess_dictionary::{
-    dictionary::word_encoding::JPreprocessDictionaryWordEncoding,
-    tokenizer::{Token, Tokenizer},
+use jpreprocess_core::{
+    token::{Token, Tokenizer},
+    word_entry::WordEntry,
+    JPreprocessResult,
 };
+use jpreprocess_dictionary::dictionary::word_encoding::JPreprocessDictionaryWordEncoding;
 use lindera_dictionary::{dictionary::Dictionary, loader::metadata::MetadataLoader};
 use lru::LruCache;
 

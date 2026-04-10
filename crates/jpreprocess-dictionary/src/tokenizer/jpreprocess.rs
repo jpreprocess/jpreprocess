@@ -1,12 +1,15 @@
 use std::borrow::Cow;
 
-use jpreprocess_core::{error::DictionaryError, word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{
+    error::DictionaryError,
+    token::{Token, Tokenizer},
+    word_entry::WordEntry,
+    JPreprocessResult,
+};
 
 use crate::{
     dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::get_word_data,
 };
-
-use super::{Token, Tokenizer};
 
 pub struct JPreprocessTokenizer {
     tokenizer: lindera::tokenizer::Tokenizer,

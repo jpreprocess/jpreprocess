@@ -1,10 +1,13 @@
-use jpreprocess_core::{word_entry::WordEntry, JPreprocessResult};
+use jpreprocess_core::{
+    token::{Token, Tokenizer},
+    word_entry::WordEntry,
+    JPreprocessResult,
+};
 use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
 
 use super::{
     identify_dictionary::DictionaryIdent,
     jpreprocess::{JPreprocessToken, JPreprocessTokenizer},
-    Token, Tokenizer,
 };
 
 pub struct DefaultTokenizer {
