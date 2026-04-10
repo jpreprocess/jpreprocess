@@ -172,8 +172,7 @@ mod tests {
 
         njd_set_accent_type(&mut njd);
 
-        // This is different from Open JTalk.
         // Open JTalk treats "助動詞" as a match for "動詞%F1".
-        assert_eq!(njd.nodes[0].get_pron().accent(), 2);
+        assert_eq!(njd.nodes[0].get_pron().accent(), 9);
     }
 }
