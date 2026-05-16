@@ -142,11 +142,12 @@ impl From<&WordEntry> for WordDetailsLine {
 mod tests {
     use crate::{cform::CForm, ctype::CType, pos::*, pron, word_entry::WordEntry};
 
+    static EXAMPLE_SINGLE: &str = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,";
+    static EXAMPLE_MULTIPLE: &str = "あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1,";
+
     #[test]
     fn load_single_node() {
-        let input: Vec<&str> = "．,名詞,接尾,助数詞,*,*,*,．,テン,テン,0/2,*,"
-            .split(',')
-            .collect();
+        let input: Vec<&str> = EXAMPLE_SINGLE.split(',').collect();
         let entry = WordEntry::load(&input[1..]).unwrap();
         let details_vec = entry.get_with_string(input[0]);
         assert_eq!(details_vec.len(), 1);
@@ -171,9 +172,7 @@ mod tests {
 
     #[test]
     fn load_multiple_nodes() {
-        let input: Vec<&str> = "あーあ,感動詞,*,*,*,*,*,あー:あ,アー:ア,アー:ア,1/2:1/1,C1,"
-            .split(',')
-            .collect();
+        let input: Vec<&str> = EXAMPLE_MULTIPLE.split(',').collect();
         let entry = WordEntry::load(&input[1..]).unwrap();
         let details_vec = entry.get_with_string(input[0]);
         assert_eq!(details_vec.len(), 2);
@@ -189,5 +188,37 @@ mod tests {
 
         let v = entry.to_str_vec(input[0].to_owned());
         assert_eq!(v[0..8].join(","), input[1..12].join(","));
+    }
+
+    #[test]
+    fn encode_decode() {
+        let input: Vec<&str> = EXAMPLE_SINGLE.split(',').collect();
+        let entry = WordEntry::load(&input[1..]).unwrap();
+
+        let encoded = bitcode::encode(&entry);
+        let decoded: WordEntry = bitcode::decode(&encoded).unwrap();
+
+        dbg!(&encoded);
+
+        assert_eq!(entry, decoded);
+        assert_eq!(encoded.len(), 26);
+    }
+
+    #[test]
+    fn serialize_deserialize() {
+        let input: Vec<&str> = EXAMPLE_SINGLE.split(',').collect();
+        let entry = WordEntry::load(&input[1..]).unwrap();
+
+        let serialized =
+            bincode::serde::encode_to_vec(&entry, bincode::config::standard()).unwrap();
+        let deserialized: WordEntry =
+            bincode::serde::decode_from_slice(&serialized, bincode::config::standard())
+                .unwrap()
+                .0;
+
+        dbg!(&serialized);
+
+        assert_eq!(entry, deserialized);
+        assert_eq!(serialized.len(), 26);
     }
 }
