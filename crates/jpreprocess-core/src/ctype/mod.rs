@@ -1,3 +1,4 @@
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
@@ -67,7 +68,7 @@ impl Display for CTypeKind {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Encode, Decode, Default)]
 /// 活用
 pub enum CType {
     /// カ変

@@ -3,6 +3,7 @@ use std::{
     str::FromStr,
 };
 
+use bitcode::{Decode, Encode};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
@@ -24,7 +25,7 @@ static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Failed to compile accent rule regex")
 });
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Encode, Decode)]
 pub enum AccentType {
     F1,
     F2,
@@ -93,7 +94,7 @@ impl Display for AccentType {
 }
 
 // Accent sandhi rule
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Encode, Decode, Debug)]
 pub struct ChainRule {
     pub accent_type: AccentType,
     pub add_type: isize,
@@ -140,7 +141,7 @@ impl FromStr for POSMatch {
     }
 }
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug, Default)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Encode, Decode, Debug, Default)]
 pub struct ChainRules {
     pub default: Option<ChainRule>,
     pub doushi: Option<ChainRule>,

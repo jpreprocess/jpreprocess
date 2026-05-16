@@ -3,8 +3,9 @@ mod mora_dict;
 mod mora_enum;
 pub mod phoneme;
 
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
-use std::{borrow::Cow, fmt::Display, ops::Range};
+use std::{fmt::Display, ops::Range};
 
 pub use mora::*;
 pub use mora_enum::*;
@@ -18,14 +19,16 @@ macro_rules! pron {
     ([$($x:ident),*],$acc:expr) => {
         {
             $crate::pronunciation::Pronunciation {
-                moras: ::std::borrow::Cow::Borrowed(&[
-                    $(
-                        $crate::pronunciation::Mora {
-                            mora_enum: $crate::pronunciation::MoraEnum::$x,
-                            is_voiced: true,
-                        },
-                    )*
-                ]),
+                moras: $crate::pronunciation::Moras(
+                    ::std::borrow::Cow::Borrowed(&[
+                        $(
+                            $crate::pronunciation::Mora {
+                                mora_enum: $crate::pronunciation::MoraEnum::$x,
+                                is_voiced: true,
+                            },
+                        )*
+                    ])
+                ),
                 accent: $acc,
             }
         }
@@ -45,10 +48,10 @@ pub enum PronunciationParseError {
 /// Pronunciation.
 ///
 /// Do not access moras and accent directly unless through [`pron`] macro.
-#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Encode, Decode, Debug, Default)]
 pub struct Pronunciation {
     #[doc(hidden)]
-    pub moras: Cow<'static, [Mora]>,
+    pub moras: Moras,
     #[doc(hidden)]
     pub accent: usize,
 }
@@ -56,24 +59,25 @@ pub struct Pronunciation {
 impl Pronunciation {
     pub fn new(moras: Vec<Mora>, accent: usize) -> Self {
         Self {
-            moras: Cow::Owned(moras),
+            moras: Moras::new(moras),
             accent,
         }
     }
 
     pub fn mora_size(&self) -> usize {
         self.moras
+            .as_ref()
             .iter()
             .filter(|mora| !matches!(mora.mora_enum, MoraEnum::Question | MoraEnum::Touten))
             .count()
     }
 
     pub fn is_empty(&self) -> bool {
-        self.moras.is_empty()
+        self.moras.as_ref().is_empty()
     }
 
     pub fn mora_matches(&self, mora_enum: MoraEnum) -> bool {
-        let Some((first, rest)) = self.moras.split_first() else {
+        let Some((first, rest)) = self.moras.as_ref().split_first() else {
             return false;
         };
         rest.is_empty() && first.mora_enum == mora_enum
@@ -91,6 +95,7 @@ impl Pronunciation {
 
     pub fn to_pure_string(&self) -> String {
         self.moras
+            .as_ref()
             .iter()
             .map(|mora| mora.to_string())
             .fold(String::new(), |a, b| a + &b)
@@ -102,7 +107,7 @@ impl Pronunciation {
     }
     #[inline]
     pub fn moras_mut(&mut self) -> &mut [Mora] {
-        self.moras.to_mut()
+        self.moras.as_mut()
     }
 
     pub fn accent(&self) -> usize {
@@ -119,7 +124,7 @@ impl Pronunciation {
             .chain(from.moras())
             .cloned()
             .collect::<Vec<_>>();
-        self.moras = Cow::Owned(moras);
+        self.moras = Moras::new(moras);
     }
 }
 
@@ -239,6 +244,7 @@ impl Display for Pronunciation {
         f.write_str(
             &self
                 .moras
+                .as_ref()
                 .iter()
                 .fold(String::new(), |acc, mora| format!("{}{}", acc, mora)),
         )

@@ -1,10 +1,11 @@
 use std::{fmt::Display, str::FromStr};
 
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 
 use super::{POSKind, POSParseError};
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Encode, Decode)]
 /// 副詞
 pub enum Fukushi {
     /// \*

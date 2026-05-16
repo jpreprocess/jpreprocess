@@ -1,9 +1,10 @@
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
 use crate::JPreprocessError;
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Encode, Decode, Default)]
 /// 活用形
 pub enum CForm {
     /// ガル接続

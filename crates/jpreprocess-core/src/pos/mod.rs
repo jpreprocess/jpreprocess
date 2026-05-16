@@ -1,3 +1,4 @@
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
@@ -68,7 +69,7 @@ impl Display for POSKind {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Encode, Decode, Default)]
 /// 品詞
 pub enum POS {
     /// フィラー

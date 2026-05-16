@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -12,7 +13,7 @@ use crate::{
     JPreprocessResult,
 };
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Encode, Decode, Debug)]
 pub struct WordDetails {
     pub pos: POS,
     pub ctype: CType,

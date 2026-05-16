@@ -1,7 +1,9 @@
 use crate::{word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
+
+use bitcode::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Encode, Decode, Debug)]
 pub enum WordEntry {
     Single(WordDetails),
     Multiple(Vec<(String, WordDetails)>),
