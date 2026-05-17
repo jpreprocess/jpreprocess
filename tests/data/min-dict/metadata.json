@@ -1,7 +1,7 @@
 {
-  "name": "IPADIC",
+  "name": "default",
   "encoding": "UTF-8",
-  "compress_algorithm": "raw",
+  "compress_algorithm": "deflate",
   "default_word_cost": -10000,
   "default_left_context_id": 1288,
   "default_right_context_id": 1288,
@@ -23,7 +23,10 @@
       "conjugation_form",
       "base_form",
       "reading",
-      "pronunciation"
+      "pronunciation",
+      "accent_morasize",
+      "chain_rule",
+      "chain_flag"
     ]
   },
   "user_dictionary_schema": {
