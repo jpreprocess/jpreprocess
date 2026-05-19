@@ -2008,6 +2008,8 @@ checksum = "df7f62577c25e07834649fc3b39fafdc597c0a3527dc1c60129201ccfcbaa50c"
 name = "tests"
 version = "0.13.2"
 dependencies = [
+ "bincode",
+ "bitcode",
  "jpreprocess",
  "jpreprocess-core",
  "jpreprocess-dictionary",

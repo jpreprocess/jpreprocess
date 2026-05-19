@@ -21,3 +21,5 @@ jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
 
 lindera.workspace = true
+bincode.workspace = true
+bitcode.workspace = true
