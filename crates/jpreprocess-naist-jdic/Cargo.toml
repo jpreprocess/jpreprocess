@@ -31,7 +31,6 @@ naist-jdic = [
   "dep:bincode",
   "dep:serde",
   "dep:serde_json",
-  "lindera-dictionary/compress",
 ]
 
 [dependencies]
