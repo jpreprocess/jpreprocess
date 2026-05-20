@@ -11,7 +11,7 @@ use jpreprocess_core::{
     JPreprocessError,
 };
 use jpreprocess_njd::NJDNode;
-use pyo3::prelude::*;
+use pyo3::{prelude::*, BoundObject};
 use pythonize::{depythonize, pythonize};
 use serde::{Deserialize, Serialize};
 
@@ -137,8 +137,9 @@ impl<'py> IntoPyObject<'py> for NjdObject {
     }
 }
 
-impl<'a> FromPyObject<'a> for NjdObject {
-    fn extract_bound(ob: &Bound<'a, PyAny>) -> PyResult<Self> {
-        depythonize(ob).map_err(into_runtime_error)
+impl<'a, 'py> FromPyObject<'a, 'py> for NjdObject {
+    type Error = PyErr;
+    fn extract(obj: Borrowed<'a, 'py, PyAny>) -> Result<Self, Self::Error> {
+        depythonize(&obj.into_bound()).map_err(into_runtime_error)
     }
 }
