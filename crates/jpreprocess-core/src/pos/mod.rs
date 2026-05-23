@@ -154,39 +154,31 @@ impl POS {
         };
 
         match self {
-            // 6 bit (0x0 - 0x3)
-            Self::Meishi(meishi) => 0x0 << 6 | v_6bit(meishi.to_u8()),
+            // 0 bit (0x00 - 0x0F)
+            Self::Filler => 0,
+            Self::Kandoushi => 1,
+            Self::Jodoushi => 2,
+            Self::Setsuzokushi => 3,
+            Self::Rentaishi => 4,
+            Self::Others => 5,
+            Self::Unknown => 6,
 
-            // 4 bit (0x4 - 0x9)
-            Self::Kigou(kigou) => 0x4 << 4 | v_4bit(kigou.to_u8()),
-            Self::Keiyoushi(keiyoushi) => 0x5 << 4 | v_4bit(keiyoushi.to_u8()),
-            Self::Joshi(joshi) => 0x6 << 4 | v_4bit(joshi.to_u8()),
-            Self::Settoushi(settoushi) => 0x7 << 4 | v_4bit(settoushi.to_u8()),
-            Self::Doushi(doushi) => 0x8 << 4 | v_4bit(doushi.to_u8()),
-            Self::Fukushi(fukushi) => 0x9 << 4 | v_4bit(fukushi.to_u8()),
+            // 4 bit (0x10 - 0x6F)
+            Self::Kigou(kigou) => 0x10 | v_4bit(kigou.to_u8()),
+            Self::Keiyoushi(keiyoushi) => 0x20 | v_4bit(keiyoushi.to_u8()),
+            Self::Joshi(joshi) => 0x30 | v_4bit(joshi.to_u8()),
+            Self::Settoushi(settoushi) => 0x40 | v_4bit(settoushi.to_u8()),
+            Self::Doushi(doushi) => 0x50 | v_4bit(doushi.to_u8()),
+            Self::Fukushi(fukushi) => 0x60 | v_4bit(fukushi.to_u8()),
 
-            // 0 bit (0xF)
-            Self::Filler => 0xF << 4 | 0,
-            Self::Kandoushi => 0xF << 4 | 1,
-            Self::Jodoushi => 0xF << 4 | 2,
-            Self::Setsuzokushi => 0xF << 4 | 3,
-            Self::Rentaishi => 0xF << 4 | 4,
-            Self::Others => 0xF << 4 | 5,
-            Self::Unknown => 0xF << 4 | 6,
+            // 6 bit (0xC0 - 0xFF)
+            Self::Meishi(meishi) => 0xC0 | v_6bit(meishi.to_u8()),
         }
     }
 
     pub fn from_u8(n: u8) -> Self {
         match n >> 4 {
-            0x0..0x4 => Self::Meishi(Meishi::from_u8(n & 0x3F)),
-            0x4 => Self::Kigou(Kigou::from_u8(n & 0xF)),
-            0x5 => Self::Keiyoushi(Keiyoushi::from_u8(n & 0xF)),
-            0x6 => Self::Joshi(Joshi::from_u8(n & 0xF)),
-            0x7 => Self::Settoushi(Settoushi::from_u8(n & 0xF)),
-            0x8 => Self::Doushi(Doushi::from_u8(n & 0xF)),
-            0x9 => Self::Fukushi(Fukushi::from_u8(n & 0xF)),
-
-            0xF => match n & 0xF {
+            0 => match n {
                 0 => Self::Filler,
                 1 => Self::Kandoushi,
                 2 => Self::Jodoushi,
@@ -194,10 +186,15 @@ impl POS {
                 4 => Self::Rentaishi,
                 5 => Self::Others,
                 6 => Self::Unknown,
-
-                _ => panic!("Invalid u8 value for POS: {}", n),
+                _ => panic!("Invalid u8 value for POS (major 0): {}", n),
             },
-
+            1 => Self::Kigou(Kigou::from_u8(n & 0x0F)),
+            2 => Self::Keiyoushi(Keiyoushi::from_u8(n & 0x0F)),
+            3 => Self::Joshi(Joshi::from_u8(n & 0x0F)),
+            4 => Self::Settoushi(Settoushi::from_u8(n & 0x0F)),
+            5 => Self::Doushi(Doushi::from_u8(n & 0x0F)),
+            6 => Self::Fukushi(Fukushi::from_u8(n & 0x0F)),
+            12..=15 => Self::Meishi(Meishi::from_u8(n & 0x3F)),
             _ => panic!("Invalid u8 value for POS: {}", n),
         }
     }
