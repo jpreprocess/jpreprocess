@@ -17,6 +17,27 @@ pub enum Settoushi {
     MeishiSetsuzoku,
 }
 
+impl Settoushi {
+    pub(crate) fn to_u8(&self) -> u8 {
+        match self {
+            Self::KeiyoushiSetsuzoku => 0,
+            Self::SuuSetsuzoku => 1,
+            Self::DoushiSetsuzoku => 2,
+            Self::MeishiSetsuzoku => 3,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::KeiyoushiSetsuzoku,
+            1 => Self::SuuSetsuzoku,
+            2 => Self::DoushiSetsuzoku,
+            3 => Self::MeishiSetsuzoku,
+            _ => panic!("Invalid u8 value for Settoushi: {}", n),
+        }
+    }
+}
+
 impl FromStr for Settoushi {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
