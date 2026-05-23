@@ -150,7 +150,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, FeatureBu
                     let a = &mora_a[mora_index_in_accent_phrase];
                     let builder = builder_w.with_a(a.to_owned());
 
-                    let (consonant, vowel) = mora.phonemes();
+                    let (consonant, vowel) = mora.phonemes_openjtalk_compat();
                     if let Some(consonant) = consonant {
                         if matches!(&consonant, Consonant::Long) {
                             if let Some((last, _)) = phonemes.last() {
