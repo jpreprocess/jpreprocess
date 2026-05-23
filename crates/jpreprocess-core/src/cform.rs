@@ -78,6 +78,76 @@ impl CForm {
                 | Self::Renyou
         )
     }
+
+    pub(crate) fn to_u8(&self) -> u8 {
+        match self {
+            Self::ConjunctionGaru => 0,
+            Self::BasicEuphony => 1,
+            Self::Conditional => 2,
+            Self::ConditionalContraction1 => 3,
+            Self::ConditionalContraction2 => 4,
+            Self::Basic => 5,
+            Self::BasicDoubledConsonant => 6,
+            Self::BasicModern => 7,
+            Self::TaigenConjunction => 8,
+            Self::TaigenConjunctionSpecial => 9,
+            Self::TaigenConjunctionSpecial2 => 10,
+            Self::BasicOld => 11,
+            Self::MizenConjunctionU => 12,
+            Self::MizenConjunctionNu => 13,
+            Self::MizenConjunctionReru => 14,
+            Self::Mizen => 15,
+            Self::MizenSpecial => 16,
+            Self::ImperativeE => 17,
+            Self::ImperativeI => 18,
+            Self::ImperativeRo => 19,
+            Self::ImperativeYo => 20,
+            Self::RenyouConjunctionGozai => 21,
+            Self::RenyouConjunctionTa => 22,
+            Self::RenyouConjunctionTe => 23,
+            Self::RenyouConjunctionDe => 24,
+            Self::RenyouConjunctionNi => 25,
+            Self::Renyou => 26,
+
+            Self::None => 27,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::ConjunctionGaru,
+            1 => Self::BasicEuphony,
+            2 => Self::Conditional,
+            3 => Self::ConditionalContraction1,
+            4 => Self::ConditionalContraction2,
+            5 => Self::Basic,
+            6 => Self::BasicDoubledConsonant,
+            7 => Self::BasicModern,
+            8 => Self::TaigenConjunction,
+            9 => Self::TaigenConjunctionSpecial,
+            10 => Self::TaigenConjunctionSpecial2,
+            11 => Self::BasicOld,
+            12 => Self::MizenConjunctionU,
+            13 => Self::MizenConjunctionNu,
+            14 => Self::MizenConjunctionReru,
+            15 => Self::Mizen,
+            16 => Self::MizenSpecial,
+            17 => Self::ImperativeE,
+            18 => Self::ImperativeI,
+            19 => Self::ImperativeRo,
+            20 => Self::ImperativeYo,
+            21 => Self::RenyouConjunctionGozai,
+            22 => Self::RenyouConjunctionTa,
+            23 => Self::RenyouConjunctionTe,
+            24 => Self::RenyouConjunctionDe,
+            25 => Self::RenyouConjunctionNi,
+            26 => Self::Renyou,
+
+            27 => Self::None,
+
+            _ => panic!("Invalid u8 value for CForm: {}", n),
+        }
+    }
 }
 
 impl FromStr for CForm {
