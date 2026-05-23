@@ -7,7 +7,10 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::JPreprocessResult;
+use crate::{
+    varint::{isize_to_varint, varint_to_isize},
+    JPreprocessResult,
+};
 
 use super::pos::POS;
 
@@ -44,6 +47,49 @@ pub enum AccentType {
     //P13,
     P14,
     None,
+}
+
+impl AccentType {
+    pub(crate) fn to_u8(&self) -> u8 {
+        match self {
+            Self::F1 => 0,
+            Self::F2 => 1,
+            Self::F3 => 2,
+            Self::F4 => 3,
+            Self::F5 => 4,
+            Self::C1 => 5,
+            Self::C2 => 6,
+            Self::C3 => 7,
+            Self::C4 => 8,
+            Self::C5 => 9,
+            Self::P1 => 10,
+            Self::P2 => 11,
+            Self::P6 => 12,
+            Self::P14 => 13,
+            Self::None => 14,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::F1,
+            1 => Self::F2,
+            2 => Self::F3,
+            3 => Self::F4,
+            4 => Self::F5,
+            5 => Self::C1,
+            6 => Self::C2,
+            7 => Self::C3,
+            8 => Self::C4,
+            9 => Self::C5,
+            10 => Self::P1,
+            11 => Self::P2,
+            12 => Self::P6,
+            13 => Self::P14,
+            14 => Self::None,
+            _ => panic!("Invalid u8 value for AccentType: {}", n),
+        }
+    }
 }
 
 impl FromStr for AccentType {
@@ -105,6 +151,18 @@ impl ChainRule {
             accent_type,
             add_type,
         }
+    }
+
+    pub(crate) fn to_buf(&self) -> Vec<u8> {
+        let mut buf = vec![self.accent_type.to_u8()];
+        buf.extend_from_slice(&isize_to_varint(self.add_type));
+        buf
+    }
+
+    pub(crate) fn from_buf(buf: &[u8]) -> (Self, usize) {
+        let accent_type = AccentType::from_u8(buf[0]);
+        let (add_type, consumed) = varint_to_isize(&buf[1..]);
+        (Self::new(accent_type, add_type), 1 + consumed)
     }
 }
 
@@ -221,6 +279,62 @@ impl ChainRules {
         self.joshi = None;
         self.keiyoushi = None;
         self.meishi = None;
+    }
+
+    pub fn to_buf(&self) -> Vec<u8> {
+        let mut buf = vec![0];
+        if let Some(rule) = &self.default {
+            buf[0] |= 1 << 0;
+            buf.extend_from_slice(&rule.to_buf());
+        }
+        if let Some(rule) = &self.doushi {
+            buf[0] |= 1 << 1;
+            buf.extend_from_slice(&rule.to_buf());
+        }
+        if let Some(rule) = &self.joshi {
+            buf[0] |= 1 << 2;
+            buf.extend_from_slice(&rule.to_buf());
+        }
+        if let Some(rule) = &self.keiyoushi {
+            buf[0] |= 1 << 3;
+            buf.extend_from_slice(&rule.to_buf());
+        }
+        if let Some(rule) = &self.meishi {
+            buf[0] |= 1 << 4;
+            buf.extend_from_slice(&rule.to_buf());
+        }
+        buf
+    }
+
+    pub fn from_buf(buf: &[u8]) -> (Self, usize) {
+        let mut result = Self::default();
+        let mut offset = 1;
+        if buf[0] & (1 << 0) != 0 {
+            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+            result.default = Some(rule);
+            offset += consumed;
+        }
+        if buf[0] & (1 << 1) != 0 {
+            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+            result.doushi = Some(rule);
+            offset += consumed;
+        }
+        if buf[0] & (1 << 2) != 0 {
+            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+            result.joshi = Some(rule);
+            offset += consumed;
+        }
+        if buf[0] & (1 << 3) != 0 {
+            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+            result.keiyoushi = Some(rule);
+            offset += consumed;
+        }
+        if buf[0] & (1 << 4) != 0 {
+            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+            result.meishi = Some(rule);
+            offset += consumed;
+        }
+        (result, offset)
     }
 }
 

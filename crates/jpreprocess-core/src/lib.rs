@@ -13,3 +13,5 @@ pub mod token;
 
 pub use error::JPreprocessError;
 pub type JPreprocessResult<T> = Result<T, JPreprocessError>;
+
+mod varint;
