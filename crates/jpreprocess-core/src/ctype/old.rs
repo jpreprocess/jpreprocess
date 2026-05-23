@@ -27,6 +27,37 @@ pub enum Old {
     Ri,
 }
 
+impl Old {
+    pub(crate) fn to_u8(&self) -> u8 {
+        match self {
+            Self::Beshi => 0,
+            Self::Gotoshi => 1,
+            Self::Nari => 2,
+            Self::Maji => 3,
+            Self::Shimu => 4,
+            Self::Ki => 5,
+            Self::Keri => 6,
+            Self::Ru => 7,
+            Self::Ri => 8,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Beshi,
+            1 => Self::Gotoshi,
+            2 => Self::Nari,
+            3 => Self::Maji,
+            4 => Self::Shimu,
+            5 => Self::Ki,
+            6 => Self::Keri,
+            7 => Self::Ru,
+            8 => Self::Ri,
+            _ => panic!("Invalid u8 value for Old: {}", n),
+        }
+    }
+}
+
 impl FromStr for Old {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

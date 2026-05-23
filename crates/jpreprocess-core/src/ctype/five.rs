@@ -37,6 +37,47 @@ pub enum Five {
     WaDouble,
 }
 
+impl Five {
+    pub(crate) fn to_u8(&self) -> u8 {
+        match self {
+            Self::KaI => 0,
+            Self::KaDouble => 1,
+            Self::KaDoubleYuku => 2,
+            Self::Ga => 3,
+            Self::Sa => 4,
+            Self::Ta => 5,
+            Self::Na => 6,
+            Self::Ba => 7,
+            Self::Ma => 8,
+            Self::Ra => 9,
+            Self::RaAru => 10,
+            Self::RaSpecial => 11,
+            Self::WaU => 12,
+            Self::WaDouble => 13,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::KaI,
+            1 => Self::KaDouble,
+            2 => Self::KaDoubleYuku,
+            3 => Self::Ga,
+            4 => Self::Sa,
+            5 => Self::Ta,
+            6 => Self::Na,
+            7 => Self::Ba,
+            8 => Self::Ma,
+            9 => Self::Ra,
+            10 => Self::RaAru,
+            11 => Self::RaSpecial,
+            12 => Self::WaU,
+            13 => Self::WaDouble,
+            _ => panic!("Invalid u8 value for Five: {}", n),
+        }
+    }
+}
+
 impl FromStr for Five {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

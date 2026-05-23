@@ -100,6 +100,52 @@ pub enum CType {
     None,
 }
 
+impl CType {
+    pub(crate) fn to_u8(&self) -> u8 {
+        let (major, minor) = match self {
+            Self::KaIrregular(minor) => (0, minor.to_u8()),
+            Self::SaIrregular(minor) => (1, minor.to_u8()),
+            Self::RaIrregular => (2, 0),
+            Self::One(minor) => (3, minor.to_u8()),
+            Self::LowerTwo(minor) => (4, minor.to_u8()),
+            Self::Keiyoushi(minor) => (5, minor.to_u8()),
+            Self::Five(minor) => (6, minor.to_u8()),
+            Self::Four(minor) => (7, minor.to_u8()),
+            Self::UpperTwo(minor) => (8, minor.to_u8()),
+            Self::Special(minor) => (9, minor.to_u8()),
+            Self::NoConjugation => (10, 0),
+            Self::Old(minor) => (11, minor.to_u8()),
+
+            Self::None => (12, 0),
+        };
+        assert!(major < 16, "Major type must be less than 16");
+        assert!(minor < 16, "Minor type must be less than 16");
+
+        (major << 4) + minor
+    }
+    pub(crate) fn from_u8(n: u8) -> Self {
+        let major = n >> 4;
+        let minor = n & 0x0F;
+
+        match major {
+            0 => Self::KaIrregular(KaIrregular::from_u8(minor)),
+            1 => Self::SaIrregular(SaIrregular::from_u8(minor)),
+            2 => Self::RaIrregular,
+            3 => Self::One(One::from_u8(minor)),
+            4 => Self::LowerTwo(LowerTwo::from_u8(minor)),
+            5 => Self::Keiyoushi(Keiyoushi::from_u8(minor)),
+            6 => Self::Five(Five::from_u8(minor)),
+            7 => Self::Four(Four::from_u8(minor)),
+            8 => Self::UpperTwo(UpperTwo::from_u8(minor)),
+            9 => Self::Special(Special::from_u8(minor)),
+            10 => Self::NoConjugation,
+            11 => Self::Old(Old::from_u8(minor)),
+
+            _ => panic!("Invalid u8 value for CType: {}", n),
+        }
+    }
+}
+
 impl FromStr for CType {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
