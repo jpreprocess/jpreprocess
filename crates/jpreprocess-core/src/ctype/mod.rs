@@ -140,8 +140,9 @@ impl CType {
             9 => Self::Special(Special::from_u8(minor)),
             10 => Self::NoConjugation,
             11 => Self::Old(Old::from_u8(minor)),
+            12 => Self::None,
 
-            _ => panic!("Invalid u8 value for CType: {}", n),
+            _ => panic!("Invalid u8 value for CType: {}", major),
         }
     }
 }

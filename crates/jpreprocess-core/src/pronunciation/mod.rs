@@ -143,7 +143,7 @@ impl Pronunciation {
         for i in 0..voiced_flag_len {
             let mut flag_tmp = 0u8;
             for j in 0..8 {
-                if i * 8 + j > len {
+                if i * 8 + j >= len {
                     break;
                 }
 
@@ -172,7 +172,7 @@ impl Pronunciation {
         let voiced_flag_len = len.div_ceil(8);
         for (i, &flag) in buf[cursor..cursor + voiced_flag_len].iter().enumerate() {
             for j in 0..8 {
-                if i * 8 + j > len {
+                if i * 8 + j >= len {
                     break;
                 }
 
