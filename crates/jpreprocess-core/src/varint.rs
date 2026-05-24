@@ -25,6 +25,21 @@ pub(crate) fn isize_to_varint(z: isize) -> Vec<u8> {
     buf
 }
 
+pub(crate) fn usize_to_varint(mut n: usize) -> Vec<u8> {
+    let mut buf = Vec::new();
+    buf.push((n & 0x7F) as u8);
+    n >>= 7;
+    while n != 0 {
+        let mut byte = (n & 0x7F) as u8;
+        n >>= 7;
+        if n != 0 {
+            byte |= 0x80;
+        }
+        buf.push(byte);
+    }
+    buf
+}
+
 pub(crate) fn varint_to_isize(buf: &[u8]) -> (isize, usize) {
     let mut n: usize = 0;
     let mut shift = 0;
@@ -48,4 +63,22 @@ pub(crate) fn varint_to_isize(buf: &[u8]) -> (isize, usize) {
     };
 
     (z, i)
+}
+
+pub(crate) fn varint_to_usize(buf: &[u8]) -> (usize, usize) {
+    let mut n: usize = 0;
+    let mut shift = 0;
+    let mut i = 0;
+
+    loop {
+        let byte = buf[i];
+        n |= ((byte & 0x7F) as usize) << shift;
+        shift += 7;
+        i += 1;
+        if byte & 0x80 == 0 {
+            break;
+        }
+    }
+
+    (n, i)
 }

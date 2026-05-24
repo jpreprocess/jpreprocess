@@ -9,6 +9,8 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
+use crate::varint::{usize_to_varint, varint_to_usize};
+
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
@@ -120,6 +122,73 @@ impl Pronunciation {
             .cloned()
             .collect::<Vec<_>>();
         self.moras = Cow::Owned(moras);
+    }
+
+    pub fn to_buf(&self) -> Vec<u8> {
+        let len = self.moras.len();
+        let voiced_flag_len = len.div_ceil(8);
+
+        let len_encoded = usize_to_varint(len);
+        let accent_encoded = usize_to_varint(self.accent);
+        let mut result =
+            Vec::with_capacity(len_encoded.len() + accent_encoded.len() + len + voiced_flag_len);
+
+        result.extend_from_slice(&len_encoded);
+        result.extend_from_slice(&accent_encoded);
+
+        for mora in self.moras.iter() {
+            result.push(mora.mora_enum.to_u8());
+        }
+
+        for i in 0..voiced_flag_len {
+            let mut flag_tmp = 0u8;
+            for j in 0..8 {
+                if i * 8 + j > len {
+                    break;
+                }
+
+                let is_voiced = self.moras[i * 8 + j].is_voiced as u8;
+                flag_tmp |= is_voiced << j;
+            }
+            result.push(flag_tmp);
+        }
+
+        result
+    }
+
+    pub fn from_buf(buf: &[u8]) -> (Self, usize) {
+        let (len, cursor) = varint_to_usize(buf);
+        let (accent, cursor) = varint_to_usize(&buf[cursor..]);
+
+        let mut moras = buf[cursor..cursor + len]
+            .iter()
+            .map(|&v| Mora {
+                mora_enum: MoraEnum::from_u8(v),
+                is_voiced: false,
+            })
+            .collect::<Vec<_>>();
+        let cursor = cursor + len;
+
+        let voiced_flag_len = len.div_ceil(8);
+        for (i, &flag) in buf[cursor..cursor + voiced_flag_len].iter().enumerate() {
+            for j in 0..8 {
+                if i * 8 + j > len {
+                    break;
+                }
+
+                let is_voiced = flag & (0x1 << j);
+                moras[i * 8 + j].is_voiced = is_voiced > 0;
+            }
+        }
+        let cursor = cursor + voiced_flag_len;
+
+        (
+            Self {
+                moras: moras.into(),
+                accent,
+            },
+            cursor,
+        )
     }
 }
 
