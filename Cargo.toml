@@ -58,7 +58,7 @@ tokio = { version = "1.43.0", features = [
     "sync",
     "io-util",
 ] }
-reqwest = { version = "0.12.23", default-features = false, features = ["http2", "rustls-tls", "system-proxy"] }
+reqwest = { version = "0.13.0", default-features = false, features = ["http2", "rustls-tls", "system-proxy"] }
 md5 = "0.8.0"
 flate2 = "1.1.2"
 tar = "0.4.44"
