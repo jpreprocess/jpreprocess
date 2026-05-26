@@ -43,17 +43,15 @@ macro_rules! i_to_varint {
             let is_negative = z < 0;
             let mut n: $tu = if is_negative { (-z) as $tu } else { z as $tu };
 
-            if is_negative {
-                buf.push(0x40); // Set the sign bit
-            } else {
-                buf.push(0); // Clear the sign bit
-            }
-
-            buf[0] |= (n & 0x3F) as u8; // Store the first 6 bits
+            let mut byte = (n & 0x3F) as u8; // Store the first 6 bits
             n >>= 6;
             if n != 0 {
-                buf[0] |= 0x80; // Set the continuation bit
+                byte |= 0x80; // Set the continuation bit
             }
+            if is_negative {
+                byte |= 0x40; // Set the sign bit for negative numbers
+            }
+            buf.push(byte);
 
             while n != 0 {
                 let mut byte = (n & 0x7F) as u8;
@@ -73,8 +71,13 @@ macro_rules! i_to_varint {
 
             loop {
                 let byte = buf[i];
-                n |= ((byte & 0x7F) as $tu) << shift;
-                shift += 7;
+                if i == 0 {
+                    n |= ((byte & 0x3F) as $tu) << shift; // Read the first byte with sign bit
+                    shift += 6;
+                } else {
+                    n |= ((byte & 0x7F) as $tu) << shift;
+                    shift += 7;
+                }
                 i += 1;
                 if byte & 0x80 == 0 {
                     break;
