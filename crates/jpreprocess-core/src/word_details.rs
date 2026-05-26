@@ -90,7 +90,7 @@ impl WordDetails {
             let read_bytes = read
                 .chars()
                 .flat_map(|c| {
-                    let diff = (c as i32) - ('ァ' as i32);
+                    let diff = (c as i32) - 0x30CD; // 0x30CD: 'ネ' = (0x30A1 'ァ' + 0x30FA 'ヺ') / 2
                     i32_to_varint(diff)
                 })
                 .collect::<Vec<u8>>();
@@ -123,11 +123,11 @@ impl WordDetails {
             let mut cursor = 0;
 
             let mut read_str = String::new();
-            for _ in 0..read_len {
+            while cursor < read_bytes.len() {
                 let (diff, size) = varint_to_i32(&read_bytes[cursor..]);
                 cursor += size;
                 read_str.push(
-                    std::char::from_u32((diff + ('ァ' as i32)) as u32)
+                    std::char::from_u32((diff + 0x30CD) as u32)
                         .expect("Cannot parse read string from buffer"),
                 );
             }
@@ -137,7 +137,7 @@ impl WordDetails {
             None
         };
 
-        let pron_start = 3 + read_len_size + if read_len >= 0 { read_len as usize } else { 0 };
+        let pron_start = 3 + read_len_size + read_len.max(0) as usize;
         let (pron, pron_size) = Pronunciation::from_buf(&buf[pron_start..]);
 
         let chain_rule_start = pron_start + pron_size;
