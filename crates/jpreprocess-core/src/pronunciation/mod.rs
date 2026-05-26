@@ -157,8 +157,11 @@ impl Pronunciation {
     }
 
     pub fn from_buf(buf: &[u8]) -> (Self, usize) {
-        let (len, cursor) = varint_to_usize(buf);
-        let (accent, cursor) = varint_to_usize(&buf[cursor..]);
+        let mut cursor = 0;
+        let (len, size) = varint_to_usize(buf);
+        cursor += size;
+        let (accent, size) = varint_to_usize(&buf[cursor..]);
+        cursor += size;
 
         let mut moras = buf[cursor..cursor + len]
             .iter()
@@ -167,7 +170,7 @@ impl Pronunciation {
                 is_voiced: false,
             })
             .collect::<Vec<_>>();
-        let cursor = cursor + len;
+        cursor += len;
 
         let voiced_flag_len = len.div_ceil(8);
         for (i, &flag) in buf[cursor..cursor + voiced_flag_len].iter().enumerate() {
