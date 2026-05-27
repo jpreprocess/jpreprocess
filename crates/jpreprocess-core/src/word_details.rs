@@ -79,7 +79,7 @@ impl WordDetails {
         ]
     }
 
-    pub(crate) fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
         let mut result = Vec::new();
 
         result.push(self.pos.to_u8());
@@ -97,8 +97,8 @@ impl WordDetails {
             result.extend((-1).to_varint());
         };
 
-        result.extend_from_slice(&self.pron.to_buf());
-        result.extend_from_slice(&self.chain_rule.to_buf());
+        result.extend_from_slice(&self.pron.to_bin());
+        result.extend_from_slice(&self.chain_rule.to_bin());
         result.push(match self.chain_flag {
             Some(true) => 1,
             Some(false) => 0,
@@ -108,8 +108,8 @@ impl WordDetails {
         result
     }
 
-    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
-        fn from_iter_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+        fn from_bin_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
             let read_len = isize::from_varint(iter);
             if read_len >= 0 {
                 let mut read_str = String::with_capacity(read_len as usize);
@@ -132,9 +132,9 @@ impl WordDetails {
         let ctype = CType::from_u8(read_u8(iter));
         let cform = CForm::from_u8(read_u8(iter));
 
-        let read = from_iter_read(iter);
-        let pron = Pronunciation::from_iter(iter);
-        let chain_rule = ChainRules::from_iter(iter);
+        let read = from_bin_read(iter);
+        let pron = Pronunciation::from_bin(iter);
+        let chain_rule = ChainRules::from_bin(iter);
 
         let chain_flag = match read_u8(iter) {
             1 => Some(true),
@@ -217,16 +217,16 @@ mod tests {
     use crate::word_details::WordDetails;
 
     #[test]
-    fn test_details_to_buf_and_from_buf() {
+    fn test_details_to_bin_and_from_buf() {
         let details_str = "動詞,自立,*,*,五段・ラ行,基本形,立篭る,タテコモル,タテコモル,4/5,*";
         let mut split_details: Vec<&str> = details_str.split(',').collect();
         split_details.resize(12, "*"); // Ensure the details line has 12 elements
         let details_line = crate::word_line::WordDetailsLine::from_strs(&split_details);
         let details = WordDetails::try_from(details_line).unwrap();
 
-        let buf = details.to_buf();
+        let buf = details.to_bin();
         let mut buf_iter = buf.iter().copied();
-        let parsed_details = WordDetails::from_iter(&mut buf_iter).unwrap();
+        let parsed_details = WordDetails::from_bin(&mut buf_iter).unwrap();
 
         assert_eq!(details, parsed_details);
         assert_eq!(buf_iter.next(), None); // Ensure all bytes are consumed

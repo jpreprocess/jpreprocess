@@ -14,9 +14,9 @@ fn test_word_entry_serialization() {
         .collect::<Vec<_>>();
 
     for entry in details {
-        let buf = entry.to_buf();
+        let buf = entry.to_bin();
         let mut buf_iter = buf.iter().copied();
-        let parsed_entry = WordEntry::from_iter(&mut buf_iter).unwrap();
+        let parsed_entry = WordEntry::from_bin(&mut buf_iter).unwrap();
         assert_eq!(entry, parsed_entry);
     }
 }

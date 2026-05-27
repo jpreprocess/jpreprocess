@@ -153,13 +153,13 @@ impl ChainRule {
         }
     }
 
-    pub(crate) fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
         let mut buf = vec![self.accent_type.to_u8()];
         buf.extend(self.add_type.to_varint());
         buf
     }
 
-    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let accent_type = AccentType::from_u8(read_u8(iter));
         let add_type = isize::from_varint(iter);
         Self::new(accent_type, add_type)
@@ -281,52 +281,52 @@ impl ChainRules {
         self.meishi = None;
     }
 
-    pub(crate) fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
         let mut buf = vec![0];
         if let Some(rule) = &self.default {
             buf[0] |= 1 << 0;
-            buf.extend_from_slice(&rule.to_buf());
+            buf.extend_from_slice(&rule.to_bin());
         }
         if let Some(rule) = &self.doushi {
             buf[0] |= 1 << 1;
-            buf.extend_from_slice(&rule.to_buf());
+            buf.extend_from_slice(&rule.to_bin());
         }
         if let Some(rule) = &self.joshi {
             buf[0] |= 1 << 2;
-            buf.extend_from_slice(&rule.to_buf());
+            buf.extend_from_slice(&rule.to_bin());
         }
         if let Some(rule) = &self.keiyoushi {
             buf[0] |= 1 << 3;
-            buf.extend_from_slice(&rule.to_buf());
+            buf.extend_from_slice(&rule.to_bin());
         }
         if let Some(rule) = &self.meishi {
             buf[0] |= 1 << 4;
-            buf.extend_from_slice(&rule.to_buf());
+            buf.extend_from_slice(&rule.to_bin());
         }
         buf
     }
 
-    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let mut result = Self::default();
         let flags = read_u8(iter);
         if flags & (1 << 0) != 0 {
-            let rule = ChainRule::from_iter(iter);
+            let rule = ChainRule::from_bin(iter);
             result.default = Some(rule);
         }
         if flags & (1 << 1) != 0 {
-            let rule = ChainRule::from_iter(iter);
+            let rule = ChainRule::from_bin(iter);
             result.doushi = Some(rule);
         }
         if flags & (1 << 2) != 0 {
-            let rule = ChainRule::from_iter(iter);
+            let rule = ChainRule::from_bin(iter);
             result.joshi = Some(rule);
         }
         if flags & (1 << 3) != 0 {
-            let rule = ChainRule::from_iter(iter);
+            let rule = ChainRule::from_bin(iter);
             result.keiyoushi = Some(rule);
         }
         if flags & (1 << 4) != 0 {
-            let rule = ChainRule::from_iter(iter);
+            let rule = ChainRule::from_bin(iter);
             result.meishi = Some(rule);
         }
         result
