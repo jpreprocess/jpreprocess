@@ -30,7 +30,7 @@ pub enum Special {
 }
 
 impl Special {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Nai => 0,
             Self::Tai => 1,

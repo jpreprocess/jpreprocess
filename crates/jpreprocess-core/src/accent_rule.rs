@@ -27,7 +27,7 @@ static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Failed to compile accent rule regex")
 });
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum AccentType {
     F1,
     F2,
@@ -50,7 +50,7 @@ pub enum AccentType {
 }
 
 impl AccentType {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::F1 => 0,
             Self::F2 => 1,

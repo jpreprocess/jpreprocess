@@ -28,7 +28,7 @@ pub enum Kigou {
 }
 
 impl Kigou {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::None => 0,
             Self::Alphabet => 1,

@@ -101,7 +101,7 @@ pub enum CType {
 }
 
 impl CType {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         let (major, minor) = match self {
             Self::KaIrregular(minor) => (0, minor.to_u8()),
             Self::SaIrregular(minor) => (1, minor.to_u8()),

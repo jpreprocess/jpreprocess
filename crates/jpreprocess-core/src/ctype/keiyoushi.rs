@@ -16,7 +16,7 @@ pub enum Keiyoushi {
 }
 
 impl Keiyoushi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Auo => 0,
             Self::I => 1,

@@ -18,7 +18,7 @@ pub enum Settoushi {
 }
 
 impl Settoushi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::KeiyoushiSetsuzoku => 0,
             Self::SuuSetsuzoku => 1,

@@ -143,7 +143,7 @@ impl POS {
         }
     }
 
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         let v_6bit = |v| {
             assert!(v < 0x40);
             v

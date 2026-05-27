@@ -38,7 +38,7 @@ pub enum Five {
 }
 
 impl Five {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::KaI => 0,
             Self::KaDouble => 1,

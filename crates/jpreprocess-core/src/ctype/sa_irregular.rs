@@ -16,7 +16,7 @@ pub enum SaIrregular {
 }
 
 impl SaIrregular {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Alone => 0,
             Self::ConjugationSuru => 1,

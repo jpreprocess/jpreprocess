@@ -20,7 +20,7 @@ pub enum One {
 }
 
 impl One {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Yameru => 0,
             Self::Kureru => 1,

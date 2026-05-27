@@ -16,7 +16,7 @@ pub enum Fukushi {
 }
 
 impl Fukushi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::None => 0,
             Self::General => 1,

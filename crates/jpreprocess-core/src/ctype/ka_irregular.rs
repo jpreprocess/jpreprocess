@@ -14,7 +14,7 @@ pub enum KaIrregular {
 }
 
 impl KaIrregular {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Katakana => 0,
             Self::Kanji => 1,

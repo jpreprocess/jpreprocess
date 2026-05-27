@@ -341,8 +341,8 @@ pub enum MoraEnum {
 }
 
 impl MoraEnum {
-    pub(crate) fn to_u8(&self) -> u8 {
-        *self as u8
+    pub(crate) fn to_u8(self) -> u8 {
+        self as u8
     }
 
     pub(crate) fn from_u8(n: u8) -> Self {

@@ -28,7 +28,7 @@ pub enum Old {
 }
 
 impl Old {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::Beshi => 0,
             Self::Gotoshi => 1,

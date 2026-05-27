@@ -30,7 +30,7 @@ pub enum Joshi {
 }
 
 impl Joshi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::KakuJoshi(KakuJoshi::General) => 0,
             Self::KakuJoshi(KakuJoshi::Quote) => 1,

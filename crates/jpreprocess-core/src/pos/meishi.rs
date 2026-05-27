@@ -41,7 +41,7 @@ pub enum Meishi {
 }
 
 impl Meishi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::SahenSetsuzoku => 0,
             Self::NaiKeiyoushiGokan => 1,
@@ -157,7 +157,7 @@ pub enum KoyuMeishi {
 }
 
 impl KoyuMeishi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::General => 0,
             Self::Person(Person::General) => 1,
@@ -280,7 +280,7 @@ pub enum Setsubi {
 }
 
 impl Setsubi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::SahenSetsuzoku => 0,
             Self::General => 1,
@@ -359,7 +359,7 @@ pub enum Daimeishi {
 }
 
 impl Daimeishi {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::General => 0,
             Self::Contraction => 1,
@@ -416,7 +416,7 @@ pub enum MeishiHijiritsu {
 }
 
 impl MeishiHijiritsu {
-    pub(crate) fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(self) -> u8 {
         match self {
             Self::General => 0,
             Self::KeiyoudoushiGokan => 1,
