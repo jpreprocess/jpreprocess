@@ -9,7 +9,7 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::varint::{read_u8, usize_to_varint, varint_to_usize};
+use crate::varint::{read_u8, VarInt};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -128,13 +128,14 @@ impl Pronunciation {
         let len = self.moras.len();
         let voiced_flag_len = len.div_ceil(8);
 
-        let len_encoded = usize_to_varint(len);
-        let accent_encoded = usize_to_varint(self.accent);
-        let mut result =
-            Vec::with_capacity(len_encoded.len() + accent_encoded.len() + len + voiced_flag_len);
+        let len_encoded = len.to_varint();
+        let accent_encoded = self.accent.to_varint();
+        let mut result = Vec::with_capacity(
+            len_encoded.size_hint().0 + accent_encoded.size_hint().0 + len + voiced_flag_len,
+        );
 
-        result.extend_from_slice(&len_encoded);
-        result.extend_from_slice(&accent_encoded);
+        result.extend(len_encoded);
+        result.extend(accent_encoded);
 
         for mora in self.moras.iter() {
             result.push(mora.mora_enum.to_u8());
@@ -157,8 +158,8 @@ impl Pronunciation {
     }
 
     pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
-        let len = varint_to_usize(iter);
-        let accent = varint_to_usize(iter);
+        let len = usize::from_varint(iter);
+        let accent = usize::from_varint(iter);
 
         let mut moras = Vec::with_capacity(len);
         for _ in 0..len {

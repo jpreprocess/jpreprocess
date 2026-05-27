@@ -8,7 +8,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    varint::{isize_to_varint, read_u8, varint_to_isize},
+    varint::{read_u8, VarInt},
     JPreprocessResult,
 };
 
@@ -155,13 +155,13 @@ impl ChainRule {
 
     pub(crate) fn to_buf(&self) -> Vec<u8> {
         let mut buf = vec![self.accent_type.to_u8()];
-        buf.extend_from_slice(&isize_to_varint(self.add_type));
+        buf.extend(self.add_type.to_varint());
         buf
     }
 
     pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let accent_type = AccentType::from_u8(read_u8(iter));
-        let add_type = varint_to_isize(iter);
+        let add_type = isize::from_varint(iter);
         Self::new(accent_type, add_type)
     }
 }

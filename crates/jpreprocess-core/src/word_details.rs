@@ -8,7 +8,7 @@ use crate::{
     ctype::CType,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
-    varint::{i32_to_varint, isize_to_varint, read_u8, varint_to_i32, varint_to_isize},
+    varint::{read_u8, VarInt},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };
@@ -87,18 +87,14 @@ impl WordDetails {
         result.push(self.cform.to_u8());
 
         if let Some(read) = &self.read {
-            result.extend_from_slice(&isize_to_varint(read.len() as isize)); // isize to allow negative length for None
+            result.extend((read.len() as isize).to_varint()); // isize to allow negative length for None
 
-            let read_bytes = read
-                .chars()
-                .flat_map(|c| {
-                    let diff = (c as i32) - 0x30CD; // 0x30CD: 'ネ' = (0x30A1 'ァ' + 0x30FA 'ヺ') / 2
-                    i32_to_varint(diff)
-                })
-                .collect::<Vec<u8>>();
-            result.extend_from_slice(&read_bytes);
+            result.extend(read.chars().flat_map(|c| {
+                let diff = (c as i32) - 0x30CD; // 0x30CD: 'ネ' = (0x30A1 'ァ' + 0x30FA 'ヺ') / 2
+                diff.to_varint()
+            }));
         } else {
-            result.extend_from_slice(&isize_to_varint(-1));
+            result.extend((-1).to_varint());
         };
 
         result.extend_from_slice(&self.pron.to_buf());
@@ -114,12 +110,12 @@ impl WordDetails {
 
     pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
         fn from_iter_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
-            let read_len = varint_to_isize(iter);
+            let read_len = isize::from_varint(iter);
             if read_len >= 0 {
                 let mut read_str = String::with_capacity(read_len as usize);
 
                 while read_str.len() < read_len as usize {
-                    let diff = varint_to_i32(iter);
+                    let diff = i32::from_varint(iter);
                     read_str.push(
                         char::from_u32((diff + 0x30CD) as u32)
                             .expect("Cannot parse read string from buffer"),

@@ -1,101 +1,119 @@
-macro_rules! u_variant {
-    ($t:ty,$to_varint_name:ident,$from_varint_name:ident) => {
-        pub(crate) fn $to_varint_name(mut n: $t) -> Vec<u8> {
-            let mut buf = Vec::new();
-            buf.push((n & 0x7F) as u8);
-            n >>= 7;
-            while n != 0 {
-                let mut byte = (n & 0x7F) as u8;
-                n >>= 7;
-                if n != 0 {
-                    byte |= 0x80;
-                }
-                buf.push(byte);
-            }
-            buf
-        }
-        pub(crate) fn $from_varint_name<I: Iterator<Item = u8>>(iter: &mut I) -> $t {
-            let mut n: $t = 0;
-            let mut shift = 0;
-
-            loop {
-                let byte = iter
-                    .next()
-                    .expect("Unexpected end of buffer while reading varint");
-                n |= ((byte & 0x7F) as $t) << shift;
-                shift += 7;
-                if byte & 0x80 == 0 {
-                    break;
-                }
-            }
-
-            n
-        }
-    };
+pub(crate) trait VarInt {
+    fn to_varint(self) -> impl Iterator<Item = u8>;
+    fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self;
 }
 
-u_variant!(usize, usize_to_varint, varint_to_usize);
-
-macro_rules! i_to_varint {
-    ($ti:ty,$tu:ty,$to_varint_name:ident,$from_varint_name:ident) => {
-        pub(crate) fn $to_varint_name(z: $ti) -> Vec<u8> {
-            let mut buf = Vec::new();
-            let is_negative = z < 0;
-            let mut n: $tu = if is_negative { (-z) as $tu } else { z as $tu };
-
-            let mut byte = (n & 0x3F) as u8; // Store the first 6 bits
-            n >>= 6;
-            if n != 0 {
-                byte |= 0x80; // Set the continuation bit
-            }
-            if is_negative {
-                byte |= 0x40; // Set the sign bit for negative numbers
-            }
-            buf.push(byte);
-
-            while n != 0 {
-                let mut byte = (n & 0x7F) as u8;
-                n >>= 7;
-                if n != 0 {
-                    byte |= 0x80;
+macro_rules! u_varint {
+    ($t:ty) => {
+        impl VarInt for $t {
+            fn to_varint(self) -> impl Iterator<Item = u8> {
+                struct VarIntIter($t, bool);
+                impl Iterator for VarIntIter {
+                    type Item = u8;
+                    fn next(&mut self) -> Option<Self::Item> {
+                        if self.0 == 0 && self.1 {
+                            None
+                        } else {
+                            let mut byte = (self.0 & 0x7F) as u8;
+                            self.0 >>= 7;
+                            if self.0 != 0 {
+                                byte |= 0x80; // Set the continuation bit
+                            }
+                            self.1 = true; // Mark that we've started emitting bytes
+                            Some(byte)
+                        }
+                    }
+                    fn size_hint(&self) -> (usize, Option<usize>) {
+                        let leading_zeros = self.0.leading_zeros() as usize;
+                        let bytes_needed = (std::mem::size_of::<$t>() * 8 - leading_zeros)
+                            .div_ceil(7)
+                            .min(1);
+                        (bytes_needed, Some(bytes_needed))
+                    }
                 }
-                buf.push(byte);
+                VarIntIter(self, false)
             }
 
-            buf
-        }
-        pub(crate) fn $from_varint_name<I: Iterator<Item = u8>>(iter: &mut I) -> $ti {
-            let first_byte = iter
-                .next()
-                .expect("Unexpected end of buffer while reading signed varint");
-            let mut n: $tu = (first_byte & 0x3F) as $tu;
-            let mut shift = 6;
+            fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+                let mut n: $t = 0;
+                let mut shift = 0;
 
-            if first_byte & 0x80 != 0 {
                 loop {
                     let byte = iter
                         .next()
-                        .expect("Unexpected end of buffer while reading signed varint");
-                    n |= ((byte & 0x7F) as $tu) << shift;
+                        .expect("Unexpected end of buffer while reading varint");
+                    n |= ((byte & 0x7F) as $t) << shift;
                     shift += 7;
                     if byte & 0x80 == 0 {
                         break;
                     }
                 }
+
+                n
             }
-
-            let is_negative = first_byte & 0x40 != 0;
-            let z = if is_negative { -(n as $ti) } else { n as $ti };
-
-            z
         }
     };
 }
 
-i_to_varint!(isize, usize, isize_to_varint, varint_to_isize);
-i_to_varint!(i32, u32, i32_to_varint, varint_to_i32);
+u_varint!(usize);
+u_varint!(u32);
+
+macro_rules! i_varint {
+    ($ti:ty,$tu:ty) => {
+        impl VarInt for $ti {
+            fn to_varint(self) -> impl Iterator<Item = u8> {
+                let n = ((self << 1) ^ (self >> (std::mem::size_of::<$ti>() * 8 - 1))) as $tu; // ZigZag encoding
+                <$tu>::to_varint(n)
+            }
+
+            fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+                let n = <$tu>::from_varint(iter);
+                ((n >> 1) as $ti) ^ (-((n & 1) as $ti)) // ZigZag decoding
+            }
+        }
+    };
+}
+
+i_varint!(isize, usize);
+i_varint!(i32, u32);
 
 pub(crate) fn read_u8<I: Iterator<Item = u8>>(iter: &mut I) -> u8 {
     iter.next()
         .expect("Unexpected end of buffer while reading byte")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_varint_u32() {
+        let values = [0, 1, 127, 128, 255, 256, 1024, u32::MAX];
+        for &value in &values {
+            let varint_bytes: Vec<u8> = value.to_varint().collect();
+            let decoded_value = u32::from_varint(&mut varint_bytes.into_iter());
+            assert_eq!(value, decoded_value, "Failed for value: {}", value);
+        }
+    }
+    #[test]
+    fn test_varint_i32() {
+        let values = [
+            0,
+            1,
+            -1,
+            127,
+            -128,
+            128,
+            -129,
+            1024,
+            -1024,
+            i32::MAX,
+            i32::MIN,
+        ];
+        for &value in &values {
+            let varint_bytes: Vec<u8> = value.to_varint().collect();
+            let decoded_value = i32::from_varint(&mut varint_bytes.into_iter());
+            assert_eq!(value, decoded_value, "Failed for value: {}", value);
+        }
+    }
 }

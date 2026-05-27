@@ -1,8 +1,5 @@
 use crate::{
-    varint::{usize_to_varint, varint_to_usize},
-    word_details::WordDetails,
-    word_line::WordDetailsLine,
-    JPreprocessResult,
+    varint::VarInt, word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult,
 };
 use serde::{Deserialize, Serialize};
 
@@ -71,13 +68,13 @@ impl WordEntry {
         let mut result = Vec::new();
         match self {
             Self::Single(details) => {
-                result.extend_from_slice(&usize_to_varint(1)); // Number of entries (1 for Single)
+                result.extend(usize::to_varint(1)); // Number of entries (1 for Single)
                 result.extend_from_slice(&details.to_buf());
             }
             Self::Multiple(details_vec) => {
-                result.extend_from_slice(&usize_to_varint(details_vec.len())); // Number of entries (Multiple)
+                result.extend(usize::to_varint(details_vec.len())); // Number of entries (Multiple)
                 for (string, details) in details_vec {
-                    result.extend_from_slice(&usize_to_varint(string.len()));
+                    result.extend(usize::to_varint(string.len()));
                     result.extend_from_slice(string.as_bytes());
                     result.extend_from_slice(&details.to_buf());
                 }
@@ -87,13 +84,13 @@ impl WordEntry {
     }
 
     pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
-        let num_entries = varint_to_usize(iter);
+        let num_entries = usize::from_varint(iter);
         if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_iter(iter)?))
         } else {
             let mut details_vec = Vec::with_capacity(num_entries);
             for _ in 0..num_entries {
-                let string_len = varint_to_usize(iter);
+                let string_len = usize::from_varint(iter);
                 let string = String::from_utf8(iter.by_ref().take(string_len).collect()).unwrap();
                 details_vec.push((string, WordDetails::from_iter(iter)?));
             }
