@@ -113,27 +113,30 @@ impl WordDetails {
     }
 
     pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+        fn from_iter_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
+            let read_len = varint_to_isize(iter);
+            if read_len >= 0 {
+                let mut read_str = String::with_capacity(read_len as usize);
+
+                while read_str.len() < read_len as usize {
+                    let diff = varint_to_i32(iter);
+                    read_str.push(
+                        char::from_u32((diff + 0x30CD) as u32)
+                            .expect("Cannot parse read string from buffer"),
+                    );
+                }
+
+                Some(read_str)
+            } else {
+                None
+            }
+        }
+
         let pos = POS::from_u8(read_u8(iter));
         let ctype = CType::from_u8(read_u8(iter));
         let cform = CForm::from_u8(read_u8(iter));
 
-        let read_len = varint_to_isize(iter);
-        let read = if read_len >= 0 {
-            let mut read_str = String::with_capacity(read_len as usize);
-
-            while read_str.len() < read_len as usize {
-                let diff = varint_to_i32(iter);
-                read_str.push(
-                    std::char::from_u32((diff + 0x30CD) as u32)
-                        .expect("Cannot parse read string from buffer"),
-                );
-            }
-
-            Some(read_str)
-        } else {
-            None
-        };
-
+        let read = from_iter_read(iter);
         let pron = Pronunciation::from_iter(iter);
         let chain_rule = ChainRules::from_iter(iter);
 
