@@ -9,7 +9,7 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::varint::{usize_to_varint, varint_to_usize};
+use crate::varint::{read_u8, usize_to_varint, varint_to_usize};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -156,24 +156,21 @@ impl Pronunciation {
         result
     }
 
-    pub fn from_buf(buf: &[u8]) -> (Self, usize) {
-        let mut cursor = 0;
-        let (len, size) = varint_to_usize(buf);
-        cursor += size;
-        let (accent, size) = varint_to_usize(&buf[cursor..]);
-        cursor += size;
+    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+        let len = varint_to_usize(iter);
+        let accent = varint_to_usize(iter);
 
         let mut moras = Vec::with_capacity(len);
-        for i in 0..len {
+        for _ in 0..len {
             moras.push(Mora {
-                mora_enum: MoraEnum::from_u8(buf[cursor + i]),
+                mora_enum: MoraEnum::from_u8(read_u8(iter)),
                 is_voiced: false, // Will be updated later
             });
         }
-        cursor += len;
 
         let voiced_flag_len = len.div_ceil(8);
-        for (i, &flag) in buf[cursor..cursor + voiced_flag_len].iter().enumerate() {
+        for i in 0..voiced_flag_len {
+            let flag = read_u8(iter);
             for j in 0..8 {
                 if i * 8 + j >= len {
                     break;
@@ -183,15 +180,11 @@ impl Pronunciation {
                 moras[i * 8 + j].is_voiced = is_voiced > 0;
             }
         }
-        let cursor = cursor + voiced_flag_len;
 
-        (
-            Self {
-                moras: moras.into(),
-                accent,
-            },
-            cursor,
-        )
+        Self {
+            moras: moras.into(),
+            accent,
+        }
     }
 }
 

@@ -8,7 +8,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    varint::{isize_to_varint, varint_to_isize},
+    varint::{isize_to_varint, read_u8, varint_to_isize},
     JPreprocessResult,
 };
 
@@ -159,10 +159,10 @@ impl ChainRule {
         buf
     }
 
-    pub(crate) fn from_buf(buf: &[u8]) -> (Self, usize) {
-        let accent_type = AccentType::from_u8(buf[0]);
-        let (add_type, consumed) = varint_to_isize(&buf[1..]);
-        (Self::new(accent_type, add_type), 1 + consumed)
+    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+        let accent_type = AccentType::from_u8(read_u8(iter));
+        let add_type = varint_to_isize(iter);
+        Self::new(accent_type, add_type)
     }
 }
 
@@ -306,35 +306,30 @@ impl ChainRules {
         buf
     }
 
-    pub fn from_buf(buf: &[u8]) -> (Self, usize) {
+    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let mut result = Self::default();
-        let mut offset = 1;
-        if buf[0] & (1 << 0) != 0 {
-            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+        let flags = read_u8(iter);
+        if flags & (1 << 0) != 0 {
+            let rule = ChainRule::from_iter(iter);
             result.default = Some(rule);
-            offset += consumed;
         }
-        if buf[0] & (1 << 1) != 0 {
-            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+        if flags & (1 << 1) != 0 {
+            let rule = ChainRule::from_iter(iter);
             result.doushi = Some(rule);
-            offset += consumed;
         }
-        if buf[0] & (1 << 2) != 0 {
-            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+        if flags & (1 << 2) != 0 {
+            let rule = ChainRule::from_iter(iter);
             result.joshi = Some(rule);
-            offset += consumed;
         }
-        if buf[0] & (1 << 3) != 0 {
-            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+        if flags & (1 << 3) != 0 {
+            let rule = ChainRule::from_iter(iter);
             result.keiyoushi = Some(rule);
-            offset += consumed;
         }
-        if buf[0] & (1 << 4) != 0 {
-            let (rule, consumed) = ChainRule::from_buf(&buf[offset..]);
+        if flags & (1 << 4) != 0 {
+            let rule = ChainRule::from_iter(iter);
             result.meishi = Some(rule);
-            offset += consumed;
         }
-        (result, offset)
+        result
     }
 }
 

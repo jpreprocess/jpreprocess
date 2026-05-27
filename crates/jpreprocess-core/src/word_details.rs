@@ -8,7 +8,7 @@ use crate::{
     ctype::CType,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
-    varint::{i32_to_varint, isize_to_varint, varint_to_i32, varint_to_isize},
+    varint::{i32_to_varint, isize_to_varint, read_u8, varint_to_i32, varint_to_isize},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };
@@ -87,6 +87,8 @@ impl WordDetails {
         result.push(self.cform.to_u8());
 
         if let Some(read) = &self.read {
+            result.extend_from_slice(&isize_to_varint(read.len() as isize)); // isize to allow negative length for None
+
             let read_bytes = read
                 .chars()
                 .flat_map(|c| {
@@ -94,8 +96,6 @@ impl WordDetails {
                     i32_to_varint(diff)
                 })
                 .collect::<Vec<u8>>();
-
-            result.extend_from_slice(&isize_to_varint(read_bytes.len() as isize)); // isize to allow negative length for None
             result.extend_from_slice(&read_bytes);
         } else {
             result.extend_from_slice(&isize_to_varint(-1));
@@ -112,20 +112,17 @@ impl WordDetails {
         result
     }
 
-    pub fn from_buf(buf: &[u8]) -> JPreprocessResult<(Self, usize)> {
-        let pos = POS::from_u8(buf[0]);
-        let ctype = CType::from_u8(buf[1]);
-        let cform = CForm::from_u8(buf[2]);
+    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+        let pos = POS::from_u8(read_u8(iter));
+        let ctype = CType::from_u8(read_u8(iter));
+        let cform = CForm::from_u8(read_u8(iter));
 
-        let (read_len, read_len_size) = varint_to_isize(&buf[3..]);
+        let read_len = varint_to_isize(iter);
         let read = if read_len >= 0 {
-            let read_bytes = &buf[3 + read_len_size..3 + read_len_size + (read_len as usize)];
-            let mut cursor = 0;
+            let mut read_str = String::with_capacity(read_len as usize);
 
-            let mut read_str = String::with_capacity(read_bytes.len() * 3);
-            while cursor < read_bytes.len() {
-                let (diff, size) = varint_to_i32(&read_bytes[cursor..]);
-                cursor += size;
+            while read_str.len() < read_len as usize {
+                let diff = varint_to_i32(iter);
                 read_str.push(
                     std::char::from_u32((diff + 0x30CD) as u32)
                         .expect("Cannot parse read string from buffer"),
@@ -137,35 +134,25 @@ impl WordDetails {
             None
         };
 
-        let pron_start = 3 + read_len_size + read_len.max(0) as usize;
-        let (pron, pron_size) = Pronunciation::from_buf(&buf[pron_start..]);
+        let pron = Pronunciation::from_iter(iter);
+        let chain_rule = ChainRules::from_iter(iter);
 
-        let chain_rule_start = pron_start + pron_size;
-        let (chain_rule, chain_rule_size) = ChainRules::from_buf(&buf[chain_rule_start..]);
-
-        let chain_flag_start = chain_rule_start + chain_rule_size;
-        let chain_flag = match buf[chain_flag_start] {
+        let chain_flag = match read_u8(iter) {
             1 => Some(true),
             0 => Some(false),
             255 => None,
-            _ => panic!(
-                "Invalid chain_flag value in buffer: {}",
-                buf[chain_flag_start]
-            ),
+            value => panic!("Invalid chain_flag value in buffer: {}", value),
         };
 
-        Ok((
-            Self {
-                pos,
-                ctype,
-                cform,
-                read,
-                pron,
-                chain_rule,
-                chain_flag,
-            },
-            chain_flag_start + 1, // Total size of the data read
-        ))
+        Ok(Self {
+            pos,
+            ctype,
+            cform,
+            read,
+            pron,
+            chain_rule,
+            chain_flag,
+        })
     }
 }
 

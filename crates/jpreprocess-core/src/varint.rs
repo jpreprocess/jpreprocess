@@ -14,22 +14,22 @@ macro_rules! u_variant {
             }
             buf
         }
-        pub(crate) fn $from_varint_name(buf: &[u8]) -> ($t, usize) {
+        pub(crate) fn $from_varint_name<I: Iterator<Item = u8>>(iter: &mut I) -> $t {
             let mut n: $t = 0;
             let mut shift = 0;
-            let mut i = 0;
 
             loop {
-                let byte = buf[i];
+                let byte = iter
+                    .next()
+                    .expect("Unexpected end of buffer while reading varint");
                 n |= ((byte & 0x7F) as $t) << shift;
                 shift += 7;
-                i += 1;
                 if byte & 0x80 == 0 {
                     break;
                 }
             }
 
-            (n, i)
+            n
         }
     };
 }
@@ -64,32 +64,37 @@ macro_rules! i_to_varint {
 
             buf
         }
-        pub(crate) fn $from_varint_name(buf: &[u8]) -> ($ti, usize) {
-            let mut n: $tu = 0;
-            let mut shift = 0;
-            let mut i = 0;
+        pub(crate) fn $from_varint_name<I: Iterator<Item = u8>>(iter: &mut I) -> $ti {
+            let first_byte = iter
+                .next()
+                .expect("Unexpected end of buffer while reading signed varint");
+            let mut n: $tu = (first_byte & 0x3F) as $tu;
+            let mut shift = 6;
 
-            loop {
-                let byte = buf[i];
-                if i == 0 {
-                    n |= ((byte & 0x3F) as $tu) << shift; // Read the first byte with sign bit
-                    shift += 6;
-                } else {
+            if first_byte & 0x80 != 0 {
+                loop {
+                    let byte = iter
+                        .next()
+                        .expect("Unexpected end of buffer while reading signed varint");
                     n |= ((byte & 0x7F) as $tu) << shift;
                     shift += 7;
-                }
-                i += 1;
-                if byte & 0x80 == 0 {
-                    break;
+                    if byte & 0x80 == 0 {
+                        break;
+                    }
                 }
             }
 
-            let is_negative = buf[0] & 0x40 != 0;
+            let is_negative = first_byte & 0x40 != 0;
             let z = if is_negative { -(n as $ti) } else { n as $ti };
 
-            (z, i)
+            z
         }
     };
+}
+
+pub(crate) fn read_u8<I: Iterator<Item = u8>>(iter: &mut I) -> u8 {
+    iter.next()
+        .expect("Unexpected end of buffer while reading byte")
 }
 
 i_to_varint!(isize, usize, isize_to_varint, varint_to_isize);
