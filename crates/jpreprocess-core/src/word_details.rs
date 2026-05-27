@@ -122,7 +122,7 @@ impl WordDetails {
             let read_bytes = &buf[3 + read_len_size..3 + read_len_size + (read_len as usize)];
             let mut cursor = 0;
 
-            let mut read_str = String::new();
+            let mut read_str = String::with_capacity(read_bytes.len() * 3);
             while cursor < read_bytes.len() {
                 let (diff, size) = varint_to_i32(&read_bytes[cursor..]);
                 cursor += size;

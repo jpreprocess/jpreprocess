@@ -163,13 +163,13 @@ impl Pronunciation {
         let (accent, size) = varint_to_usize(&buf[cursor..]);
         cursor += size;
 
-        let mut moras = buf[cursor..cursor + len]
-            .iter()
-            .map(|&v| Mora {
-                mora_enum: MoraEnum::from_u8(v),
-                is_voiced: false,
-            })
-            .collect::<Vec<_>>();
+        let mut moras = Vec::with_capacity(len);
+        for i in 0..len {
+            moras.push(Mora {
+                mora_enum: MoraEnum::from_u8(buf[cursor + i]),
+                is_voiced: false, // Will be updated later
+            });
+        }
         cursor += len;
 
         let voiced_flag_len = len.div_ceil(8);
