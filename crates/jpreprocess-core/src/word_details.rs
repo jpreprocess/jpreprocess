@@ -79,7 +79,7 @@ impl WordDetails {
         ]
     }
 
-    pub fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_buf(&self) -> Vec<u8> {
         let mut result = Vec::new();
 
         result.push(self.pos.to_u8());
@@ -112,7 +112,7 @@ impl WordDetails {
         result
     }
 
-    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
         fn from_iter_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
             let read_len = varint_to_isize(iter);
             if read_len >= 0 {
@@ -213,5 +213,26 @@ impl From<&WordDetails> for WordDetailsLine {
             }
             .into(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::word_details::WordDetails;
+
+    #[test]
+    fn test_details_to_buf_and_from_buf() {
+        let details_str = "動詞,自立,*,*,五段・ラ行,基本形,立篭る,タテコモル,タテコモル,4/5,*";
+        let mut split_details: Vec<&str> = details_str.split(',').collect();
+        split_details.resize(12, "*"); // Ensure the details line has 12 elements
+        let details_line = crate::word_line::WordDetailsLine::from_strs(&split_details);
+        let details = WordDetails::try_from(details_line).unwrap();
+
+        let buf = details.to_buf();
+        let mut buf_iter = buf.iter().copied();
+        let parsed_details = WordDetails::from_iter(&mut buf_iter).unwrap();
+
+        assert_eq!(details, parsed_details);
+        assert_eq!(buf_iter.next(), None); // Ensure all bytes are consumed
     }
 }

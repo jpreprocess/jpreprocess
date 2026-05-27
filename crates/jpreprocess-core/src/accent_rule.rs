@@ -281,7 +281,7 @@ impl ChainRules {
         self.meishi = None;
     }
 
-    pub fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_buf(&self) -> Vec<u8> {
         let mut buf = vec![0];
         if let Some(rule) = &self.default {
             buf[0] |= 1 << 0;
@@ -306,7 +306,7 @@ impl ChainRules {
         buf
     }
 
-    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let mut result = Self::default();
         let flags = read_u8(iter);
         if flags & (1 << 0) != 0 {

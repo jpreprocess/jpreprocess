@@ -208,25 +208,6 @@ pub enum Person {
     Mei,
 }
 
-impl Person {
-    pub(crate) fn to_u8(&self) -> u8 {
-        match self {
-            Self::General => 0,
-            Self::Sei => 1,
-            Self::Mei => 2,
-        }
-    }
-
-    pub(crate) fn from_u8(n: u8) -> Self {
-        match n {
-            0 => Self::General,
-            1 => Self::Sei,
-            2 => Self::Mei,
-            _ => panic!("Invalid u8 value for Person: {}", n),
-        }
-    }
-}
-
 impl FromStr for Person {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -247,23 +228,6 @@ pub enum Region {
     General,
     /// 国
     Country,
-}
-
-impl Region {
-    pub(crate) fn to_u8(&self) -> u8 {
-        match self {
-            Self::General => 0,
-            Self::Country => 1,
-        }
-    }
-
-    pub(crate) fn from_u8(n: u8) -> Self {
-        match n {
-            0 => Self::General,
-            1 => Self::Country,
-            _ => panic!("Invalid u8 value for Region: {}", n),
-        }
-    }
 }
 
 impl FromStr for Region {

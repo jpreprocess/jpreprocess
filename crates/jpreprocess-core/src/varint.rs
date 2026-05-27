@@ -92,10 +92,10 @@ macro_rules! i_to_varint {
     };
 }
 
+i_to_varint!(isize, usize, isize_to_varint, varint_to_isize);
+i_to_varint!(i32, u32, i32_to_varint, varint_to_i32);
+
 pub(crate) fn read_u8<I: Iterator<Item = u8>>(iter: &mut I) -> u8 {
     iter.next()
         .expect("Unexpected end of buffer while reading byte")
 }
-
-i_to_varint!(isize, usize, isize_to_varint, varint_to_isize);
-i_to_varint!(i32, u32, i32_to_varint, varint_to_i32);

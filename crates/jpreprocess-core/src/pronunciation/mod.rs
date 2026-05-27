@@ -124,7 +124,7 @@ impl Pronunciation {
         self.moras = Cow::Owned(moras);
     }
 
-    pub fn to_buf(&self) -> Vec<u8> {
+    pub(crate) fn to_buf(&self) -> Vec<u8> {
         let len = self.moras.len();
         let voiced_flag_len = len.div_ceil(8);
 
@@ -156,7 +156,7 @@ impl Pronunciation {
         result
     }
 
-    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
         let len = varint_to_usize(iter);
         let accent = varint_to_usize(iter);
 

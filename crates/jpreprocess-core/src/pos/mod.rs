@@ -143,7 +143,7 @@ impl POS {
         }
     }
 
-    pub fn to_u8(&self) -> u8 {
+    pub(crate) fn to_u8(&self) -> u8 {
         let v_6bit = |v| {
             assert!(v < 0x40);
             v
@@ -176,7 +176,7 @@ impl POS {
         }
     }
 
-    pub fn from_u8(n: u8) -> Self {
+    pub(crate) fn from_u8(n: u8) -> Self {
         match n >> 4 {
             0 => match n {
                 0 => Self::Filler,
