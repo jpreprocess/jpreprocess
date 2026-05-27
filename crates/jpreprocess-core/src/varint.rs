@@ -27,7 +27,7 @@ macro_rules! u_varint {
                         let leading_zeros = self.0.leading_zeros() as usize;
                         let bytes_needed = (std::mem::size_of::<$t>() * 8 - leading_zeros)
                             .div_ceil(7)
-                            .min(1);
+                            .max(1);
                         (bytes_needed, Some(bytes_needed))
                     }
                 }
@@ -90,28 +90,26 @@ mod tests {
     fn test_varint_u32() {
         let values = [0, 1, 127, 128, 255, 256, 1024, u32::MAX];
         for &value in &values {
-            let varint_bytes: Vec<u8> = value.to_varint().collect();
+            let varint_iter = value.to_varint();
+
+            let expected_len = varint_iter.size_hint().0;
+            let varint_bytes: Vec<u8> = varint_iter.collect();
+            assert_eq!(expected_len, varint_bytes.len());
+
             let decoded_value = u32::from_varint(&mut varint_bytes.into_iter());
             assert_eq!(value, decoded_value, "Failed for value: {}", value);
         }
     }
     #[test]
     fn test_varint_i32() {
-        let values = [
-            0,
-            1,
-            -1,
-            127,
-            -128,
-            128,
-            -129,
-            1024,
-            -1024,
-            i32::MAX,
-            i32::MIN,
-        ];
+        let values = [0, 1, -1, 63, -64, 64, -65, 1024, -1024, i32::MAX, i32::MIN];
         for &value in &values {
-            let varint_bytes: Vec<u8> = value.to_varint().collect();
+            let varint_iter = value.to_varint();
+
+            let expected_len = varint_iter.size_hint().0;
+            let varint_bytes: Vec<u8> = varint_iter.collect();
+            assert_eq!(expected_len, varint_bytes.len());
+
             let decoded_value = i32::from_varint(&mut varint_bytes.into_iter());
             assert_eq!(value, decoded_value, "Failed for value: {}", value);
         }
