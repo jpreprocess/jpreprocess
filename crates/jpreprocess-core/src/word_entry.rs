@@ -1,4 +1,9 @@
-use crate::{word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
+use crate::{
+    varint::{usize_to_varint, varint_to_usize},
+    word_details::WordDetails,
+    word_line::WordDetailsLine,
+    JPreprocessResult,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -60,6 +65,40 @@ impl WordEntry {
             line.chain_rule.to_string(),
             line.chain_flag.to_string(),
         ]
+    }
+
+    pub fn to_buf(&self) -> Vec<u8> {
+        let mut result = Vec::new();
+        match self {
+            Self::Single(details) => {
+                result.extend_from_slice(&usize_to_varint(1)); // Number of entries (1 for Single)
+                result.extend_from_slice(&details.to_buf());
+            }
+            Self::Multiple(details_vec) => {
+                result.extend_from_slice(&usize_to_varint(details_vec.len())); // Number of entries (Multiple)
+                for (string, details) in details_vec {
+                    result.extend_from_slice(&usize_to_varint(string.len()));
+                    result.extend_from_slice(string.as_bytes());
+                    result.extend_from_slice(&details.to_buf());
+                }
+            }
+        }
+        result
+    }
+
+    pub fn from_iter<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+        let num_entries = varint_to_usize(iter);
+        if num_entries == 1 {
+            Ok(Self::Single(WordDetails::from_iter(iter)?))
+        } else {
+            let mut details_vec = Vec::with_capacity(num_entries);
+            for _ in 0..num_entries {
+                let string_len = varint_to_usize(iter);
+                let string = String::from_utf8(iter.by_ref().take(string_len).collect()).unwrap();
+                details_vec.push((string, WordDetails::from_iter(iter)?));
+            }
+            Ok(Self::Multiple(details_vec))
+        }
     }
 }
 
