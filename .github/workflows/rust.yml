@@ -17,6 +17,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+      with:
+        fetch-depth: 0
+        submodules: recursive
 
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
@@ -36,12 +39,12 @@ jobs:
         rm *.tar.gz *.tar.xz
 
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --workspace
     - name: Run tests
-      run: cargo test --verbose -- --include-ignored
+      run: cargo test --verbose --workspace -- --include-ignored
 
     - name: Run Clippy
-      run: cargo clippy --all-targets
+      run: cargo clippy --all-targets --workspace
     - name: Run Format Check
       run: cargo fmt --check
 
