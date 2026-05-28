@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::hash_map::Entry, path::PathBuf};
 
 fn main() {
     let naist_jdic_path = PathBuf::from("tests/data/naist-jdic/");
@@ -19,12 +19,12 @@ fn main() {
         let left_id = parts.next().unwrap().parse::<i32>().unwrap();
         let right_id = parts.next().unwrap().parse::<i32>().unwrap();
 
-        if !id_mapping.contains_key(&left_id) {
-            id_mapping.insert(left_id, new_id);
+        if let Entry::Vacant(e) = id_mapping.entry(left_id) {
+            e.insert(new_id);
             new_id += 1;
         }
-        if !id_mapping.contains_key(&right_id) {
-            id_mapping.insert(right_id, new_id);
+        if let Entry::Vacant(e) = id_mapping.entry(right_id) {
+            e.insert(new_id);
             new_id += 1;
         }
     }
