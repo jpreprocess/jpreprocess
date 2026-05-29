@@ -92,7 +92,8 @@ fn load_dictionary(path: &Path) -> Dictionary {
         &[] as &'static [u8],
         &[] as &'static [u8],
         true,
-    );
+    )
+    .expect("Failed to load prefix dictionary");
 
     Dictionary {
         metadata,

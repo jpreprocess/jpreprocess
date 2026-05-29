@@ -104,7 +104,6 @@ impl JPreprocessDictionaryBuilder {
     ) -> LinderaResult<CharacterDefinition> {
         CharacterDefinitionBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
-            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
@@ -118,7 +117,6 @@ impl JPreprocessDictionaryBuilder {
     ) -> LinderaResult<()> {
         UnknownDictionaryBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
-            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, chardef, output_dir)
@@ -145,10 +143,7 @@ impl JPreprocessDictionaryBuilder {
             .unwrap();
 
         write_prefix_dictionary::<DefaultParser, JPreprocessDictionaryWordEncoding>(
-            &parser,
-            &rows,
-            output_dir,
-            self.metadata.compress_algorithm,
+            &parser, &rows, output_dir,
         )
     }
 
@@ -159,7 +154,6 @@ impl JPreprocessDictionaryBuilder {
     ) -> LinderaResult<()> {
         ConnectionCostMatrixBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
-            .compress_algorithm(self.metadata.compress_algorithm)
             .builder()
             .unwrap()
             .build(input_dir, output_dir)
