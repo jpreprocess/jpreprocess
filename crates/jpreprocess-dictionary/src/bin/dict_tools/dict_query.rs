@@ -2,7 +2,7 @@ use jpreprocess_dictionary::{
     dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::get_word_data,
 };
 use lindera::dictionary::{Dictionary, UserDictionary};
-use lindera_dictionary::dictionary::{prefix_dictionary::PrefixDictionary, UNK};
+use lindera_dictionary::dictionary::UNK;
 
 pub enum QueryDict {
     System(Dictionary),
@@ -10,12 +10,6 @@ pub enum QueryDict {
 }
 
 impl QueryDict {
-    pub fn dictionary_data(&self) -> &PrefixDictionary {
-        match &self {
-            Self::System(dict) => &dict.prefix_dictionary,
-            Self::User(dict) => &dict.dict,
-        }
-    }
     pub fn identifier(&self) -> Option<&str> {
         match self {
             Self::System(dict) => get_dict_preamble(
