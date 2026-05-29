@@ -55,7 +55,7 @@ impl QueryDict {
 
 fn get_dict_preamble<'a>(idx: &[u8], data: &'a [u8]) -> Option<&'a str> {
     match std::str::from_utf8(get_word_data(idx, data, None)?) {
-        Ok(s) if s.is_empty() => None,
+        Ok("") => None,
         Ok(s) => Some(s),
         Err(e) => {
             eprintln!("Error parsing dictionary type: {}", e);
