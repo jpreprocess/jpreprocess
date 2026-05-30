@@ -152,7 +152,7 @@ pub struct ChainRules {
 impl ChainRules {
     pub fn new(rules: &str) -> Self {
         let mut result = Self::default();
-        if rules == "*" {
+        if rules.is_empty() || rules == "*" {
             return result;
         }
 
@@ -326,6 +326,18 @@ mod tests {
     #[test]
     fn empty() {
         let rules = ChainRules::new("*");
+        assert_eq!(rules.default, None);
+        assert_eq!(rules.doushi, None);
+        assert_eq!(rules.joshi, None);
+        assert_eq!(rules.keiyoushi, None);
+        assert_eq!(rules.meishi, None);
+
+        assert_eq!(rules.to_string(), "*");
+    }
+
+    #[test]
+    fn empty_2() {
+        let rules = ChainRules::new("");
         assert_eq!(rules.default, None);
         assert_eq!(rules.doushi, None);
         assert_eq!(rules.joshi, None);
