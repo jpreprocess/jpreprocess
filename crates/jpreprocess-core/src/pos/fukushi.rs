@@ -15,6 +15,25 @@ pub enum Fukushi {
     JoshiruiSetsuzoku,
 }
 
+impl Fukushi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::None => 0,
+            Self::General => 1,
+            Self::JoshiruiSetsuzoku => 2,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::None,
+            1 => Self::General,
+            2 => Self::JoshiruiSetsuzoku,
+            _ => panic!("Invalid u8 value for Fukushi: {}", n),
+        }
+    }
+}
+
 impl FromStr for Fukushi {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

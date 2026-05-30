@@ -15,6 +15,25 @@ pub enum SaIrregular {
     ConjugationZuru,
 }
 
+impl SaIrregular {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::Alone => 0,
+            Self::ConjugationSuru => 1,
+            Self::ConjugationZuru => 2,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Alone,
+            1 => Self::ConjugationSuru,
+            2 => Self::ConjugationZuru,
+            _ => panic!("Invalid u8 value for SaIrregular: {}", n),
+        }
+    }
+}
+
 impl FromStr for SaIrregular {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

@@ -9,6 +9,8 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
+use crate::varint::{read_u8, VarInt};
+
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
@@ -120,6 +122,70 @@ impl Pronunciation {
             .cloned()
             .collect::<Vec<_>>();
         self.moras = Cow::Owned(moras);
+    }
+
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
+        let len = self.moras.len();
+        let voiced_flag_len = len.div_ceil(8);
+
+        let len_encoded = len.to_varint();
+        let accent_encoded = self.accent.to_varint();
+        let mut result = Vec::with_capacity(
+            len_encoded.size_hint().0 + accent_encoded.size_hint().0 + len + voiced_flag_len,
+        );
+
+        result.extend(len_encoded);
+        result.extend(accent_encoded);
+
+        for mora in self.moras.iter() {
+            result.push(mora.mora_enum.to_u8());
+        }
+
+        for i in 0..voiced_flag_len {
+            let mut flag_tmp = 0u8;
+            for j in 0..8 {
+                if i * 8 + j >= len {
+                    break;
+                }
+
+                let is_voiced = self.moras[i * 8 + j].is_voiced as u8;
+                flag_tmp |= is_voiced << j;
+            }
+            result.push(flag_tmp);
+        }
+
+        result
+    }
+
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+        let len = usize::from_varint(iter);
+        let accent = usize::from_varint(iter);
+
+        let mut moras = Vec::with_capacity(len);
+        for _ in 0..len {
+            moras.push(Mora {
+                mora_enum: MoraEnum::from_u8(read_u8(iter)),
+                is_voiced: false, // Will be updated later
+            });
+        }
+
+        let voiced_flag_len = len.div_ceil(8);
+        for i in 0..voiced_flag_len {
+            let flag = read_u8(iter);
+            for j in 0..8 {
+                if i * 8 + j >= len {
+                    break;
+                }
+
+                let is_voiced = flag & (0x1 << j);
+                moras[i * 8 + j].is_voiced = is_voiced > 0;
+            }
+        }
+
+        Self {
+            moras: moras.into(),
+            accent,
+        }
     }
 }
 

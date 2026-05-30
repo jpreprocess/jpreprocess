@@ -25,6 +25,35 @@ pub enum Four {
     Ha,
 }
 
+impl Four {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::Ka => 0,
+            Self::Ga => 1,
+            Self::Sa => 2,
+            Self::Ta => 3,
+            Self::Ba => 4,
+            Self::Ma => 5,
+            Self::Ra => 6,
+            Self::Ha => 7,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Ka,
+            1 => Self::Ga,
+            2 => Self::Sa,
+            3 => Self::Ta,
+            4 => Self::Ba,
+            5 => Self::Ma,
+            6 => Self::Ra,
+            7 => Self::Ha,
+            _ => panic!("Invalid u8 value for Four: {}", n),
+        }
+    }
+}
+
 impl FromStr for Four {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

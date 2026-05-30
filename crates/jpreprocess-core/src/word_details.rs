@@ -8,6 +8,7 @@ use crate::{
     ctype::CType,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
+    varint::{read_u8, VarInt},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };
@@ -77,6 +78,81 @@ impl WordDetails {
             line.chain_flag.to_string(),
         ]
     }
+
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
+        let mut result = Vec::new();
+
+        result.push(self.pos.to_u8());
+        result.push(self.ctype.to_u8());
+        result.push(self.cform.to_u8());
+
+        if let Some(read) = &self.read {
+            result.extend((read.len() as isize).to_varint()); // isize to allow negative length for None
+
+            result.extend(read.chars().flat_map(|c| {
+                let diff = (c as i32) - 0x30CD; // 0x30CD: 'ネ' = (0x30A1 'ァ' + 0x30FA 'ヺ') / 2
+                diff.to_varint()
+            }));
+        } else {
+            result.extend((-1).to_varint());
+        };
+
+        result.extend_from_slice(&self.pron.to_bin());
+        result.extend_from_slice(&self.chain_rule.to_bin());
+        result.push(match self.chain_flag {
+            Some(true) => 1,
+            Some(false) => 0,
+            None => 255, // Use 255 as a sentinel value for None
+        });
+
+        result
+    }
+
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+        fn from_bin_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
+            let read_len = isize::from_varint(iter);
+            if read_len >= 0 {
+                let mut read_str = String::with_capacity(read_len as usize);
+
+                while read_str.len() < read_len as usize {
+                    let diff = i32::from_varint(iter);
+                    read_str.push(
+                        char::from_u32((diff + 0x30CD) as u32)
+                            .expect("Cannot parse read string from buffer"),
+                    );
+                }
+
+                Some(read_str)
+            } else {
+                None
+            }
+        }
+
+        let pos = POS::from_u8(read_u8(iter));
+        let ctype = CType::from_u8(read_u8(iter));
+        let cform = CForm::from_u8(read_u8(iter));
+
+        let read = from_bin_read(iter);
+        let pron = Pronunciation::from_bin(iter);
+        let chain_rule = ChainRules::from_bin(iter);
+
+        let chain_flag = match read_u8(iter) {
+            1 => Some(true),
+            0 => Some(false),
+            255 => None,
+            value => panic!("Invalid chain_flag value in buffer: {}", value),
+        };
+
+        Ok(Self {
+            pos,
+            ctype,
+            cform,
+            read,
+            pron,
+            chain_rule,
+            chain_flag,
+        })
+    }
 }
 
 impl TryFrom<WordDetailsLine> for WordDetails {
@@ -133,5 +209,26 @@ impl From<&WordDetails> for WordDetailsLine {
             }
             .into(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::word_details::WordDetails;
+
+    #[test]
+    fn test_details_to_bin_and_from_buf() {
+        let details_str = "動詞,自立,*,*,五段・ラ行,基本形,立篭る,タテコモル,タテコモル,4/5,*";
+        let mut split_details: Vec<&str> = details_str.split(',').collect();
+        split_details.resize(12, "*"); // Ensure the details line has 12 elements
+        let details_line = crate::word_line::WordDetailsLine::from_strs(&split_details);
+        let details = WordDetails::try_from(details_line).unwrap();
+
+        let buf = details.to_bin();
+        let mut buf_iter = buf.iter().copied();
+        let parsed_details = WordDetails::from_bin(&mut buf_iter).unwrap();
+
+        assert_eq!(details, parsed_details);
+        assert_eq!(buf_iter.next(), None); // Ensure all bytes are consumed
     }
 }

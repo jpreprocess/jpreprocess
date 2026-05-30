@@ -39,6 +39,49 @@ pub enum LowerTwo {
     Get,
 }
 
+impl LowerTwo {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::A => 0,
+            Self::Ka => 1,
+            Self::Ga => 2,
+            Self::Sa => 3,
+            Self::Za => 4,
+            Self::Ta => 5,
+            Self::Da => 6,
+            Self::Na => 7,
+            Self::Ha => 8,
+            Self::Ba => 9,
+            Self::Ma => 10,
+            Self::Ya => 11,
+            Self::Ra => 12,
+            Self::Wa => 13,
+            Self::Get => 14,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::A,
+            1 => Self::Ka,
+            2 => Self::Ga,
+            3 => Self::Sa,
+            4 => Self::Za,
+            5 => Self::Ta,
+            6 => Self::Da,
+            7 => Self::Na,
+            8 => Self::Ha,
+            9 => Self::Ba,
+            10 => Self::Ma,
+            11 => Self::Ya,
+            12 => Self::Ra,
+            13 => Self::Wa,
+            14 => Self::Get,
+            _ => panic!("Invalid u8 value for LowerTwo: {}", n),
+        }
+    }
+}
+
 impl FromStr for LowerTwo {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
