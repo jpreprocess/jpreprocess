@@ -1,0 +1,3 @@
+[submodule "tests/data/naist-jdic"]
+	path = tests/data/naist-jdic
+	url = https://github.com/jpreprocess/naist-jdic.git
