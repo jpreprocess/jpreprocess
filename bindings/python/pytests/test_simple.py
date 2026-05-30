@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def jpre() -> jpreprocess.JPreprocess:
-    return jpreprocess.jpreprocess(dictionary_version="latest")
+    return jpreprocess.jpreprocess(dictionary_version="v0.14.0-rc0")
 
 
 def test_run_frontend(jpre: jpreprocess.JPreprocess) -> None:

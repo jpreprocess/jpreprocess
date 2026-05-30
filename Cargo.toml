@@ -30,15 +30,16 @@ jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.
 jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.13.2" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.13.2" }
 
-lindera = "~1.4.1"
-lindera-dictionary = { version = "~1.4.1", default-features = false }
+lindera = "~3.0.7"
+lindera-dictionary = { version = "~3.0.7", default-features = false }
+daachorse = "2.1.1"
 
 jlabel = "0.1.7"
 
 clap = "4.5.4"
 
 anyhow = "1.0.82"
-bincode = "2.0.1"
+bincode = { version = "2.0.1", features = ["serde"] }
 byteorder = "1.5.0"
 csv = "1.3.0"
 derive_builder = "0.20.2"
@@ -47,7 +48,6 @@ glob = "0.3.1"
 log = "0.4.21"
 once_cell = "1.19.0"
 thiserror = "2.0.18"
-yada = "0.5.1"
 encoding_rs = "0.8.35"
 encoding_rs_io = "0.1.7"
 

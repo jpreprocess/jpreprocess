@@ -1,12 +1,6 @@
-use lindera::LinderaResult;
-use lindera_dictionary::{
-    decompress::decompress,
-    dictionary::{
-        character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
-        metadata::Metadata, prefix_dictionary::PrefixDictionary,
-        unknown_dictionary::UnknownDictionary,
-    },
-    error::LinderaErrorKind,
+use lindera_dictionary::dictionary::{
+    character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
+    metadata::Metadata, prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -50,20 +44,6 @@ interface Schema {
 }
 "#;
 
-fn decompress_if_compressed(data: &[u8]) -> LinderaResult<Vec<u8>> {
-    if let Ok((compressed_data, _)) =
-        bincode::serde::decode_from_slice(data, bincode::config::legacy())
-    {
-        decompress(compressed_data).map_err(|err| {
-            LinderaErrorKind::Compression
-                .with_error(err)
-                .add_context("Failed to decompress data")
-        })
-    } else {
-        Ok(data.to_vec())
-    }
-}
-
 #[derive(Serialize, Deserialize)]
 struct JsDictionary {
     metadata: Metadata,
@@ -82,21 +62,15 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
         let this = Self {
             metadata: value.metadata,
             prefix_dictionary: PrefixDictionary::load(
-                decompress_if_compressed(&value.dict_da)?,
-                decompress_if_compressed(&value.dict_vals)?,
-                decompress_if_compressed(&value.words_idx_data)?,
-                decompress_if_compressed(&value.words_data)?,
+                value.dict_da,
+                value.dict_vals,
+                value.words_idx_data,
+                value.words_data,
                 true,
-            ),
-            connection_cost_matrix: ConnectionCostMatrix::load(decompress_if_compressed(
-                &value.cost_matrix,
-            )?),
-            character_definition: CharacterDefinition::load(&decompress_if_compressed(
-                &value.char_definitions,
-            )?)?,
-            unknown_dictionary: UnknownDictionary::load(&decompress_if_compressed(
-                &value.unknown_dictionary,
-            )?)?,
+            )?,
+            connection_cost_matrix: ConnectionCostMatrix::load(value.cost_matrix)?,
+            character_definition: CharacterDefinition::load(&value.char_definitions)?,
+            unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
         };
         Ok(this)
     }
@@ -121,7 +95,7 @@ impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
                 value.words_idx_data,
                 value.words_data,
                 false,
-            ),
+            )?,
         };
         Ok(this)
     }
