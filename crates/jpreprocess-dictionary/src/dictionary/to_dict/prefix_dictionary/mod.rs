@@ -173,7 +173,7 @@ impl CSVReader {
     }
 }
 
-pub fn write_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
+pub fn write_system_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     parser: &P,
     rows: &[StringRecord],
     output_dir: &Path,
@@ -217,19 +217,18 @@ pub fn write_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     Ok(())
 }
 
-pub fn generate_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
+pub fn generate_user_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     parser: &P,
     rows: &[StringRecord],
-    is_system: bool,
 ) -> LinderaResult<PrefixDictionary> {
     let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
-    let da = generate_double_array(&word_entry_map, is_system)?;
+    let da = generate_double_array(&word_entry_map, false)?;
     let vals = generate_values(&word_entry_map)?;
 
     let (words, wordsidx) = generate_words_files::<P, E>(parser, rows)?;
 
-    PrefixDictionary::load(da, vals, wordsidx, words, is_system)
+    PrefixDictionary::load(da, vals, wordsidx, words, false)
 }
 
 fn write(data: &[u8], writer: &mut impl std::io::Write) -> LinderaResult<()> {

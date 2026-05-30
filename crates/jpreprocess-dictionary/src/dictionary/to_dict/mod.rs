@@ -16,11 +16,11 @@ use lindera_dictionary::{
 };
 
 use crate::dictionary::to_dict::prefix_dictionary::{
-    generate_prefix_dictionary,
+    generate_user_prefix_dictionary,
     parser::{
         DefaultParser, DefaultParserOptions, UserDictionaryParser, UserDictionaryParserOptions,
     },
-    write_prefix_dictionary, CSVReaderOptions,
+    write_system_prefix_dictionary, CSVReaderOptions,
 };
 
 use super::word_encoding::JPreprocessDictionaryWordEncoding;
@@ -142,7 +142,7 @@ impl JPreprocessDictionaryBuilder {
             .builder()
             .unwrap();
 
-        write_prefix_dictionary::<DefaultParser, JPreprocessDictionaryWordEncoding>(
+        write_system_prefix_dictionary::<DefaultParser, JPreprocessDictionaryWordEncoding>(
             &parser, &rows, output_dir,
         )
     }
@@ -204,10 +204,10 @@ impl JPreprocessDictionaryBuilder {
             .builder()
             .unwrap();
 
-        let dict = generate_prefix_dictionary::<
+        let dict = generate_user_prefix_dictionary::<
             UserDictionaryParser,
             JPreprocessDictionaryWordEncoding,
-        >(&parser, &rows, false)?;
+        >(&parser, &rows)?;
 
         Ok(UserDictionary { dict })
     }
