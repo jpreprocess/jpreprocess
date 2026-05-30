@@ -285,6 +285,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db756b5eb7d81d31f31f660f4132f8cf5698de52fca144c143d0ae0cbb5f2e06"
 
 [[package]]
+name = "daachorse"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d87f75bbe32ee10609201e09e818537df81c3acb436be2b78f47cc85d139475"
+
+[[package]]
 name = "darling"
 version = "0.20.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -914,6 +920,7 @@ dependencies = [
  "byteorder",
  "clap",
  "csv",
+ "daachorse 3.0.0",
  "derive_builder",
  "encoding_rs",
  "encoding_rs_io",
@@ -925,7 +932,6 @@ dependencies = [
  "once_cell",
  "serde",
  "thiserror",
- "yada",
 ]
 
 [[package]]
@@ -1029,7 +1035,7 @@ dependencies = [
  "anyhow",
  "byteorder",
  "csv",
- "daachorse",
+ "daachorse 2.1.1",
  "kanaria",
  "lindera-dictionary",
  "log",
@@ -1056,7 +1062,7 @@ dependencies = [
  "anyhow",
  "byteorder",
  "csv",
- "daachorse",
+ "daachorse 2.1.1",
  "derive_builder",
  "encoding_rs",
  "encoding_rs_io",
@@ -2514,12 +2520,6 @@ dependencies = [
  "libc",
  "rustix",
 ]
-
-[[package]]
-name = "yada"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aed111bd9e48a802518765906cbdadf0b45afb72b9c81ab049a3b86252adffdd"
 
 [[package]]
 name = "yoke"

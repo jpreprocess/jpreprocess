@@ -1,12 +1,12 @@
 use std::collections::BTreeMap;
 
 use csv::StringRecord;
+use daachorse::DoubleArrayAhoCorasickBuilder;
 use lindera_dictionary::{
     error::LinderaErrorKind,
     viterbi::{LexType, WordEntry, WordId},
     LinderaResult,
 };
-use yada::builder::DoubleArrayBuilder;
 
 use super::parser::CSVParser;
 
@@ -45,25 +45,40 @@ pub fn build_word_entry_map<P: CSVParser>(
 /// Generate double array (dict.da)
 pub fn generate_double_array(
     word_entry_map: &BTreeMap<String, Vec<WordEntry>>,
+    is_system: bool,
 ) -> LinderaResult<Vec<u8>> {
     let mut id = 0u32;
     let mut keyset: Vec<(&[u8], u32)> = vec![];
 
     for (key, word_entries) in word_entry_map {
         let len = word_entries.len() as u32;
-        let val = (id << 5) | len; // 27bit for word ID, 5bit for different parts of speech on the same surface.
+
+        // System dictionary: 24bit for word ID, 8bit for different parts of speech on the same surface.
+        // User dictionary: 27bit for word ID, 5bit for different parts of speech on the same surface.
+        let val = if is_system {
+            (id << 8) | len
+        } else {
+            (id << 5) | len
+        };
+
         keyset.push((key.as_bytes(), val));
         id += len;
     }
 
-    let dict_da_buffer = DoubleArrayBuilder::build(&keyset).ok_or_else(|| {
-        LinderaErrorKind::Build
-            .with_error(anyhow::anyhow!("DoubleArray build error."))
-            .add_context(format!(
-                "Failed to build DoubleArray with {} keys for prefix dictionary",
-                keyset.len()
-            ))
-    })?;
+    let keyset_len = keyset.len();
+
+    let dict_da = DoubleArrayAhoCorasickBuilder::new()
+        .build_with_values(keyset)
+        .map_err(|err| {
+            LinderaErrorKind::Build
+                .with_error(anyhow::anyhow!(err))
+                .add_context(format!(
+                    "Failed to build DoubleArray with {} keys for prefix dictionary",
+                    keyset_len
+                ))
+        })?;
+
+    let dict_da_buffer = dict_da.serialize();
 
     Ok(dict_da_buffer)
 }

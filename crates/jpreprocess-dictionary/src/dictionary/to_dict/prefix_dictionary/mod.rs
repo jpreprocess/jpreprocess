@@ -186,7 +186,7 @@ pub fn write_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
             .with_error(anyhow::anyhow!(err))
             .add_context("Failed to create dict.da file")
     })?;
-    let da = generate_double_array(&word_entry_map)?;
+    let da = generate_double_array(&word_entry_map, true)?;
     write(&da, &mut dict_da_writer)?;
 
     // Write dict.vals
@@ -224,7 +224,7 @@ pub fn generate_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
 ) -> LinderaResult<PrefixDictionary> {
     let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
-    let da = generate_double_array(&word_entry_map)?;
+    let da = generate_double_array(&word_entry_map, is_system)?;
     let vals = generate_values(&word_entry_map)?;
 
     let (words, wordsidx) = generate_words_files::<P, E>(parser, rows)?;
