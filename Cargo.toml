@@ -32,7 +32,7 @@ jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.13.2" }
 
 lindera = "~3.0.7"
 lindera-dictionary = { version = "~3.0.7", default-features = false }
-daachorse = "3.0.0"
+daachorse = "2.1.1"
 
 jlabel = "0.1.7"
 
