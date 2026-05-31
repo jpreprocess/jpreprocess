@@ -27,6 +27,8 @@ const TEST_STR: &[&str] = &[
     "一九〇〇、1900，zAゔょぁ。123,456,789",
     "0123-456-789",
     "事にした．らしかった．対して",
+    // From [ROHAN](https://github.com/mmorise/rohan4600)
+    "ヴィランには大抵、お追従を述べる子分がいます",
     // These sentences fail, but I won't fix.
     // "12,34,567．89",
     // "クヮルテット。789",
