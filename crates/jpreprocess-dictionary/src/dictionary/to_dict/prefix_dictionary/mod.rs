@@ -89,8 +89,6 @@ impl CSVReader {
             rows.sort_by(|a, b| a[0].cmp(&b[0]))
         }
 
-        rows.reverse();
-
         Ok(rows)
     }
 
