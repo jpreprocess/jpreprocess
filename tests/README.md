@@ -36,13 +36,32 @@ cargo run -p tests --bin generate_min_dict_src
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/min-dict-src/ ./tests/data/min-dict/
 ```
 
-### JPreprocess dictionary (full)
+### Full dictionary
 
-To run most of the E2E tests, you need to build dictionary from `naist-jdic` using `jpreprocess`. You can do it by running the following command **in the root of the project**:
+To run most of the E2E tests, you need to build dictionary from `naist-jdic`. Follow one of the steps below to build a full dictionary.
+
+#### JPreprocess dictionary
+
+`jpreprocess`-style dictionary can be built using the following command. You can do it by running the following command **in the root of the project**:
 
 ```bash
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/
 ```
+
+#### Lindera dictionary
+
+If you prefer lindera dictionary, where the fields (part of speech, pronunciation, etc.) are encoded as strings, you can build it using the following command although it is a little hacky:
+
+```bash
+mkdir -p ./tests/data/dict/jpreprocess-tmp/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
+cmp ./tests/data/dict/jpreprocess-tmp/dict.da ./tests/data/dict/dict.da && echo "Dictionaries are identical" || echo "Dictionaries differ"
+cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
+rm -rf ./tests/data/dict/jpreprocess-tmp/
+```
+
+The `dict.vals` file is reversed in the `jpreprocess`-style dictionary for backward compatibility (Double array is expected to be identical).
 
 ### OpenJTalk dictionary
 
