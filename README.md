@@ -14,9 +14,9 @@
 
 最近では，これをさらに発展させ，1.と2.はそのままMecab/OpenJTalkを用いつつ，音声合成部分のみを深層学習モデルに置き換えて性能を向上させることが行われています．
 
-このような背景を踏まえ，本リポジトリでは1.と2.の部分に絞ってRustで再実装しています（ただし，1.は，その実質をRustで書かれた形態素解析ライブラリ[Lindera](https://github.com/lindera/lindera)に依存しています）．2.の出力は，[jlabel](https://github.com/jpreprocess/jlabel)を介してフルコンテキストラベルとして取り出すことができます．
+このような背景を踏まえ，本リポジトリでは1.と2.の部分に絞ってRustで再実装しています（ただし，1.は，その実質を形態素解析ライブラリ [Lindera](https://github.com/lindera/lindera)に依存しています）．さらに，2.の出力は，[jlabel](https://github.com/jpreprocess/jlabel)の`jlabel::Label`構造体として取り出すことができ，必要であれば[従来通りのテキスト形式のフルコンテキストラベルに変換することができます](https://docs.rs/jlabel/0.1.9/jlabel/struct.Label.html#impl-ToString-for-T)．
 
-残る3.の部分については，[jpreprocess/jbonsai](https://github.com/jpreprocess/jbonsai)にて再実装・最適化を行っています．したがって，jpreprocessとjbonsaiを組み合わせると，（広義）Open JTalk類似の音声合成を行うことができます．
+残る3.の部分については，[jpreprocess/jbonsai](https://github.com/jpreprocess/jbonsai)にて再実装・最適化を行っています．したがって，jpreprocessとjbonsaiを組み合わせると，（広義）Open JTalk類似の音声合成を行うことができます．具体的な実装方法については，ストリーミング合成を利用しているためにやや複雑になっているものの，[discordjs-japan/om-syrinx](https://github.com/discordjs-japan/om-syrinx)が参考になるかもしれません．
 
 ### 目標
 
