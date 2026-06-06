@@ -16,7 +16,7 @@
 
 このような背景を踏まえ，本リポジトリでは1.と2.の部分に絞ってRustで再実装しています（ただし，1.は，その実質を形態素解析ライブラリ [Lindera](https://github.com/lindera/lindera)に依存しています）．さらに，2.の出力は，[jlabel](https://github.com/jpreprocess/jlabel)の`jlabel::Label`構造体として取り出すことができ，必要であれば[従来通りのテキスト形式のフルコンテキストラベルに変換することができます](https://docs.rs/jlabel/0.1.9/jlabel/struct.Label.html#impl-ToString-for-T)．
 
-残る3.の部分については，[jpreprocess/jbonsai](https://github.com/jpreprocess/jbonsai)にて再実装・最適化を行っています．したがって，jpreprocessとjbonsaiを組み合わせると，（広義）Open JTalk類似の音声合成を行うことができます．具体的な実装方法については，ストリーミング合成を利用しているためにやや複雑になっているものの，[discordjs-japan/om-syrinx](https://github.com/discordjs-japan/om-syrinx)が参考になるかもしれません．
+残る3.の部分については，[jpreprocess/jbonsai](https://github.com/jpreprocess/jbonsai)にて再実装・最適化を行っています．したがって，jpreprocessとjbonsaiを組み合わせると，（広義）Open JTalk類似の音声合成を行うことができます．具体的な実装方法については，[discordjs-japan/om-syrinx](https://github.com/discordjs-japan/om-syrinx)が参考になるかもしれません（jbonsaiのストリーミング合成機能を利用しているため，やや複雑になっています）．
 
 ### 目標
 
