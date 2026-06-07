@@ -211,7 +211,9 @@ mod default_tokenizer_impl {
 
         /// Creates JPreprocess with provided dictionary data.
         ///
-        /// ## Example 1: Load from file
+        /// ## System dictionary
+        ///
+        /// ### Example 1: Load from file
         ///
         /// ```rust
         /// # use std::error::Error;
@@ -226,7 +228,7 @@ mod default_tokenizer_impl {
         /// # }
         /// ```
         ///
-        /// ## Example 2: Load bundled dictionary (This requires a feature to be enabled)
+        /// ### Example 2: Load bundled dictionary (This requires a feature to be enabled)
         ///
         /// ```rust
         /// # use std::error::Error;
@@ -240,6 +242,24 @@ mod default_tokenizer_impl {
         /// # }
         /// # #[cfg(not(feature = "naist-jdic"))]
         /// # fn main() {}
+        /// ```
+        ///
+        /// ## User Dictionary
+        ///
+        /// ```rust
+        /// # use std::error::Error;
+        /// # use std::path::PathBuf;
+        /// use jpreprocess::*;
+        /// use lindera_dictionary::loader::user_dictionary::UserDictionaryLoader;
+        ///
+        /// # fn main() -> Result<(), Box<dyn Error>> {
+        /// #     let sys_path = PathBuf::from("../../tests/data/min-dict");
+        /// let system = SystemDictionaryConfig::File(sys_path).load()?;
+        /// #     let user_path = PathBuf::from("../../tests/data/user/user.bin");
+        /// let user = UserDictionaryLoader::load_from_bin(user_path)?;
+        /// let jpreprocess = JPreprocess::with_dictionaries(system, Some(user));
+        /// #     Ok(())
+        /// # }
         /// ```
         pub fn with_dictionaries(
             dictionary: Dictionary,
