@@ -100,6 +100,7 @@ jobs:
       - name: Package
         shell: bash
         run: |
+          # NOTE: crates/jpreprocess/src/lib.rs is dependent on the file names
           TMP_NAME="${{ format('jpreprocess-{0}-{1}.tgz', matrix.target, join(matrix.feature, '-')) }}"
           NAME="${TMP_NAME/-.tgz/.tgz}"
 
