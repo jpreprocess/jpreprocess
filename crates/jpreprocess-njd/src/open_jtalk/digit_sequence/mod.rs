@@ -10,6 +10,19 @@ use jpreprocess_core::pron;
 mod builder;
 mod score;
 
+const UNKNOWN_DICT_DIGITS: phf::Map<char, &'static str> = phf::phf_map! {
+  '０' => "０,名詞,数,*,*,*,*,０,ゼロ,ゼロ,1/2,C3",
+  '１' => "１,名詞,数,*,*,*,*,１,イチ,イチ,2/2,C3",
+  '２' => "２,名詞,数,*,*,*,*,２,ニ,ニ,1/1,C3",
+  '３' => "３,名詞,数,*,*,*,*,３,サン,サン,0/2,C3",
+  '４' => "４,名詞,数,*,*,*,*,４,ヨン,ヨン,1/2,C1",
+  '５' => "５,名詞,数,*,*,*,*,５,ゴ,ゴ,1/1,C3",
+  '６' => "６,名詞,数,*,*,*,*,６,ロク,ロク,2/2,C3",
+  '７' => "７,名詞,数,*,*,*,*,７,ナナ,ナナ,1/2,C3",
+  '８' => "８,名詞,数,*,*,*,*,８,ハチ,ハチ,2/2,C3",
+  '９' => "９,名詞,数,*,*,*,*,９,キュウ,キュー,1/2,C3",
+};
+
 // NUMERAL_LIST1 in OpenJTalk
 const DIGIT_NORMALIZE: phf::Map<&'static str, &'static str> = phf::phf_map! {
    "○" => "〇",
@@ -80,6 +93,32 @@ const NUMERAL_LIST3: &[&str] = &[
 ];
 
 pub fn njd_digit_sequence(njd: &mut NJD) {
+    // Unpacks unknown multi-digit tokens, which the tokenizer fallback groups into
+    // a single node with a touten pronunciation, into individual nodes for each digit.
+    {
+        let mut i = 0;
+        while let Some(node) = njd.nodes.get(i) {
+            'unk_digits: {
+                if !node.get_pron().is_touten() || !node.get_pos().is_kazu() {
+                    break 'unk_digits;
+                }
+
+                let mut converted_nodes = Vec::with_capacity(node.get_string().len() / 3);
+                for c in node.get_string().chars() {
+                    if let Some(node_str) = UNKNOWN_DICT_DIGITS.get(&c) {
+                        converted_nodes.push(NJDNode::new_single(node_str));
+                    } else {
+                        i += 1;
+                        break 'unk_digits;
+                    }
+                }
+                njd.nodes.splice(i..=i, converted_nodes);
+            }
+
+            i += 1;
+        }
+    }
+
     // normalize digit
     for node in &mut njd.nodes {
         if node.get_string() != "*" && node.get_pos().is_kazu() {
