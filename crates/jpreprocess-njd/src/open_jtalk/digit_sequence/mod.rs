@@ -103,12 +103,11 @@ pub fn njd_digit_sequence(njd: &mut NJD) {
                     break 'unk_digits;
                 }
 
-                let mut converted_nodes = Vec::with_capacity(node.get_string().len() / 3);
+                let mut converted_nodes = Vec::with_capacity(node.get_string().chars().count());
                 for c in node.get_string().chars() {
                     if let Some(node_str) = UNKNOWN_DICT_DIGITS.get(&c) {
                         converted_nodes.push(NJDNode::new_single(node_str));
                     } else {
-                        i += 1;
                         break 'unk_digits;
                     }
                 }
