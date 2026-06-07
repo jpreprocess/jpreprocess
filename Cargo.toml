@@ -21,7 +21,7 @@ categories = ["text-processing"]
 rust-version = "1.88.0"
 
 [workspace.dependencies]
-jpreprocess = { path = "crates/jpreprocess", version = "0.13.2" }
+jpreprocess = { path = "crates/jpreprocess", version = "0.13.2", default-features = false }
 
 jpreprocess-core = { path = "crates/jpreprocess-core", version = "0.13.2" }
 jpreprocess-dictionary = { path = "crates/jpreprocess-dictionary", version = "0.13.2" }
