@@ -211,6 +211,10 @@ mod default_tokenizer_impl {
 
         /// Creates JPreprocess with provided dictionary data.
         ///
+        /// Prebuilt `naist-jdic` dictionaries are available on [GitHub releases](https://github.com/jpreprocess/jpreprocess/releases).
+        /// To build custom dictionaries, download the `.tgz` archive for your environment (e.g. jpreprocess-x86_64-unknown-linux-gnu.tgz for x86_64 linux)
+        /// and use the bundled `dict_tools` executable.
+        ///
         /// ## System dictionary
         ///
         /// ### Example 1: Load from file
@@ -255,8 +259,9 @@ mod default_tokenizer_impl {
         /// # fn main() -> Result<(), Box<dyn Error>> {
         /// #     let sys_path = PathBuf::from("../../tests/data/min-dict");
         /// let system = SystemDictionaryConfig::File(sys_path).load()?;
-        /// #     let user_path = PathBuf::from("../../tests/data/user/user.bin");
-        /// let user = UserDictionaryLoader::load_from_bin(user_path)?;
+        /// #     let user_path = PathBuf::from("../../tests/data/user/");
+        /// // Binary dictionary built using `dict_tools` or lindera's dictionary builder
+        /// let user = UserDictionaryLoader::load_from_bin(user_path.join("user.bin"))?;
         /// let jpreprocess = JPreprocess::with_dictionaries(system, Some(user));
         /// #     Ok(())
         /// # }
