@@ -27,6 +27,37 @@ pub enum Kigou {
     Touten,
 }
 
+impl Kigou {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::None => 0,
+            Self::Alphabet => 1,
+            Self::General => 2,
+            Self::KakkoOpen => 3,
+            Self::KakkoClose => 4,
+            Self::Kuten => 5,
+            Self::Space => 6,
+            Self::Kazu => 7,
+            Self::Touten => 8,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::None,
+            1 => Self::Alphabet,
+            2 => Self::General,
+            3 => Self::KakkoOpen,
+            4 => Self::KakkoClose,
+            5 => Self::Kuten,
+            6 => Self::Space,
+            7 => Self::Kazu,
+            8 => Self::Touten,
+            _ => panic!("Invalid u8 value for Kigou: {}", n),
+        }
+    }
+}
+
 impl FromStr for Kigou {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

@@ -30,6 +30,43 @@ pub enum Joshi {
 }
 
 impl Joshi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::KakuJoshi(KakuJoshi::General) => 0,
+            Self::KakuJoshi(KakuJoshi::Quote) => 1,
+            Self::KakuJoshi(KakuJoshi::Rengo) => 2,
+            Self::KakariJoshi => 3,
+            Self::ShuJoshi => 4,
+            Self::SetsuzokuJoshi => 5,
+            Self::Special => 6,
+            Self::Fukushika => 7,
+            Self::FukuJoshi => 8,
+            Self::FukuHeiritsuShuJoshi => 9,
+            Self::HeiritsuJoshi => 10,
+            Self::Rentaika => 11,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::KakuJoshi(KakuJoshi::General),
+            1 => Self::KakuJoshi(KakuJoshi::Quote),
+            2 => Self::KakuJoshi(KakuJoshi::Rengo),
+            3 => Self::KakariJoshi,
+            4 => Self::ShuJoshi,
+            5 => Self::SetsuzokuJoshi,
+            6 => Self::Special,
+            7 => Self::Fukushika,
+            8 => Self::FukuJoshi,
+            9 => Self::FukuHeiritsuShuJoshi,
+            10 => Self::HeiritsuJoshi,
+            11 => Self::Rentaika,
+            _ => panic!("Invalid u8 value for Joshi: {}", n),
+        }
+    }
+}
+
+impl Joshi {
     pub fn from_strs(g1: &str, g2: &str) -> Result<Joshi, POSParseError> {
         match g1 {
             "格助詞" => KakuJoshi::from_str(g2).map(Self::KakuJoshi),

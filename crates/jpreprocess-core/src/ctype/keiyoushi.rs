@@ -15,6 +15,25 @@ pub enum Keiyoushi {
     Ii,
 }
 
+impl Keiyoushi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::Auo => 0,
+            Self::I => 1,
+            Self::Ii => 2,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Auo,
+            1 => Self::I,
+            2 => Self::Ii,
+            _ => panic!("Invalid u8 value for Keiyoushi: {}", n),
+        }
+    }
+}
+
 impl FromStr for Keiyoushi {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

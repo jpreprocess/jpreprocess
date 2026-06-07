@@ -13,6 +13,23 @@ pub enum UpperTwo {
     Ha,
 }
 
+impl UpperTwo {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::Da => 0,
+            Self::Ha => 1,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Da,
+            1 => Self::Ha,
+            _ => panic!("Invalid u8 value for UpperTwo: {}", n),
+        }
+    }
+}
+
 impl FromStr for UpperTwo {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
