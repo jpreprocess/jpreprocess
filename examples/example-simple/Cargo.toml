@@ -11,4 +11,4 @@ categories.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-jpreprocess.workspace = true
+jpreprocess = { workspace = true, features = ["tokenizer"] }
