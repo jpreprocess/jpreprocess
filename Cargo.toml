@@ -34,6 +34,8 @@ lindera = "~3.0.7"
 lindera-dictionary = { version = "~3.0.7", default-features = false }
 daachorse = "2.1.1"
 
+vibrato = "0.5.2"
+
 jlabel = "0.1.7"
 
 clap = "4.5.4"
