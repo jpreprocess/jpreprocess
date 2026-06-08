@@ -1,11 +1,31 @@
+#[cfg(not(target_family = "wasm"))]
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let csv1 = std::fs::read_to_string("tests/data/naist-jdic/naist-jdic.csv")?;
-    let csv2 = std::fs::read_to_string("tests/data/naist-jdic/unidic-csj.csv")?;
+    let path = match std::env::args().nth(1).map(std::path::PathBuf::from) {
+        Some(s) if s.is_dir() => s,
+        _ => {
+            eprintln!("Please specify a valid path to original naist-jdic dictionary");
+            std::process::exit(-1);
+        }
+    };
+
+    let mut csvs = Vec::new();
+    for entry in std::fs::read_dir(&path)? {
+        let Ok(entry) = entry else {
+            continue;
+        };
+        if entry.file_type()?.is_file() && entry.file_name().to_string_lossy().ends_with(".csv") {
+            csvs.extend_from_slice(&std::fs::read(entry.path())?);
+            if csvs.last() != Some(&b'\n') {
+                csvs.push(b'\n');
+            }
+        }
+    }
+
     let dict = vibrato::SystemDictionaryBuilder::from_readers(
-        format!("{}\n{}", csv1, csv2).as_bytes(),
-        std::fs::File::open("tests/data/naist-jdic/matrix.def")?,
-        std::fs::File::open("tests/data/naist-jdic/char.def")?,
-        std::fs::File::open("tests/data/naist-jdic/unk.def")?,
+        std::io::Cursor::new(csvs),
+        std::fs::File::open(path.join("matrix.def"))?,
+        std::fs::File::open(path.join("char.def"))?,
+        std::fs::File::open(path.join("unk.def"))?,
     )?;
 
     let tokenizer = vibrato::Tokenizer::new(dict)
@@ -22,3 +42,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+#[cfg(target_family = "wasm")]
+fn main() {}
