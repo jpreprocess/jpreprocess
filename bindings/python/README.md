@@ -5,7 +5,7 @@ Japanese text preprocessor for Text-to-Speech application.
 This is a python binding of jpreprocess, which is written in Rust.
 The rust library is published in [crates.io](https://crates.io/crates/jpreprocess).
 
-JPreprocess (the base code written in Rust) is a rewrite of [OpenJTalk](http://open-jtalk.sourceforge.net/).
+The rust library part is a rewrite of [OpenJTalk](http://open-jtalk.sourceforge.net/).
 
 ## Usage
 

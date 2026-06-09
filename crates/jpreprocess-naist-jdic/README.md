@@ -3,7 +3,7 @@
 Naist-jdic dictionary for [jpreprocess](https://crates.io/crates/jpreprocess),
 Japanese text preprocessor for Text-to-Speech application.
 
-This package is a dedicated dictionary for jpreprocess.
+This package enables bundling `naist-jdic` dictionary in the executable.
 
 This project is a rewrite of [OpenJTalk](http://open-jtalk.sourceforge.net/) in Rust language.
 
