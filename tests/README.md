@@ -29,11 +29,11 @@ git submodule update --init --recursive
 
 The data is stored in `./data/min-dict` and are used by unit tests in the `src/` directory.
 
-To rebuild the minimized dictionary (e.g. after updating the serialization format), run the following command in the root of the project:
+To rebuild the minimized dictionary (e.g. after updating lindera), run the following command in the root of the project:
 
 ```bash
 cargo run -p tests --bin generate_min_dict_src
-cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/min-dict-src/ ./tests/data/min-dict/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/min-dict-src/ ./tests/data/min-dict/
 ```
 
 ### Full dictionary
