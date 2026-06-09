@@ -73,8 +73,18 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// # #[cfg(feature = "tokenizer")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// # let path = PathBuf::from("../../tests/data/min-dict");
-    /// let system = SystemDictionaryConfig::File(path).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
+    /// // Note: If you are using a standard JPreprocess or Lindera dictionary,
+    /// // [`JPreprocess::with_dictionaries`] is a more convenient alternative.
+    /// // Use `from_tokenizer` only if you need a customized `Tokenizer` or
+    /// // want to plug in a non-Lindera tokenizer (see example-vibrato).
+    /// let system = lindera::dictionary::load_fs_dictionary(path.as_path())?;
+    /// let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+    ///     lindera::mode::Mode::Normal,
+    ///     system,
+    ///     None,
+    /// ));
+    ///
+    /// let jpreprocess = JPreprocess::from_tokenizer(tokenizer);
     ///
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();

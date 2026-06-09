@@ -15,17 +15,14 @@
       "right_context_id",
       "cost",
       "major_pos",
-      "middle_pos",
-      "small_pos",
-      "fine_pos",
+      "pos_detail_1",
+      "pos_detail_2",
+      "pos_detail_3",
       "conjugation_type",
       "conjugation_form",
       "base_form",
       "reading",
-      "pronunciation",
-      "accent_morasize",
-      "chain_rule",
-      "chain_flag"
+      "pronunciation"
     ]
   },
   "user_dictionary_schema": {
