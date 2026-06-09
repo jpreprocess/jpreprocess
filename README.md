@@ -72,19 +72,17 @@ assert_eq!(
 
 ### jpreprocess-dictionary
 
-単語辞書の作成と読み込みを担当します．
+「jpreprocess辞書」の生成と読み込みを行います．また，実行時には読み込んだ辞書がLinderaの辞書か，jpreprocess辞書かどうかを自動で判定します．
 
-[Lindera](https://github.com/lindera/lindera)で形態素解析をするには，（Mecabと同様に）人間可読な辞書から，機械可読な辞書形式に変換する必要があります．
+jpreprocess辞書は，辞書に文字列として記述された品詞等の単語情報を前処理し，jprpeprocess-coreのデータ形式に高速に展開できるバイナリ形式にしたものです．その他の部分（double array等）はLinderaの辞書とほとんどの部分で同じですが，Open JTalkとの互換性のため，同一の重みをもつ単語の優先順位がLinderaと逆順になっています．
 
-また，Linderaは日本語音声合成に特化した形態素解析ライブラリではないため，品詞等が文字列で出力され，メモリ上のデータサイズにいくらか無駄があります．jpreprocess-dictionaryでは，これらの単語の情報を事前にパースし，情報を圧縮したうえで，Linderaで解析可能な辞書として出力します（ここではjpreprocess辞書と呼びます）．
-
-また，実行時には読み込んだ辞書がLinderaの辞書か，jpreprocess辞書かどうかを自動で判定し，jpreprocess辞書であれば必要に応じてjpreprocess-coreのデータ構造に展開します．
+加えて，Lindera辞書/jpreprocess辞書のビルドを行うための`dict_tools`ツールもここで実装されています．
 
 ### jpreprocess-naist-jdic
 
-OpenJTalkに同梱されていた辞書を用いて，JPreprocess用の辞書を生成します．jpreprocessクレートの`naist-jdic` featureのために使われます．
+実行時のバイナリに，`naist-jdic`辞書から生成したjpreprocess辞書を組み込みます．`jpreprocess`クレートで`naist-jdic` featureを有効にすると利用できます．
 
-なお，`naist-jdic` featureを有効化してこのクレートを含めると，ビルドに数分かかります．
+なお，`naist-jdic` featureを有効化すると，マシンにもよりますがビルドに数分かかることがあります．
 
 ### jpreprocess-njd
 
