@@ -10,7 +10,7 @@ Put the following in Cargo.toml
 
 ```toml
 [dependencies]
-jpreprocess = "0.13.2"
+jpreprocess = "0.14.0"
 ```
 
 It may be necessary to add
