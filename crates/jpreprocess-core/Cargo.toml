@@ -14,6 +14,7 @@ documentation = "https://docs.rs/jpreprocess-core"
 
 [features]
 lindera = ["dep:lindera", "dep:lindera-dictionary"]
+vibrato = ["dep:vibrato"]
 
 [dependencies]
 thiserror.workspace = true
@@ -23,6 +24,8 @@ once_cell.workspace = true
 
 lindera = { workspace = true, optional = true }
 lindera-dictionary = { workspace = true, optional = true }
+
+vibrato = { workspace = true, optional = true }
 
 serde = { workspace = true, features = ["derive"] }
 

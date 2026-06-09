@@ -1,5 +1,5 @@
 [package]
-name = "example-simple"
+name = "example-vibrato"
 edition = "2021"
 
 version.workspace = true
@@ -11,4 +11,7 @@ categories.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-jpreprocess = { workspace = true, features = ["tokenizer"] }
+jpreprocess = { workspace = true, default-features = false }
+jpreprocess-core = { workspace = true, features = ["vibrato"] }
+
+vibrato.workspace = true

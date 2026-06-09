@@ -14,7 +14,7 @@ rust-version.workspace = true
 crate-type = ["cdylib"]
 
 [dependencies]
-jpreprocess.workspace = true
+jpreprocess = { workspace = true, features = ["tokenizer"] }
 
 lindera.workspace = true
 lindera-dictionary.workspace = true
