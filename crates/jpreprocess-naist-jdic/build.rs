@@ -8,12 +8,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("cargo:rerun-if-changed=prebuilt.json");
     println!("cargo:rerun-if-changed=build.json");
 
-    if std::env::var("DOCS_RS").is_ok() {
-        // Skip building the dictionary when building docs.rs
-        return Ok(());
-    } else {
-        fetch_dictionary::download(false).await
-    }
+    fetch_dictionary::download(false).await
 }
 
 #[cfg(not(feature = "naist-jdic"))]
@@ -30,14 +25,6 @@ mod fetch_dictionary {
     };
 
     pub async fn download(force_build: bool) -> Result<(), Box<dyn Error>> {
-        let client = reqwest::ClientBuilder::new()
-            .timeout(std::time::Duration::from_secs(30))
-            .user_agent(concat!(
-                "jpreprocess-naist-jdic/",
-                env!("CARGO_PKG_VERSION"),
-            ))
-            .build()?;
-
         let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
         let work_dir = out_dir.join("work");
         let dict_dir = out_dir.join("naist-jdic");
@@ -46,6 +33,33 @@ mod fetch_dictionary {
             "cargo::rustc-env=JPREPROCESS_WORKDIR={}",
             dict_dir.display()
         );
+
+        if std::env::var("DOCS_RS").is_ok() {
+            // Skip building the dictionary when building docs.rs
+            std::fs::create_dir_all(&dict_dir)?;
+            const FILE_NAMES: &[&str] = &[
+                "metadata.json",
+                "char_def.bin",
+                "matrix.mtx",
+                "dict.da",
+                "dict.vals",
+                "unk.bin",
+                "dict.wordsidx",
+                "dict.words",
+            ];
+            for file_name in FILE_NAMES {
+                std::fs::write(dict_dir.join(file_name), b"{}")?;
+            }
+            return Ok(());
+        }
+
+        let client = reqwest::ClientBuilder::new()
+            .timeout(std::time::Duration::from_secs(30))
+            .user_agent(concat!(
+                "jpreprocess-naist-jdic/",
+                env!("CARGO_PKG_VERSION"),
+            ))
+            .build()?;
 
         if !force_build {
             match download_prebuilt(&client, &work_dir, &dict_dir).await {
