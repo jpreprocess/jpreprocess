@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 mod feature;
 mod label;
 mod word_attr;

@@ -12,6 +12,10 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-dictionary"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 binary = ["dep:clap"]
 
