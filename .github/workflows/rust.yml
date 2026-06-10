@@ -129,7 +129,7 @@ jobs:
 
     - name: Generate documentation
       run: |
-        default_members = $(cargo metadata --no-deps --format-version=1 | jq -r '
+        default_members=$(cargo metadata --no-deps --format-version=1 | jq -r '
           .workspace_default_members as $defaults
           | .packages[]
           | select([.id] | inside($defaults))
