@@ -12,10 +12,6 @@ rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess"
 
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
-
 [features]
 binary = ["dep:clap", "dep:serde_json", "tokenizer"]
 naist-jdic = [
@@ -28,7 +24,12 @@ tokenizer = [
   "dep:lindera",
   "dep:lindera-dictionary",
 ]
-default = ["tokenizer"]
+weak_tokenizer = [
+  "jpreprocess-core/lindera",
+  "dep:lindera",
+  "dep:lindera-dictionary",
+]
+default = ["weak_tokenizer"]
 
 [[bin]]
 name = "jpreprocess"
