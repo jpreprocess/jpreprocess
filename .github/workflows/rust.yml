@@ -110,3 +110,31 @@ jobs:
 
     - name: Run test
       run: cargo test --verbose
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+      with:
+          toolchain: nightly
+
+    - name: Cache Cargo dependencies
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+
+    - name: Install cargo-docs-rs
+      run: cargo install cargo-docs-rs
+
+    - name: Generate documentation
+      run: |
+        default_members=$(cargo metadata --no-deps --format-version=1 | jq -r '
+          .workspace_default_members as $defaults
+          | .packages[]
+          | select([.id] | inside($defaults))
+          | .name
+        ')
+        while read -r member; do
+          cargo docs-rs --package "$member"
+        done <<< "$default_members"

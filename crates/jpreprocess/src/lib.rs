@@ -40,6 +40,8 @@
 //! # fn main() {}
 //! ```
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 #[doc(hidden)]
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 

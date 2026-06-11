@@ -13,6 +13,8 @@
 //! assert_eq!(iter.next().unwrap(), Quintuple::Last(&mut 3, &mut 4));
 //! ```
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 pub mod structures;
 pub use structures::*;
 

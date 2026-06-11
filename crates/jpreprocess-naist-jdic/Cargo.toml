@@ -21,6 +21,10 @@ include = [
   "README.md",
 ]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 naist-jdic = [
   "dep:tokio",

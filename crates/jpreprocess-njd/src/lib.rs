@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 mod contrib;
 mod node;
 mod open_jtalk;
