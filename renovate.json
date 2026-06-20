@@ -2,5 +2,21 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>jpreprocess/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "lindera",
+        "lindera-dictionary"
+      ],
+      "groupName": "lindera"
+    },
+    {
+      "matchPackageNames": [
+        "pyo3",
+        "pythonize"
+      ],
+      "groupName": "pyo3"
+    }
   ]
 }
