@@ -54,6 +54,20 @@ jobs:
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
 
+    - name: setup integration test
+      working-directory: tests/data
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh release download --repo jpreprocess/open_jtalk v0.0.5
+        chmod +x openjtalk_bin
+
+        gh release download --repo jpreprocess/jpreprocess v0.0.1-rc0
+        tar xJvf lindera.tar.xz
+        tar xJvf mecab-naist-jdic.tar.xz
+
+        rm *.tar.gz *.tar.xz
+
     - name: Run tests
       run: cargo test --verbose --workspace --features naist-jdic -- --include-ignored
 
