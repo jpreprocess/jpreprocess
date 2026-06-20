@@ -73,7 +73,7 @@ jobs:
         rm *.tar.gz *.tar.xz
 
     - name: Run tests
-      run: cargo test --verbose --workspace --features naist-jdic -- --include-ignored
+      run: cargo test --verbose --workspace --features naist-jdic --target aarch64-apple-darwin -- --include-ignored
 
   wasm:
     runs-on: ubuntu-latest
