@@ -12,9 +12,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       with:
@@ -47,6 +45,17 @@ jobs:
       run: cargo clippy --all-targets --workspace
     - name: Run Format Check
       run: cargo fmt --check
+
+  macos-temp:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+    - name: Cache Cargo dependencies
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+
+    - name: Run tests
+      run: cargo test --verbose --workspace --features naist-jdic -- --include-ignored
 
   wasm:
     runs-on: ubuntu-latest
