@@ -15,10 +15,11 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
 ]
-dynamic = ["version"]
+dynamic = ["version", "description"]
 dependencies = [
     "importlib_resources; python_version<'3.9'"
 ]
+readme = "README.md"
 
 [project.optional-dependencies]
 progress = [ "tqdm" ]
