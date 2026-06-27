@@ -13,6 +13,23 @@ pub enum KaIrregular {
     Kanji,
 }
 
+impl KaIrregular {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::Katakana => 0,
+            Self::Kanji => 1,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::Katakana,
+            1 => Self::Kanji,
+            _ => panic!("Invalid u8 value for KaIrregular: {}", n),
+        }
+    }
+}
+
 impl FromStr for KaIrregular {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {

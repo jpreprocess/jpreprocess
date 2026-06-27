@@ -41,6 +41,51 @@ pub enum Meishi {
 }
 
 impl Meishi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::SahenSetsuzoku => 0,
+            Self::NaiKeiyoushiGokan => 1,
+            Self::General => 2,
+            Self::QuoteStr => 3,
+            Self::KeiyoudoushiGokan => 4,
+            Self::KoyuMeishi(koyu_meishi) => 5 + koyu_meishi.to_u8(),
+            Self::Kazu => 12,
+            Self::Setsuzokushiteki => 13,
+            Self::Setsubi(setsubi) => 14 + setsubi.to_u8(),
+            Self::Daimeishi(daimeishi) => 23 + daimeishi.to_u8(),
+            Self::DoushiHijiritsuteki => 25,
+            Self::Special => 26,
+            Self::Hijiritsu(meishi_hijiritsu) => 27 + meishi_hijiritsu.to_u8(),
+            Self::FukushiKanou => 32,
+
+            Self::None => 33,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::SahenSetsuzoku,
+            1 => Self::NaiKeiyoushiGokan,
+            2 => Self::General,
+            3 => Self::QuoteStr,
+            4 => Self::KeiyoudoushiGokan,
+            5..=11 => Self::KoyuMeishi(KoyuMeishi::from_u8(n - 5)),
+            12 => Self::Kazu,
+            13 => Self::Setsuzokushiteki,
+            14..=22 => Self::Setsubi(Setsubi::from_u8(n - 14)),
+            23..=24 => Self::Daimeishi(Daimeishi::from_u8(n - 23)),
+            25 => Self::DoushiHijiritsuteki,
+            26 => Self::Special,
+            27..=31 => Self::Hijiritsu(MeishiHijiritsu::from_u8(n - 27)),
+            32 => Self::FukushiKanou,
+            33 => Self::None,
+
+            _ => panic!("Invalid u8 value for Meishi: {}", n),
+        }
+    }
+}
+
+impl Meishi {
     pub fn from_strs(g1: &str, g2: &str, g3: &str) -> Result<Self, POSParseError> {
         match g1 {
             "サ変接続" => Ok(Self::SahenSetsuzoku),
@@ -109,6 +154,34 @@ pub enum KoyuMeishi {
     Organization,
     /// 地域
     Region(Region),
+}
+
+impl KoyuMeishi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::General => 0,
+            Self::Person(Person::General) => 1,
+            Self::Person(Person::Sei) => 2,
+            Self::Person(Person::Mei) => 3,
+            Self::Organization => 4,
+            Self::Region(Region::General) => 5,
+            Self::Region(Region::Country) => 6,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::General,
+            1 => Self::Person(Person::General),
+            2 => Self::Person(Person::Sei),
+            3 => Self::Person(Person::Mei),
+            4 => Self::Organization,
+            5 => Self::Region(Region::General),
+            6 => Self::Region(Region::Country),
+
+            _ => panic!("Invalid u8 value for KoyuMeishi: {}", n),
+        }
+    }
 }
 
 impl KoyuMeishi {
@@ -206,6 +279,37 @@ pub enum Setsubi {
     FukushiKanou,
 }
 
+impl Setsubi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::SahenSetsuzoku => 0,
+            Self::General => 1,
+            Self::KeiyoudoushiGokan => 2,
+            Self::Josuushi => 3,
+            Self::JodoushiGokan => 4,
+            Self::Person => 5,
+            Self::Region => 6,
+            Self::Special => 7,
+            Self::FukushiKanou => 8,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::SahenSetsuzoku,
+            1 => Self::General,
+            2 => Self::KeiyoudoushiGokan,
+            3 => Self::Josuushi,
+            4 => Self::JodoushiGokan,
+            5 => Self::Person,
+            6 => Self::Region,
+            7 => Self::Special,
+            8 => Self::FukushiKanou,
+            _ => panic!("Invalid u8 value for Setsubi: {}", n),
+        }
+    }
+}
+
 impl FromStr for Setsubi {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -254,6 +358,23 @@ pub enum Daimeishi {
     Contraction,
 }
 
+impl Daimeishi {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::General => 0,
+            Self::Contraction => 1,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::General,
+            1 => Self::Contraction,
+            _ => panic!("Invalid u8 value for Daimeishi: {}", n),
+        }
+    }
+}
+
 impl FromStr for Daimeishi {
     type Err = POSParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -292,6 +413,29 @@ pub enum MeishiHijiritsu {
     FukushiKanou,
     /// \*
     None,
+}
+
+impl MeishiHijiritsu {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::General => 0,
+            Self::KeiyoudoushiGokan => 1,
+            Self::JodoushiGokan => 2,
+            Self::FukushiKanou => 3,
+            Self::None => 4,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::General,
+            1 => Self::KeiyoudoushiGokan,
+            2 => Self::JodoushiGokan,
+            3 => Self::FukushiKanou,
+            4 => Self::None,
+            _ => panic!("Invalid u8 value for MeishiHijiritsu: {}", n),
+        }
+    }
 }
 
 impl FromStr for MeishiHijiritsu {
