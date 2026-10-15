@@ -11,7 +11,7 @@ categories.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-pyo3 = "0.29.0"
+pyo3 = "0.30.0"
 pythonize = "0.29.0"
 
 serde.workspace = true
