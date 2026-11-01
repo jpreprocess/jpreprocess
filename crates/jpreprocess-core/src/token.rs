@@ -16,9 +16,9 @@ impl Token for (String, WordEntry) {
 }
 
 #[cfg(feature = "lindera")]
-impl Tokenizer for lindera::tokenizer::Tokenizer {
+impl Tokenizer for lindera::segmenter::Segmenter {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
-        Ok(self.tokenize(text)?)
+        Ok(self.segment(text.into())?)
     }
 }
 
