@@ -105,7 +105,6 @@ impl JPreprocessDictionaryBuilder {
         CharacterDefinitionBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
             .builder()
-            .unwrap()
             .build(input_dir, output_dir)
     }
 
@@ -118,7 +117,6 @@ impl JPreprocessDictionaryBuilder {
         UnknownDictionaryBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
             .builder()
-            .unwrap()
             .build(input_dir, chardef, output_dir)
     }
 
@@ -155,7 +153,6 @@ impl JPreprocessDictionaryBuilder {
         ConnectionCostMatrixBuilderOptions::default()
             .encoding(self.metadata.encoding.clone())
             .builder()
-            .unwrap()
             .build(input_dir, output_dir)
     }
 
@@ -210,150 +207,5 @@ impl JPreprocessDictionaryBuilder {
         >(&parser, &rows)?;
 
         Ok(UserDictionary { dict })
-    }
-}
-
-#[deprecated(
-    note = "Use JPreprocessDictionaryBuilder::build_user_dict_from_data instead",
-    since = "0.13.0"
-)]
-pub fn build_user_dict_from_data(data: Vec<Vec<&str>>) -> LinderaResult<UserDictionary> {
-    let rows = data
-        .into_iter()
-        .map(csv::StringRecord::from_iter)
-        .collect::<Vec<_>>();
-
-    let builder = JPreprocessDictionaryBuilder::new(Metadata {
-        default_word_cost: -10000,
-        default_left_context_id: 0,
-        default_right_context_id: 0,
-        ..JPreprocessDictionaryBuilder::default_metadata()
-    });
-
-    builder.build_user_dict_from_rows(rows)
-}
-
-#[cfg(test)]
-mod tests {
-    use lindera_dictionary::viterbi::{LexType, WordEntry, WordId};
-
-    use super::*;
-
-    #[test]
-    fn test_user_dictionary() {
-        let builder = JPreprocessDictionaryBuilder::default();
-
-        let data = vec![
-            vec![
-                "東京スカイツリー",
-                "1285",
-                "1285",
-                "-3000",
-                "名詞",
-                "固有名詞",
-                "一般",
-                "*",
-                "*",
-                "*",
-                "*",
-                "トウキョウスカイツリー",
-                "トウキョウスカイツリー",
-                "13",
-                "*",
-                "*",
-            ],
-            vec![
-                "すもももももももものうち",
-                "1285",
-                "1285",
-                "-3000",
-                "名詞",
-                "固有名詞",
-                "一般",
-                "*",
-                "*",
-                "*",
-                "*",
-                "スモモモモモモモモノウチ",
-                "スモモモモモモモモノウチ",
-                "13",
-                "*",
-                "*",
-            ],
-        ];
-
-        let user_dict = builder.build_user_dict_from_data(data).unwrap();
-        assert_eq!(
-            user_dict.dict.find_surface("東京スカイツリー"),
-            vec![WordEntry {
-                word_id: WordId {
-                    id: 0,
-                    is_system: false,
-                    lex_type: LexType::User,
-                },
-                word_cost: -3000,
-                left_id: 1285,
-                right_id: 1285,
-            },]
-        );
-        assert_eq!(
-            user_dict.dict.find_surface("すもももももももものうち"),
-            vec![WordEntry {
-                word_id: WordId {
-                    id: 1,
-                    is_system: false,
-                    lex_type: LexType::User,
-                },
-                word_cost: -3000,
-                left_id: 1285,
-                right_id: 1285,
-            },]
-        );
-    }
-
-    #[test]
-    fn test_simple_user_dictionary() {
-        let builder = JPreprocessDictionaryBuilder::default();
-
-        let data = vec![
-            vec![
-                "東京スカイツリー",       // surface
-                "トウキョウスカイツリー", // reading
-                "トーキョースカイツリー", // pronunciation
-            ],
-            vec![
-                "すもももももももものうち",
-                "スモモモモモモモモノウチ",
-                "スモモモモモモモモノウチ",
-            ],
-        ];
-
-        let user_dict = builder.build_user_dict_from_data(data).unwrap();
-        assert_eq!(
-            user_dict.dict.find_surface("東京スカイツリー"),
-            vec![WordEntry {
-                word_id: WordId {
-                    id: 0,
-                    is_system: false,
-                    lex_type: LexType::User,
-                },
-                word_cost: -10000,
-                left_id: 1288,
-                right_id: 1288,
-            },]
-        );
-        assert_eq!(
-            user_dict.dict.find_surface("すもももももももものうち"),
-            vec![WordEntry {
-                word_id: WordId {
-                    id: 1,
-                    is_system: false,
-                    lex_type: LexType::User,
-                },
-                word_cost: -10000,
-                left_id: 1288,
-                right_id: 1288,
-            },]
-        );
     }
 }

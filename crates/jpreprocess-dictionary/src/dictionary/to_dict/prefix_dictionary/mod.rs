@@ -32,7 +32,7 @@ use derive_builder::Builder;
 use encoding_rs::{Encoding, UTF_8};
 use encoding_rs_io::DecodeReaderBytesBuilder;
 use glob::glob;
-use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
+use lindera_dictionary::dictionary::prefix_dictionary::{PrefixDictionary, UserPrefixDictionary};
 use lindera_dictionary::viterbi::LexType;
 use log::debug;
 
@@ -47,7 +47,7 @@ pub mod word_entry;
 
 use self::details::generate_words_files;
 use self::parser::{normalize, CSVParser};
-use self::word_entry::{build_word_entry_map, generate_double_array, generate_values};
+use self::word_entry::{build_word_entry_map, generate_user_double_array, generate_values};
 
 #[derive(Builder)]
 #[builder(name = CSVReaderOptions)]
@@ -180,14 +180,24 @@ pub fn write_system_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
 ) -> LinderaResult<()> {
     let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
-    // Write dict.da
-    let mut dict_da_writer = File::create(output_dir.join("dict.da")).map_err(|err| {
+    let (trie_bytes, idx_bytes) = PrefixDictionary::serialize_trie(&word_entry_map)?;
+    let vals_bytes = generate_values(&word_entry_map)?;
+
+    // Write dict.trie
+    let mut dict_trie_writer = File::create(output_dir.join("dict.trie")).map_err(|err| {
         LinderaErrorKind::Io
             .with_error(anyhow::anyhow!(err))
-            .add_context("Failed to create dict.da file")
+            .add_context("Failed to create dict.trie file")
     })?;
-    let da = generate_double_array(&word_entry_map, true)?;
-    write(&da, &mut dict_da_writer)?;
+    write(&trie_bytes, &mut dict_trie_writer)?;
+
+    // Write dict.valsidx
+    let mut dict_valsidx_writer = File::create(output_dir.join("dict.valsidx")).map_err(|err| {
+        LinderaErrorKind::Io
+            .with_error(anyhow::anyhow!(err))
+            .add_context("Failed to create dict.valsidx file")
+    })?;
+    write(&idx_bytes, &mut dict_valsidx_writer)?;
 
     // Write dict.vals
     let mut dict_vals_writer = File::create(output_dir.join("dict.vals")).map_err(|err| {
@@ -195,8 +205,7 @@ pub fn write_system_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
             .with_error(anyhow::anyhow!(err))
             .add_context("Failed to create dict.vals file")
     })?;
-    let vals = generate_values(&word_entry_map)?;
-    write(&vals, &mut dict_vals_writer)?;
+    write(&vals_bytes, &mut dict_vals_writer)?;
 
     // Write dict.words and dict.wordsidx
     let mut dict_words_writer = File::create(output_dir.join("dict.words")).map_err(|err| {
@@ -220,15 +229,15 @@ pub fn write_system_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
 pub fn generate_user_prefix_dictionary<P: CSVParser, E: DictionaryWordEncoding>(
     parser: &P,
     rows: &[StringRecord],
-) -> LinderaResult<PrefixDictionary> {
+) -> LinderaResult<UserPrefixDictionary> {
     let word_entry_map = build_word_entry_map(parser, rows, LexType::System)?;
 
-    let da = generate_double_array(&word_entry_map, false)?;
-    let vals = generate_values(&word_entry_map)?;
+    let da_bytes = generate_user_double_array(&word_entry_map)?;
+    let vals_bytes = generate_values(&word_entry_map)?;
 
     let (words, wordsidx) = generate_words_files::<P, E>(parser, rows)?;
 
-    PrefixDictionary::load(da, vals, wordsidx, words, false)
+    UserPrefixDictionary::load(da_bytes, vals_bytes, wordsidx, words)
 }
 
 fn write(data: &[u8], writer: &mut impl std::io::Write) -> LinderaResult<()> {

@@ -282,13 +282,13 @@ mod default_tokenizer_impl {
             dictionary: Dictionary,
             user_dictionary: Option<UserDictionary>,
         ) -> Self {
-            let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            let segmenter = lindera::segmenter::Segmenter::new(
                 lindera_dictionary::mode::Mode::Normal,
                 dictionary,
                 user_dictionary,
-            ));
+            );
 
-            let tokenizer = DefaultTokenizer::new(tokenizer);
+            let tokenizer = DefaultTokenizer::new(segmenter);
 
             Self::from_tokenizer(tokenizer)
         }

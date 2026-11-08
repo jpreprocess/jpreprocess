@@ -456,12 +456,6 @@ dependencies = [
 
 [[package]]
 name = "daachorse"
-version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db756b5eb7d81d31f31f660f4132f8cf5698de52fca144c143d0ae0cbb5f2e06"
-
-[[package]]
-name = "daachorse"
 version = "5.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6662915a20ca97f4c293df4b589dda442f852429f50fda4f1d779f12cb7fe98f"
@@ -1227,7 +1221,7 @@ dependencies = [
  "byteorder",
  "clap",
  "csv",
- "daachorse 2.1.1",
+ "daachorse",
  "derive_builder",
  "encoding_rs",
  "encoding_rs_io",
@@ -1342,7 +1336,7 @@ dependencies = [
  "byteorder",
  "crawdad 0.4.1",
  "csv",
- "daachorse 5.1.0",
+ "daachorse",
  "encoding_rs",
  "encoding_rs_io",
  "glob",
