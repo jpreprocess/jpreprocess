@@ -33,7 +33,6 @@ interface UserDictionary {
 interface Metadata {
   name: string;
   encoding: string;
-  compress_algorithm: "deflate" | "zlib" | "gzip" | "raw";
   default_word_cost: number;
   default_left_context_id: number;
   default_right_context_id: number;
