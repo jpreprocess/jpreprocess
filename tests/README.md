@@ -66,8 +66,9 @@ If you prefer lindera dictionary, where the fields (part of speech, pronunciatio
 mkdir -p ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
-cmp ./tests/data/dict/jpreprocess-tmp/dict.da ./tests/data/dict/dict.da && echo "Dictionaries are identical" || echo "Dictionaries differ"
+cmp ./tests/data/dict/jpreprocess-tmp/dict.trie ./tests/data/dict/dict.trie && echo "Dictionaries are identical" || echo "Dictionaries differ"
 cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
+cp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx
 rm -rf ./tests/data/dict/jpreprocess-tmp/
 ```
 
