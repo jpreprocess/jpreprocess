@@ -128,10 +128,7 @@ mod tests {
             ],
         ];
 
-        let csv_rows: Vec<StringRecord> = data
-            .into_iter()
-            .map(|row| StringRecord::from(row))
-            .collect();
+        let csv_rows: Vec<StringRecord> = data.into_iter().map(StringRecord::from).collect();
 
         let parser = UserDictionaryParserOptions::default()
             .user_dictionary_fields_num(3)
