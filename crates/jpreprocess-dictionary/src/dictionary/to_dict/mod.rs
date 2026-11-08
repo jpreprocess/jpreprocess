@@ -28,23 +28,21 @@ pub struct JPreprocessDictionaryBuilder {
 }
 
 impl JPreprocessDictionaryBuilder {
-    pub fn new(metadata: Metadata) -> Self {
+    pub fn new(mut metadata: Metadata) -> Self {
+        metadata.format_version = DICTIONARY_FORMAT_VERSION;
         Self { metadata }
     }
 }
 
 impl Default for JPreprocessDictionaryBuilder {
     fn default() -> Self {
-        Self {
-            metadata: Self::default_metadata(),
-        }
+        Self::new(Self::default_metadata())
     }
 }
 
 impl JPreprocessDictionaryBuilder {
     pub fn default_metadata() -> Metadata {
         Metadata {
-            format_version: DICTIONARY_FORMAT_VERSION,
             dictionary_schema: Schema::new(vec![
                 "surface".to_string(),
                 "left_context_id".to_string(),
