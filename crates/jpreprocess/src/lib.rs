@@ -80,13 +80,13 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// // Use `from_tokenizer` only if you need a customized `Tokenizer` or
     /// // want to plug in a non-Lindera tokenizer (see example-vibrato).
     /// let system = lindera::dictionary::load_fs_dictionary(path.as_path())?;
-    /// let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+    /// let segmenter = lindera::segmenter::Segmenter::new(
     ///     lindera::mode::Mode::Normal,
     ///     system,
     ///     None,
-    /// ));
+    /// );
     ///
-    /// let jpreprocess = JPreprocess::from_tokenizer(tokenizer);
+    /// let jpreprocess = JPreprocess::from_tokenizer(segmenter);
     ///
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();
@@ -282,13 +282,13 @@ mod default_tokenizer_impl {
             dictionary: Dictionary,
             user_dictionary: Option<UserDictionary>,
         ) -> Self {
-            let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            let segmenter = lindera::segmenter::Segmenter::new(
                 lindera_dictionary::mode::Mode::Normal,
                 dictionary,
                 user_dictionary,
-            ));
+            );
 
-            let tokenizer = DefaultTokenizer::new(tokenizer);
+            let tokenizer = DefaultTokenizer::new(segmenter);
 
             Self::from_tokenizer(tokenizer)
         }

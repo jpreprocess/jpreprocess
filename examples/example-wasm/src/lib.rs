@@ -1,6 +1,11 @@
+use std::sync::Arc;
+
 use lindera_dictionary::dictionary::{
-    character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
-    metadata::Metadata, prefix_dictionary::PrefixDictionary, unknown_dictionary::UnknownDictionary,
+    character_definition::CharacterDefinition,
+    connection_cost_matrix::ConnectionCostMatrix,
+    metadata::Metadata,
+    prefix_dictionary::{PrefixDictionary, UserPrefixDictionary},
+    unknown_dictionary::UnknownDictionary,
 };
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -9,7 +14,8 @@ use wasm_bindgen::prelude::*;
 const TYPESCRIPT: &'static str = r#"
 interface Dictionary {
   metadata: Metadata,
-  dict_da: Uint8Array,
+  dict_trie: Uint8Array,
+  dict_idx: Uint8Array,
   dict_vals: Uint8Array,
   cost_matrix: Uint8Array,
   char_definitions: Uint8Array,
@@ -27,7 +33,6 @@ interface UserDictionary {
 interface Metadata {
   name: string;
   encoding: string;
-  compress_algorithm: "deflate" | "zlib" | "gzip" | "raw";
   default_word_cost: number;
   default_left_context_id: number;
   default_right_context_id: number;
@@ -47,7 +52,8 @@ interface Schema {
 #[derive(Serialize, Deserialize)]
 struct JsDictionary {
     metadata: Metadata,
-    dict_da: Vec<u8>,
+    dict_trie: Vec<u8>,
+    dict_idx: Vec<u8>,
     dict_vals: Vec<u8>,
     cost_matrix: Vec<u8>,
     char_definitions: Vec<u8>,
@@ -60,17 +66,17 @@ impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
     type Error = lindera::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            metadata: value.metadata,
-            prefix_dictionary: PrefixDictionary::load(
-                value.dict_da,
+            metadata: Arc::new(value.metadata),
+            prefix_dictionary: Arc::new(PrefixDictionary::load(
+                value.dict_trie,
+                value.dict_idx,
                 value.dict_vals,
                 value.words_idx_data,
                 value.words_data,
-                true,
-            )?,
-            connection_cost_matrix: ConnectionCostMatrix::load(value.cost_matrix)?,
-            character_definition: CharacterDefinition::load(&value.char_definitions)?,
-            unknown_dictionary: UnknownDictionary::load(&value.unknown_dictionary)?,
+            )?),
+            connection_cost_matrix: Arc::new(ConnectionCostMatrix::load(value.cost_matrix)?),
+            character_definition: Arc::new(CharacterDefinition::load(&value.char_definitions)?),
+            unknown_dictionary: Arc::new(UnknownDictionary::load(&value.unknown_dictionary)?),
         };
         Ok(this)
     }
@@ -89,12 +95,11 @@ impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
     type Error = lindera::error::LinderaError;
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
-            dict: PrefixDictionary::load(
+            dict: UserPrefixDictionary::load(
                 value.dict_da,
                 value.dict_vals,
                 value.words_idx_data,
                 value.words_data,
-                false,
             )?,
         };
         Ok(this)

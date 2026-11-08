@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use lindera_dictionary::{
     dictionary::{
         character_definition::CharacterDefinition, connection_cost_matrix::ConnectionCostMatrix,
@@ -12,8 +14,9 @@ const METADATA_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"),
 const CHAR_DEFINITION_DATA: &[u8] =
     include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/char_def.bin"));
 const CONNECTION_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/matrix.mtx"));
-const IPADIC_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.da"));
+const IPADIC_TRIE: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.trie"));
 const IPADIC_VALS: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.vals"));
+const IPADIC_IDX: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.valsidx"));
 const UNKNOWN_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/unk.bin"));
 const WORDS_IDX_DATA: &[u8] =
     include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/dict.wordsidx"));
@@ -21,16 +24,16 @@ const WORDS_DATA: &[u8] = include_bytes!(concat!(env!("JPREPROCESS_WORKDIR"), "/
 
 pub fn load() -> LinderaResult<Dictionary> {
     Ok(Dictionary {
-        metadata: Metadata::load(METADATA_DATA)?,
-        prefix_dictionary: PrefixDictionary::load(
-            IPADIC_DATA,
+        metadata: Arc::new(Metadata::load(METADATA_DATA)?),
+        prefix_dictionary: Arc::new(PrefixDictionary::load(
+            IPADIC_TRIE,
+            IPADIC_IDX,
             IPADIC_VALS,
             WORDS_IDX_DATA,
             WORDS_DATA,
-            true,
-        )?,
-        connection_cost_matrix: ConnectionCostMatrix::load(CONNECTION_DATA)?,
-        character_definition: CharacterDefinition::load(CHAR_DEFINITION_DATA)?,
-        unknown_dictionary: UnknownDictionary::load(UNKNOWN_DATA)?,
+        )?),
+        connection_cost_matrix: Arc::new(ConnectionCostMatrix::load(CONNECTION_DATA)?),
+        character_definition: Arc::new(CharacterDefinition::load(CHAR_DEFINITION_DATA)?),
+        unknown_dictionary: Arc::new(UnknownDictionary::load(UNKNOWN_DATA)?),
     })
 }

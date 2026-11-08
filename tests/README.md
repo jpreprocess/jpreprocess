@@ -36,6 +36,16 @@ cargo run -p tests --bin generate_min_dict_src
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/min-dict-src/ ./tests/data/min-dict/
 ```
 
+### User dictionary
+
+Some unit tests use user dictionary stored in `./data/user/`.
+
+To rebuild the user dictionary (e.g. after updating lindera), run the following command in the root of the project:
+
+```bash
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera --user ./tests/data/user/src.csv ./tests/data/user/user.bin
+```
+
 ### Full dictionary
 
 To run most of the E2E tests, you need to build dictionary from `naist-jdic`. Follow one of the steps below to build a full dictionary.
@@ -56,8 +66,9 @@ If you prefer lindera dictionary, where the fields (part of speech, pronunciatio
 mkdir -p ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
-cmp ./tests/data/dict/jpreprocess-tmp/dict.da ./tests/data/dict/dict.da && echo "Dictionaries are identical" || echo "Dictionaries differ"
+cmp ./tests/data/dict/jpreprocess-tmp/dict.trie ./tests/data/dict/dict.trie && echo "Dictionaries are identical" || echo "Dictionaries differ"
 cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
+cp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx
 rm -rf ./tests/data/dict/jpreprocess-tmp/
 ```
 

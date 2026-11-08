@@ -3,7 +3,8 @@ use jpreprocess_core::{
     word_entry::WordEntry,
     JPreprocessResult,
 };
-use lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary;
+
+use crate::word_data::PrefixDictionary;
 
 use super::{
     identify_dictionary::DictionaryIdent,
@@ -11,7 +12,7 @@ use super::{
 };
 
 pub struct DefaultTokenizer {
-    lindera_tokenizer: lindera::tokenizer::Tokenizer,
+    lindera_segmenter: lindera::segmenter::Segmenter,
     system: TokenizerType,
     user: Option<TokenizerType>,
 }
@@ -22,12 +23,9 @@ enum TokenizerType {
 }
 
 impl DefaultTokenizer {
-    pub fn new(tokenizer: lindera::tokenizer::Tokenizer) -> Self {
-        fn identify_tokenizer(prefix_dictionary: &PrefixDictionary) -> TokenizerType {
-            let ident = DictionaryIdent::from_idx_data(
-                &prefix_dictionary.words_idx_data,
-                &prefix_dictionary.words_data,
-            );
+    pub fn new(segmenter: lindera::segmenter::Segmenter) -> Self {
+        fn identify_tokenizer(prefix_dictionary: impl PrefixDictionary) -> TokenizerType {
+            let ident = DictionaryIdent::from_ident_str(prefix_dictionary.dict_ident());
             match ident {
                 DictionaryIdent::JPreprocess => TokenizerType::JPreprocessTokenizer,
                 DictionaryIdent::Lindera => TokenizerType::LinderaTokenizer,
@@ -35,20 +33,19 @@ impl DefaultTokenizer {
         }
 
         Self {
-            system: identify_tokenizer(&tokenizer.segmenter.dictionary.prefix_dictionary),
-            user: tokenizer
-                .segmenter
+            system: identify_tokenizer(&*segmenter.dictionary.prefix_dictionary),
+            user: segmenter
                 .user_dictionary
                 .as_ref()
                 .map(|d| identify_tokenizer(&d.dict)),
-            lindera_tokenizer: tokenizer,
+            lindera_segmenter: segmenter,
         }
     }
 }
 
 impl Tokenizer for DefaultTokenizer {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
-        let tokens = self.lindera_tokenizer.tokenize(text)?;
+        let tokens = self.lindera_segmenter.segment(text.into())?;
 
         tokens
             .into_iter()
@@ -61,7 +58,7 @@ impl Tokenizer for DefaultTokenizer {
                             Ok(DefaultToken::from_token(JPreprocessToken::new(
                                 token.surface,
                                 JPreprocessTokenizer::get_word_from_prefixdict(
-                                    &token.dictionary.prefix_dictionary,
+                                    &*token.dictionary.prefix_dictionary,
                                     token.word_id,
                                 )?,
                             )))

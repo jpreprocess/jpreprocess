@@ -4,7 +4,7 @@ use std::{
     io::{Read, Seek},
     num::NonZeroUsize,
     path::Path,
-    sync::Mutex,
+    sync::{Arc, Mutex},
 };
 
 use jpreprocess_core::{
@@ -17,22 +17,22 @@ use lindera_dictionary::{dictionary::Dictionary, loader::metadata::MetadataLoade
 use lru::LruCache;
 
 pub struct LruTokenizer {
-    tokenizer: lindera::tokenizer::Tokenizer,
+    segmenter: lindera::segmenter::Segmenter,
     words: Mutex<CachedStorage>,
 }
 impl LruTokenizer {
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
         let dictionary = load_dictionary(path.as_ref());
-        let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+        let segmenter = lindera::segmenter::Segmenter::new(
             lindera_dictionary::mode::Mode::Normal,
             dictionary,
             None,
-        ));
+        );
 
         let storage = CachedStorage::new(path)?;
 
         Ok(Self {
-            tokenizer,
+            segmenter,
             words: Mutex::new(storage),
         })
     }
@@ -41,11 +41,11 @@ impl Tokenizer for LruTokenizer {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
         let mut tokens = Vec::new();
         let mut words = self.words.lock().unwrap();
-        for token in self.tokenizer.tokenize(text)? {
+        for token in self.segmenter.segment(text.into())? {
             let entry = if token.word_id.is_unknown() {
                 WordEntry::default()
             } else if token.word_id.is_system() {
-                words.get_word(token.word_id.id)?
+                words.get_word(token.word_id.id())?
             } else {
                 todo!("User dictionary support is not complete in this example")
             };
@@ -83,24 +83,25 @@ fn load_dictionary(path: &Path) -> Dictionary {
 
     let metadata = MetadataLoader::load(path).unwrap();
 
-    let da_data = read_file(path.join("dict.da").as_path()).unwrap();
+    let trie_data = read_file(path.join("dict.trie").as_path()).unwrap();
+    let idx_data = read_file(path.join("dict.valsidx").as_path()).unwrap();
     let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
 
     let prefix_dictionary = PrefixDictionary::load(
-        da_data,
+        trie_data,
+        idx_data,
         vals_data,
         &[] as &'static [u8],
         &[] as &'static [u8],
-        true,
     )
     .expect("Failed to load prefix dictionary");
 
     Dictionary {
-        metadata,
-        prefix_dictionary,
-        connection_cost_matrix: ConnectionCostMatrixLoader::load(path).unwrap(),
-        character_definition: CharacterDefinitionLoader::load(path).unwrap(),
-        unknown_dictionary: UnknownDictionaryLoader::load(path).unwrap(),
+        metadata: Arc::new(metadata),
+        prefix_dictionary: Arc::new(prefix_dictionary),
+        connection_cost_matrix: Arc::new(ConnectionCostMatrixLoader::load(path).unwrap()),
+        character_definition: Arc::new(CharacterDefinitionLoader::load(path).unwrap()),
+        unknown_dictionary: Arc::new(UnknownDictionaryLoader::load(path).unwrap()),
     }
 }
 
