@@ -1,14 +1,20 @@
 use std::{fs, path::Path};
 
 use lindera_dictionary::{
-    LinderaResult, builder::{
+    builder::{
         character_definition::CharacterDefinitionBuilderOptions,
         connection_cost_matrix::ConnectionCostMatrixBuilderOptions, metadata::MetadataBuilder,
         unknown_dictionary::UnknownDictionaryBuilderOptions,
         user_dictionary::build_user_dictionary,
-    }, dictionary::{
-        UserDictionary, character_definition::CharacterDefinition, metadata::{DICTIONARY_FORMAT_VERSION, Metadata}, schema::Schema,
-    }, error::LinderaErrorKind,
+    },
+    dictionary::{
+        character_definition::CharacterDefinition,
+        metadata::{Metadata, DICTIONARY_FORMAT_VERSION},
+        schema::Schema,
+        UserDictionary,
+    },
+    error::LinderaErrorKind,
+    LinderaResult,
 };
 
 use crate::dictionary::to_dict::prefix_dictionary::{
