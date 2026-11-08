@@ -1,18 +1,14 @@
 use std::{fs, path::Path};
 
 use lindera_dictionary::{
-    builder::{
+    LinderaResult, builder::{
         character_definition::CharacterDefinitionBuilderOptions,
         connection_cost_matrix::ConnectionCostMatrixBuilderOptions, metadata::MetadataBuilder,
         unknown_dictionary::UnknownDictionaryBuilderOptions,
         user_dictionary::build_user_dictionary,
-    },
-    dictionary::{
-        character_definition::CharacterDefinition, metadata::Metadata, schema::Schema,
-        UserDictionary,
-    },
-    error::LinderaErrorKind,
-    LinderaResult,
+    }, dictionary::{
+        UserDictionary, character_definition::CharacterDefinition, metadata::{DICTIONARY_FORMAT_VERSION, Metadata}, schema::Schema,
+    }, error::LinderaErrorKind,
 };
 
 use crate::dictionary::to_dict::prefix_dictionary::{
@@ -48,6 +44,7 @@ impl Default for JPreprocessDictionaryBuilder {
 impl JPreprocessDictionaryBuilder {
     pub fn default_metadata() -> Metadata {
         Metadata {
+            format_version: DICTIONARY_FORMAT_VERSION,
             dictionary_schema: Schema::new(vec![
                 "surface".to_string(),
                 "left_context_id".to_string(),

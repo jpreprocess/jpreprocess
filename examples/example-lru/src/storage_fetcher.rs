@@ -83,7 +83,7 @@ fn load_dictionary(path: &Path) -> Dictionary {
 
     let metadata = MetadataLoader::load(path).unwrap();
 
-    let trie_data = read_file(path.join("dict.da").as_path()).unwrap();
+    let trie_data = read_file(path.join("dict.trie").as_path()).unwrap();
     let idx_data = read_file(path.join("dict.valsidx").as_path()).unwrap();
     let vals_data = read_file(path.join("dict.vals").as_path()).unwrap();
 
