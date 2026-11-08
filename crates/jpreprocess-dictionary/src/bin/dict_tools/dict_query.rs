@@ -1,5 +1,5 @@
 use jpreprocess_dictionary::{
-    dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::get_word_data,
+    dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::PrefixDictionary,
 };
 use lindera::dictionary::{Dictionary, UserDictionary};
 use lindera_dictionary::dictionary::UNK;
@@ -10,13 +10,14 @@ pub enum QueryDict {
 }
 
 impl QueryDict {
-    pub fn identifier(&self) -> Option<&str> {
+    pub fn identifier(&self) -> Option<String> {
         match self {
-            Self::System(dict) => get_dict_preamble(
-                &dict.prefix_dictionary.words_idx_data,
-                &dict.prefix_dictionary.words_data,
-            ),
-            Self::User(dict) => get_dict_preamble(&dict.dict.words_idx_data, &dict.dict.words_data),
+            Self::System(dict) => dict
+                .prefix_dictionary
+                .as_ref()
+                .dict_ident()
+                .map(String::from),
+            Self::User(dict) => (&dict.dict).dict_ident().map(String::from),
         }
     }
 
@@ -24,20 +25,18 @@ impl QueryDict {
         &self,
         word_id: u32,
     ) -> Option<jpreprocess_core::word_entry::WordEntry> {
-        let word_bin = match self {
-            Self::System(dict) => get_word_data(
-                &dict.prefix_dictionary.words_idx_data,
-                &dict.prefix_dictionary.words_data,
-                Some(word_id as usize),
-            ),
-            Self::User(dict) => get_word_data(
-                &dict.dict.words_idx_data,
-                &dict.dict.words_data,
-                Some(word_id as usize),
-            ),
-        };
+        fn get_word(
+            prefix_dict: impl PrefixDictionary,
+            word_id: u32,
+        ) -> Option<jpreprocess_core::word_entry::WordEntry> {
+            let word_bin = prefix_dict.word_data(word_id as usize);
+            JPreprocessDictionaryWordEncoding::deserialize(word_bin?).ok()
+        }
 
-        JPreprocessDictionaryWordEncoding::deserialize(word_bin?).ok()
+        match self {
+            Self::System(dict) => get_word(&*dict.prefix_dictionary, word_id),
+            Self::User(dict) => get_word(&dict.dict, word_id),
+        }
     }
     pub fn get_as_lindera(&self, word_id: u32) -> Option<Vec<&str>> {
         let result = match self {
@@ -49,17 +48,6 @@ impl QueryDict {
             None
         } else {
             Some(result)
-        }
-    }
-}
-
-fn get_dict_preamble<'a>(idx: &[u8], data: &'a [u8]) -> Option<&'a str> {
-    match std::str::from_utf8(get_word_data(idx, data, None)?) {
-        Ok("") => None,
-        Ok(s) => Some(s),
-        Err(e) => {
-            eprintln!("Error parsing dictionary type: {}", e);
-            None
         }
     }
 }
