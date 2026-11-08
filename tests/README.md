@@ -36,6 +36,16 @@ cargo run -p tests --bin generate_min_dict_src
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/min-dict-src/ ./tests/data/min-dict/
 ```
 
+### User dictionary
+
+Some unit tests use user dictionary stored in `./data/user/`.
+
+To rebuild the minimized dictionary (e.g. after updating lindera), run the following command in the root of the project:
+
+```bash
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera --user ./tests/data/user/src.csv ./tests/data/user/user.bin
+```
+
 ### Full dictionary
 
 To run most of the E2E tests, you need to build dictionary from `naist-jdic`. Follow one of the steps below to build a full dictionary.
