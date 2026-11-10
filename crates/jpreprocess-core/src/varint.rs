@@ -1,3 +1,5 @@
+use crate::error::ParserComponent;
+
 pub(crate) trait VarInt {
     fn to_varint(self) -> impl Iterator<Item = u8>;
     fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self;
@@ -77,9 +79,14 @@ macro_rules! i_varint {
 i_varint!(isize, usize);
 i_varint!(i32, u32);
 
-pub(crate) fn read_u8<I: Iterator<Item = u8>>(iter: &mut I) -> u8 {
+pub(crate) fn read_u8<I: Iterator<Item = u8>>(
+    iter: &mut I,
+    component: ParserComponent,
+) -> Result<u8, crate::error::BinaryParseError> {
     iter.next()
-        .expect("Unexpected end of buffer while reading byte")
+        .ok_or(crate::error::BinaryParseError::UnexpectedEndOfBuffer(
+            component,
+        ))
 }
 
 #[cfg(test)]

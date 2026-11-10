@@ -6,6 +6,7 @@ use crate::{
     accent_rule::ChainRules,
     cform::CForm,
     ctype::CType,
+    error::{BinaryParseError, ParserComponent},
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
     varint::{read_u8, VarInt},
@@ -108,7 +109,7 @@ impl WordDetails {
         result
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
         fn from_bin_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
             let read_len = isize::from_varint(iter);
             if read_len >= 0 {
@@ -128,15 +129,15 @@ impl WordDetails {
             }
         }
 
-        let pos = POS::from_u8(read_u8(iter));
-        let ctype = CType::from_u8(read_u8(iter));
-        let cform = CForm::from_u8(read_u8(iter));
+        let pos = POS::from_u8(read_u8(iter, ParserComponent::POS)?);
+        let ctype = CType::from_u8(read_u8(iter, ParserComponent::CType)?);
+        let cform = CForm::from_u8(read_u8(iter, ParserComponent::CForm)?);
 
         let read = from_bin_read(iter);
-        let pron = Pronunciation::from_bin(iter);
-        let chain_rule = ChainRules::from_bin(iter);
+        let pron = Pronunciation::from_bin(iter)?;
+        let chain_rule = ChainRules::from_bin(iter)?;
 
-        let chain_flag = match read_u8(iter) {
+        let chain_flag = match read_u8(iter, ParserComponent::ChainFlag)? {
             1 => Some(true),
             0 => Some(false),
             255 => None,

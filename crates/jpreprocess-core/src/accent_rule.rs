@@ -8,6 +8,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::{
+    error::{BinaryParseError, ParserComponent},
     varint::{read_u8, VarInt},
     JPreprocessResult,
 };
@@ -159,10 +160,10 @@ impl ChainRule {
         buf
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
-        let accent_type = AccentType::from_u8(read_u8(iter));
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
+        let accent_type = AccentType::from_u8(read_u8(iter, ParserComponent::ChainRule)?);
         let add_type = isize::from_varint(iter);
-        Self::new(accent_type, add_type)
+        Ok(Self::new(accent_type, add_type))
     }
 }
 
@@ -306,30 +307,30 @@ impl ChainRules {
         buf
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
         let mut result = Self::default();
-        let flags = read_u8(iter);
+        let flags = read_u8(iter, ParserComponent::ChainRule)?;
         if flags & (1 << 0) != 0 {
-            let rule = ChainRule::from_bin(iter);
+            let rule = ChainRule::from_bin(iter)?;
             result.default = Some(rule);
         }
         if flags & (1 << 1) != 0 {
-            let rule = ChainRule::from_bin(iter);
+            let rule = ChainRule::from_bin(iter)?;
             result.doushi = Some(rule);
         }
         if flags & (1 << 2) != 0 {
-            let rule = ChainRule::from_bin(iter);
+            let rule = ChainRule::from_bin(iter)?;
             result.joshi = Some(rule);
         }
         if flags & (1 << 3) != 0 {
-            let rule = ChainRule::from_bin(iter);
+            let rule = ChainRule::from_bin(iter)?;
             result.keiyoushi = Some(rule);
         }
         if flags & (1 << 4) != 0 {
-            let rule = ChainRule::from_bin(iter);
+            let rule = ChainRule::from_bin(iter)?;
             result.meishi = Some(rule);
         }
-        result
+        Ok(result)
     }
 }
 

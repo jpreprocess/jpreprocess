@@ -1,5 +1,6 @@
 use crate::{
-    varint::VarInt, word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult,
+    error::BinaryParseError, varint::VarInt, word_details::WordDetails, word_line::WordDetailsLine,
+    JPreprocessResult,
 };
 use serde::{Deserialize, Serialize};
 
@@ -83,7 +84,7 @@ impl WordEntry {
         result
     }
 
-    pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> JPreprocessResult<Self> {
+    pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
         let num_entries = usize::from_varint(iter);
         if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))

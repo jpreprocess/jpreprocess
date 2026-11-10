@@ -9,7 +9,10 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::varint::{read_u8, VarInt};
+use crate::{
+    error::{BinaryParseError, ParserComponent},
+    varint::{read_u8, VarInt},
+};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -157,21 +160,21 @@ impl Pronunciation {
         result
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
         let len = usize::from_varint(iter);
         let accent = usize::from_varint(iter);
 
         let mut moras = Vec::with_capacity(len);
         for _ in 0..len {
             moras.push(Mora {
-                mora_enum: MoraEnum::from_u8(read_u8(iter)),
+                mora_enum: MoraEnum::from_u8(read_u8(iter, ParserComponent::Pronunciation)?),
                 is_voiced: false, // Will be updated later
             });
         }
 
         let voiced_flag_len = len.div_ceil(8);
         for i in 0..voiced_flag_len {
-            let flag = read_u8(iter);
+            let flag = read_u8(iter, ParserComponent::Pronunciation)?;
             for j in 0..8 {
                 if i * 8 + j >= len {
                     break;
@@ -182,10 +185,10 @@ impl Pronunciation {
             }
         }
 
-        Self {
+        Ok(Self {
             moras: moras.into(),
             accent,
-        }
+        })
     }
 }
 

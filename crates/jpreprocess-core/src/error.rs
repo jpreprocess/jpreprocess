@@ -28,10 +28,28 @@ pub enum JPreprocessError {
 pub enum DictionaryError {
     #[error("Word with id {0} not found")]
     IdNotFound(u32),
-    #[error("Failed to decode: {0}")]
-    FailDecode(#[from] bincode::error::DecodeError),
     #[error("The word is flagged as UserDictionary, but Lindera UserDictionary is empty")]
     UserDictionaryNotProvided,
     #[error("The word is flagged as UserDictionary, but UserDictionary mode is not set")]
     UserDictionaryModeNotSet,
+    #[error("Failed to parse binary dictionary: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum BinaryParseError {
+    #[error("Unexpected end of buffer while reading byte in component {0:?}")]
+    UnexpectedEndOfBuffer(ParserComponent),
+}
+
+#[derive(Debug)]
+pub enum ParserComponent {
+    POS,
+    CType,
+    CForm,
+    Read,
+    Pronunciation,
+    AccMoraSize,
+    ChainRule,
+    ChainFlag,
 }
