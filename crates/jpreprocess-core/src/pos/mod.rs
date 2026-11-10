@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 mod doushi;
 mod fukushi;
@@ -11,24 +11,9 @@ mod settoushi;
 
 mod conversions;
 
-pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
+pub use crate::pos::conversions::POSParseError;
 
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
-#[error("Tried to parse {string} (depth: {depth}), but failed in {kind}")]
-pub struct POSParseError {
-    depth: u8,
-    string: String,
-    kind: POSKind,
-}
-impl POSParseError {
-    pub(crate) fn new(depth: u8, string: String, kind: POSKind) -> Self {
-        Self {
-            depth,
-            string,
-            kind,
-        }
-    }
-}
+pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
 #[derive(Debug, PartialEq, Eq)]
 pub enum POSKind {
@@ -108,26 +93,7 @@ pub enum POS {
 
 impl POS {
     pub fn from_strs(g0: &str, g1: &str, g2: &str, g3: &str) -> Result<Self, POSParseError> {
-        match g0 {
-            "フィラー" => Ok(Self::Filler),
-            "感動詞" => Ok(Self::Kandoushi),
-            "記号" => Kigou::from_str(g1).map(Self::Kigou),
-            "形容詞" => Keiyoushi::from_str(g1).map(Self::Keiyoushi),
-            "助詞" => Joshi::from_strs(g1, g2).map(Self::Joshi),
-            "助動詞" => Ok(Self::Jodoushi),
-            "接続詞" => Ok(Self::Setsuzokushi),
-            "接頭詞" => Settoushi::from_str(g1).map(Self::Settoushi),
-            "動詞" => Doushi::from_str(g1).map(Self::Doushi),
-            "副詞" => Fukushi::from_str(g1).map(Self::Fukushi),
-            "名詞" => Meishi::from_strs(g1, g2, g3).map(Self::Meishi),
-            "連体詞" => Ok(Self::Rentaishi),
-
-            "その他" => Ok(Self::Others),
-
-            "*" => Ok(Self::Unknown),
-
-            _ => Err(POSParseError::new(0, g0.to_string(), POSKind::POSMajor)),
-        }
+        conversions::string_to_pos([g0, g1, g2, g3])
     }
 
     pub fn is_kazu(&self) -> bool {
@@ -146,95 +112,17 @@ impl POS {
     }
 
     pub(crate) fn to_u8(self) -> u8 {
-        let v_6bit = |v| {
-            assert!(v < 0x40);
-            v
-        };
-        let v_4bit = |v| {
-            assert!(v < 0x10);
-            v
-        };
-
-        match self {
-            // 0 bit (0x00 - 0x0F)
-            Self::Filler => 0,
-            Self::Kandoushi => 1,
-            Self::Jodoushi => 2,
-            Self::Setsuzokushi => 3,
-            Self::Rentaishi => 4,
-            Self::Others => 5,
-            Self::Unknown => 6,
-
-            // 4 bit (0x10 - 0x6F)
-            Self::Kigou(kigou) => 0x10 | v_4bit(kigou.to_u8()),
-            Self::Keiyoushi(keiyoushi) => 0x20 | v_4bit(keiyoushi.to_u8()),
-            Self::Joshi(joshi) => 0x30 | v_4bit(joshi.to_u8()),
-            Self::Settoushi(settoushi) => 0x40 | v_4bit(settoushi.to_u8()),
-            Self::Doushi(doushi) => 0x50 | v_4bit(doushi.to_u8()),
-            Self::Fukushi(fukushi) => 0x60 | v_4bit(fukushi.to_u8()),
-
-            // 6 bit (0xC0 - 0xFF)
-            Self::Meishi(meishi) => 0xC0 | v_6bit(meishi.to_u8()),
-        }
+        conversions::pos_to_value(&self)
     }
 
     pub(crate) fn from_u8(n: u8) -> Self {
-        match n >> 4 {
-            0 => match n {
-                0 => Self::Filler,
-                1 => Self::Kandoushi,
-                2 => Self::Jodoushi,
-                3 => Self::Setsuzokushi,
-                4 => Self::Rentaishi,
-                5 => Self::Others,
-                6 => Self::Unknown,
-                _ => panic!("Invalid u8 value for POS (major 0): {}", n),
-            },
-            1 => Self::Kigou(Kigou::from_u8(n & 0x0F)),
-            2 => Self::Keiyoushi(Keiyoushi::from_u8(n & 0x0F)),
-            3 => Self::Joshi(Joshi::from_u8(n & 0x0F)),
-            4 => Self::Settoushi(Settoushi::from_u8(n & 0x0F)),
-            5 => Self::Doushi(Doushi::from_u8(n & 0x0F)),
-            6 => Self::Fukushi(Fukushi::from_u8(n & 0x0F)),
-            12..=15 => Self::Meishi(Meishi::from_u8(n & 0x3F)),
-            _ => panic!("Invalid u8 value for POS: {}", n),
-        }
+        conversions::value_to_pos(n).unwrap_or(Self::Unknown)
     }
 }
 
 impl Display for POS {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match &self {
-            Self::Filler => "フィラー",
-            Self::Kandoushi => "感動詞",
-            Self::Kigou(_) => "記号",
-            Self::Keiyoushi(_) => "形容詞",
-            Self::Joshi(_) => "助詞",
-            Self::Jodoushi => "助動詞",
-            Self::Setsuzokushi => "接続詞",
-            Self::Settoushi(_) => "接頭詞",
-            Self::Doushi(_) => "動詞",
-            Self::Fukushi(_) => "副詞",
-            Self::Meishi(_) => "名詞",
-            Self::Rentaishi => "連体詞",
-
-            Self::Others => "その他",
-
-            Self::Unknown => "*",
-        })?;
-
-        match &self {
-            Self::Kigou(kigou) => write!(f, ",{}", kigou),
-            Self::Keiyoushi(keiyoushi) => write!(f, ",{}", keiyoushi),
-            Self::Joshi(joshi) => write!(f, ",{}", joshi),
-            Self::Settoushi(settoushi) => write!(f, ",{}", settoushi),
-            Self::Doushi(doushi) => write!(f, ",{}", doushi),
-            Self::Fukushi(fukushi) => write!(f, ",{}", fukushi),
-            Self::Meishi(meishi) => write!(f, ",{}", meishi),
-
-            _ => f.write_str(",*,*,*"),
-        }?;
-
+        f.write_str(&conversions::pos_to_string(self))?;
         Ok(())
     }
 }
