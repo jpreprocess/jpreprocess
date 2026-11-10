@@ -27,10 +27,13 @@ const TEST_STR: &[&str] = &[
     "一九〇〇、1900，zAゔょぁ。123,456,789",
     "0123-456-789",
     "事にした．らしかった．対して",
-    // This sentence fails, but I won't fix.
-    // "12,34,567．89"
-    // "クヮルテット。789"
-    // "事にしたらしかった．"
+    "上流の変更に追従する．",
+    // From [ROHAN](https://github.com/mmorise/rohan4600)
+    "ヴィランには大抵、お追従を述べる子分がいます",
+    // These sentences fail, but I won't fix.
+    // "12,34,567．89",
+    // "クヮルテット。789",
+    // "事にしたらしかった．",
 ];
 
 fn test_one(input_text: &'static str) {

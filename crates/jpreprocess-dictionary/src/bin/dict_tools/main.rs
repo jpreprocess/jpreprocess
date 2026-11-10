@@ -1,14 +1,7 @@
-use std::{error::Error, fs::File, io::Write, path::PathBuf};
+use std::{error::Error, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
-use jpreprocess_dictionary::dictionary::{
-    to_csv::dict_to_csv,
-    to_dict::JPreprocessDictionaryBuilder,
-    word_encoding::{
-        JPreprocessDictionaryWordEncoding, LinderaSystemDictionaryWordEncoding,
-        LinderaUserDictionaryWordEncoding,
-    },
-};
+use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
 use lindera::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
 use lindera_dictionary::{builder::DictionaryBuilder, dictionary::metadata::Metadata};
 
@@ -35,11 +28,13 @@ enum Commands {
     },
     /// Build a dictionary for lindera or jpreprocess
     Build {
-        /// User dictionary
+        /// Build user dictionary
         #[arg(short, long)]
         user: bool,
-        /// The serlializer to be used
-        #[arg(value_enum)]
+        /// The serializer to be used
+        ///
+        /// NOTE: `lindera` doesn't reverse `dict.vals`, but `jpreprocess` does (from v0.14.0), causing segmentation differences.
+        /// To align them, build both from the same input and manually copy `dict.vals` from one to the other.
         serializer: Serializer,
         /// The path to the metadata file
         #[arg(short, long)]
@@ -48,21 +43,6 @@ enum Commands {
         input: PathBuf,
         /// The directory(system dictionary) or file(user dictionary) to put the dictionary.
         /// For user dictionary, the parent directory of the output file should not exist.
-        output: PathBuf,
-    },
-    /// Restore the csv file used for building the dictionary
-    Csv {
-        /// User dictionary
-        #[arg(short, long)]
-        user: bool,
-        /// The serlializer to be used
-        #[arg(value_enum)]
-        serializer: Serializer,
-
-        /// The directory(system dictionary) or file(user dictionary) to the dictionary.
-        /// For user dictionary, the parent directory of the output file should not exist.
-        input: PathBuf,
-        /// The path to the output csv file
         output: PathBuf,
     },
 }
@@ -182,59 +162,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     }
                 }
             }
-            println!("done.");
-        }
-        Commands::Csv {
-            user,
-            serializer: serializer_config,
-            input,
-            output,
-        } => {
-            if output.exists() {
-                eprintln!("The output directory {:?} already exists!", output);
-                std::process::exit(-1);
-            } else if !matches!(output.extension(),Some(s) if s.to_str()==Some("csv")) {
-                eprintln!("The output file extension must be csv.");
-                std::process::exit(-1);
-            }
-
-            println!("Loading dictionary...");
-            let dict = if !user {
-                let dict = load_fs_dictionary(&input)?;
-                QueryDict::System(dict)
-            } else {
-                if input.extension().unwrap() != "bin" {
-                    eprintln!("User dictionary must be a `.bin` file.");
-                    std::process::exit(-1);
-                }
-
-                let dict = load_user_dictionary_from_bin(&input)?;
-                QueryDict::User(dict)
-            };
-            println!("Successfully loaded source dictionary.");
-
-            let prefix_dict = dict.dictionary_data();
-
-            println!("Converting dictionary csv...");
-            let csv = match serializer_config {
-                Serializer::Lindera => match dict {
-                    QueryDict::System(_) => {
-                        dict_to_csv::<LinderaSystemDictionaryWordEncoding>(prefix_dict)?
-                    }
-                    QueryDict::User(_) => {
-                        dict_to_csv::<LinderaUserDictionaryWordEncoding>(prefix_dict)?
-                    }
-                },
-                Serializer::Jpreprocess => {
-                    dict_to_csv::<JPreprocessDictionaryWordEncoding>(prefix_dict)?
-                }
-            };
-            println!("done.");
-
-            println!("Writing csv file...");
-            let mut file = File::create(output)?;
-            file.write_all(csv.join("\n").as_bytes())?;
-            file.flush()?;
             println!("done.");
         }
     }

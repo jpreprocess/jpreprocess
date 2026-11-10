@@ -29,20 +29,50 @@ git submodule update --init --recursive
 
 The data is stored in `./data/min-dict` and are used by unit tests in the `src/` directory.
 
-To rebuild the minimized dictionary (e.g. after updating the serialization format), run the following command in the root of the project:
+To rebuild the minimized dictionary (e.g. after updating lindera), run the following command in the root of the project:
 
 ```bash
 cargo run -p tests --bin generate_min_dict_src
-cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/min-dict-src/ ./tests/data/min-dict/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/min-dict-src/ ./tests/data/min-dict/
 ```
 
-### JPreprocess dictionary (full)
+### User dictionary
 
-To run most of the E2E tests, you need to build dictionary from `naist-jdic` using `jpreprocess`. You can do it by running the following command **in the root of the project**:
+Some unit tests use user dictionary stored in `./data/user/`.
+
+To rebuild the user dictionary (e.g. after updating lindera), run the following command in the root of the project:
+
+```bash
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera --user ./tests/data/user/src.csv ./tests/data/user/user.bin
+```
+
+### Full dictionary
+
+To run most of the E2E tests, you need to build dictionary from `naist-jdic`. Follow one of the steps below to build a full dictionary.
+
+#### JPreprocess dictionary
+
+`jpreprocess`-style dictionary can be built using the following command. You can do it by running the following command **in the root of the project**:
 
 ```bash
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/
 ```
+
+#### Lindera dictionary
+
+If you prefer lindera dictionary, where the fields (part of speech, pronunciation, etc.) are encoded as strings, you can build it using the following command although it is a little hacky:
+
+```bash
+mkdir -p ./tests/data/dict/jpreprocess-tmp/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
+cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
+cmp ./tests/data/dict/jpreprocess-tmp/dict.trie ./tests/data/dict/dict.trie && echo "Dictionaries are identical" || echo "Dictionaries differ"
+cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
+cp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx
+rm -rf ./tests/data/dict/jpreprocess-tmp/
+```
+
+The `dict.vals` file is reversed in the `jpreprocess`-style dictionary for backward compatibility (Double array is expected to be identical).
 
 ### OpenJTalk dictionary
 

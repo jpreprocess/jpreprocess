@@ -16,7 +16,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      with:
+        fetch-depth: 0
+        submodules: recursive
 
     - name: Cache Cargo dependencies
       uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
@@ -36,22 +39,22 @@ jobs:
         rm *.tar.gz *.tar.xz
 
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --workspace
     - name: Run tests
-      run: cargo test --verbose -- --include-ignored
+      run: cargo test --verbose --workspace -- --include-ignored
 
     - name: Run Clippy
-      run: cargo clippy --all-targets
+      run: cargo clippy --all-targets --workspace
     - name: Run Format Check
       run: cargo fmt --check
 
   wasm:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+      uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
       with:
           toolchain: stable
           targets: wasm32-unknown-unknown
@@ -71,7 +74,7 @@ jobs:
       with:
         version: 8
 
-    - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: 20
         cache: 'pnpm'
@@ -86,14 +89,14 @@ jobs:
   check-msrv:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
     - name: Get MSRV
       id: msrv
       run: echo "msrv=$(cargo metadata --no-deps --format-version=1 | jq -r ".packages[] | select(.name==\"jpreprocess\") | .rust_version")" >> $GITHUB_OUTPUT
 
     - name: Install Rust
-      uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # master
+      uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
       with:
           toolchain: ${{ steps.msrv.outputs.msrv }}
 
@@ -107,3 +110,31 @@ jobs:
 
     - name: Run test
       run: cargo test --verbose
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
+      with:
+          toolchain: nightly
+
+    - name: Cache Cargo dependencies
+      uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+
+    - name: Install cargo-docs-rs
+      run: cargo install cargo-docs-rs
+
+    - name: Generate documentation
+      run: |
+        default_members=$(cargo metadata --no-deps --format-version=1 | jq -r '
+          .workspace_default_members as $defaults
+          | .packages[]
+          | select([.id] | inside($defaults))
+          | .name
+        ')
+        while read -r member; do
+          cargo docs-rs --package "$member"
+        done <<< "$default_members"

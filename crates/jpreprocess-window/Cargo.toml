@@ -11,3 +11,7 @@ categories.workspace = true
 rust-version.workspace = true
 
 documentation = "https://docs.rs/jpreprocess-window"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

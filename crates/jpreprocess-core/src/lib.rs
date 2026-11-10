@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 pub mod accent_rule;
 pub mod error;
 pub mod pos;

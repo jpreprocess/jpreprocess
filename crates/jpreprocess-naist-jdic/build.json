@@ -6,7 +6,6 @@
   "metadata": {
     "name": "jpreprocess naist-jdic",
     "encoding": "UTF-8",
-    "compress_algorithm": "deflate",
     "default_word_cost": -10000,
     "default_left_context_id": 1288,
     "default_right_context_id": 1288,

@@ -40,6 +40,8 @@
 //! # fn main() {}
 //! ```
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 #[doc(hidden)]
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -73,8 +75,18 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// # #[cfg(feature = "tokenizer")]
     /// # fn main() -> Result<(), Box<dyn Error>> {
     /// # let path = PathBuf::from("../../tests/data/min-dict");
-    /// let system = SystemDictionaryConfig::File(path).load()?;
-    /// let jpreprocess = JPreprocess::with_dictionaries(system, None);
+    /// // Note: If you are using a standard JPreprocess or Lindera dictionary,
+    /// // [`JPreprocess::with_dictionaries`] is a more convenient alternative.
+    /// // Use `from_tokenizer` only if you need a customized `Tokenizer` or
+    /// // want to plug in a non-Lindera tokenizer (see example-vibrato).
+    /// let system = lindera::dictionary::load_fs_dictionary(path.as_path())?;
+    /// let segmenter = lindera::segmenter::Segmenter::new(
+    ///     lindera::mode::Mode::Normal,
+    ///     system,
+    ///     None,
+    /// );
+    ///
+    /// let jpreprocess = JPreprocess::from_tokenizer(segmenter);
     ///
     /// let mut njd = jpreprocess.text_to_njd("日本語文を解析し、音声合成エンジンに渡せる形式に変換します．")?;
     /// njd.preprocess();
@@ -211,7 +223,13 @@ mod default_tokenizer_impl {
 
         /// Creates JPreprocess with provided dictionary data.
         ///
-        /// ## Example 1: Load from file
+        /// Prebuilt `naist-jdic` dictionaries are available on [GitHub releases](https://github.com/jpreprocess/jpreprocess/releases).
+        /// To build custom dictionaries, download the `.tgz` archive for your environment (e.g. jpreprocess-x86_64-unknown-linux-gnu.tgz for x86_64 linux)
+        /// and use the bundled `dict_tools` executable.
+        ///
+        /// ## System dictionary
+        ///
+        /// ### Example 1: Load from file
         ///
         /// ```rust
         /// # use std::error::Error;
@@ -226,7 +244,7 @@ mod default_tokenizer_impl {
         /// # }
         /// ```
         ///
-        /// ## Example 2: Load bundled dictionary (This requires a feature to be enabled)
+        /// ### Example 2: Load bundled dictionary (This requires a feature to be enabled)
         ///
         /// ```rust
         /// # use std::error::Error;
@@ -241,17 +259,36 @@ mod default_tokenizer_impl {
         /// # #[cfg(not(feature = "naist-jdic"))]
         /// # fn main() {}
         /// ```
+        ///
+        /// ## User Dictionary
+        ///
+        /// ```rust
+        /// # use std::error::Error;
+        /// # use std::path::PathBuf;
+        /// use jpreprocess::*;
+        /// use lindera_dictionary::loader::user_dictionary::UserDictionaryLoader;
+        ///
+        /// # fn main() -> Result<(), Box<dyn Error>> {
+        /// #     let sys_path = PathBuf::from("../../tests/data/min-dict");
+        /// let system = SystemDictionaryConfig::File(sys_path).load()?;
+        /// #     let user_path = PathBuf::from("../../tests/data/user/");
+        /// // Binary dictionary built using `dict_tools` or lindera's dictionary builder
+        /// let user = UserDictionaryLoader::load_from_bin(user_path.join("user.bin"))?;
+        /// let jpreprocess = JPreprocess::with_dictionaries(system, Some(user));
+        /// #     Ok(())
+        /// # }
+        /// ```
         pub fn with_dictionaries(
             dictionary: Dictionary,
             user_dictionary: Option<UserDictionary>,
         ) -> Self {
-            let tokenizer = lindera::tokenizer::Tokenizer::new(lindera::segmenter::Segmenter::new(
+            let segmenter = lindera::segmenter::Segmenter::new(
                 lindera_dictionary::mode::Mode::Normal,
                 dictionary,
                 user_dictionary,
-            ));
+            );
 
-            let tokenizer = DefaultTokenizer::new(tokenizer);
+            let tokenizer = DefaultTokenizer::new(segmenter);
 
             Self::from_tokenizer(tokenizer)
         }

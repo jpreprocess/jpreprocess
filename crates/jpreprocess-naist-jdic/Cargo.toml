@@ -21,6 +21,10 @@ include = [
   "README.md",
 ]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 naist-jdic = [
   "dep:tokio",
@@ -31,7 +35,6 @@ naist-jdic = [
   "dep:bincode",
   "dep:serde",
   "dep:serde_json",
-  "lindera-dictionary/compress",
 ]
 
 [dependencies]

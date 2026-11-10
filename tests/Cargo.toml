@@ -14,7 +14,7 @@ rust-version.workspace = true
 naist-jdic = ["jpreprocess/naist-jdic"]
 
 [dependencies]
-jpreprocess.workspace = true
+jpreprocess = { workspace = true, features = ["tokenizer"] }
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true
 jpreprocess-njd.workspace = true
