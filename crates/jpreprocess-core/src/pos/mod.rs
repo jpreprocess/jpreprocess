@@ -9,6 +9,8 @@ mod kigou;
 mod meishi;
 mod settoushi;
 
+mod conversions;
+
 pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
