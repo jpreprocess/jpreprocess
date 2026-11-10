@@ -49,7 +49,6 @@ pub enum KoyuMeishi {
     Region(Region),
 }
 
-
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 人名
 pub enum Person {
@@ -61,7 +60,6 @@ pub enum Person {
     Mei,
 }
 
-
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 地域
 pub enum Region {
@@ -70,7 +68,6 @@ pub enum Region {
     /// 国
     Country,
 }
-
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 名詞・接尾
@@ -94,7 +91,6 @@ pub enum Setsubi {
     /// 副詞可能
     FukushiKanou,
 }
-
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 代名詞

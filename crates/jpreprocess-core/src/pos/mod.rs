@@ -11,8 +11,6 @@ mod settoushi;
 
 mod conversions;
 
-pub use crate::pos::conversions::POSParseError;
-
 pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
 #[derive(Debug, PartialEq, Eq)]
@@ -92,7 +90,7 @@ pub enum POS {
 }
 
 impl POS {
-    pub fn from_strs(g0: &str, g1: &str, g2: &str, g3: &str) -> Result<Self, POSParseError> {
+    pub fn from_strs(g0: &str, g1: &str, g2: &str, g3: &str) -> Self {
         conversions::string_to_pos([g0, g1, g2, g3])
     }
 
@@ -133,28 +131,28 @@ mod tests {
 
     #[test]
     fn filler() {
-        let pos = POS::from_strs("フィラー", "*", "*", "*").unwrap();
+        let pos = POS::from_strs("フィラー", "*", "*", "*");
         assert!(matches!(pos, POS::Filler));
         assert_eq!(pos.to_string(), "フィラー,*,*,*")
     }
 
     #[test]
     fn joshi() {
-        let pos = POS::from_strs("助詞", "副助詞／並立助詞／終助詞", "*", "*").unwrap();
+        let pos = POS::from_strs("助詞", "副助詞／並立助詞／終助詞", "*", "*");
         assert!(matches!(pos, POS::Joshi(Joshi::FukuHeiritsuShuJoshi)));
         assert_eq!(pos.to_string(), "助詞,副助詞／並立助詞／終助詞,*,*")
     }
 
     #[test]
     fn meishi() {
-        let pos = POS::from_strs("名詞", "*", "*", "*").unwrap();
+        let pos = POS::from_strs("名詞", "*", "*", "*");
         assert!(matches!(pos, POS::Meishi(Meishi::None)));
         assert_eq!(pos.to_string(), "名詞,*,*,*")
     }
 
     #[test]
     fn koyumeishi() {
-        let pos = POS::from_strs("名詞", "固有名詞", "人名", "姓").unwrap();
+        let pos = POS::from_strs("名詞", "固有名詞", "人名", "姓");
         assert!(matches!(
             pos,
             POS::Meishi(Meishi::KoyuMeishi(KoyuMeishi::Person(Person::Sei)))

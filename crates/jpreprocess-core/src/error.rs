@@ -1,5 +1,5 @@
 use crate::{
-    accent_rule::AccentRuleParseError, ctype::CTypeParseError, pos::POSParseError,
+    accent_rule::AccentRuleParseError, ctype::CTypeParseError,
     pronunciation::PronunciationParseError,
 };
 
@@ -14,8 +14,6 @@ pub enum JPreprocessError {
     LinderaError(#[from] lindera::error::LinderaError),
     #[error("Failed to parse pronunciation: {0}")]
     PronunciationParseError(#[from] PronunciationParseError),
-    #[error("Failed to parse part of speech (POS): {0}")]
-    PartOfSpeechParseError(#[from] POSParseError),
     #[error("Failed to parse conjugation type (CType): {0}")]
     CTypeParseError(#[from] CTypeParseError),
     #[error("Failed to parse conjugation form (CForm)")]

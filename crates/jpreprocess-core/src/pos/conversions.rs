@@ -5,39 +5,25 @@ use crate::pos::{
 
 use super::POS;
 
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
-#[error("Failed to parse part of speech (POS) from strings: {pos_strings:?}, search string: {search_string}")]
-pub struct POSParseError {
-    pos_strings: [String; 4],
-    search_string: String,
-}
+pub fn string_to_pos(pos_strings: [&str; 4]) -> POS {
+    let mut is_trimmable = true;
+    for i in (0..4).rev() {
+        if is_trimmable {
+            if pos_strings[i].is_empty() || pos_strings[i] == "*" {
+                continue;
+            } else {
+                is_trimmable = false;
+            }
+        }
 
-impl POSParseError {
-    pub(crate) fn new(pos_strings: [&str; 4], search_string: String) -> Self {
-        Self {
-            pos_strings: [
-                pos_strings[0].to_string(),
-                pos_strings[1].to_string(),
-                pos_strings[2].to_string(),
-                pos_strings[3].to_string(),
-            ],
-            search_string,
+        let search_string = pos_strings[..=i].join(",");
+        if let Some(pos) = STRING_POS_CONVERSION_TABLE.get(&search_string) {
+            return *pos;
+        } else {
+            eprintln!("Unknown POS string: {}, {}", search_string, i);
         }
     }
-}
-
-pub fn string_to_pos(pos_strings: [&str; 4]) -> Result<POS, POSParseError> {
-    let last_pos_index = pos_strings
-        .iter()
-        .rposition(|s| !s.is_empty() && *s != "*")
-        .unwrap_or(0);
-
-    let search_string = pos_strings[..=last_pos_index].join(",");
-    if let Some(pos) = STRING_POS_CONVERSION_TABLE.get(search_string.as_str()) {
-        Ok(*pos)
-    } else {
-        Err(POSParseError::new(pos_strings, search_string))
-    }
+    POS::Unknown
 }
 
 pub fn value_to_pos(pos_value: u8) -> Option<POS> {

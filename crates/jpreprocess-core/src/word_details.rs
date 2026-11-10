@@ -166,7 +166,7 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 &value.pos_group1,
                 &value.pos_group2,
                 &value.pos_group3,
-            )?,
+            ),
             ctype: CType::from_str(&value.ctype)?,
             cform: CForm::from_str(&value.cform)?,
             chain_rule: ChainRules::new(&value.chain_rule),

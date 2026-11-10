@@ -10,4 +10,3 @@ pub enum Fukushi {
     /// 助詞類接続
     JoshiruiSetsuzoku,
 }
-
