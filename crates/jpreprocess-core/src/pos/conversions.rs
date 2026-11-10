@@ -49,32 +49,29 @@ pub fn pos_to_value(pos: &POS) -> u8 {
 }
 
 macro_rules! pos_conversions {
-    (@map_string $( $pos:expr => $value:literal, $string:literal ),* $(,)?) => {
-        phf::phf_map! {
+    (@map $( $pos:expr => $value:literal, $string:literal ),* $(,)?) => {
+        const STRING_POS_CONVERSION_TABLE: phf::Map<&'static str, POS> = phf::phf_map! {
             $($string => $pos,)*
-        }
-    };
-    (@map_value $( $pos:expr => $value:literal, $string:literal ),* $(,)?) => {
-        {
+        };
+        const VALUE_POS_CONVERSION_TABLE: [POS; 75] = {
             let mut table = [POS::Unknown; 75];
             $(
                 table[$value as usize] = $pos;
             )*
             table
-        }
+        };
     };
-    (@match $target:expr, $( $pos:pat => $value:literal, $string:literal ),* $(,)?) => {
-        match $target {
-            $($pos => ($string, $value),)*
+    (@match $( $pos:pat => $value:literal, $string:literal ),* $(,)?) => {
+        fn get_by_pos(pos: &POS) -> (&'static str, u8) {
+            match pos {
+                $($pos => ($string, $value),)*
+            }
         }
     };
 
     ($($tokens:tt)*) => {
-        const STRING_POS_CONVERSION_TABLE: phf::Map<&'static str, POS> = pos_conversions!(@map_string $($tokens)*);
-        const VALUE_POS_CONVERSION_TABLE: [POS; 75] = pos_conversions!(@map_value $($tokens)*);
-        fn get_by_pos(pos: &POS) -> (&'static str, u8) {
-            pos_conversions!(@match pos, $($tokens)*)
-        }
+        pos_conversions!(@map $($tokens)*);
+        pos_conversions!(@match $($tokens)*);
     };
 }
 
