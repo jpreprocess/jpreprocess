@@ -37,9 +37,17 @@ pub enum DictionaryError {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum BinaryParseError {
-    #[error("Unexpected end of buffer while reading byte in component {0:?}")]
-    UnexpectedEndOfBuffer(ParserComponent),
+#[error("Failed to parse binary dictionary: {kind} in component {component:?}")]
+pub struct BinaryParseError {
+    #[source]
+    pub kind: BinaryParseErrorKind,
+    pub component: ParserComponent,
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum BinaryParseErrorKind {
+    #[error("Unexpected end of buffer while reading byte")]
+    UnexpectedEndOfBuffer,
 }
 
 #[derive(Debug)]

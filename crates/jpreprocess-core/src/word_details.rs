@@ -6,10 +6,10 @@ use crate::{
     accent_rule::ChainRules,
     cform::CForm,
     ctype::CType,
-    error::{BinaryParseError, ParserComponent},
+    error::{BinaryParseErrorKind, ParserComponent},
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
-    varint::{read_u8, VarInt},
+    varint::{NextByteIterator, VarIntDecode, VarIntEncode},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };
@@ -109,35 +109,39 @@ impl WordDetails {
         result
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
-        fn from_bin_read<I: Iterator<Item = u8>>(iter: &mut I) -> Option<String> {
-            let read_len = isize::from_varint(iter);
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, BinaryParseErrorKind> {
+        fn from_bin_read<I: Iterator<Item = u8>>(
+            iter: &mut I,
+        ) -> Result<Option<String>, BinaryParseErrorKind> {
+            let read_len: isize = iter.parse_varint()?;
             if read_len >= 0 {
                 let mut read_str = String::with_capacity(read_len as usize);
 
                 while read_str.len() < read_len as usize {
-                    let diff = i32::from_varint(iter);
+                    let diff: i32 = iter.parse_varint()?;
                     read_str.push(
                         char::from_u32((diff + 0x30CD) as u32)
                             .expect("Cannot parse read string from buffer"),
                     );
                 }
 
-                Some(read_str)
+                Ok(Some(read_str))
             } else {
-                None
+                Ok(None)
             }
         }
 
-        let pos = POS::from_u8(read_u8(iter, ParserComponent::POS)?);
-        let ctype = CType::from_u8(read_u8(iter, ParserComponent::CType)?);
-        let cform = CForm::from_u8(read_u8(iter, ParserComponent::CForm)?);
+        let pos = POS::from_u8(iter.next_byte()?);
+        let ctype = CType::from_u8(iter.next_byte()?);
+        let cform = CForm::from_u8(iter.next_byte()?);
 
-        let read = from_bin_read(iter);
+        let read = from_bin_read(iter)?;
         let pron = Pronunciation::from_bin(iter)?;
         let chain_rule = ChainRules::from_bin(iter)?;
 
-        let chain_flag = match read_u8(iter, ParserComponent::ChainFlag)? {
+        let chain_flag = match iter.next_byte()? {
             1 => Some(true),
             0 => Some(false),
             255 => None,

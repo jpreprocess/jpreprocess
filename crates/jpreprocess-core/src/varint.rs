@@ -1,13 +1,27 @@
-use crate::error::ParserComponent;
+use crate::error::BinaryParseErrorKind;
 
-pub(crate) trait VarInt {
+pub(crate) trait NextByteIterator: Iterator<Item = u8> {
+    fn next_byte(&mut self) -> Result<u8, BinaryParseErrorKind>;
+}
+
+impl<I: Iterator<Item = u8>> NextByteIterator for I {
+    fn next_byte(&mut self) -> Result<u8, BinaryParseErrorKind> {
+        self.next()
+            .ok_or(BinaryParseErrorKind::UnexpectedEndOfBuffer)
+    }
+}
+
+pub(crate) trait VarIntEncode {
     fn to_varint(self) -> impl Iterator<Item = u8>;
-    fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self;
+}
+
+pub(crate) trait VarIntDecode<T: VarIntEncode>: Iterator<Item = u8> {
+    fn parse_varint(&mut self) -> Result<T, BinaryParseErrorKind>;
 }
 
 macro_rules! u_varint {
     ($t:ty) => {
-        impl VarInt for $t {
+        impl VarIntEncode for $t {
             fn to_varint(self) -> impl Iterator<Item = u8> {
                 struct VarIntIter($t, bool);
                 impl Iterator for VarIntIter {
@@ -35,15 +49,15 @@ macro_rules! u_varint {
                 }
                 VarIntIter(self, false)
             }
+        }
 
-            fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
+        impl<T: Iterator<Item = u8>> VarIntDecode<$t> for T {
+            fn parse_varint(&mut self) -> Result<$t, BinaryParseErrorKind> {
                 let mut n: $t = 0;
                 let mut shift = 0;
 
                 loop {
-                    let byte = iter
-                        .next()
-                        .expect("Unexpected end of buffer while reading varint");
+                    let byte = self.next_byte()?;
                     n |= ((byte & 0x7F) as $t) << shift;
                     shift += 7;
                     if byte & 0x80 == 0 {
@@ -51,7 +65,7 @@ macro_rules! u_varint {
                     }
                 }
 
-                n
+                Ok(n)
             }
         }
     };
@@ -62,15 +76,16 @@ u_varint!(u32);
 
 macro_rules! i_varint {
     ($ti:ty,$tu:ty) => {
-        impl VarInt for $ti {
+        impl VarIntEncode for $ti {
             fn to_varint(self) -> impl Iterator<Item = u8> {
                 let n = ((self << 1) ^ (self >> (std::mem::size_of::<$ti>() * 8 - 1))) as $tu; // ZigZag encoding
                 <$tu>::to_varint(n)
             }
-
-            fn from_varint<I: Iterator<Item = u8>>(iter: &mut I) -> Self {
-                let n = <$tu>::from_varint(iter);
-                ((n >> 1) as $ti) ^ (-((n & 1) as $ti)) // ZigZag decoding
+        }
+        impl<T: Iterator<Item = u8>> VarIntDecode<$ti> for T {
+            fn parse_varint(&mut self) -> Result<$ti, BinaryParseErrorKind> {
+                let n: $tu = self.parse_varint()?;
+                Ok(((n >> 1) as $ti) ^ (-((n & 1) as $ti))) // ZigZag decoding
             }
         }
     };
@@ -78,16 +93,6 @@ macro_rules! i_varint {
 
 i_varint!(isize, usize);
 i_varint!(i32, u32);
-
-pub(crate) fn read_u8<I: Iterator<Item = u8>>(
-    iter: &mut I,
-    component: ParserComponent,
-) -> Result<u8, crate::error::BinaryParseError> {
-    iter.next()
-        .ok_or(crate::error::BinaryParseError::UnexpectedEndOfBuffer(
-            component,
-        ))
-}
 
 #[cfg(test)]
 mod tests {
@@ -103,7 +108,7 @@ mod tests {
             let varint_bytes: Vec<u8> = varint_iter.collect();
             assert_eq!(expected_len, varint_bytes.len());
 
-            let decoded_value = u32::from_varint(&mut varint_bytes.into_iter());
+            let decoded_value: u32 = varint_bytes.into_iter().parse_varint().unwrap();
             assert_eq!(value, decoded_value, "Failed for value: {}", value);
         }
     }
@@ -117,7 +122,7 @@ mod tests {
             let varint_bytes: Vec<u8> = varint_iter.collect();
             assert_eq!(expected_len, varint_bytes.len());
 
-            let decoded_value = i32::from_varint(&mut varint_bytes.into_iter());
+            let decoded_value: i32 = varint_bytes.into_iter().parse_varint().unwrap();
             assert_eq!(value, decoded_value, "Failed for value: {}", value);
         }
     }

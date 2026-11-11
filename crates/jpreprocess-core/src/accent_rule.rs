@@ -8,8 +8,8 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    error::{BinaryParseError, ParserComponent},
-    varint::{read_u8, VarInt},
+    error::BinaryParseErrorKind,
+    varint::{NextByteIterator, VarIntDecode, VarIntEncode},
     JPreprocessResult,
 };
 
@@ -160,9 +160,11 @@ impl ChainRule {
         buf
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
-        let accent_type = AccentType::from_u8(read_u8(iter, ParserComponent::ChainRule)?);
-        let add_type = isize::from_varint(iter);
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, BinaryParseErrorKind> {
+        let accent_type = AccentType::from_u8(iter.next_byte()?);
+        let add_type = iter.parse_varint()?;
         Ok(Self::new(accent_type, add_type))
     }
 }
@@ -307,9 +309,11 @@ impl ChainRules {
         buf
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, BinaryParseErrorKind> {
         let mut result = Self::default();
-        let flags = read_u8(iter, ParserComponent::ChainRule)?;
+        let flags = iter.next_byte()?;
         if flags & (1 << 0) != 0 {
             let rule = ChainRule::from_bin(iter)?;
             result.default = Some(rule);
