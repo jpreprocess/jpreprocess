@@ -6,7 +6,7 @@ use crate::{
     accent_rule::ChainRules,
     cform::CForm,
     ctype::CType,
-    error::{BinaryParseErrorKind, ParserComponent},
+    error::{BinaryParseError, BinaryParseErrorKind, ParserComponent},
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
     varint::{NextByteIterator, VarIntDecode, VarIntEncode},
@@ -109,9 +109,7 @@ impl WordDetails {
         result
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
-        iter: &mut I,
-    ) -> Result<Self, BinaryParseErrorKind> {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
         fn from_bin_read<I: Iterator<Item = u8>>(
             iter: &mut I,
         ) -> Result<Option<String>, BinaryParseErrorKind> {
@@ -133,15 +131,26 @@ impl WordDetails {
             }
         }
 
-        let pos = POS::from_u8(iter.next_byte()?);
-        let ctype = CType::from_u8(iter.next_byte()?);
-        let cform = CForm::from_u8(iter.next_byte()?);
+        let pos = POS::from_u8(iter.next_byte().map_err(|e| e.with(ParserComponent::POS))?);
+        let ctype = CType::from_u8(
+            iter.next_byte()
+                .map_err(|e| e.with(ParserComponent::CType))?,
+        );
+        let cform = CForm::from_u8(
+            iter.next_byte()
+                .map_err(|e| e.with(ParserComponent::CForm))?,
+        );
 
-        let read = from_bin_read(iter)?;
-        let pron = Pronunciation::from_bin(iter)?;
-        let chain_rule = ChainRules::from_bin(iter)?;
+        let read = from_bin_read(iter).map_err(|e| e.with(ParserComponent::Read))?;
+        let pron =
+            Pronunciation::from_bin(iter).map_err(|e| e.with(ParserComponent::Pronunciation))?;
+        let chain_rule =
+            ChainRules::from_bin(iter).map_err(|e| e.with(ParserComponent::ChainRule))?;
 
-        let chain_flag = match iter.next_byte()? {
+        let chain_flag = match iter
+            .next_byte()
+            .map_err(|e| e.with(ParserComponent::ChainFlag))?
+        {
             1 => Some(true),
             0 => Some(false),
             255 => None,

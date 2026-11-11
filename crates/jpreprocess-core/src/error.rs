@@ -50,8 +50,15 @@ pub enum BinaryParseErrorKind {
     UnexpectedEndOfBuffer,
 }
 
+impl BinaryParseErrorKind {
+    pub fn with(self, component: ParserComponent) -> BinaryParseError {
+        BinaryParseError { kind: self, component }
+    }
+}
+
 #[derive(Debug)]
 pub enum ParserComponent {
+    WordEntry,
     POS,
     CType,
     CForm,
