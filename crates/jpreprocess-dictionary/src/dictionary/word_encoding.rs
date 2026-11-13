@@ -11,13 +11,15 @@ pub struct JPreprocessDictionaryWordEncoding;
 impl JPreprocessDictionaryWordEncoding {
     pub fn serialize(
         data: &jpreprocess_core::word_entry::WordEntry,
-    ) -> Result<Vec<u8>, jpreprocess_core::error::DictionaryError> {
+    ) -> Result<Vec<u8>, jpreprocess_core::error::DictionaryCodecError> {
         Ok(data.to_bin())
     }
     pub fn deserialize(
         data: &[u8],
-    ) -> Result<jpreprocess_core::word_entry::WordEntry, jpreprocess_core::error::DictionaryError>
-    {
+    ) -> Result<
+        jpreprocess_core::word_entry::WordEntry,
+        jpreprocess_core::error::DictionaryCodecError,
+    > {
         let mut iter = data.iter().copied();
         let entry = jpreprocess_core::word_entry::WordEntry::from_bin(&mut iter)?;
         Ok(entry)
