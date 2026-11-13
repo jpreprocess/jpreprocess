@@ -1,14 +1,5 @@
-use std::str::FromStr;
-
 use jpreprocess_core::{
-    accent_rule::ChainRules,
-    cform::CForm,
-    ctype::CType,
-    pos::POS,
-    pronunciation::{Pronunciation, PronunciationParseError},
-    word_details::WordDetails,
-    word_entry::WordEntry,
-    JPreprocessError,
+    word_details::WordDetails, word_entry::WordEntry, word_line::WordDetailsLine, JPreprocessError,
 };
 use jpreprocess_njd::NJDNode;
 use pyo3::{prelude::*, BoundObject};
@@ -94,34 +85,25 @@ impl From<NJDNode> for NjdObject {
 impl TryFrom<NjdObject> for NJDNode {
     type Error = JPreprocessError;
     fn try_from(value: NjdObject) -> Result<Self, Self::Error> {
-        let details = WordDetails {
-            pos: POS::from_strs(
-                &value.pos,
-                &value.pos_group1,
-                &value.pos_group2,
-                &value.pos_group3,
-            )?,
-            ctype: CType::from_str(&value.ctype)?,
-            cform: CForm::from_str(&value.cform)?,
-            read: match value.read.as_str() {
-                "*" => None,
-                read => Some(read.to_string()),
-            },
-            pron: Pronunciation::parse(&value.pron, value.acc)?,
-            chain_rule: ChainRules::new(&value.chain_rule),
+        let line = WordDetailsLine {
+            pos: value.pos,
+            pos_group1: value.pos_group1,
+            pos_group2: value.pos_group2,
+            pos_group3: value.pos_group3,
+            ctype: value.ctype,
+            cform: value.cform,
+            orig: value.orig,
+            read: value.read,
+            pron: value.pron,
+            acc_morasize: format!("{}/{}", value.acc, value.mora_size),
+            chain_rule: value.chain_rule,
             chain_flag: match value.chain_flag {
-                1 => Some(true),
-                0 => Some(false),
-                _ => None,
+                1 => "1".to_string(),
+                0 => "0".to_string(),
+                _ => "*".to_string(),
             },
         };
-        if details.pron.mora_size() != value.mora_size {
-            return Err(PronunciationParseError::MoraSizeMismatch(
-                value.mora_size,
-                details.pron.mora_size(),
-            )
-            .into());
-        }
+        let details = WordDetails::try_from(line)?;
         let node = NJDNode::load(&value.string, &WordEntry::Single(details));
         Ok(node[0].to_owned())
     }
