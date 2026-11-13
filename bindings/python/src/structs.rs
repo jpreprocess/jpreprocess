@@ -1,4 +1,6 @@
-use jpreprocess_core::{word_entry::WordEntry, word_line::WordDetailsLine, JPreprocessError};
+use jpreprocess_core::{
+    word_details::WordDetails, word_entry::WordEntry, word_line::WordDetailsLine, JPreprocessError,
+};
 use jpreprocess_njd::NJDNode;
 use pyo3::{prelude::*, BoundObject};
 use pythonize::{depythonize, pythonize};
@@ -101,8 +103,8 @@ impl TryFrom<NjdObject> for NJDNode {
                 _ => "*".to_string(),
             },
         };
-        let entry = WordEntry::try_from(line)?;
-        let node = NJDNode::load(&value.string, &entry);
+        let details = WordDetails::try_from(line)?;
+        let node = NJDNode::load(&value.string, &WordEntry::Single(details));
         Ok(node[0].to_owned())
     }
 }
