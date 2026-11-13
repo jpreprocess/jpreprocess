@@ -1,7 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
-use crate::JPreprocessError;
+#[derive(Debug, thiserror::Error)]
+pub enum CFormParseError {
+    #[error("Invalid CForm string: {0}")]
+    InvalidString(String),
+    #[error("Invalid CForm value: {0}")]
+    InvalidValue(u8),
+}
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用形
@@ -113,45 +119,45 @@ impl CForm {
         }
     }
 
-    pub(crate) fn from_u8(n: u8) -> Self {
+    pub(crate) fn from_u8(n: u8) -> Result<Self, CFormParseError> {
         match n {
-            0 => Self::ConjunctionGaru,
-            1 => Self::BasicEuphony,
-            2 => Self::Conditional,
-            3 => Self::ConditionalContraction1,
-            4 => Self::ConditionalContraction2,
-            5 => Self::Basic,
-            6 => Self::BasicDoubledConsonant,
-            7 => Self::BasicModern,
-            8 => Self::TaigenConjunction,
-            9 => Self::TaigenConjunctionSpecial,
-            10 => Self::TaigenConjunctionSpecial2,
-            11 => Self::BasicOld,
-            12 => Self::MizenConjunctionU,
-            13 => Self::MizenConjunctionNu,
-            14 => Self::MizenConjunctionReru,
-            15 => Self::Mizen,
-            16 => Self::MizenSpecial,
-            17 => Self::ImperativeE,
-            18 => Self::ImperativeI,
-            19 => Self::ImperativeRo,
-            20 => Self::ImperativeYo,
-            21 => Self::RenyouConjunctionGozai,
-            22 => Self::RenyouConjunctionTa,
-            23 => Self::RenyouConjunctionTe,
-            24 => Self::RenyouConjunctionDe,
-            25 => Self::RenyouConjunctionNi,
-            26 => Self::Renyou,
+            0 => Ok(Self::ConjunctionGaru),
+            1 => Ok(Self::BasicEuphony),
+            2 => Ok(Self::Conditional),
+            3 => Ok(Self::ConditionalContraction1),
+            4 => Ok(Self::ConditionalContraction2),
+            5 => Ok(Self::Basic),
+            6 => Ok(Self::BasicDoubledConsonant),
+            7 => Ok(Self::BasicModern),
+            8 => Ok(Self::TaigenConjunction),
+            9 => Ok(Self::TaigenConjunctionSpecial),
+            10 => Ok(Self::TaigenConjunctionSpecial2),
+            11 => Ok(Self::BasicOld),
+            12 => Ok(Self::MizenConjunctionU),
+            13 => Ok(Self::MizenConjunctionNu),
+            14 => Ok(Self::MizenConjunctionReru),
+            15 => Ok(Self::Mizen),
+            16 => Ok(Self::MizenSpecial),
+            17 => Ok(Self::ImperativeE),
+            18 => Ok(Self::ImperativeI),
+            19 => Ok(Self::ImperativeRo),
+            20 => Ok(Self::ImperativeYo),
+            21 => Ok(Self::RenyouConjunctionGozai),
+            22 => Ok(Self::RenyouConjunctionTa),
+            23 => Ok(Self::RenyouConjunctionTe),
+            24 => Ok(Self::RenyouConjunctionDe),
+            25 => Ok(Self::RenyouConjunctionNi),
+            26 => Ok(Self::Renyou),
 
-            27 => Self::None,
+            27 => Ok(Self::None),
 
-            _ => panic!("Invalid u8 value for CForm: {}", n),
+            _ => Err(CFormParseError::InvalidValue(n)),
         }
     }
 }
 
 impl FromStr for CForm {
-    type Err = JPreprocessError;
+    type Err = CFormParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ガル接続" => Ok(Self::ConjunctionGaru),
@@ -184,7 +190,7 @@ impl FromStr for CForm {
 
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessError::CFormParseError),
+            _ => Err(CFormParseError::InvalidString(s.to_string())),
         }
     }
 }

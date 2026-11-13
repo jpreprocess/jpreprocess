@@ -6,13 +6,27 @@ use crate::{
     accent_rule::ChainRules,
     cform::CForm,
     ctype::CType,
-    error::{BinaryParseError, BinaryParseErrorKind, ParserComponent},
+    error::DictionaryCodecError,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
-    varint::{NextByteIterator, VarIntDecode, VarIntEncode},
+    varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };
+
+#[derive(Debug, thiserror::Error)]
+pub enum WordDetailsError {
+    #[error("Unexpected end of buffer while reading POS byte")]
+    POSEOBError,
+    #[error("Unexpected end of buffer while reading CType byte")]
+    CTypeEOBError,
+    #[error("Unexpected end of buffer while reading CForm byte")]
+    CFormEOBError,
+    #[error("Unexpected end of buffer while reading read string")]
+    ReadEOBError,
+    #[error("Unexpected end of buffer while reading chain_flag byte")]
+    ChainFlagEOBError,
+}
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct WordDetails {
@@ -54,7 +68,8 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        self.pron = Pronunciation::parse_csv_pron(pron, acc_morasize)?;
+        self.pron = Pronunciation::parse_csv_pron(pron, acc_morasize)
+            .map_err(DictionaryCodecError::from)?;
         self.chain_flag = Some(false);
         Ok(())
     }
@@ -109,10 +124,12 @@ impl WordDetails {
         result
     }
 
-    pub(crate) fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, DictionaryCodecError> {
         fn from_bin_read<I: Iterator<Item = u8>>(
             iter: &mut I,
-        ) -> Result<Option<String>, BinaryParseErrorKind> {
+        ) -> Result<Option<String>, UnexpectedEndOfBufferError> {
             let read_len: isize = iter.parse_varint()?;
             if read_len >= 0 {
                 let mut read_str = String::with_capacity(read_len as usize);
@@ -131,25 +148,26 @@ impl WordDetails {
             }
         }
 
-        let pos = POS::from_u8(iter.next_byte().map_err(|e| e.with(ParserComponent::POS))?);
+        let pos = POS::from_u8(
+            iter.next_byte()
+                .map_err(|_| WordDetailsError::POSEOBError)?,
+        );
         let ctype = CType::from_u8(
             iter.next_byte()
-                .map_err(|e| e.with(ParserComponent::CType))?,
-        );
+                .map_err(|_| WordDetailsError::CTypeEOBError)?,
+        )?;
         let cform = CForm::from_u8(
             iter.next_byte()
-                .map_err(|e| e.with(ParserComponent::CForm))?,
-        );
+                .map_err(|_| WordDetailsError::CFormEOBError)?,
+        )?;
 
-        let read = from_bin_read(iter).map_err(|e| e.with(ParserComponent::Read))?;
-        let pron =
-            Pronunciation::from_bin(iter).map_err(|e| e.with(ParserComponent::Pronunciation))?;
-        let chain_rule =
-            ChainRules::from_bin(iter).map_err(|e| e.with(ParserComponent::ChainRule))?;
+        let read = from_bin_read(iter).map_err(|_| WordDetailsError::ReadEOBError)?;
+        let pron = Pronunciation::from_bin(iter)?;
+        let chain_rule = ChainRules::from_bin(iter)?;
 
         let chain_flag = match iter
             .next_byte()
-            .map_err(|e| e.with(ParserComponent::ChainFlag))?
+            .map_err(|_| WordDetailsError::ChainFlagEOBError)?
         {
             1 => Some(true),
             0 => Some(false),
@@ -181,8 +199,8 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 &value.pos_group2,
                 &value.pos_group3,
             ),
-            ctype: CType::from_str(&value.ctype)?,
-            cform: CForm::from_str(&value.cform)?,
+            ctype: CType::from_str(&value.ctype).map_err(DictionaryCodecError::from)?,
+            cform: CForm::from_str(&value.cform).map_err(DictionaryCodecError::from)?,
             chain_rule: ChainRules::new(&value.chain_rule),
             chain_flag: match value.chain_flag.as_ref() {
                 "1" => Some(true),
@@ -193,7 +211,8 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 "*" => None,
                 _ => Some(value.read.to_string()),
             },
-            pron: Pronunciation::parse_csv_pron(&value.pron, &value.acc_morasize)?,
+            pron: Pronunciation::parse_csv_pron(&value.pron, &value.acc_morasize)
+                .map_err(DictionaryCodecError::from)?,
         })
     }
 }

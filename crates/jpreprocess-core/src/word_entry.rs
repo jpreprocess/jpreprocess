@@ -1,5 +1,5 @@
 use crate::{
-    error::{BinaryParseError, BinaryParseErrorKind, ParserComponent},
+    error::DictionaryCodecError,
     varint::{VarIntDecode, VarIntEncode},
     word_details::WordDetails,
     word_line::WordDetailsLine,
@@ -87,10 +87,10 @@ impl WordEntry {
         result
     }
 
-    pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, BinaryParseError> {
+    pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, DictionaryCodecError> {
         let num_entries = iter
             .parse_varint()
-            .map_err(|e| e.with(ParserComponent::WordEntry))?;
+            .map_err(DictionaryCodecError::WordEntryParseError)?;
 
         if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
@@ -99,7 +99,7 @@ impl WordEntry {
             for _ in 0..num_entries {
                 let string_len = iter
                     .parse_varint()
-                    .map_err(|e| e.with(ParserComponent::WordEntry))?;
+                    .map_err(DictionaryCodecError::WordEntryParseError)?;
 
                 let string = String::from_utf8(iter.by_ref().take(string_len).collect()).unwrap();
                 details_vec.push((string, WordDetails::from_bin(iter)?));

@@ -2,6 +2,14 @@ use crate::ctype::{
     CType, Five, Four, KaIrregular, Keiyoushi, LowerTwo, Old, One, SaIrregular, Special, UpperTwo,
 };
 
+#[derive(Debug, thiserror::Error)]
+pub enum CTypeParseError {
+    #[error("Invalid CType string: {0}")]
+    InvalidString(String),
+    #[error("Invalid CType value: {0}")]
+    InvalidValue(u8),
+}
+
 pub fn string_to_ctype(ctype_string: &str) -> Result<CType, CTypeParseError> {
     if let Some(ctype) = STRING_CTYPE_CONVERSION_TABLE.get(ctype_string) {
         return Ok(*ctype);
@@ -19,14 +27,14 @@ pub fn string_to_ctype(ctype_string: &str) -> Result<CType, CTypeParseError> {
         return Ok(CType::Five(Five::KaDouble));
     }
 
-    Err(CTypeParseError::new(ctype_string.to_string()))
+    Err(CTypeParseError::InvalidString(ctype_string.to_string()))
 }
 
-pub fn value_to_ctype(ctype_value: u8) -> Option<CType> {
+pub fn value_to_ctype(ctype_value: u8) -> Result<CType, CTypeParseError> {
     if ctype_value as usize >= VALUE_CTYPE_CONVERSION_TABLE.len() {
-        return None;
+        return Err(CTypeParseError::InvalidValue(ctype_value));
     }
-    Some(VALUE_CTYPE_CONVERSION_TABLE[ctype_value as usize])
+    Ok(VALUE_CTYPE_CONVERSION_TABLE[ctype_value as usize])
 }
 
 pub fn ctype_to_string(ctype: &CType) -> String {

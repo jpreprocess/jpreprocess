@@ -9,10 +9,7 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::{
-    error::{BinaryParseErrorKind, ParserComponent},
-    varint::{NextByteIterator, VarIntDecode, VarIntEncode},
-};
+use crate::varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -45,6 +42,8 @@ pub enum PronunciationParseError {
     MoraSizeMismatch(usize, usize),
     #[error("Failed to parse as integer: {0}")]
     NumberParseError(#[from] std::num::ParseIntError),
+    #[error("Unexpected end of buffer while reading byte")]
+    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
 }
 
 /// Pronunciation.
@@ -162,7 +161,7 @@ impl Pronunciation {
 
     pub(crate) fn from_bin<I: Iterator<Item = u8>>(
         iter: &mut I,
-    ) -> Result<Self, BinaryParseErrorKind> {
+    ) -> Result<Self, PronunciationParseError> {
         let len = iter.parse_varint()?;
         let accent = iter.parse_varint()?;
 

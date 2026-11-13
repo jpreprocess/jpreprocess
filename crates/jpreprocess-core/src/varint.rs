@@ -1,13 +1,14 @@
-use crate::error::BinaryParseErrorKind;
+#[derive(Debug, thiserror::Error)]
+#[error("Unexpected end of buffer while reading byte")]
+pub struct UnexpectedEndOfBufferError;
 
 pub(crate) trait NextByteIterator: Iterator<Item = u8> {
-    fn next_byte(&mut self) -> Result<u8, BinaryParseErrorKind>;
+    fn next_byte(&mut self) -> Result<u8, UnexpectedEndOfBufferError>;
 }
 
 impl<I: Iterator<Item = u8>> NextByteIterator for I {
-    fn next_byte(&mut self) -> Result<u8, BinaryParseErrorKind> {
-        self.next()
-            .ok_or(BinaryParseErrorKind::UnexpectedEndOfBuffer)
+    fn next_byte(&mut self) -> Result<u8, UnexpectedEndOfBufferError> {
+        self.next().ok_or(UnexpectedEndOfBufferError)
     }
 }
 
@@ -16,7 +17,7 @@ pub(crate) trait VarIntEncode {
 }
 
 pub(crate) trait VarIntDecode<T: VarIntEncode>: Iterator<Item = u8> {
-    fn parse_varint(&mut self) -> Result<T, BinaryParseErrorKind>;
+    fn parse_varint(&mut self) -> Result<T, UnexpectedEndOfBufferError>;
 }
 
 macro_rules! u_varint {
@@ -52,7 +53,7 @@ macro_rules! u_varint {
         }
 
         impl<T: Iterator<Item = u8>> VarIntDecode<$t> for T {
-            fn parse_varint(&mut self) -> Result<$t, BinaryParseErrorKind> {
+            fn parse_varint(&mut self) -> Result<$t, UnexpectedEndOfBufferError> {
                 let mut n: $t = 0;
                 let mut shift = 0;
 
@@ -83,7 +84,7 @@ macro_rules! i_varint {
             }
         }
         impl<T: Iterator<Item = u8>> VarIntDecode<$ti> for T {
-            fn parse_varint(&mut self) -> Result<$ti, BinaryParseErrorKind> {
+            fn parse_varint(&mut self) -> Result<$ti, UnexpectedEndOfBufferError> {
                 let n: $tu = self.parse_varint()?;
                 Ok(((n >> 1) as $ti) ^ (-((n & 1) as $ti))) // ZigZag decoding
             }

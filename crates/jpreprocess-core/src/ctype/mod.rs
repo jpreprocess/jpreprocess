@@ -29,7 +29,7 @@ pub use conversions::CTypeParseError;
 
 use crate::{
     ctype::conversions::{ctype_to_string, ctype_to_value, string_to_ctype, value_to_ctype},
-    error::BinaryParseErrorKind,
+    error::DictionaryCodecError,
 };
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
@@ -69,7 +69,7 @@ impl CType {
     pub(crate) fn to_u8(self) -> u8 {
         ctype_to_value(&self)
     }
-    pub(crate) fn from_u8(n: u8) -> Result<Self, BinaryParseErrorKind> {
+    pub(crate) fn from_u8(n: u8) -> Result<Self, DictionaryCodecError> {
         Ok(value_to_ctype(n)?)
     }
 }

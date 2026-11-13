@@ -7,20 +7,18 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    error::BinaryParseErrorKind,
-    varint::{NextByteIterator, VarIntDecode, VarIntEncode},
-    JPreprocessResult,
-};
+use crate::varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
 
 use super::pos::POS;
 
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[derive(Debug, thiserror::Error)]
 pub enum AccentRuleParseError {
     #[error("Unknown part of speech (POS) {0}")]
     UnknownPOS(String),
     #[error("Unrecognized syntax {0}")]
     SyntaxError(String),
+    #[error("Unexpected end of buffer while reading byte")]
+    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
 }
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -162,7 +160,7 @@ impl ChainRule {
 
     pub(crate) fn from_bin<I: Iterator<Item = u8>>(
         iter: &mut I,
-    ) -> Result<Self, BinaryParseErrorKind> {
+    ) -> Result<Self, AccentRuleParseError> {
         let accent_type = AccentType::from_u8(iter.next_byte()?);
         let add_type = iter.parse_varint()?;
         Ok(Self::new(accent_type, add_type))
@@ -225,7 +223,7 @@ impl ChainRules {
         result
     }
 
-    fn push_rule(&mut self, rule_str: &str) -> JPreprocessResult<()> {
+    fn push_rule(&mut self, rule_str: &str) -> Result<(), AccentRuleParseError> {
         let (pos, rule) = Self::parse_rule(rule_str)?;
         match pos {
             POSMatch::Doushi => self.doushi.replace(rule),
@@ -237,7 +235,7 @@ impl ChainRules {
         Ok(())
     }
 
-    fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
+    fn parse_rule(rule: &str) -> Result<(POSMatch, ChainRule), AccentRuleParseError> {
         let capture = PARSE_REGEX
             .captures(rule)
             .ok_or_else(|| AccentRuleParseError::SyntaxError(rule.to_string()))?;
@@ -311,7 +309,7 @@ impl ChainRules {
 
     pub(crate) fn from_bin<I: Iterator<Item = u8>>(
         iter: &mut I,
-    ) -> Result<Self, BinaryParseErrorKind> {
+    ) -> Result<Self, AccentRuleParseError> {
         let mut result = Self::default();
         let flags = iter.next_byte()?;
         if flags & (1 << 0) != 0 {

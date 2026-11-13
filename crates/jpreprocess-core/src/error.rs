@@ -1,6 +1,7 @@
 use crate::{
-    accent_rule::AccentRuleParseError, ctype::CTypeParseError,
-    pronunciation::PronunciationParseError,
+    accent_rule::AccentRuleParseError, cform::CFormParseError, ctype::CTypeParseError,
+    pronunciation::PronunciationParseError, varint::UnexpectedEndOfBufferError,
+    word_details::WordDetailsError,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -12,16 +13,8 @@ pub enum JPreprocessError {
     #[cfg(feature = "lindera")]
     #[error("Lindera error: {0}")]
     LinderaError(#[from] lindera::error::LinderaError),
-    #[error("Failed to parse pronunciation: {0}")]
-    PronunciationParseError(#[from] PronunciationParseError),
-    #[error("Failed to parse conjugation type (CType): {0}")]
-    CTypeParseError(#[from] CTypeParseError),
-    #[error("Failed to parse conjugation form (CForm)")]
-    CFormParseError,
-    #[error("Failed to parse accent rule: {0}")]
-    AccentRuleParseError(#[from] AccentRuleParseError),
-    #[error("Provided mora size {0} is different from that of calculated from pronunciation {1}")]
-    MoraSizeMismatch(usize, usize),
+    #[error("Failed to parse word entry: {0}")]
+    WordEntryParseError(#[from] DictionaryCodecError),
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -32,39 +25,20 @@ pub enum DictionaryError {
     UserDictionaryNotProvided,
     #[error("The word is flagged as UserDictionary, but UserDictionary mode is not set")]
     UserDictionaryModeNotSet,
-    #[error("Failed to parse binary dictionary: {0}")]
-    BinaryParseError(#[from] BinaryParseError),
 }
 
 #[derive(Debug, thiserror::Error)]
-#[error("Failed to parse binary dictionary: {kind} in component {component:?}")]
-pub struct BinaryParseError {
-    #[source]
-    pub kind: BinaryParseErrorKind,
-    pub component: ParserComponent,
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum BinaryParseErrorKind {
-    #[error("Unexpected end of buffer while reading byte")]
-    UnexpectedEndOfBuffer,
-}
-
-impl BinaryParseErrorKind {
-    pub fn with(self, component: ParserComponent) -> BinaryParseError {
-        BinaryParseError { kind: self, component }
-    }
-}
-
-#[derive(Debug)]
-pub enum ParserComponent {
-    WordEntry,
-    POS,
-    CType,
-    CForm,
-    Read,
-    Pronunciation,
-    AccMoraSize,
-    ChainRule,
-    ChainFlag,
+pub enum DictionaryCodecError {
+    #[error("Failed to parse pronunciation: {0}")]
+    PronunciationParseError(#[from] PronunciationParseError),
+    #[error("Invalid conjugation type (CType): {0}")]
+    CTypeParseError(#[from] CTypeParseError),
+    #[error("Failed to parse conjugation form (CForm): {0}")]
+    CFormParseError(#[from] CFormParseError),
+    #[error("Failed to parse accent rule: {0}")]
+    AccentRuleParseError(#[from] AccentRuleParseError),
+    #[error("Failed to parse word details: {0}")]
+    WordDetailsParseError(#[from] WordDetailsError),
+    #[error("Failed to parse word entry: {0}")]
+    WordEntryParseError(UnexpectedEndOfBufferError),
 }
