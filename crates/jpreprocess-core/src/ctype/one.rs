@@ -1,8 +1,4 @@
-use std::{fmt::Display, str::FromStr};
-
 use serde::{Deserialize, Serialize};
-
-use super::{CTypeKind, CTypeParseError};
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 /// 一段
@@ -17,53 +13,4 @@ pub enum One {
     Ru,
     /// (Empty)
     None,
-}
-
-impl One {
-    pub(crate) fn to_u8(self) -> u8 {
-        match self {
-            Self::Yameru => 0,
-            Self::Kureru => 1,
-            Self::Eru => 2,
-            Self::Ru => 3,
-            Self::None => 4,
-        }
-    }
-
-    pub(crate) fn from_u8(n: u8) -> Self {
-        match n {
-            0 => Self::Yameru,
-            1 => Self::Kureru,
-            2 => Self::Eru,
-            3 => Self::Ru,
-            4 => Self::None,
-            _ => panic!("Invalid u8 value for One: {}", n),
-        }
-    }
-}
-
-impl FromStr for One {
-    type Err = CTypeParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "病メル" => Ok(Self::Yameru),
-            "クレル" => Ok(Self::Kureru),
-            "得ル" => Ok(Self::Eru),
-            "ル" => Ok(Self::Ru),
-            "" => Ok(Self::None),
-            _ => Err(CTypeParseError::new(s.to_string(), CTypeKind::One)),
-        }
-    }
-}
-
-impl Display for One {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match &self {
-            Self::Yameru => "病メル",
-            Self::Kureru => "クレル",
-            Self::Eru => "得ル",
-            Self::Ru => "ル",
-            Self::None => "",
-        })
-    }
 }
