@@ -28,7 +28,8 @@ pub(crate) fn read_from_bin<I: Iterator<Item = u8>>(
         while read_str.len() < read_len as usize {
             let diff: i32 = iter.parse_varint()?;
             read_str.push(
-                char::from_u32((diff + 0x30CD) as u32)
+                diff.checked_add(0x30CD)
+                    .and_then(|c| std::char::from_u32(c as u32))
                     .ok_or(ReadParseError::ReadParseError(diff))?,
             );
         }
