@@ -108,6 +108,14 @@ impl POS {
             _ => Self::Kigou(Kigou::None),
         }
     }
+
+    pub(crate) fn to_u8(self) -> u8 {
+        conversions::pos_to_value(&self)
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        conversions::value_to_pos(n).unwrap_or(Self::Unknown)
+    }
 }
 
 impl Display for POS {

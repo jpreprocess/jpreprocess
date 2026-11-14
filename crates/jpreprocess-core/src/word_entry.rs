@@ -1,5 +1,21 @@
-use crate::{word_details::WordDetails, word_line::WordDetailsLine, JPreprocessResult};
+use crate::{
+    bin_util::{BinaryParseError, VarIntDecode, VarIntEncode},
+    error::DictionaryCodecError,
+    word_details::WordDetails,
+    word_line::WordDetailsLine,
+    JPreprocessResult,
+};
 use serde::{Deserialize, Serialize};
+
+#[derive(Debug, thiserror::Error)]
+pub enum WordEntryParseError {
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
+    #[error("Failed to parse string from UTF-8 bytes: {0}")]
+    Utf8Error(#[from] std::string::FromUtf8Error),
+    #[error("Empty word entry is not allowed")]
+    EmptyEntry,
+}
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub enum WordEntry {
@@ -60,6 +76,54 @@ impl WordEntry {
             line.chain_rule.to_string(),
             line.chain_flag.to_string(),
         ]
+    }
+
+    pub fn to_bin(&self) -> Result<Vec<u8>, DictionaryCodecError> {
+        let mut result = Vec::new();
+        match self {
+            Self::Single(details) => {
+                result.extend(usize::to_varint(1)); // Number of entries (1 for Single)
+                result.extend_from_slice(&details.to_bin());
+            }
+            Self::Multiple(details_vec) => {
+                if details_vec.is_empty() {
+                    return Err(WordEntryParseError::EmptyEntry.into());
+                }
+
+                result.extend(usize::to_varint(details_vec.len())); // Number of entries (Multiple)
+                for (string, details) in details_vec {
+                    result.extend(usize::to_varint(string.len()));
+                    result.extend_from_slice(string.as_bytes());
+                    result.extend_from_slice(&details.to_bin());
+                }
+            }
+        }
+        Ok(result)
+    }
+
+    pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, DictionaryCodecError> {
+        let num_entries: usize = iter
+            .parse_varint()
+            .map_err(WordEntryParseError::BinaryParseError)?;
+
+        if num_entries == 0 {
+            Err(WordEntryParseError::EmptyEntry.into())
+        } else if num_entries == 1 {
+            Ok(Self::Single(WordDetails::from_bin(iter)?))
+        } else {
+            // SECURITY: Limit the maximum number of entries to prevent potential memory exhaustion attacks.
+            let mut details_vec = Vec::with_capacity(num_entries.min(100)); // Arbitrary limit of 100 entries
+            for _ in 0..num_entries {
+                let string_len = iter
+                    .parse_varint()
+                    .map_err(WordEntryParseError::BinaryParseError)?;
+
+                let string = String::from_utf8(iter.by_ref().take(string_len).collect())
+                    .map_err(WordEntryParseError::Utf8Error)?;
+                details_vec.push((string, WordDetails::from_bin(iter)?));
+            }
+            Ok(Self::Multiple(details_vec))
+        }
     }
 }
 

@@ -27,8 +27,6 @@ pub use upper_two::*;
 
 pub use conversions::CTypeParseError;
 
-use crate::ctype::conversions::{ctype_to_string, string_to_ctype};
-
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用
 pub enum CType {
@@ -62,16 +60,25 @@ pub enum CType {
     None,
 }
 
+impl CType {
+    pub(crate) fn to_u8(self) -> u8 {
+        conversions::ctype_to_value(&self)
+    }
+    pub(crate) fn from_u8(n: u8) -> Result<Self, CTypeParseError> {
+        conversions::value_to_ctype(n)
+    }
+}
+
 impl FromStr for CType {
     type Err = CTypeParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        string_to_ctype(s)
+        conversions::string_to_ctype(s)
     }
 }
 
 impl Display for CType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&ctype_to_string(self))
+        f.write_str(&conversions::ctype_to_string(self))
     }
 }
 
