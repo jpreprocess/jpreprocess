@@ -48,8 +48,7 @@ impl JPreprocessTokenizer {
             let data = prefix_dict
                 .word_data(word_id.id() as usize)
                 .ok_or(DictionaryError::IdNotFound(word_id.id()))?;
-            Ok(JPreprocessDictionaryWordEncoding::deserialize(data)
-                .map_err(DictionaryError::from)?)
+            Ok(JPreprocessDictionaryWordEncoding::deserialize(data)?)
         }
     }
 }
