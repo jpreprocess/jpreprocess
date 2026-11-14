@@ -5,6 +5,8 @@ use std::{fmt::Display, str::FromStr};
 pub enum CFormParseError {
     #[error("Invalid CForm string: {0}")]
     InvalidString(String),
+    #[error("Invalid CForm value: {0}")]
+    InvalidValue(u8),
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
@@ -85,7 +87,7 @@ impl CForm {
 }
 
 macro_rules! cform_conversions {
-    (@map $( $cform:expr => $string:literal ),* $(,)?) => {
+    (@map $( $cform:expr => $value:literal, $string:literal ),* $(,)?) => {
         impl FromStr for CForm {
             type Err = CFormParseError;
             fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -98,8 +100,30 @@ macro_rules! cform_conversions {
                 Err(CFormParseError::InvalidString(s.to_string()))
             }
         }
+        impl CForm {
+            pub(crate) fn from_u8(n: u8) -> Result<Self, CFormParseError> {
+                const VALUE_CFORM_CONVERSION_TABLE: [CForm; 75] = {
+                    let mut table = [CForm::None; 75];
+                    $(
+                        table[$value as usize] = $cform;
+                    )*
+                    table
+                };
+                if n as usize >= VALUE_CFORM_CONVERSION_TABLE.len() {
+                    return Err(CFormParseError::InvalidValue(n));
+                }
+                Ok(VALUE_CFORM_CONVERSION_TABLE[n as usize])
+            }
+        }
     };
-    (@match $( $cform:pat => $string:literal ),* $(,)?) => {
+    (@match $( $cform:pat => $value:literal, $string:literal ),* $(,)?) => {
+        impl CForm {
+            pub(crate) fn to_u8(self) -> u8 {
+                match self {
+                    $($cform => $value,)*
+                }
+            }
+        }
         impl Display for CForm {
             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
                 f.write_str(match self {
@@ -116,33 +140,33 @@ macro_rules! cform_conversions {
 }
 
 cform_conversions! {
-    CForm::None => "*",
+    CForm::None => 0, "*",
 
-    CForm::ConjunctionGaru => "ガル接続",
-    CForm::BasicEuphony => "音便基本形",
-    CForm::Conditional => "仮定形",
-    CForm::ConditionalContraction1 => "仮定縮約１",
-    CForm::ConditionalContraction2 => "仮定縮約２",
-    CForm::Basic => "基本形",
-    CForm::BasicDoubledConsonant => "基本形-促音便",
-    CForm::BasicModern => "現代基本形",
-    CForm::TaigenConjunction => "体言接続",
-    CForm::TaigenConjunctionSpecial => "体言接続特殊",
-    CForm::TaigenConjunctionSpecial2 => "体言接続特殊２",
-    CForm::BasicOld => "文語基本形",
-    CForm::MizenConjunctionU => "未然ウ接続",
-    CForm::MizenConjunctionNu => "未然ヌ接続",
-    CForm::MizenConjunctionReru => "未然レル接続",
-    CForm::Mizen => "未然形",
-    CForm::MizenSpecial => "未然特殊",
-    CForm::ImperativeE => "命令ｅ",
-    CForm::ImperativeI => "命令ｉ",
-    CForm::ImperativeRo => "命令ｒｏ",
-    CForm::ImperativeYo => "命令ｙｏ",
-    CForm::RenyouConjunctionGozai => "連用ゴザイ接続",
-    CForm::RenyouConjunctionTa => "連用タ接続",
-    CForm::RenyouConjunctionTe => "連用テ接続",
-    CForm::RenyouConjunctionDe => "連用デ接続",
-    CForm::RenyouConjunctionNi => "連用ニ接続",
-    CForm::Renyou => "連用形",
+    CForm::ConjunctionGaru => 1, "ガル接続",
+    CForm::BasicEuphony => 2, "音便基本形",
+    CForm::Conditional => 3, "仮定形",
+    CForm::ConditionalContraction1 => 4, "仮定縮約１",
+    CForm::ConditionalContraction2 => 5, "仮定縮約２",
+    CForm::Basic => 6, "基本形",
+    CForm::BasicDoubledConsonant => 7, "基本形-促音便",
+    CForm::BasicModern => 8, "現代基本形",
+    CForm::TaigenConjunction => 9, "体言接続",
+    CForm::TaigenConjunctionSpecial => 10, "体言接続特殊",
+    CForm::TaigenConjunctionSpecial2 => 11, "体言接続特殊２",
+    CForm::BasicOld => 12, "文語基本形",
+    CForm::MizenConjunctionU => 13, "未然ウ接続",
+    CForm::MizenConjunctionNu => 14, "未然ヌ接続",
+    CForm::MizenConjunctionReru => 15, "未然レル接続",
+    CForm::Mizen => 16, "未然形",
+    CForm::MizenSpecial => 17, "未然特殊",
+    CForm::ImperativeE => 18, "命令ｅ",
+    CForm::ImperativeI => 19, "命令ｉ",
+    CForm::ImperativeRo => 20, "命令ｒｏ",
+    CForm::ImperativeYo => 21, "命令ｙｏ",
+    CForm::RenyouConjunctionGozai => 22, "連用ゴザイ接続",
+    CForm::RenyouConjunctionTa => 23, "連用タ接続",
+    CForm::RenyouConjunctionTe => 24, "連用テ接続",
+    CForm::RenyouConjunctionDe => 25, "連用デ接続",
+    CForm::RenyouConjunctionNi => 26, "連用ニ接続",
+    CForm::Renyou => 27, "連用形",
 }

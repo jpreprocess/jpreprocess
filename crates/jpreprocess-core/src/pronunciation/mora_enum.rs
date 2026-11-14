@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+use crate::pronunciation::PronunciationParseError;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[repr(u8)]
 pub enum MoraEnum {
     /// ヴョ
     Vyo,
@@ -335,5 +338,20 @@ pub enum MoraEnum {
     /// 、
     Touten,
     /// ？
+    // SAFETY: Make sure to make this the last variant. This is used as a sentinel value for validation in from_u8.
     Question,
+}
+
+impl MoraEnum {
+    pub(crate) fn to_u8(self) -> u8 {
+        self as u8
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Result<Self, PronunciationParseError> {
+        if n > Self::Question as u8 {
+            return Err(PronunciationParseError::UnknownMoraId(n));
+        }
+
+        Ok(unsafe { std::mem::transmute(n) })
+    }
 }
