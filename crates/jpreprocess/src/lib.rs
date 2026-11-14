@@ -79,9 +79,9 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// // [`JPreprocess::with_dictionaries`] is a more convenient alternative.
     /// // Use `from_tokenizer` only if you need a customized `Tokenizer` or
     /// // want to plug in a non-Lindera tokenizer (see example-vibrato).
-    /// let system = lindera::dictionary::load_fs_dictionary(path.as_path())?;
-    /// let segmenter = lindera::segmenter::Segmenter::new(
-    ///     lindera::mode::Mode::Normal,
+    /// let system = lindera_segmenter::dictionary::load_fs_dictionary(path.as_path())?;
+    /// let segmenter = lindera_segmenter::segmenter::Segmenter::new(
+    ///     lindera_segmenter::mode::Mode::Normal,
     ///     system,
     ///     None,
     /// );
