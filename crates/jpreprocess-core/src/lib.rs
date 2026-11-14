@@ -12,9 +12,11 @@ pub mod word_details;
 pub mod word_entry;
 pub mod word_line;
 
+mod bin_util;
+
 pub mod token;
 
 pub use error::JPreprocessError;
 pub type JPreprocessResult<T> = Result<T, JPreprocessError>;
 
-mod varint;
+pub use bin_util::BinaryParseError;

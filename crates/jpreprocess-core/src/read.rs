@@ -1,4 +1,4 @@
-use crate::varint::{BinaryParseError, VarIntDecode, VarIntEncode};
+use crate::bin_util::{BinaryParseError, VarIntDecode, VarIntEncode};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ReadParseError {

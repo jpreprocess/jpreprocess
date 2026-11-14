@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::varint::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
+use crate::bin_util::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
 
 use super::pos::POS;
 
