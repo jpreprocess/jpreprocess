@@ -107,7 +107,7 @@ impl WordEntry {
             .map_err(WordEntryParseError::BinaryParseError)?;
 
         if num_entries == 0 {
-            return Err(WordEntryParseError::EmptyEntry.into());
+            Err(WordEntryParseError::EmptyEntry.into())
         } else if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
         } else {

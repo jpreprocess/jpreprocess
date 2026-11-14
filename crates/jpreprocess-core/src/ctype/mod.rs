@@ -65,7 +65,7 @@ impl CType {
         conversions::ctype_to_value(&self)
     }
     pub(crate) fn from_u8(n: u8) -> Result<Self, CTypeParseError> {
-        Ok(conversions::value_to_ctype(n)?)
+        conversions::value_to_ctype(n)
     }
 }
 
