@@ -13,6 +13,8 @@ pub enum WordEntryParseError {
     BinaryParseError(#[from] BinaryParseError),
     #[error("Failed to parse string from UTF-8 bytes: {0}")]
     Utf8Error(#[from] std::string::FromUtf8Error),
+    #[error("Empty word entry is not allowed")]
+    EmptyEntry,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -76,7 +78,7 @@ impl WordEntry {
         ]
     }
 
-    pub fn to_bin(&self) -> Vec<u8> {
+    pub fn to_bin(&self) -> Result<Vec<u8>, DictionaryCodecError> {
         let mut result = Vec::new();
         match self {
             Self::Single(details) => {
@@ -84,6 +86,10 @@ impl WordEntry {
                 result.extend_from_slice(&details.to_bin());
             }
             Self::Multiple(details_vec) => {
+                if details_vec.is_empty() {
+                    return Err(WordEntryParseError::EmptyEntry.into());
+                }
+
                 result.extend(usize::to_varint(details_vec.len())); // Number of entries (Multiple)
                 for (string, details) in details_vec {
                     result.extend(usize::to_varint(string.len()));
@@ -92,7 +98,7 @@ impl WordEntry {
                 }
             }
         }
-        result
+        Ok(result)
     }
 
     pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, DictionaryCodecError> {
@@ -100,7 +106,9 @@ impl WordEntry {
             .parse_varint()
             .map_err(WordEntryParseError::BinaryParseError)?;
 
-        if num_entries == 1 {
+        if num_entries == 0 {
+            return Err(WordEntryParseError::EmptyEntry.into());
+        } else if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
         } else {
             // SECURITY: Limit the maximum number of entries to prevent potential memory exhaustion attacks.

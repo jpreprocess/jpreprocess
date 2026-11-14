@@ -12,7 +12,7 @@ impl JPreprocessDictionaryWordEncoding {
     pub fn serialize(
         data: &jpreprocess_core::word_entry::WordEntry,
     ) -> Result<Vec<u8>, jpreprocess_core::error::DictionaryCodecError> {
-        Ok(data.to_bin())
+        data.to_bin()
     }
     pub fn deserialize(
         data: &[u8],
@@ -21,8 +21,7 @@ impl JPreprocessDictionaryWordEncoding {
         jpreprocess_core::error::DictionaryCodecError,
     > {
         let mut iter = data.iter().copied();
-        let entry = jpreprocess_core::word_entry::WordEntry::from_bin(&mut iter)?;
-        Ok(entry)
+        jpreprocess_core::word_entry::WordEntry::from_bin(&mut iter)
     }
 }
 impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {
