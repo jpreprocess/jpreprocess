@@ -625,8 +625,8 @@ dependencies = [
  "jpreprocess",
  "jpreprocess-core",
  "jpreprocess-dictionary",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "lru",
 ]
 
@@ -653,8 +653,8 @@ dependencies = [
  "bincode",
  "jpreprocess",
  "js-sys",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "serde",
  "serde-wasm-bindgen",
  "wasm-bindgen",
@@ -1209,8 +1209,8 @@ dependencies = [
  "jpreprocess-jpcommon",
  "jpreprocess-naist-jdic",
  "jpreprocess-njd",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "phf",
  "serde_json",
 ]
@@ -1221,8 +1221,8 @@ version = "0.15.0"
 dependencies = [
  "aho-corasick",
  "bincode",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "once_cell",
  "regex",
  "serde",
@@ -1245,8 +1245,8 @@ dependencies = [
  "encoding_rs_io",
  "glob",
  "jpreprocess-core",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "log",
  "once_cell",
  "serde",
@@ -1297,8 +1297,8 @@ dependencies = [
  "jpreprocess-dictionary",
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
- "lindera",
  "lindera-dictionary",
+ "lindera-segmenter",
  "pyo3",
  "pythonize",
  "serde",
@@ -1328,27 +1328,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 
 [[package]]
-name = "lindera"
-version = "6.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acdfde95c0360c7214c7f97cbd52f293c41da5c7f215979b065b2b41772d199f"
-dependencies = [
- "anyhow",
- "lindera-dictionary",
- "log",
- "percent-encoding",
- "serde",
- "serde_json",
- "strum",
- "strum_macros",
- "url",
-]
-
-[[package]]
 name = "lindera-dictionary"
-version = "6.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e68a62cebe5344df42b4458f603c973a4b2ad997af4a0d55d72a9def1ac47701"
+version = "7.0.0"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1369,6 +1350,21 @@ dependencies = [
  "strum",
  "strum_macros",
  "thiserror 2.0.21",
+]
+
+[[package]]
+name = "lindera-segmenter"
+version = "7.0.0"
+dependencies = [
+ "anyhow",
+ "lindera-dictionary",
+ "log",
+ "percent-encoding",
+ "serde",
+ "serde_json",
+ "strum",
+ "strum_macros",
+ "url",
 ]
 
 [[package]]
@@ -2469,7 +2465,7 @@ dependencies = [
  "jpreprocess-dictionary",
  "jpreprocess-jpcommon",
  "jpreprocess-njd",
- "lindera",
+ "lindera-segmenter",
 ]
 
 [[package]]
