@@ -48,8 +48,6 @@ impl std::fmt::Display for CSVField {
 #[builder(build_fn(name = "builder"))]
 pub struct DefaultParser {
     #[builder(default = "false")]
-    normalize_details: bool,
-    #[builder(default = "false")]
     skip_invalid_cost_or_id: bool,
     #[builder(default = "WordDetailsLine::default()")]
     default_details: WordDetailsLine,
@@ -65,21 +63,22 @@ impl Default for DefaultParser {
 }
 
 impl DefaultParser {
+    /// Get surface
+    ///
+    /// Do not trim the surface string. See lindera v7's PrefixDictionaryBuilder::get_surface() for details.
+    fn get_surface(&self, row: &StringRecord) -> Option<String> {
+        let index = self.schema.get_field_index("surface")?;
+        Some(row.get(index)?.to_string())
+    }
     /// Get field value
     fn get_field_value(&self, row: &StringRecord, field_name: &str) -> Option<String> {
-        if let Some(index) = self.schema.get_field_index(field_name) {
-            if index >= row.len() {
-                return None;
-            }
+        let index = self.schema.get_field_index(field_name)?;
 
-            let value = row[index].trim();
-            if value.is_empty() {
-                None
-            } else {
-                Some(value.to_string())
-            }
-        } else {
+        let value = row.get(index)?.trim();
+        if value.is_empty() {
             None
+        } else {
+            Some(value.to_string())
         }
     }
 }
@@ -87,13 +86,9 @@ impl DefaultParser {
 impl CSVParser for DefaultParser {
     fn surface(&self, row: &StringRecord) -> Result<String, CSVParseError> {
         let surface = self
-            .get_field_value(row, "surface")
+            .get_surface(row)
             .ok_or(CSVParseError::FieldNotFound(CSVField::Surface))?;
-        if self.normalize_details {
-            Ok(normalize(&surface))
-        } else {
-            Ok(surface)
-        }
+        Ok(surface)
     }
 
     /// Parse word cost using schema
@@ -257,8 +252,4 @@ impl CSVParser for UserDictionaryParser {
             self.dictionary_parser.details(row)
         }
     }
-}
-
-pub fn normalize(text: &str) -> String {
-    text.to_string().replace('―', "—").replace('～', "〜")
 }

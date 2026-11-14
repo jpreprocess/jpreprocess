@@ -78,14 +78,6 @@ fn test_one(input_text: &'static str) {
     for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
         let node_ans = NJDNode::new_single(ans);
 
-        if node_ans.get_pos() == &POS::Kigou(Kigou::Space) {
-            // Pass the difference introduced between Lindera 0.42.0 and 1.3.0
-            // This is because Lindera dictionary builder trims spaces from v1.0.0.
-            assert_eq!(node.get_string(), "\u{3000}");
-            assert_eq!(node.get_pos(), &POS::Kigou(Kigou::None));
-            continue;
-        }
-
         assert_eq!(node, &node_ans);
     }
 
