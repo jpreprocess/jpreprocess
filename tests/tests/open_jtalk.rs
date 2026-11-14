@@ -2,7 +2,6 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 use jpreprocess::*;
-use jpreprocess_core::pos::{Kigou, POS};
 use jpreprocess_njd::NJDNode;
 
 #[cfg(feature = "naist-jdic")]

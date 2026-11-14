@@ -52,7 +52,7 @@ To run most of the E2E tests, you need to build dictionary from `naist-jdic`. Fo
 
 #### JPreprocess dictionary
 
-`jpreprocess`-style dictionary can be built using the following command. You can do it by running the following command **in the root of the project**:
+`jpreprocess`-style dictionary can be built using the following command **in the root of the project**:
 
 ```bash
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/
@@ -60,17 +60,10 @@ cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build 
 
 #### Lindera dictionary
 
-If you prefer lindera dictionary, where the fields (part of speech, pronunciation, etc.) are encoded as strings, you can build it using the following command although it is a little hacky:
+If you prefer lindera dictionary, where the fields (part of speech, pronunciation, etc.) are encoded as strings, you can build it using the following command:
 
 ```bash
-mkdir -p ./tests/data/dict/jpreprocess-tmp/
-cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
-cmp ./tests/data/dict/jpreprocess-tmp/dict.trie ./tests/data/dict/dict.trie && echo "Dictionaries are identical" || echo "Dictionaries differ"
-cmp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx && echo "Dictionaries are identical" || echo "Dictionaries differ"
-cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
-cp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx
-rm -r ./tests/data/dict/jpreprocess-tmp/
 ```
 
 The `dict.vals` file is reversed in the `jpreprocess`-style dictionary for backward compatibility (Double array is expected to be identical).
