@@ -6,6 +6,7 @@ use crate::{
     accent_rule::ChainRules,
     cform::CForm,
     ctype::CType,
+    error::DictionaryCodecError,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
     word_line::WordDetailsLine,
@@ -52,7 +53,8 @@ impl WordDetails {
             "*" => None,
             _ => Some(read.to_string()),
         };
-        self.pron = Pronunciation::parse_csv_pron(pron, acc_morasize)?;
+        self.pron = Pronunciation::parse_csv_pron(pron, acc_morasize)
+            .map_err(DictionaryCodecError::from)?;
         self.chain_flag = Some(false);
         Ok(())
     }
@@ -90,9 +92,10 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 &value.pos_group1,
                 &value.pos_group2,
                 &value.pos_group3,
-            )?,
-            ctype: CType::from_str(&value.ctype)?,
-            cform: CForm::from_str(&value.cform)?,
+            )
+            .map_err(DictionaryCodecError::from)?,
+            ctype: CType::from_str(&value.ctype).map_err(DictionaryCodecError::from)?,
+            cform: CForm::from_str(&value.cform).map_err(DictionaryCodecError::from)?,
             chain_rule: ChainRules::new(&value.chain_rule),
             chain_flag: match value.chain_flag.as_ref() {
                 "1" => Some(true),
@@ -103,7 +106,8 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 "*" => None,
                 _ => Some(value.read.to_string()),
             },
-            pron: Pronunciation::parse_csv_pron(&value.pron, &value.acc_morasize)?,
+            pron: Pronunciation::parse_csv_pron(&value.pron, &value.acc_morasize)
+                .map_err(DictionaryCodecError::from)?,
         })
     }
 }
