@@ -2,8 +2,8 @@ use std::{error::Error, path::PathBuf};
 
 use clap::{Parser, Subcommand, ValueEnum};
 use jpreprocess_dictionary::dictionary::to_dict::JPreprocessDictionaryBuilder;
-use lindera::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
 use lindera_dictionary::{builder::DictionaryBuilder, dictionary::metadata::Metadata};
+use lindera_segmenter::dictionary::{load_fs_dictionary, load_user_dictionary_from_bin};
 
 use crate::dict_query::QueryDict;
 
