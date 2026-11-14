@@ -352,6 +352,6 @@ impl MoraEnum {
             return Err(PronunciationParseError::UnknownMoraId(n));
         }
 
-        Ok(unsafe { std::mem::transmute(n) })
+        Ok(unsafe { std::mem::transmute::<u8, Self>(n) })
     }
 }
