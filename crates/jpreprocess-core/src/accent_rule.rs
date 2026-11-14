@@ -7,16 +7,18 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::JPreprocessResult;
+use crate::varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
 
 use super::pos::POS;
 
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[derive(Debug, thiserror::Error)]
 pub enum AccentRuleParseError {
     #[error("Unknown part of speech (POS) {0}")]
     UnknownPOS(String),
     #[error("Unrecognized syntax {0}")]
     SyntaxError(String),
+    #[error("Unexpected end of buffer while reading byte")]
+    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
 }
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
@@ -24,7 +26,7 @@ static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Failed to compile accent rule regex")
 });
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub enum AccentType {
     F1,
     F2,
@@ -44,6 +46,49 @@ pub enum AccentType {
     //P13,
     P14,
     None,
+}
+
+impl AccentType {
+    pub(crate) fn to_u8(self) -> u8 {
+        match self {
+            Self::F1 => 0,
+            Self::F2 => 1,
+            Self::F3 => 2,
+            Self::F4 => 3,
+            Self::F5 => 4,
+            Self::C1 => 5,
+            Self::C2 => 6,
+            Self::C3 => 7,
+            Self::C4 => 8,
+            Self::C5 => 9,
+            Self::P1 => 10,
+            Self::P2 => 11,
+            Self::P6 => 12,
+            Self::P14 => 13,
+            Self::None => 14,
+        }
+    }
+
+    pub(crate) fn from_u8(n: u8) -> Self {
+        match n {
+            0 => Self::F1,
+            1 => Self::F2,
+            2 => Self::F3,
+            3 => Self::F4,
+            4 => Self::F5,
+            5 => Self::C1,
+            6 => Self::C2,
+            7 => Self::C3,
+            8 => Self::C4,
+            9 => Self::C5,
+            10 => Self::P1,
+            11 => Self::P2,
+            12 => Self::P6,
+            13 => Self::P14,
+            14 => Self::None,
+            _ => panic!("Invalid u8 value for AccentType: {}", n),
+        }
+    }
 }
 
 impl FromStr for AccentType {
@@ -106,6 +151,20 @@ impl ChainRule {
             add_type,
         }
     }
+
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
+        let mut buf = vec![self.accent_type.to_u8()];
+        buf.extend(self.add_type.to_varint());
+        buf
+    }
+
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, AccentRuleParseError> {
+        let accent_type = AccentType::from_u8(iter.next_byte()?);
+        let add_type = iter.parse_varint()?;
+        Ok(Self::new(accent_type, add_type))
+    }
 }
 
 impl Display for ChainRule {
@@ -164,7 +223,7 @@ impl ChainRules {
         result
     }
 
-    fn push_rule(&mut self, rule_str: &str) -> JPreprocessResult<()> {
+    fn push_rule(&mut self, rule_str: &str) -> Result<(), AccentRuleParseError> {
         let (pos, rule) = Self::parse_rule(rule_str)?;
         match pos {
             POSMatch::Doushi => self.doushi.replace(rule),
@@ -176,7 +235,7 @@ impl ChainRules {
         Ok(())
     }
 
-    fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
+    fn parse_rule(rule: &str) -> Result<(POSMatch, ChainRule), AccentRuleParseError> {
         let capture = PARSE_REGEX
             .captures(rule)
             .ok_or_else(|| AccentRuleParseError::SyntaxError(rule.to_string()))?;
@@ -221,6 +280,59 @@ impl ChainRules {
         self.joshi = None;
         self.keiyoushi = None;
         self.meishi = None;
+    }
+
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
+        let mut buf = vec![0];
+        if let Some(rule) = &self.default {
+            buf[0] |= 1 << 0;
+            buf.extend_from_slice(&rule.to_bin());
+        }
+        if let Some(rule) = &self.doushi {
+            buf[0] |= 1 << 1;
+            buf.extend_from_slice(&rule.to_bin());
+        }
+        if let Some(rule) = &self.joshi {
+            buf[0] |= 1 << 2;
+            buf.extend_from_slice(&rule.to_bin());
+        }
+        if let Some(rule) = &self.keiyoushi {
+            buf[0] |= 1 << 3;
+            buf.extend_from_slice(&rule.to_bin());
+        }
+        if let Some(rule) = &self.meishi {
+            buf[0] |= 1 << 4;
+            buf.extend_from_slice(&rule.to_bin());
+        }
+        buf
+    }
+
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, AccentRuleParseError> {
+        let mut result = Self::default();
+        let flags = iter.next_byte()?;
+        if flags & (1 << 0) != 0 {
+            let rule = ChainRule::from_bin(iter)?;
+            result.default = Some(rule);
+        }
+        if flags & (1 << 1) != 0 {
+            let rule = ChainRule::from_bin(iter)?;
+            result.doushi = Some(rule);
+        }
+        if flags & (1 << 2) != 0 {
+            let rule = ChainRule::from_bin(iter)?;
+            result.joshi = Some(rule);
+        }
+        if flags & (1 << 3) != 0 {
+            let rule = ChainRule::from_bin(iter)?;
+            result.keiyoushi = Some(rule);
+        }
+        if flags & (1 << 4) != 0 {
+            let rule = ChainRule::from_bin(iter)?;
+            result.meishi = Some(rule);
+        }
+        Ok(result)
     }
 }
 

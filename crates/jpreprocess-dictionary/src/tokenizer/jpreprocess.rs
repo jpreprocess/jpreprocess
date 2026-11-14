@@ -23,17 +23,17 @@ impl JPreprocessTokenizer {
     fn get_word(
         &self,
         word_id: lindera_dictionary::viterbi::WordId,
-    ) -> Result<WordEntry, DictionaryError> {
+    ) -> JPreprocessResult<WordEntry> {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else if word_id.is_system() {
             Self::get_word_from_prefixdict(&*self.segmenter.dictionary.prefix_dictionary, word_id)
         } else {
             let user = &self.segmenter.user_dictionary;
-            user.as_ref()
-                .map_or(Err(DictionaryError::UserDictionaryNotProvided), |user| {
-                    Self::get_word_from_prefixdict(&user.dict, word_id)
-                })
+            user.as_ref().map_or(
+                Err(DictionaryError::UserDictionaryNotProvided.into()),
+                |user| Self::get_word_from_prefixdict(&user.dict, word_id),
+            )
         }
     }
 
@@ -41,7 +41,7 @@ impl JPreprocessTokenizer {
     pub(super) fn get_word_from_prefixdict(
         prefix_dict: impl PrefixDictionary,
         word_id: lindera_dictionary::viterbi::WordId,
-    ) -> Result<WordEntry, DictionaryError> {
+    ) -> JPreprocessResult<WordEntry> {
         if word_id.is_unknown() {
             Ok(WordEntry::default())
         } else {
