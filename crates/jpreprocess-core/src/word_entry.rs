@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 pub enum WordEntryParseError {
     #[error("Unexpected end of buffer while reading byte")]
     UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
+    #[error("Failed to parse string from UTF-8 bytes: {0}")]
+    Utf8Error(#[from] std::string::FromUtf8Error),
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -94,20 +96,22 @@ impl WordEntry {
     }
 
     pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, DictionaryCodecError> {
-        let num_entries = iter
+        let num_entries: usize = iter
             .parse_varint()
             .map_err(WordEntryParseError::UnexpectedEndOfBuffer)?;
 
         if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
         } else {
-            let mut details_vec = Vec::with_capacity(num_entries);
+            // SECURITY: Limit the maximum number of entries to prevent potential memory exhaustion attacks.
+            let mut details_vec = Vec::with_capacity(num_entries.min(100)); // Arbitrary limit of 100 entries
             for _ in 0..num_entries {
                 let string_len = iter
                     .parse_varint()
                     .map_err(WordEntryParseError::UnexpectedEndOfBuffer)?;
 
-                let string = String::from_utf8(iter.by_ref().take(string_len).collect()).unwrap();
+                let string = String::from_utf8(iter.by_ref().take(string_len).collect())
+                    .map_err(WordEntryParseError::Utf8Error)?;
                 details_vec.push((string, WordDetails::from_bin(iter)?));
             }
             Ok(Self::Multiple(details_vec))
