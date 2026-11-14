@@ -28,6 +28,7 @@ const TEST_STR: &[&str] = &[
     "0123-456-789",
     "事にした．らしかった．対して",
     "上流の変更に追従する．",
+    "鄧艾，𩹉",
     // From [ROHAN](https://github.com/mmorise/rohan4600)
     "ヴィランには大抵、お追従を述べる子分がいます",
     // These sentences fail, but I won't fix.
