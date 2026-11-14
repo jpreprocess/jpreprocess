@@ -4,13 +4,13 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     accent_rule::ChainRules,
+    bin_util::{NextByteIterator, VarIntEncode},
     cform::CForm,
     ctype::CType,
     error::DictionaryCodecError,
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
     read::{read_from_bin, read_to_bin},
-    varint::{NextByteIterator, VarIntEncode},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };

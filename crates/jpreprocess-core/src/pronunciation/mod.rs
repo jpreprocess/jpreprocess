@@ -9,7 +9,7 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::varint::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
+use crate::bin_util::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";

@@ -1,6 +1,6 @@
 use crate::{
+    bin_util::{BinaryParseError, VarIntDecode, VarIntEncode},
     error::DictionaryCodecError,
-    varint::{BinaryParseError, VarIntDecode, VarIntEncode},
     word_details::WordDetails,
     word_line::WordDetailsLine,
     JPreprocessResult,
