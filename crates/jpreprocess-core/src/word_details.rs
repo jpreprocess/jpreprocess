@@ -10,7 +10,7 @@ use crate::{
     pos::{Meishi, POS},
     pronunciation::Pronunciation,
     read::{read_from_bin, read_to_bin},
-    varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode},
+    varint::{NextByteIterator, VarIntEncode},
     word_line::WordDetailsLine,
     JPreprocessResult,
 };

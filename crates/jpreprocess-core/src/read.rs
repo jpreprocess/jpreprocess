@@ -1,11 +1,11 @@
-use crate::varint::{UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
+use crate::varint::{BinaryParseError, VarIntDecode, VarIntEncode};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ReadParseError {
     #[error("Failed to parse `read` character {0}")]
     ReadParseError(i32),
-    #[error("Unexpected end of buffer while reading byte")]
-    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
 }
 
 pub(crate) fn read_to_bin(read: &str, buf: &mut Vec<u8>) {

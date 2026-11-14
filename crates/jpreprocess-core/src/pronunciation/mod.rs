@@ -9,7 +9,7 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
-use crate::varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
+use crate::varint::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
 
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
@@ -44,8 +44,8 @@ pub enum PronunciationParseError {
     NumberParseError(#[from] std::num::ParseIntError),
     #[error("Unknown Mora Id: {0}")]
     UnknownMoraId(u8),
-    #[error("Unexpected end of buffer while reading byte")]
-    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
 }
 
 /// Pronunciation.

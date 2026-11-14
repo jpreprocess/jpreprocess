@@ -1,6 +1,6 @@
 use crate::{
     error::DictionaryCodecError,
-    varint::{UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode},
+    varint::{BinaryParseError, VarIntDecode, VarIntEncode},
     word_details::WordDetails,
     word_line::WordDetailsLine,
     JPreprocessResult,
@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, thiserror::Error)]
 pub enum WordEntryParseError {
-    #[error("Unexpected end of buffer while reading byte")]
-    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
     #[error("Failed to parse string from UTF-8 bytes: {0}")]
     Utf8Error(#[from] std::string::FromUtf8Error),
 }
@@ -98,7 +98,7 @@ impl WordEntry {
     pub fn from_bin<I: Iterator<Item = u8>>(iter: &mut I) -> Result<Self, DictionaryCodecError> {
         let num_entries: usize = iter
             .parse_varint()
-            .map_err(WordEntryParseError::UnexpectedEndOfBuffer)?;
+            .map_err(WordEntryParseError::BinaryParseError)?;
 
         if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
@@ -108,7 +108,7 @@ impl WordEntry {
             for _ in 0..num_entries {
                 let string_len = iter
                     .parse_varint()
-                    .map_err(WordEntryParseError::UnexpectedEndOfBuffer)?;
+                    .map_err(WordEntryParseError::BinaryParseError)?;
 
                 let string = String::from_utf8(iter.by_ref().take(string_len).collect())
                     .map_err(WordEntryParseError::Utf8Error)?;

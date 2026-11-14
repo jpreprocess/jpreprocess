@@ -1,7 +1,6 @@
 use crate::{
     accent_rule::AccentRuleParseError, cform::CFormParseError, ctype::CTypeParseError,
-    pronunciation::PronunciationParseError, read::ReadParseError,
-    varint::UnexpectedEndOfBufferError, word_details::WordDetailsError,
+    pronunciation::PronunciationParseError, read::ReadParseError, word_details::WordDetailsError,
     word_entry::WordEntryParseError,
 };
 
