@@ -68,7 +68,11 @@ impl DefaultParser {
     /// Do not trim the surface string. See lindera v7's PrefixDictionaryBuilder::get_surface() for details.
     fn get_surface(&self, row: &StringRecord) -> Option<String> {
         let index = self.schema.get_field_index("surface")?;
-        Some(row.get(index)?.to_string())
+        Some(
+            row.get(index)
+                .filter(|value| !value.is_empty())?
+                .to_string(),
+        )
     }
     /// Get field value
     fn get_field_value(&self, row: &StringRecord, field_name: &str) -> Option<String> {

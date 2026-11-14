@@ -32,9 +32,6 @@ enum Commands {
         #[arg(short, long)]
         user: bool,
         /// The serializer to be used
-        ///
-        /// NOTE: `lindera` doesn't reverse `dict.vals`, but `jpreprocess` does (from v0.14.0), causing segmentation differences.
-        /// To align them, build both from the same input and manually copy `dict.vals` from one to the other.
         serializer: Serializer,
         /// The path to the metadata file
         #[arg(short, long)]

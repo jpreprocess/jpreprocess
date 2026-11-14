@@ -55,7 +55,7 @@ impl JPreprocessTokenizer {
 
 impl Tokenizer for JPreprocessTokenizer {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
-        let words = self.segmenter.segment(text.into()).unwrap();
+        let words = self.segmenter.segment(text.into())?;
         words
             .into_iter()
             .map(|token| {

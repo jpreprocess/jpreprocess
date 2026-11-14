@@ -39,7 +39,6 @@ interface Metadata {
   default_field_value: string;
   flexible_csv: boolean;
   skip_invalid_cost_or_id: boolean;
-  normalize_details: boolean;
   dictionary_schema: Schema;
   user_dictionary_schema: Schema;
   model_info?: any;

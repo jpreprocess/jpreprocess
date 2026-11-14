@@ -46,9 +46,5 @@ fn get_word_data<'a>(idx: &[u8], data: &'a [u8], word_id: Option<usize>) -> Opti
         0..start
     };
 
-    if range.end <= data.len() {
-        data.get(range)
-    } else {
-        None
-    }
+    data.get(range)
 }
