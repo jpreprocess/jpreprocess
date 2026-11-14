@@ -7,11 +7,9 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::JPreprocessResult;
-
 use super::pos::POS;
 
-#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+#[derive(Debug, thiserror::Error)]
 pub enum AccentRuleParseError {
     #[error("Unknown part of speech (POS) {0}")]
     UnknownPOS(String),
@@ -164,7 +162,7 @@ impl ChainRules {
         result
     }
 
-    fn push_rule(&mut self, rule_str: &str) -> JPreprocessResult<()> {
+    fn push_rule(&mut self, rule_str: &str) -> Result<(), AccentRuleParseError> {
         let (pos, rule) = Self::parse_rule(rule_str)?;
         match pos {
             POSMatch::Doushi => self.doushi.replace(rule),
@@ -176,7 +174,7 @@ impl ChainRules {
         Ok(())
     }
 
-    fn parse_rule(rule: &str) -> JPreprocessResult<(POSMatch, ChainRule)> {
+    fn parse_rule(rule: &str) -> Result<(POSMatch, ChainRule), AccentRuleParseError> {
         let capture = PARSE_REGEX
             .captures(rule)
             .ok_or_else(|| AccentRuleParseError::SyntaxError(rule.to_string()))?;
