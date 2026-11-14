@@ -30,8 +30,8 @@ jpreprocess-naist-jdic = { path = "crates/jpreprocess-naist-jdic", version = "0.
 jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.15.0" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.15.0" }
 
-lindera-segmenter = { path = "../lindera/lindera-segmenter" }
-lindera-dictionary = { path = "../lindera/lindera-dictionary" }
+lindera-segmenter = { git = "https://github.com/lindera/lindera.git", rev = "131b8ab08bc2bd7dbdc718fa4236f532fff0d29d", version = "7.0.0" }
+lindera-dictionary = { git = "https://github.com/lindera/lindera.git", rev = "131b8ab08bc2bd7dbdc718fa4236f532fff0d29d", version = "7.0.0" }
 daachorse = "5.1.0"
 
 vibrato = "0.5.2"

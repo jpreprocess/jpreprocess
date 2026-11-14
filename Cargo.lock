@@ -1330,6 +1330,7 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 [[package]]
 name = "lindera-dictionary"
 version = "7.0.0"
+source = "git+https://github.com/lindera/lindera.git?rev=131b8ab08bc2bd7dbdc718fa4236f532fff0d29d#131b8ab08bc2bd7dbdc718fa4236f532fff0d29d"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1355,6 +1356,7 @@ dependencies = [
 [[package]]
 name = "lindera-segmenter"
 version = "7.0.0"
+source = "git+https://github.com/lindera/lindera.git?rev=131b8ab08bc2bd7dbdc718fa4236f532fff0d29d#131b8ab08bc2bd7dbdc718fa4236f532fff0d29d"
 dependencies = [
  "anyhow",
  "lindera-dictionary",
