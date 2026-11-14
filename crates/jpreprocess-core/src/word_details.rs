@@ -95,7 +95,7 @@ impl TryFrom<WordDetailsLine> for WordDetails {
             )
             .map_err(DictionaryCodecError::from)?,
             ctype: CType::from_str(&value.ctype).map_err(DictionaryCodecError::from)?,
-            cform: CForm::from_str(&value.cform)?,
+            cform: CForm::from_str(&value.cform).map_err(DictionaryCodecError::from)?,
             chain_rule: ChainRules::new(&value.chain_rule),
             chain_flag: match value.chain_flag.as_ref() {
                 "1" => Some(true),
