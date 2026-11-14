@@ -67,9 +67,10 @@ mkdir -p ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build jpreprocess ./tests/data/naist-jdic/ ./tests/data/dict/jpreprocess-tmp/
 cargo run -p jpreprocess-dictionary --bin dict_tools --features=binary -- build lindera ./tests/data/naist-jdic/ ./tests/data/dict/
 cmp ./tests/data/dict/jpreprocess-tmp/dict.trie ./tests/data/dict/dict.trie && echo "Dictionaries are identical" || echo "Dictionaries differ"
+cmp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx && echo "Dictionaries are identical" || echo "Dictionaries differ"
 cp ./tests/data/dict/jpreprocess-tmp/dict.vals ./tests/data/dict/dict.vals
 cp ./tests/data/dict/jpreprocess-tmp/dict.valsidx ./tests/data/dict/dict.valsidx
-rm -rf ./tests/data/dict/jpreprocess-tmp/
+rm -r ./tests/data/dict/jpreprocess-tmp/
 ```
 
 The `dict.vals` file is reversed in the `jpreprocess`-style dictionary for backward compatibility (Double array is expected to be identical).
