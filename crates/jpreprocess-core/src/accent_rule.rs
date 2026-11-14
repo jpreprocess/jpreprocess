@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 
-use crate::varint::{NextByteIterator, UnexpectedEndOfBufferError, VarIntDecode, VarIntEncode};
+use crate::varint::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
 
 use super::pos::POS;
 
@@ -19,8 +19,8 @@ pub enum AccentRuleParseError {
     SyntaxError(String),
     #[error("Unknown accent type id {0}")]
     UnknownAccentTypeId(u8),
-    #[error("Unexpected end of buffer while reading byte")]
-    UnexpectedEndOfBuffer(#[from] UnexpectedEndOfBufferError),
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
 }
 
 static PARSE_REGEX: Lazy<Regex> = Lazy::new(|| {

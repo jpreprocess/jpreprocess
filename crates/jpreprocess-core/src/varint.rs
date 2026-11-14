@@ -1,14 +1,18 @@
 #[derive(Debug, thiserror::Error)]
-#[error("Unexpected end of buffer while reading byte")]
-pub struct UnexpectedEndOfBufferError;
+pub enum BinaryParseError {
+    #[error("Unexpected end of buffer while reading byte")]
+    UnexpectedEndOfBuffer,
+    #[error("VarInt overflow: too many bytes read")]
+    VarIntOverflow,
+}
 
 pub(crate) trait NextByteIterator: Iterator<Item = u8> {
-    fn next_byte(&mut self) -> Result<u8, UnexpectedEndOfBufferError>;
+    fn next_byte(&mut self) -> Result<u8, BinaryParseError>;
 }
 
 impl<I: Iterator<Item = u8>> NextByteIterator for I {
-    fn next_byte(&mut self) -> Result<u8, UnexpectedEndOfBufferError> {
-        self.next().ok_or(UnexpectedEndOfBufferError)
+    fn next_byte(&mut self) -> Result<u8, BinaryParseError> {
+        self.next().ok_or(BinaryParseError::UnexpectedEndOfBuffer)
     }
 }
 
@@ -17,7 +21,7 @@ pub(crate) trait VarIntEncode {
 }
 
 pub(crate) trait VarIntDecode<T: VarIntEncode>: Iterator<Item = u8> {
-    fn parse_varint(&mut self) -> Result<T, UnexpectedEndOfBufferError>;
+    fn parse_varint(&mut self) -> Result<T, BinaryParseError>;
 }
 
 macro_rules! u_varint {
@@ -53,7 +57,7 @@ macro_rules! u_varint {
         }
 
         impl<T: Iterator<Item = u8>> VarIntDecode<$t> for T {
-            fn parse_varint(&mut self) -> Result<$t, UnexpectedEndOfBufferError> {
+            fn parse_varint(&mut self) -> Result<$t, BinaryParseError> {
                 let mut n: $t = 0;
                 let mut shift = 0;
 
@@ -63,6 +67,9 @@ macro_rules! u_varint {
                     shift += 7;
                     if byte & 0x80 == 0 {
                         break;
+                    }
+                    if shift >= <$t>::BITS {
+                        return Err(BinaryParseError::UnexpectedEndOfBuffer);
                     }
                 }
 
@@ -84,7 +91,7 @@ macro_rules! i_varint {
             }
         }
         impl<T: Iterator<Item = u8>> VarIntDecode<$ti> for T {
-            fn parse_varint(&mut self) -> Result<$ti, UnexpectedEndOfBufferError> {
+            fn parse_varint(&mut self) -> Result<$ti, BinaryParseError> {
                 let n: $tu = self.parse_varint()?;
                 Ok(((n >> 1) as $ti) ^ (-((n & 1) as $ti))) // ZigZag decoding
             }
@@ -126,5 +133,14 @@ mod tests {
             let decoded_value: i32 = varint_bytes.into_iter().parse_varint().unwrap();
             assert_eq!(value, decoded_value, "Failed for value: {}", value);
         }
+    }
+    #[test]
+    fn test_decode_overflow() {
+        let mut safe_bytes = [0xFF, 0xFF, 0xFF, 0xFF, 0x0F].into_iter();
+        VarIntDecode::<u32>::parse_varint(&mut safe_bytes)
+            .expect("Expected successful parse for safe bytes");
+        let mut overflow_bytes = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F].into_iter();
+        VarIntDecode::<u32>::parse_varint(&mut overflow_bytes)
+            .expect_err("Expected overflow error");
     }
 }
