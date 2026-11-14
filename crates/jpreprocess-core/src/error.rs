@@ -11,7 +11,7 @@ pub enum JPreprocessError {
     DictionaryError(#[from] DictionaryError),
     #[cfg(feature = "lindera")]
     #[error("Lindera error: {0}")]
-    LinderaError(#[from] lindera::error::LinderaError),
+    LinderaError(#[from] lindera_segmenter::error::LinderaError),
     #[error("Failed to parse pronunciation: {0}")]
     PronunciationParseError(#[from] PronunciationParseError),
     #[error("Failed to parse part of speech (POS): {0}")]

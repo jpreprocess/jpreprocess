@@ -16,14 +16,14 @@ impl Token for (String, WordEntry) {
 }
 
 #[cfg(feature = "lindera")]
-impl Tokenizer for lindera::segmenter::Segmenter {
+impl Tokenizer for lindera_segmenter::segmenter::Segmenter {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
         Ok(self.segment(text.into())?)
     }
 }
 
 #[cfg(feature = "lindera")]
-impl Token for lindera::token::Token<'_> {
+impl Token for lindera_segmenter::token::Token<'_> {
     fn fetch(&mut self) -> JPreprocessResult<(&str, WordEntry)> {
         use lindera_dictionary::dictionary::UNK;
 
