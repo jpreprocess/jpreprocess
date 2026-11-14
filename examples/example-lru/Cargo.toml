@@ -15,7 +15,7 @@ jpreprocess = { workspace = true, features = ["tokenizer"] }
 jpreprocess-core.workspace = true
 jpreprocess-dictionary.workspace = true
 
-lindera.workspace = true
+lindera-segmenter.workspace = true
 lindera-dictionary.workspace = true
 
 lru = "0.12.2"

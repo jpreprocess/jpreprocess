@@ -2,7 +2,6 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 use jpreprocess::*;
-use jpreprocess_core::pos::{Kigou, POS};
 use jpreprocess_njd::NJDNode;
 
 #[cfg(feature = "naist-jdic")]
@@ -28,6 +27,7 @@ const TEST_STR: &[&str] = &[
     "0123-456-789",
     "事にした．らしかった．対して",
     "上流の変更に追従する．",
+    "鄧艾，𩹉",
     // From [ROHAN](https://github.com/mmorise/rohan4600)
     "ヴィランには大抵、お追従を述べる子分がいます",
     // These sentences fail, but I won't fix.
@@ -77,14 +77,6 @@ fn test_one(input_text: &'static str) {
 
     for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
         let node_ans = NJDNode::new_single(ans);
-
-        if node_ans.get_pos() == &POS::Kigou(Kigou::Space) {
-            // Pass the difference introduced between Lindera 0.42.0 and 1.3.0
-            // This is because Lindera dictionary builder trims spaces from v1.0.0.
-            assert_eq!(node.get_string(), "\u{3000}");
-            assert_eq!(node.get_pos(), &POS::Kigou(Kigou::None));
-            continue;
-        }
 
         assert_eq!(node, &node_ans);
     }

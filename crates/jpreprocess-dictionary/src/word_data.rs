@@ -25,14 +25,15 @@ impl PrefixDictionary for &lindera_dictionary::dictionary::prefix_dictionary::Us
 
 fn get_word_data<'a>(idx: &[u8], data: &'a [u8], word_id: Option<usize>) -> Option<&'a [u8]> {
     let get_idx = |word_id: usize| -> Option<usize> {
-        if word_id * 4 + 4 > idx.len() {
+        let start_byte = word_id.checked_mul(4)?;
+        if start_byte.checked_add(4)? > idx.len() {
             return None;
         }
         Some(u32::from_le_bytes([
-            idx[word_id * 4],
-            idx[word_id * 4 + 1],
-            idx[word_id * 4 + 2],
-            idx[word_id * 4 + 3],
+            idx[start_byte],
+            idx[start_byte + 1],
+            idx[start_byte + 2],
+            idx[start_byte + 3],
         ]) as usize)
     };
 
@@ -46,7 +47,7 @@ fn get_word_data<'a>(idx: &[u8], data: &'a [u8], word_id: Option<usize>) -> Opti
     };
 
     if range.end <= data.len() {
-        Some(&data[range])
+        data.get(range)
     } else {
         None
     }

@@ -17,7 +17,7 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-lindera = ["dep:lindera", "dep:lindera-dictionary"]
+lindera = ["dep:lindera-segmenter", "dep:lindera-dictionary"]
 vibrato = ["dep:vibrato"]
 
 [dependencies]
@@ -26,7 +26,7 @@ bincode.workspace = true
 
 once_cell.workspace = true
 
-lindera = { workspace = true, optional = true }
+lindera-segmenter = { workspace = true, optional = true }
 lindera-dictionary = { workspace = true, optional = true }
 
 vibrato = { workspace = true, optional = true }

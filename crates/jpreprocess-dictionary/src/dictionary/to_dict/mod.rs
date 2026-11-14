@@ -129,7 +129,6 @@ impl JPreprocessDictionaryBuilder {
         let reader = CSVReaderOptions::default()
             .flexible_csv(self.metadata.flexible_csv)
             .encoding(self.metadata.encoding.clone())
-            .normalize_details(self.metadata.normalize_details)
             .builder()
             .unwrap();
         let rows = reader.load_csv_data(input_dir)?;
@@ -137,7 +136,6 @@ impl JPreprocessDictionaryBuilder {
         let parser = DefaultParserOptions::default()
             .skip_invalid_cost_or_id(self.metadata.skip_invalid_cost_or_id)
             .schema(self.metadata.dictionary_schema.clone())
-            .normalize_details(self.metadata.normalize_details)
             .builder()
             .unwrap();
 
@@ -188,14 +186,12 @@ impl JPreprocessDictionaryBuilder {
                 DefaultParserOptions::default()
                     .skip_invalid_cost_or_id(self.metadata.skip_invalid_cost_or_id)
                     .schema(self.metadata.dictionary_schema.clone())
-                    .normalize_details(self.metadata.normalize_details)
                     .builder()
                     .unwrap(),
             )
             .user_dictionary_parser(
                 DefaultParserOptions::default()
                     .schema(self.metadata.user_dictionary_schema.clone())
-                    .normalize_details(self.metadata.normalize_details)
                     .builder()
                     .unwrap(),
             )

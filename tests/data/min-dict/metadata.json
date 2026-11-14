@@ -1,5 +1,6 @@
 {
-  "format_version": 2,
+  "format_version": 3,
+  "lindera_version": "7.0.0",
   "name": "default",
   "encoding": "UTF-8",
   "default_word_cost": -10000,
@@ -8,7 +9,6 @@
   "default_field_value": "*",
   "flexible_csv": false,
   "skip_invalid_cost_or_id": false,
-  "normalize_details": false,
   "dictionary_schema": {
     "fields": [
       "surface",

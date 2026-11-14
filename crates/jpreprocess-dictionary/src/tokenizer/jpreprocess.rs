@@ -12,11 +12,11 @@ use crate::{
 };
 
 pub struct JPreprocessTokenizer {
-    segmenter: lindera::segmenter::Segmenter,
+    segmenter: lindera_segmenter::segmenter::Segmenter,
 }
 
 impl JPreprocessTokenizer {
-    pub fn new(segmenter: lindera::segmenter::Segmenter) -> Self {
+    pub fn new(segmenter: lindera_segmenter::segmenter::Segmenter) -> Self {
         Self { segmenter }
     }
 

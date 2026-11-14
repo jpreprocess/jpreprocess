@@ -46,7 +46,7 @@ pub mod parser;
 pub mod word_entry;
 
 use self::details::generate_words_files;
-use self::parser::{normalize, CSVParser};
+use self::parser::CSVParser;
 use self::word_entry::{build_word_entry_map, generate_user_double_array, generate_values};
 
 #[derive(Builder)]
@@ -58,8 +58,6 @@ pub struct CSVReader {
     /* If set to UTF-8, it can also read UTF-16 files with BOM. */
     #[builder(field(ty = "String", build = "get_encoding(&self.encoding)?"))]
     encoding: &'static Encoding,
-    #[builder(default = "false")]
-    normalize_details: bool,
 }
 
 /// Get encoding configuration
@@ -79,15 +77,7 @@ impl CSVReader {
         let filenames = self.collect_csv_files(input_dir)?;
         let mut rows = self.read_csv_files(&filenames)?;
 
-        // Sort dictionary entries by the first column (word)
-        // Change sorting method based on normalization settings
-        if self.normalize_details {
-            // Sort after normalizing characters (―→—, ～→〜)
-            rows.sort_by_key(|row| normalize(&row[0]));
-        } else {
-            // Sort using original strings directly
-            rows.sort_by(|a, b| a[0].cmp(&b[0]))
-        }
+        rows.sort_by(|a, b| a[0].cmp(&b[0]));
 
         Ok(rows)
     }
