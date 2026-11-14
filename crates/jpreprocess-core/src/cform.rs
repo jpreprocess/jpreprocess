@@ -1,7 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
-use crate::JPreprocessError;
+#[derive(Debug, thiserror::Error)]
+pub enum CFormParseError {
+    #[error("Invalid CForm string: {0}")]
+    InvalidString(String),
+}
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 活用形
@@ -81,7 +85,7 @@ impl CForm {
 }
 
 impl FromStr for CForm {
-    type Err = JPreprocessError;
+    type Err = CFormParseError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "ガル接続" => Ok(Self::ConjunctionGaru),
@@ -114,7 +118,7 @@ impl FromStr for CForm {
 
             "*" => Ok(Self::None),
 
-            _ => Err(JPreprocessError::CFormParseError),
+            _ => Err(CFormParseError::InvalidString(s.to_string())),
         }
     }
 }
