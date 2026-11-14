@@ -84,77 +84,65 @@ impl CForm {
     }
 }
 
-impl FromStr for CForm {
-    type Err = CFormParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "ガル接続" => Ok(Self::ConjunctionGaru),
-            "音便基本形" => Ok(Self::BasicEuphony),
-            "仮定形" => Ok(Self::Conditional),
-            "仮定縮約１" => Ok(Self::ConditionalContraction1),
-            "仮定縮約２" => Ok(Self::ConditionalContraction2),
-            "基本形" => Ok(Self::Basic),
-            "基本形-促音便" => Ok(Self::BasicDoubledConsonant),
-            "現代基本形" => Ok(Self::BasicModern),
-            "体言接続" => Ok(Self::TaigenConjunction),
-            "体言接続特殊" => Ok(Self::TaigenConjunctionSpecial),
-            "体言接続特殊２" => Ok(Self::TaigenConjunctionSpecial2),
-            "文語基本形" => Ok(Self::BasicOld),
-            "未然ウ接続" => Ok(Self::MizenConjunctionU),
-            "未然ヌ接続" => Ok(Self::MizenConjunctionNu),
-            "未然レル接続" => Ok(Self::MizenConjunctionReru),
-            "未然形" => Ok(Self::Mizen),
-            "未然特殊" => Ok(Self::MizenSpecial),
-            "命令ｅ" => Ok(Self::ImperativeE),
-            "命令ｉ" => Ok(Self::ImperativeI),
-            "命令ｒｏ" => Ok(Self::ImperativeRo),
-            "命令ｙｏ" => Ok(Self::ImperativeYo),
-            "連用ゴザイ接続" => Ok(Self::RenyouConjunctionGozai),
-            "連用タ接続" => Ok(Self::RenyouConjunctionTa),
-            "連用テ接続" => Ok(Self::RenyouConjunctionTe),
-            "連用デ接続" => Ok(Self::RenyouConjunctionDe),
-            "連用ニ接続" => Ok(Self::RenyouConjunctionNi),
-            "連用形" => Ok(Self::Renyou),
-
-            "*" => Ok(Self::None),
-
-            _ => Err(CFormParseError::InvalidString(s.to_string())),
+macro_rules! cform_conversions {
+    (@map $( $cform:expr => $string:literal ),* $(,)?) => {
+        impl FromStr for CForm {
+            type Err = CFormParseError;
+            fn from_str(s: &str) -> Result<Self, Self::Err> {
+                const STRING_CFORM_CONVERSION_TABLE: phf::Map<&'static str, CForm> = phf::phf_map! {
+                    $($string => $cform,)*
+                };
+                if let Some(cform) = STRING_CFORM_CONVERSION_TABLE.get(s) {
+                    return Ok(*cform);
+                }
+                Err(CFormParseError::InvalidString(s.to_string()))
+            }
         }
-    }
+    };
+    (@match $( $cform:pat => $string:literal ),* $(,)?) => {
+        impl Display for CForm {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                f.write_str(match self {
+                    $($cform => $string,)*
+                })
+            }
+        }
+    };
+
+    ($($tokens:tt)*) => {
+        cform_conversions!(@map $($tokens)*);
+        cform_conversions!(@match $($tokens)*);
+    };
 }
 
-impl Display for CForm {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(match &self {
-            Self::ConjunctionGaru => "ガル接続",
-            Self::BasicEuphony => "音便基本形",
-            Self::Conditional => "仮定形",
-            Self::ConditionalContraction1 => "仮定縮約１",
-            Self::ConditionalContraction2 => "仮定縮約２",
-            Self::Basic => "基本形",
-            Self::BasicDoubledConsonant => "基本形-促音便",
-            Self::BasicModern => "現代基本形",
-            Self::TaigenConjunction => "体言接続",
-            Self::TaigenConjunctionSpecial => "体言接続特殊",
-            Self::TaigenConjunctionSpecial2 => "体言接続特殊２",
-            Self::BasicOld => "文語基本形",
-            Self::MizenConjunctionU => "未然ウ接続",
-            Self::MizenConjunctionNu => "未然ヌ接続",
-            Self::MizenConjunctionReru => "未然レル接続",
-            Self::Mizen => "未然形",
-            Self::MizenSpecial => "未然特殊",
-            Self::ImperativeE => "命令ｅ",
-            Self::ImperativeI => "命令ｉ",
-            Self::ImperativeRo => "命令ｒｏ",
-            Self::ImperativeYo => "命令ｙｏ",
-            Self::RenyouConjunctionGozai => "連用ゴザイ接続",
-            Self::RenyouConjunctionTa => "連用タ接続",
-            Self::RenyouConjunctionTe => "連用テ接続",
-            Self::RenyouConjunctionDe => "連用デ接続",
-            Self::RenyouConjunctionNi => "連用ニ接続",
-            Self::Renyou => "連用形",
+cform_conversions! {
+    CForm::None => "*",
 
-            Self::None => "*",
-        })
-    }
+    CForm::ConjunctionGaru => "ガル接続",
+    CForm::BasicEuphony => "音便基本形",
+    CForm::Conditional => "仮定形",
+    CForm::ConditionalContraction1 => "仮定縮約１",
+    CForm::ConditionalContraction2 => "仮定縮約２",
+    CForm::Basic => "基本形",
+    CForm::BasicDoubledConsonant => "基本形-促音便",
+    CForm::BasicModern => "現代基本形",
+    CForm::TaigenConjunction => "体言接続",
+    CForm::TaigenConjunctionSpecial => "体言接続特殊",
+    CForm::TaigenConjunctionSpecial2 => "体言接続特殊２",
+    CForm::BasicOld => "文語基本形",
+    CForm::MizenConjunctionU => "未然ウ接続",
+    CForm::MizenConjunctionNu => "未然ヌ接続",
+    CForm::MizenConjunctionReru => "未然レル接続",
+    CForm::Mizen => "未然形",
+    CForm::MizenSpecial => "未然特殊",
+    CForm::ImperativeE => "命令ｅ",
+    CForm::ImperativeI => "命令ｉ",
+    CForm::ImperativeRo => "命令ｒｏ",
+    CForm::ImperativeYo => "命令ｙｏ",
+    CForm::RenyouConjunctionGozai => "連用ゴザイ接続",
+    CForm::RenyouConjunctionTa => "連用タ接続",
+    CForm::RenyouConjunctionTe => "連用テ接続",
+    CForm::RenyouConjunctionDe => "連用デ接続",
+    CForm::RenyouConjunctionNi => "連用ニ接続",
+    CForm::Renyou => "連用形",
 }

@@ -1,6 +1,6 @@
 use crate::{
     accent_rule::AccentRuleParseError, cform::CFormParseError, ctype::CTypeParseError,
-    pos::POSParseError, pronunciation::PronunciationParseError,
+    pronunciation::PronunciationParseError,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -30,8 +30,6 @@ pub enum DictionaryError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum DictionaryCodecError {
-    #[error("Failed to parse part-of-speech (POS): {0}")]
-    POSParseError(#[from] POSParseError),
     #[error("Failed to parse pronunciation: {0}")]
     PronunciationParseError(#[from] PronunciationParseError),
     #[error("Failed to parse conjugation type (CType): {0}")]
