@@ -75,6 +75,7 @@ fn test_one(input_text: &'static str) {
 
     let parsed = parse_openjtalk_output(&stdout);
 
+    assert_eq!(njd.nodes.len(), parsed.njd.len());
     for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
         let node_ans = NJDNode::new_single(ans);
 
@@ -89,6 +90,7 @@ fn test_one(input_text: &'static str) {
         assert_eq!(node, &node_ans);
     }
 
+    assert_eq!(features.len(), parsed.jpcommon_features.len());
     for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
         assert_eq!(&node.to_string(), ans);
     }
@@ -120,7 +122,7 @@ fn parse_openjtalk_output(output: &str) -> OpenJTalkOutput {
             _ => match state {
                 ParseState::None => (),
                 ParseState::Njd => result.njd.push(line.to_string()),
-                ParseState::JPCommon => result.njd.push(line.to_string()),
+                ParseState::JPCommon => result.jpcommon_features.push(line.to_string()),
             },
         }
     }
