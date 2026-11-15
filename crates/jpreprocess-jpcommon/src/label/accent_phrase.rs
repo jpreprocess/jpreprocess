@@ -98,6 +98,9 @@ impl AccentPhrase {
             .collect()
     }
 
+    pub fn count_word(&self) -> usize {
+        self.words.len()
+    }
     pub fn count_mora(&self) -> usize {
         self.words.iter().map(|word| word.count_mora()).sum()
     }

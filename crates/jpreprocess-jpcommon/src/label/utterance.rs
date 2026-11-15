@@ -24,6 +24,9 @@ impl Utterance {
             .map(|bg| bg.count_accent_phrase())
             .sum()
     }
+    pub fn count_word(&self) -> usize {
+        self.breath_groups.iter().map(|bg| bg.count_word()).sum()
+    }
     pub fn count_mora(&self) -> usize {
         self.breath_groups.iter().map(|bg| bg.count_mora()).sum()
     }
