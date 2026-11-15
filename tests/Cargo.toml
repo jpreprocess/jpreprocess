@@ -20,4 +20,6 @@ jpreprocess-dictionary.workspace = true
 jpreprocess-njd.workspace = true
 jpreprocess-jpcommon.workspace = true
 
+jlabel.workspace = true
+
 lindera.workspace = true

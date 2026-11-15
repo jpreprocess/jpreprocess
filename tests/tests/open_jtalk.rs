@@ -93,8 +93,22 @@ fn test_one(input_text: &'static str) {
     }
 
     assert_eq!(features.len(), parsed.jpcommon_features.len());
-    for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
-        assert_eq!(&node.to_string(), ans);
+    for (label, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
+        /// OpenJTalk treats POS==25 (フィラー) as POS==9 (感動詞).
+        /// We don't know if it is a bug or a feature, so we output the 25 and accept the difference.
+        fn replace_word_pos(w: &mut Option<jlabel::Word>) {
+            let Some(w) = w else { return };
+            if w.pos == Some(25) {
+                w.pos = Some(9);
+            }
+        }
+
+        let mut label = label.clone();
+        replace_word_pos(&mut label.word_prev);
+        replace_word_pos(&mut label.word_curr);
+        replace_word_pos(&mut label.word_next);
+
+        assert_eq!(&label.to_string(), ans);
     }
 }
 
