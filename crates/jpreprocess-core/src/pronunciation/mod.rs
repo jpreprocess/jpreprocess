@@ -113,13 +113,24 @@ impl Pronunciation {
     }
 
     pub fn transfer_from(&mut self, from: &Self) {
-        let moras = self
+        self.moras.to_mut().extend_from_slice(&from.moras);
+    }
+
+    pub fn transfer_long_vowels_to(&mut self, to: Option<&mut Self>) {
+        let long_count = self
             .moras()
             .iter()
-            .chain(from.moras())
-            .cloned()
-            .collect::<Vec<_>>();
-        self.moras = Cow::Owned(moras);
+            .position(|mora| mora.mora_enum != MoraEnum::Long)
+            .unwrap_or(self.mora_size());
+
+        if long_count == 0 {
+            return;
+        }
+
+        let iter = self.moras.to_mut().drain(0..long_count);
+        if let Some(to) = to {
+            to.moras.to_mut().extend(iter);
+        }
     }
 }
 

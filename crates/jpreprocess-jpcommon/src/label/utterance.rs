@@ -53,15 +53,26 @@ impl From<&[NJDNode]> for Utterance {
                 continue;
             }
 
+            let mut node = node.clone();
+            node.get_pron_mut().transfer_long_vowels_to(
+                accent_phrases
+                    .last_mut()
+                    .and_then(|ap| ap.words.last_mut())
+                    .map(|w| &mut w.moras),
+            );
+            if node.get_pron().is_empty() {
+                continue;
+            }
+
             if matches!(node.get_chain_flag(), Some(true)) {
                 if let Some(accent_phrase) = accent_phrases.last_mut() {
-                    accent_phrase.push_node(node);
+                    accent_phrase.push_node(&node);
                 } else {
-                    accent_phrases.push(AccentPhrase::new(node));
+                    accent_phrases.push(AccentPhrase::new(&node));
                     eprintln!("WARN: First mora cannot be chained.");
                 }
             } else {
-                accent_phrases.push(AccentPhrase::new(node));
+                accent_phrases.push(AccentPhrase::new(&node));
             }
         }
         if !accent_phrases.is_empty() {
