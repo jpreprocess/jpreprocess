@@ -27,11 +27,11 @@ const TEST_STR: &[&str] = &[
     "あ、ーバネティス，ク、ーバネティス，あ？ーバ，行こうう",
     "一九〇〇、1900，zAゔょぁ。123,456,789",
     "0123-456-789",
-    "事にした．らしかった．対して",
+    "事にしたらしかった．事にした．らしかった．対して",
     "上流の変更に追従する．",
     // From [ROHAN](https://github.com/mmorise/rohan4600)
     "ヴィランには大抵、お追従を述べる子分がいます",
-    // These sentences fail, but I won't fix.
+    // These sentences fail, but I won't fix them.
     // "12,34,567．89",
     // "クヮルテット。789",
     // "事にしたらしかった．",
@@ -47,6 +47,10 @@ fn test_one(input_text: &'static str) {
     let jpreprocess = JPreprocess::with_dictionaries(config.load().unwrap(), None);
 
     let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
+
+    for node in njd.nodes.iter_mut() {
+        println!("{}", node.to_string());
+    }
 
     njd.preprocess();
 
