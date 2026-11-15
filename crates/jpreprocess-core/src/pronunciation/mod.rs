@@ -116,21 +116,28 @@ impl Pronunciation {
         self.moras.to_mut().extend_from_slice(&from.moras);
     }
 
-    pub fn transfer_long_vowels_to(&mut self, to: Option<&mut Self>) {
-        let long_count = self
-            .moras()
-            .iter()
-            .position(|mora| mora.mora_enum != MoraEnum::Long)
-            .unwrap_or(self.mora_size());
-
+    pub fn transfer_leading_long_to(&mut self, to: &mut Self) {
+        let long_count = self.leading_long_vowel_count();
         if long_count == 0 {
             return;
         }
 
         let iter = self.moras.to_mut().drain(0..long_count);
-        if let Some(to) = to {
-            to.moras.to_mut().extend(iter);
+        to.moras.to_mut().extend(iter);
+    }
+    pub fn remove_leading_long(&mut self) {
+        let long_count = self.leading_long_vowel_count();
+        if long_count == 0 {
+            return;
         }
+
+        self.moras.to_mut().drain(0..long_count);
+    }
+    fn leading_long_vowel_count(&self) -> usize {
+        self.moras()
+            .iter()
+            .position(|mora| mora.mora_enum != MoraEnum::Long)
+            .unwrap_or(self.moras.len())
     }
 }
 

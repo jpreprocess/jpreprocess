@@ -34,7 +34,6 @@ const TEST_STR: &[&str] = &[
     // These sentences fail, but I won't fix them.
     // "12,34,567．89",
     // "クヮルテット。789",
-    // "事にしたらしかった．",
     // "スペースと ,カンマ",
 ];
 
@@ -47,10 +46,6 @@ fn test_one(input_text: &'static str) {
     let jpreprocess = JPreprocess::with_dictionaries(config.load().unwrap(), None);
 
     let mut njd = jpreprocess.text_to_njd(input_text).unwrap();
-
-    for node in njd.nodes.iter_mut() {
-        println!("{}", node.to_string());
-    }
 
     njd.preprocess();
 
