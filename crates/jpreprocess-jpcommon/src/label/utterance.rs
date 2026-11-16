@@ -24,6 +24,9 @@ impl Utterance {
             .map(|bg| bg.count_accent_phrase())
             .sum()
     }
+    pub fn count_word(&self) -> usize {
+        self.breath_groups.iter().map(|bg| bg.count_word()).sum()
+    }
     pub fn count_mora(&self) -> usize {
         self.breath_groups.iter().map(|bg| bg.count_mora()).sum()
     }
@@ -50,15 +53,28 @@ impl From<&[NJDNode]> for Utterance {
                 continue;
             }
 
+            let last_word = accent_phrases.last_mut().and_then(|ap| ap.words.last_mut());
+
+            let mut node = node.clone();
+            if let Some(last_word) = last_word {
+                node.get_pron_mut()
+                    .transfer_leading_long_to(&mut last_word.moras);
+            } else {
+                node.get_pron_mut().remove_leading_long();
+            }
+            if node.get_pron().is_empty() {
+                continue;
+            }
+
             if matches!(node.get_chain_flag(), Some(true)) {
                 if let Some(accent_phrase) = accent_phrases.last_mut() {
-                    accent_phrase.push_node(node);
+                    accent_phrase.push_node(&node);
                 } else {
-                    accent_phrases.push(AccentPhrase::new(node));
+                    accent_phrases.push(AccentPhrase::new(&node));
                     eprintln!("WARN: First mora cannot be chained.");
                 }
             } else {
-                accent_phrases.push(AccentPhrase::new(node));
+                accent_phrases.push(AccentPhrase::new(&node));
             }
         }
         if !accent_phrases.is_empty() {

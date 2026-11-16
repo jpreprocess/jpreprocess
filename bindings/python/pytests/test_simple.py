@@ -46,7 +46,7 @@ def test_extract_fullcontext(jpre: jpreprocess.JPreprocess) -> None:
 
     assert len(fullcontext) == 21
 
-    assert fullcontext[0] == r"xx^xx-sil+h=o/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:xx+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:5_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:2_11/K:1+2-11"
+    assert fullcontext[0] == r"xx^xx-sil+h=o/A:xx+xx+xx/B:xx-xx_xx/C:xx_xx+xx/D:02+xx_xx/E:xx_xx!xx_xx-xx/F:xx_xx#xx_xx@xx_xx|xx_xx/G:5_1%0_xx_xx/H:xx_xx/I:xx-xx@xx+xx&xx-xx|xx+xx/J:2_11/K:1+2-11"
     assert fullcontext[5] == r"N^j-i+ts=u/A:2+3+3/B:xx-xx_xx/C:02_xx+xx/D:24+xx_xx/E:xx_xx!xx_xx-xx/F:5_1#0_xx@1_2|1_11/G:6_5%0_xx_1/H:xx_xx/I:2-11@1+1&1-2|1+11/J:xx_xx/K:1+2-11"
     assert fullcontext[16] == r"e^N-n+a=r/A:0+5+2/B:02-xx_xx/C:10_6+2/D:xx+xx_xx/E:5_1!0_xx-1/F:6_5#0_xx@2_1|6_6/G:xx_xx%xx_xx_xx/H:xx_xx/I:2-11@1+1&1-2|1+11/J:xx_xx/K:1+2-11"
 
