@@ -126,7 +126,7 @@ impl WordDetails {
         let pos = POS::from_u8(
             iter.next_byte()
                 .map_err(|_| WordDetailsError::POSEOBError)?,
-        );
+        )?;
         let ctype = CType::from_u8(
             iter.next_byte()
                 .map_err(|_| WordDetailsError::CTypeEOBError)?,

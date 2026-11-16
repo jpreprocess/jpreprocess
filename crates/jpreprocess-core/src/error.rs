@@ -1,7 +1,7 @@
 use crate::{
     accent_rule::AccentRuleParseError, cform::CFormParseError, ctype::CTypeParseError,
-    pronunciation::PronunciationParseError, read::ReadParseError, word_details::WordDetailsError,
-    word_entry::WordEntryParseError,
+    pos::POSParseError, pronunciation::PronunciationParseError, read::ReadParseError,
+    word_details::WordDetailsError, word_entry::WordEntryParseError,
 };
 
 #[derive(Debug, thiserror::Error)]
@@ -29,6 +29,8 @@ pub enum DictionaryError {
 
 #[derive(Debug, thiserror::Error)]
 pub enum DictionaryCodecError {
+    #[error("Failed to parse part of speech (POS): {0}")]
+    POSParseError(#[from] POSParseError),
     #[error("Failed to parse conjugation type (CType): {0}")]
     CTypeParseError(#[from] CTypeParseError),
     #[error("Failed to parse conjugation form (CForm): {0}")]

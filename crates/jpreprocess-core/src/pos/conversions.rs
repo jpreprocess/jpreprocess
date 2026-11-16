@@ -5,6 +5,12 @@ use crate::pos::{
 
 use super::POS;
 
+#[derive(Debug, thiserror::Error)]
+pub enum POSParseError {
+    #[error("Invalid POS value: {0}")]
+    InvalidValue(u8),
+}
+
 pub fn string_to_pos(pos_strings: [&str; 4]) -> POS {
     let mut is_trimmable = true;
     for i in (0..4).rev() {
@@ -26,11 +32,11 @@ pub fn string_to_pos(pos_strings: [&str; 4]) -> POS {
     POS::Unknown
 }
 
-pub fn value_to_pos(pos_value: u8) -> Option<POS> {
+pub fn value_to_pos(pos_value: u8) -> Result<POS, POSParseError> {
     if pos_value as usize >= VALUE_POS_CONVERSION_TABLE.len() {
-        return None;
+        return Err(POSParseError::InvalidValue(pos_value));
     }
-    Some(VALUE_POS_CONVERSION_TABLE[pos_value as usize])
+    Ok(VALUE_POS_CONVERSION_TABLE[pos_value as usize])
 }
 
 pub fn pos_to_string(pos: &POS) -> String {

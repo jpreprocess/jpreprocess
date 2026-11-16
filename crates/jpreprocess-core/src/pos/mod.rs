@@ -13,6 +13,8 @@ mod conversions;
 
 pub use self::{doushi::*, fukushi::*, joshi::*, keiyoushi::*, kigou::*, meishi::*, settoushi::*};
 
+pub use conversions::POSParseError;
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize, Default)]
 /// 品詞
 pub enum POS {
@@ -73,8 +75,8 @@ impl POS {
         conversions::pos_to_value(&self)
     }
 
-    pub(crate) fn from_u8(n: u8) -> Self {
-        conversions::value_to_pos(n).unwrap_or(Self::Unknown)
+    pub(crate) fn from_u8(n: u8) -> Result<Self, POSParseError> {
+        conversions::value_to_pos(n)
     }
 }
 
