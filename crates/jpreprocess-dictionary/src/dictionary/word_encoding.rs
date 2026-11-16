@@ -21,7 +21,11 @@ impl JPreprocessDictionaryWordEncoding {
         jpreprocess_core::error::DictionaryCodecError,
     > {
         let mut iter = data.iter().copied();
-        jpreprocess_core::word_entry::WordEntry::from_bin(&mut iter)
+        let entry = jpreprocess_core::word_entry::WordEntry::from_bin(&mut iter)?;
+        if iter.next().is_some() {
+            return Err(jpreprocess_core::error::DictionaryCodecError::LeftoverBytesError);
+        }
+        Ok(entry)
     }
 }
 impl DictionaryWordEncoding for JPreprocessDictionaryWordEncoding {

@@ -15,6 +15,8 @@ pub enum WordEntryParseError {
     Utf8Error(#[from] std::string::FromUtf8Error),
     #[error("Empty word entry is not allowed")]
     EmptyEntry,
+    #[error("Early end of buffer while reading WordEntry string")]
+    EarlyEndOfStringBuffer,
 }
 
 #[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
@@ -117,8 +119,13 @@ impl WordEntry {
                     .parse_varint()
                     .map_err(WordEntryParseError::BinaryParseError)?;
 
-                let string = String::from_utf8(iter.by_ref().take(string_len).collect())
-                    .map_err(WordEntryParseError::Utf8Error)?;
+                let string_bytes: Vec<u8> = iter.by_ref().take(string_len).collect();
+                if string_bytes.len() < string_len {
+                    return Err(WordEntryParseError::EarlyEndOfStringBuffer.into());
+                }
+
+                let string =
+                    String::from_utf8(string_bytes).map_err(WordEntryParseError::Utf8Error)?;
                 details_vec.push((string, WordDetails::from_bin(iter)?));
             }
             Ok(Self::Multiple(details_vec))

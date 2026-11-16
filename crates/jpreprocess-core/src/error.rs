@@ -45,4 +45,6 @@ pub enum DictionaryCodecError {
     WordDetailsParseError(#[from] WordDetailsError),
     #[error("Failed to parse word entry: {0}")]
     WordEntryParseError(#[from] WordEntryParseError),
+    #[error("The buffer has leftover bytes after parsing")]
+    LeftoverBytesError,
 }
