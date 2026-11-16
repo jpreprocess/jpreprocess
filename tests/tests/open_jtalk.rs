@@ -35,6 +35,7 @@ const TEST_STR: &[&str] = &[
     // "12,34,567．89",
     // "クヮルテット。789",
     // "スペースと ,カンマ",
+    // "バリー・ペーン",
 ];
 
 fn test_one(input_text: &'static str) {

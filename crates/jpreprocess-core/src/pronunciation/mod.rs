@@ -205,16 +205,8 @@ impl Pronunciation {
                 if !current_moras.is_empty() {
                     result.push((segment_start_point..current_position, current_moras.clone()));
                     current_moras.clear();
-                    segment_start_point = current_position;
                 }
 
-                result.push((
-                    segment_start_point..match_result.start(),
-                    vec![Mora {
-                        mora_enum: MoraEnum::Touten,
-                        is_voiced: true,
-                    }],
-                ));
                 segment_start_point = match_result.start();
             }
 
@@ -357,13 +349,6 @@ mod test {
                             is_voiced: true
                         },
                     ]
-                ),
-                (
-                    9..12,
-                    vec![Mora {
-                        mora_enum: MoraEnum::Touten,
-                        is_voiced: true
-                    },]
                 ),
                 (
                     12..21,
