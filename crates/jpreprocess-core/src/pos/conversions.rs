@@ -35,7 +35,7 @@ pub fn value_to_pos(pos_value: u8) -> Option<POS> {
 
 pub fn pos_to_string(pos: &POS) -> String {
     if pos == &POS::Unknown {
-        "*".to_string()
+        "*,*,*,*".to_string()
     } else {
         let (string, _) = get_by_pos(pos);
         let comma_count = string.chars().filter(|&c| c == ',').count();

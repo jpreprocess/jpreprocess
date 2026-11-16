@@ -45,11 +45,14 @@ macro_rules! u_varint {
                         }
                     }
                     fn size_hint(&self) -> (usize, Option<usize>) {
-                        let leading_zeros = self.0.leading_zeros() as usize;
-                        let bytes_needed = (std::mem::size_of::<$t>() * 8 - leading_zeros)
-                            .div_ceil(7)
-                            .max(1);
-                        (bytes_needed, Some(bytes_needed))
+                        if self.0 == 0 && self.1 {
+                            (0, Some(0))
+                        } else {
+                            let leading_zeros = self.0.leading_zeros();
+                            let bytes_needed =
+                                (<$t>::BITS - leading_zeros).div_ceil(7).max(1) as usize;
+                            (bytes_needed, Some(bytes_needed))
+                        }
                     }
                 }
                 VarIntIter(self, false)
@@ -69,7 +72,7 @@ macro_rules! u_varint {
                         break;
                     }
                     if shift >= <$t>::BITS {
-                        return Err(BinaryParseError::UnexpectedEndOfBuffer);
+                        return Err(BinaryParseError::VarIntOverflow);
                     }
                 }
 

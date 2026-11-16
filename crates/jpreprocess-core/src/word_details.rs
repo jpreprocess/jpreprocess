@@ -106,7 +106,7 @@ impl WordDetails {
         if let Some(read) = &self.read {
             read_to_bin(read, &mut result);
         } else {
-            result.extend((-1).to_varint());
+            result.extend((-1isize).to_varint());
         };
 
         result.extend_from_slice(&self.pron.to_bin());

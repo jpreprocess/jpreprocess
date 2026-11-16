@@ -52,8 +52,8 @@ macro_rules! ctype_conversions {
         const STRING_CTYPE_CONVERSION_TABLE: phf::Map<&'static str, CType> = phf::phf_map! {
             $($string => $ctype,)*
         };
-        const VALUE_CTYPE_CONVERSION_TABLE: [CType; 75] = {
-            let mut table = [CType::None; 75];
+        const VALUE_CTYPE_CONVERSION_TABLE: [CType; 74] = {
+            let mut table = [CType::None; 74];
             $(
                 table[$value as usize] = $ctype;
             )*

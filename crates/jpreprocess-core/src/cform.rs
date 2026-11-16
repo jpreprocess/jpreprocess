@@ -102,8 +102,8 @@ macro_rules! cform_conversions {
         }
         impl CForm {
             pub(crate) fn from_u8(n: u8) -> Result<Self, CFormParseError> {
-                const VALUE_CFORM_CONVERSION_TABLE: [CForm; 75] = {
-                    let mut table = [CForm::None; 75];
+                const VALUE_CFORM_CONVERSION_TABLE: [CForm; 28] = {
+                    let mut table = [CForm::None; 28];
                     $(
                         table[$value as usize] = $cform;
                     )*

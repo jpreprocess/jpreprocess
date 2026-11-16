@@ -83,7 +83,7 @@ impl WordEntry {
         let mut result = Vec::new();
         match self {
             Self::Single(details) => {
-                result.extend(usize::to_varint(1)); // Number of entries (1 for Single)
+                result.extend(usize::to_varint(0)); // Number of entries (0 for Single)
                 result.extend_from_slice(&details.to_bin());
             }
             Self::Multiple(details_vec) => {
@@ -108,8 +108,6 @@ impl WordEntry {
             .map_err(WordEntryParseError::BinaryParseError)?;
 
         if num_entries == 0 {
-            Err(WordEntryParseError::EmptyEntry.into())
-        } else if num_entries == 1 {
             Ok(Self::Single(WordDetails::from_bin(iter)?))
         } else {
             // SECURITY: Limit the maximum number of entries to prevent potential memory exhaustion attacks.
