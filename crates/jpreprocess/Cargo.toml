@@ -21,7 +21,7 @@ naist-jdic = [
 ]
 tokenizer = [
   "dep:jpreprocess-dictionary",
-  "dep:lindera",
+  "dep:lindera-segmenter",
   "dep:lindera-dictionary",
 ]
 default = ["tokenizer"]
@@ -31,7 +31,7 @@ name = "jpreprocess"
 required-features = ["binary"]
 
 [dependencies]
-lindera = { workspace = true, optional = true }
+lindera-segmenter = { workspace = true, optional = true }
 lindera-dictionary = { workspace = true, optional = true }
 jpreprocess-dictionary = { workspace = true, optional = true }
 

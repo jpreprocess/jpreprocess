@@ -39,7 +39,6 @@ interface Metadata {
   default_field_value: string;
   flexible_csv: boolean;
   skip_invalid_cost_or_id: boolean;
-  normalize_details: boolean;
   dictionary_schema: Schema;
   user_dictionary_schema: Schema;
   model_info?: any;
@@ -62,8 +61,8 @@ struct JsDictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsDictionary> for lindera::dictionary::Dictionary {
-    type Error = lindera::error::LinderaError;
+impl TryFrom<JsDictionary> for lindera_segmenter::dictionary::Dictionary {
+    type Error = lindera_segmenter::error::LinderaError;
     fn try_from(value: JsDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             metadata: Arc::new(value.metadata),
@@ -91,8 +90,8 @@ struct JsUserDictionary {
     words_data: Vec<u8>,
 }
 
-impl TryFrom<JsUserDictionary> for lindera::dictionary::UserDictionary {
-    type Error = lindera::error::LinderaError;
+impl TryFrom<JsUserDictionary> for lindera_segmenter::dictionary::UserDictionary {
+    type Error = lindera_segmenter::error::LinderaError;
     fn try_from(value: JsUserDictionary) -> Result<Self, Self::Error> {
         let this = Self {
             dict: UserPrefixDictionary::load(

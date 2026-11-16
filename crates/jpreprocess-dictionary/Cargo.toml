@@ -36,7 +36,7 @@ log.workspace = true
 encoding_rs.workspace = true
 encoding_rs_io.workspace = true
 
-lindera.workspace = true
+lindera-segmenter.workspace = true
 lindera-dictionary.workspace = true
 daachorse.workspace = true
 

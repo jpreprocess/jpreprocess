@@ -17,13 +17,13 @@ use lindera_dictionary::{dictionary::Dictionary, loader::metadata::MetadataLoade
 use lru::LruCache;
 
 pub struct LruTokenizer {
-    segmenter: lindera::segmenter::Segmenter,
+    segmenter: lindera_segmenter::segmenter::Segmenter,
     words: Mutex<CachedStorage>,
 }
 impl LruTokenizer {
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, std::io::Error> {
         let dictionary = load_dictionary(path.as_ref());
-        let segmenter = lindera::segmenter::Segmenter::new(
+        let segmenter = lindera_segmenter::segmenter::Segmenter::new(
             lindera_dictionary::mode::Mode::Normal,
             dictionary,
             None,

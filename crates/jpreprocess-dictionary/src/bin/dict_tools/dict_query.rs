@@ -1,8 +1,7 @@
 use jpreprocess_dictionary::{
     dictionary::word_encoding::JPreprocessDictionaryWordEncoding, word_data::PrefixDictionary,
 };
-use lindera::dictionary::{Dictionary, UserDictionary};
-use lindera_dictionary::dictionary::UNK;
+use lindera_dictionary::dictionary::{Dictionary, UserDictionary, UNK};
 
 pub enum QueryDict {
     System(Dictionary),

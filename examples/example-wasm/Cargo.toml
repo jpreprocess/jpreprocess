@@ -16,7 +16,7 @@ crate-type = ["cdylib"]
 [dependencies]
 jpreprocess = { workspace = true, features = ["tokenizer"] }
 
-lindera.workspace = true
+lindera-segmenter.workspace = true
 lindera-dictionary.workspace = true
 bincode.workspace = true
 

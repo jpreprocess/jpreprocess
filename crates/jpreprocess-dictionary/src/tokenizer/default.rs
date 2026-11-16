@@ -12,7 +12,7 @@ use super::{
 };
 
 pub struct DefaultTokenizer {
-    lindera_segmenter: lindera::segmenter::Segmenter,
+    lindera_segmenter: lindera_segmenter::segmenter::Segmenter,
     system: TokenizerType,
     user: Option<TokenizerType>,
 }
@@ -23,7 +23,7 @@ enum TokenizerType {
 }
 
 impl DefaultTokenizer {
-    pub fn new(segmenter: lindera::segmenter::Segmenter) -> Self {
+    pub fn new(segmenter: lindera_segmenter::segmenter::Segmenter) -> Self {
         fn identify_tokenizer(prefix_dictionary: impl PrefixDictionary) -> TokenizerType {
             let ident = DictionaryIdent::from_ident_str(prefix_dictionary.dict_ident());
             match ident {

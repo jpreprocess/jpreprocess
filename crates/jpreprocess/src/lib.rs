@@ -79,9 +79,9 @@ impl<T: Tokenizer> JPreprocess<T> {
     /// // [`JPreprocess::with_dictionaries`] is a more convenient alternative.
     /// // Use `from_tokenizer` only if you need a customized `Tokenizer` or
     /// // want to plug in a non-Lindera tokenizer (see example-vibrato).
-    /// let system = lindera::dictionary::load_fs_dictionary(path.as_path())?;
-    /// let segmenter = lindera::segmenter::Segmenter::new(
-    ///     lindera::mode::Mode::Normal,
+    /// let system = lindera_segmenter::dictionary::load_fs_dictionary(path.as_path())?;
+    /// let segmenter = lindera_segmenter::segmenter::Segmenter::new(
+    ///     lindera_segmenter::mode::Mode::Normal,
     ///     system,
     ///     None,
     /// );
@@ -171,7 +171,7 @@ mod default_tokenizer_impl {
     /// Please use [`JPreprocess::with_dictionaries`] instead.
     pub struct JPreprocessConfig {
         pub dictionary: SystemDictionaryConfig,
-        pub user_dictionary: Option<lindera::dictionary::UserDictionaryConfig>,
+        pub user_dictionary: Option<lindera_segmenter::dictionary::UserDictionaryConfig>,
     }
 
     impl JPreprocess<DefaultTokenizer> {
@@ -205,9 +205,9 @@ mod default_tokenizer_impl {
                         })?;
 
                     match path.extension().and_then(|ext| ext.to_str()) {
-                        Some("bin") => {
-                            Some(lindera::dictionary::load_user_dictionary_from_bin(&path)?)
-                        }
+                        Some("bin") => Some(
+                            lindera_segmenter::dictionary::load_user_dictionary_from_bin(&path)?,
+                        ),
                         _ => {
                             eprintln!("CSV-type user dictionary can no longer be loaded with `JPreprocess::from_config` since JPreprocess v0.13.0. Please use `JPreprocess::with_dictionaries` instead.");
                             eprintln!("Skipping user dictionary loading.");
@@ -282,7 +282,7 @@ mod default_tokenizer_impl {
             dictionary: Dictionary,
             user_dictionary: Option<UserDictionary>,
         ) -> Self {
-            let segmenter = lindera::segmenter::Segmenter::new(
+            let segmenter = lindera_segmenter::segmenter::Segmenter::new(
                 lindera_dictionary::mode::Mode::Normal,
                 dictionary,
                 user_dictionary,
