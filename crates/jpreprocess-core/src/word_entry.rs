@@ -31,7 +31,8 @@ impl WordEntry {
                         len += orig.len();
                     } else {
                         // the last word
-                        result.push((string[len..].to_string(), word_details.to_owned()));
+                        let s = string.get(len..).unwrap_or(orig);
+                        result.push((s.to_string(), word_details.to_owned()));
                     }
                 }
                 result
