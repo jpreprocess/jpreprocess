@@ -650,7 +650,6 @@ dependencies = [
 name = "example-wasm"
 version = "0.15.0"
 dependencies = [
- "bincode",
  "jpreprocess",
  "js-sys",
  "lindera",
@@ -1220,7 +1219,6 @@ name = "jpreprocess-core"
 version = "0.15.0"
 dependencies = [
  "aho-corasick",
- "bincode",
  "lindera",
  "lindera-dictionary",
  "once_cell",
@@ -1236,7 +1234,6 @@ name = "jpreprocess-dictionary"
 version = "0.15.0"
 dependencies = [
  "anyhow",
- "bincode",
  "byteorder",
  "clap",
  "csv",
@@ -1267,7 +1264,6 @@ dependencies = [
 name = "jpreprocess-naist-jdic"
 version = "0.15.0"
 dependencies = [
- "bincode",
  "flate2",
  "jpreprocess-dictionary",
  "lindera-dictionary",
