@@ -92,8 +92,7 @@ impl TryFrom<WordDetailsLine> for WordDetails {
                 &value.pos_group1,
                 &value.pos_group2,
                 &value.pos_group3,
-            )
-            .map_err(DictionaryCodecError::from)?,
+            ),
             ctype: CType::from_str(&value.ctype).map_err(DictionaryCodecError::from)?,
             cform: CForm::from_str(&value.cform).map_err(DictionaryCodecError::from)?,
             chain_rule: ChainRules::new(&value.chain_rule),

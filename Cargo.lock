@@ -1224,6 +1224,7 @@ dependencies = [
  "lindera",
  "lindera-dictionary",
  "once_cell",
+ "phf",
  "regex",
  "serde",
  "thiserror 2.0.21",
