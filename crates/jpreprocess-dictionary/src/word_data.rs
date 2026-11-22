@@ -5,21 +5,21 @@ pub trait PrefixDictionary {
 
 impl PrefixDictionary for &lindera_dictionary::dictionary::prefix_dictionary::PrefixDictionary {
     fn dict_ident(&self) -> Option<&str> {
-        get_word_data(&self.words_idx_data(), &self.words_data(), None)
+        get_word_data(self.words_idx_data(), self.words_data(), None)
             .and_then(|ident| std::str::from_utf8(ident).ok())
     }
     fn word_data(&self, word_id: usize) -> Option<&[u8]> {
-        get_word_data(&self.words_idx_data(), &self.words_data(), Some(word_id))
+        get_word_data(self.words_idx_data(), self.words_data(), Some(word_id))
     }
 }
 
 impl PrefixDictionary for &lindera_dictionary::dictionary::prefix_dictionary::UserPrefixDictionary {
     fn dict_ident(&self) -> Option<&str> {
-        get_word_data(&self.words_idx_data(), &self.words_data(), None)
+        get_word_data(self.words_idx_data(), self.words_data(), None)
             .and_then(|ident| std::str::from_utf8(ident).ok())
     }
     fn word_data(&self, word_id: usize) -> Option<&[u8]> {
-        get_word_data(&self.words_idx_data(), &self.words_data(), Some(word_id))
+        get_word_data(self.words_idx_data(), self.words_data(), Some(word_id))
     }
 }
 
