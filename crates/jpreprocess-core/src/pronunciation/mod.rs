@@ -9,6 +9,8 @@ use std::{borrow::Cow, fmt::Display, ops::Range};
 pub use mora::*;
 pub use mora_enum::*;
 
+use crate::bin_util::{BinaryParseError, NextByteIterator, VarIntDecode, VarIntEncode};
+
 pub const TOUTEN: &str = "、";
 pub const QUESTION: &str = "？";
 pub const QUOTATION: &str = "’";
@@ -40,6 +42,10 @@ pub enum PronunciationParseError {
     MoraSizeMismatch(usize, usize),
     #[error("Failed to parse as integer: {0}")]
     NumberParseError(#[from] std::num::ParseIntError),
+    #[error("Unknown Mora Id: {0}")]
+    UnknownMoraId(u8),
+    #[error("Binary parse error: {0}")]
+    BinaryParseError(#[from] BinaryParseError),
 }
 
 /// Pronunciation.
@@ -113,13 +119,99 @@ impl Pronunciation {
     }
 
     pub fn transfer_from(&mut self, from: &Self) {
-        let moras = self
-            .moras()
+        self.moras.to_mut().extend_from_slice(&from.moras);
+    }
+
+    pub fn transfer_leading_long_to(&mut self, to: &mut Self) {
+        let long_count = self.leading_long_vowel_count();
+        if long_count == 0 {
+            return;
+        }
+
+        let iter = self.moras.to_mut().drain(0..long_count);
+        to.moras.to_mut().extend(iter);
+    }
+    pub fn remove_leading_long(&mut self) {
+        let long_count = self.leading_long_vowel_count();
+        if long_count == 0 {
+            return;
+        }
+
+        self.moras.to_mut().drain(0..long_count);
+    }
+    fn leading_long_vowel_count(&self) -> usize {
+        self.moras()
             .iter()
-            .chain(from.moras())
-            .cloned()
-            .collect::<Vec<_>>();
-        self.moras = Cow::Owned(moras);
+            .position(|mora| mora.mora_enum != MoraEnum::Long)
+            .unwrap_or(self.moras.len())
+    }
+
+    pub(crate) fn to_bin(&self) -> Vec<u8> {
+        let len = self.moras.len();
+        let voiced_flag_len = len.div_ceil(8);
+
+        let len_encoded = len.to_varint();
+        let accent_encoded = self.accent.to_varint();
+        let mut result = Vec::with_capacity(
+            len_encoded.size_hint().0 + accent_encoded.size_hint().0 + len + voiced_flag_len,
+        );
+
+        result.extend(len_encoded);
+        result.extend(accent_encoded);
+
+        for mora in self.moras.iter() {
+            result.push(mora.mora_enum.to_u8());
+        }
+
+        for i in 0..voiced_flag_len {
+            let mut flag_tmp = 0u8;
+            for j in 0..8 {
+                if i * 8 + j >= len {
+                    break;
+                }
+
+                let is_voiced = self.moras[i * 8 + j].is_voiced as u8;
+                flag_tmp |= is_voiced << j;
+            }
+            result.push(flag_tmp);
+        }
+
+        result
+    }
+
+    pub(crate) fn from_bin<I: Iterator<Item = u8>>(
+        iter: &mut I,
+    ) -> Result<Self, PronunciationParseError> {
+        let len: usize = iter.parse_varint()?;
+        let accent = iter.parse_varint()?;
+
+        // SECURITY: Limit the maximum number of moras to prevent potential memory exhaustion attacks.
+        // This will not affect the case where the length is valid, as the Vec will be extended on demand.
+        let mut moras = Vec::with_capacity(len.min(256)); // Arbitrary limit of 256 moras
+        for _ in 0..len {
+            moras.push(Mora {
+                mora_enum: MoraEnum::from_u8(iter.next_byte()?)?,
+                is_voiced: false, // Will be updated later
+            });
+        }
+
+        let voiced_flag_len = len.div_ceil(8);
+        for i in 0..voiced_flag_len {
+            let flag = iter.next_byte()?;
+            for j in 0..8 {
+                if i * 8 + j >= len {
+                    break;
+                }
+
+                let is_voiced = flag & (0x1 << j);
+                moras[i * 8 + j].is_voiced = is_voiced > 0;
+            }
+        }
+
+        Ok(Self {
+            moras: moras.into(),
+            accent,
+        })
     }
 }
 
@@ -187,16 +279,8 @@ impl Pronunciation {
                 if !current_moras.is_empty() {
                     result.push((segment_start_point..current_position, current_moras.clone()));
                     current_moras.clear();
-                    segment_start_point = current_position;
                 }
 
-                result.push((
-                    segment_start_point..match_result.start(),
-                    vec![Mora {
-                        mora_enum: MoraEnum::Touten,
-                        is_voiced: true,
-                    }],
-                ));
                 segment_start_point = match_result.start();
             }
 
@@ -339,13 +423,6 @@ mod test {
                             is_voiced: true
                         },
                     ]
-                ),
-                (
-                    9..12,
-                    vec![Mora {
-                        mora_enum: MoraEnum::Touten,
-                        is_voiced: true
-                    },]
                 ),
                 (
                     12..21,

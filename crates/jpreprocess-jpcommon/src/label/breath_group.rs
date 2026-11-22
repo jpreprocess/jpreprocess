@@ -51,6 +51,9 @@ impl BreathGroup {
     pub fn count_accent_phrase(&self) -> usize {
         self.accent_phrases.len()
     }
+    pub fn count_word(&self) -> usize {
+        self.accent_phrases.iter().map(|ap| ap.count_word()).sum()
+    }
     pub fn count_mora(&self) -> usize {
         self.accent_phrases.iter().map(|ap| ap.count_mora()).sum()
     }

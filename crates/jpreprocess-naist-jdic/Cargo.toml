@@ -32,14 +32,12 @@ naist-jdic = [
   "dep:md5",
   "dep:flate2",
   "dep:tar",
-  "dep:bincode",
   "dep:serde",
   "dep:serde_json",
 ]
 
 [dependencies]
 lindera-dictionary.workspace = true
-bincode = { workspace = true, optional = true }
 
 [build-dependencies]
 lindera-dictionary.workspace = true

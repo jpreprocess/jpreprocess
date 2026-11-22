@@ -72,7 +72,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, FeatureBu
         } else {
             /* insert silent as the first phoneme */
             let mut builder = pau_feature(builder_u.clone(), None, Some(breath_group));
-            if breath_group_next.is_none() {
+            if utterance.count_word() == 1 {
                 builder.ignore_d();
             }
             phonemes.push(("sil".to_string(), builder));
@@ -177,7 +177,7 @@ pub fn utterance_to_phoneme_vec(utterance: &Utterance) -> Vec<(String, FeatureBu
         if breath_group_next.is_none() {
             /* insert silent as the last phoneme */
             let mut builder = pau_feature(builder_u.clone(), Some(breath_group), None);
-            if breath_group_prev.is_none() {
+            if utterance.count_word() == 1 {
                 builder.ignore_b();
             }
             phonemes.push(("sil".to_string(), builder));

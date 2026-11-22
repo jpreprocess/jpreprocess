@@ -23,17 +23,19 @@ const TEST_STR: &[&str] = &[
     "聞きがたいお手紙の混雑ぶり霊験あらたか。たいそうやっちゃったね。動く細かい部屋に少なめコーヒーだし。尚更。",
     "No.12。番号:12。0.0.2.0.5.0.6.0 1棟、1人、一日、一日間、14日、14日間、20日、24日、24日間、1分。035(123)。100000。10,00。1,000",
     "リャリョ。クーバネティス。行こう。行きます？",
+    "あ、ーバネティス，ク、ーバネティス，あ？ーバ，行こうう",
     "一九〇〇、1900，zAゔょぁ。123,456,789",
     "0123-456-789",
-    "事にした．らしかった．対して",
+    "事にしたらしかった．事にした．らしかった．対して",
     "上流の変更に追従する．",
     "鄧艾，𩹉",
     // From [ROHAN](https://github.com/mmorise/rohan4600)
     "ヴィランには大抵、お追従を述べる子分がいます",
-    // These sentences fail, but I won't fix.
+    // These sentences fail, but I won't fix them.
     // "12,34,567．89",
     // "クヮルテット。789",
-    // "事にしたらしかった．",
+    // "スペースと ,カンマ",
+    // "バリー・ペーン",
 ];
 
 fn test_one(input_text: &'static str) {
@@ -75,14 +77,30 @@ fn test_one(input_text: &'static str) {
 
     let parsed = parse_openjtalk_output(&stdout);
 
+    assert_eq!(njd.nodes.len(), parsed.njd.len());
     for (node, ans) in njd.nodes.iter().zip(parsed.njd.iter()) {
         let node_ans = NJDNode::new_single(ans);
 
         assert_eq!(node, &node_ans);
     }
 
-    for (node, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
-        assert_eq!(&node.to_string(), ans);
+    assert_eq!(features.len(), parsed.jpcommon_features.len());
+    for (label, ans) in features.iter().zip(parsed.jpcommon_features.iter()) {
+        /// OpenJTalk treats POS==25 (フィラー) as POS==9 (感動詞).
+        /// We don't know if it is a bug or a feature, so we output the 25 and accept the difference.
+        fn replace_word_pos(w: &mut Option<jlabel::Word>) {
+            let Some(w) = w else { return };
+            if w.pos == Some(25) {
+                w.pos = Some(9);
+            }
+        }
+
+        let mut label = label.clone();
+        replace_word_pos(&mut label.word_prev);
+        replace_word_pos(&mut label.word_curr);
+        replace_word_pos(&mut label.word_next);
+
+        assert_eq!(&label.to_string(), ans);
     }
 }
 
@@ -112,7 +130,7 @@ fn parse_openjtalk_output(output: &str) -> OpenJTalkOutput {
             _ => match state {
                 ParseState::None => (),
                 ParseState::Njd => result.njd.push(line.to_string()),
-                ParseState::JPCommon => result.njd.push(line.to_string()),
+                ParseState::JPCommon => result.jpcommon_features.push(line.to_string()),
             },
         }
     }
