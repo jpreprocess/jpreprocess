@@ -1330,7 +1330,8 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 [[package]]
 name = "lindera-dictionary"
 version = "7.0.0"
-source = "git+https://github.com/lindera/lindera.git?rev=131b8ab08bc2bd7dbdc718fa4236f532fff0d29d#131b8ab08bc2bd7dbdc718fa4236f532fff0d29d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3dc93d2998799041e449b6b2789807d15409d9a600edc33b97c2bd29c92788c9"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1356,7 +1357,8 @@ dependencies = [
 [[package]]
 name = "lindera-segmenter"
 version = "7.0.0"
-source = "git+https://github.com/lindera/lindera.git?rev=131b8ab08bc2bd7dbdc718fa4236f532fff0d29d#131b8ab08bc2bd7dbdc718fa4236f532fff0d29d"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88d2cc4e142ff378326548dc5afdb3ef064c40cfd888f0e2e12805e0793e14f1"
 dependencies = [
  "anyhow",
  "lindera-dictionary",
