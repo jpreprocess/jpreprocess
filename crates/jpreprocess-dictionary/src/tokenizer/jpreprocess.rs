@@ -12,11 +12,11 @@ use crate::{
 };
 
 pub struct JPreprocessTokenizer {
-    segmenter: lindera::segmenter::Segmenter,
+    segmenter: lindera_segmenter::segmenter::Segmenter,
 }
 
 impl JPreprocessTokenizer {
-    pub fn new(segmenter: lindera::segmenter::Segmenter) -> Self {
+    pub fn new(segmenter: lindera_segmenter::segmenter::Segmenter) -> Self {
         Self { segmenter }
     }
 
@@ -55,7 +55,7 @@ impl JPreprocessTokenizer {
 
 impl Tokenizer for JPreprocessTokenizer {
     fn tokenize<'a>(&'a self, text: &'a str) -> JPreprocessResult<Vec<impl 'a + Token>> {
-        let words = self.segmenter.segment(text.into()).unwrap();
+        let words = self.segmenter.segment(text.into())?;
         words
             .into_iter()
             .map(|token| {

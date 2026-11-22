@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use jpreprocess_core::JPreprocessResult;
-use lindera::dictionary::load_fs_dictionary;
 use lindera_dictionary::dictionary::Dictionary;
+use lindera_segmenter::dictionary::load_fs_dictionary;
 
 pub mod kind;
 

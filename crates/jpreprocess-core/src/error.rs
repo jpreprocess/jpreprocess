@@ -12,7 +12,7 @@ pub enum JPreprocessError {
     DictionaryError(#[from] DictionaryError),
     #[cfg(feature = "lindera")]
     #[error("Lindera error: {0}")]
-    LinderaError(#[from] lindera::error::LinderaError),
+    LinderaError(#[from] lindera_segmenter::error::LinderaError),
     #[error("Failed to parse word entry: {0}")]
     WordEntryParseError(#[from] DictionaryCodecError),
 }

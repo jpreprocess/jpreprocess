@@ -22,4 +22,4 @@ jpreprocess-jpcommon.workspace = true
 
 jlabel.workspace = true
 
-lindera.workspace = true
+lindera-segmenter.workspace = true

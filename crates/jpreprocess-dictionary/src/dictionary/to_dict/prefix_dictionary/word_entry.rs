@@ -65,7 +65,7 @@ pub fn generate_values(
 
     let mut dict_vals_buffer = Vec::new();
     for word_entries in word_entry_map.values() {
-        for word_entry in word_entries.iter().rev() {
+        for word_entry in word_entries {
             serialize_word_entry(word_entry, &mut dict_vals_buffer).map_err(|err| {
                 LinderaErrorKind::Serialize
                     .with_error(anyhow::anyhow!(err))
