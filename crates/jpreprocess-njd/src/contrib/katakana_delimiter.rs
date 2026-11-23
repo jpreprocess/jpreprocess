@@ -1,4 +1,5 @@
-//! Removes "・" and "゠", which are often used in foreign proper nouns, if they are surrounded by katanaka characters.
+//! Removes "・" (KATAKANA MIDDLE DOT, 中黒) and "゠" (KATAKANA HIRAGANA DOUBLE HYPHEN, ダブルハイフン),
+//! which are often used in foreign proper nouns, if they are surrounded by katanaka characters.
 //!
 //! e.g. "バリー・ペーン" -> "バリーペーン"
 //!
