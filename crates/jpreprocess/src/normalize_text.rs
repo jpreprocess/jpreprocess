@@ -50,8 +50,8 @@ pub fn normalize_text_for_naist_jdic(input_text: &str) -> String {
 const HALFWIDTH: Map<char, char> = phf_map! {
     // Symbols
     ' ' => '\u{3000}', // 　 U+3000 Ideographic Space
-    '\u{a5}' => '\u{FFE5}', // ￥ U+FFE5 Fullwidth Yen Sign
-    '\\' => '\u{FFE5}', // ￥ U+FFE5 Fullwidth Yen Sign
+    '\u{FFE5}' => '\u{A5}', // ¥ U+A5 Yen Sign
+    '\\' => '\u{A5}', // ¥ U+A5 Yen Sign
     '-' => '\u{2212}', // − U+2212 MINUS SIGN
     '~' => '\u{301C}', // 〜 U+301C WAVE DASH
     '`' => '\u{2018}', // ‘ U+2018 LEFT SINGLE QUOTATION MARK
@@ -214,7 +214,7 @@ mod tests {
             normalize_text_for_naist_jdic("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
             "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"
         );
-        assert_eq!(normalize_text_for_naist_jdic("[\\]^_`"), "［￥］＾＿‘");
+        assert_eq!(normalize_text_for_naist_jdic("[\\]^_`"), "［¥］＾＿‘");
         assert_eq!(
             normalize_text_for_naist_jdic("abcdefghijklmnopqrstuvwxyz"),
             "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"
