@@ -214,7 +214,7 @@ mod tests {
             normalize_text_for_naist_jdic("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
             "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ"
         );
-        assert_eq!(normalize_text_for_naist_jdic("[\\]^_`"), "［￥］＾＿‘");
+        assert_eq!(normalize_text_for_naist_jdic("[\\]^_`"), "［¥］＾＿‘");
         assert_eq!(
             normalize_text_for_naist_jdic("abcdefghijklmnopqrstuvwxyz"),
             "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ"
