@@ -7,7 +7,7 @@ use jpreprocess_window::{IterQuintMutTrait, Triple};
 use crate::{NJDNode, NJD};
 
 const CURRENCY_TABLE: phf::Map<&str, &str> = phf::phf_map! {
-    "￥" => "円,名詞,接尾,助数詞,*,*,*,円,エン,エン,1/2,C3,1",
+    "¥" => "円,名詞,接尾,助数詞,*,*,*,円,エン,エン,1/2,C3,1",
     "＄" => "ドル,名詞,接尾,助数詞,*,*,*,＄,ドル,ドル,1/2,C3,1",
     "€" => "ユーロ,名詞,接尾,助数詞,*,*,*,€,ユーロ,ユーロ,1/3,C3,1",
 };
@@ -56,7 +56,7 @@ mod tests {
     #[test]
     fn simple() {
         let mut njd = NJD::from_strings(vec![
-            "￥,記号,*,*,*,*,*,￥,、,、,0/0,*,-1".to_string(),
+            "¥,記号,*,*,*,*,*,¥,、,、,0/0,*,-1".to_string(),
             "千,名詞,数,*,*,*,*,千,セン,セン,1/2,*,0".to_string(),
         ]);
         process_currency(&mut njd);
@@ -72,7 +72,7 @@ mod tests {
     #[test]
     fn multiple() {
         let mut njd = NJD::from_strings(vec![
-            "￥,記号,*,*,*,*,*,￥,、,、,0/0,*,-1".to_string(),
+            "¥,記号,*,*,*,*,*,¥,、,、,0/0,*,-1".to_string(),
             "三,名詞,数,*,*,*,*,三,サン,サン,3/2,C3,0".to_string(),
             "千,名詞,数,*,*,*,*,千,セン,ゼン,1/2,*,1".to_string(),
             "五,名詞,数,*,*,*,*,五,ゴ,ゴ,3/1,C3,0".to_string(),
