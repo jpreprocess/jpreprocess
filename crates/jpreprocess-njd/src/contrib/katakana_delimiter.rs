@@ -1,6 +1,8 @@
 //! Removes "・" and "゠", which are often used in foreign proper nouns, if they are surrounded by katanaka characters.
 //!
 //! e.g. "バリー・ペーン" -> "バリーペーン"
+//!
+//! Usage: Call this function right after [[crate::open_jtalk::pronunciation::njd_set_pronunciation]].
 
 use jpreprocess_core::pos::{Kigou, POS};
 use jpreprocess_window::{IterQuintMutTrait, Triple};

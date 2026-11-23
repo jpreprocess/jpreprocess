@@ -1,6 +1,8 @@
 //! Convert currency in forms of ¥100 or $25 to proper reading.
 //!
 //! Note: This filter treats `\` (backslash) as yen sign.
+//!
+//! Usage: Call this function right after [[crate::open_jtalk::digit_sequence::njd_digit_sequence]].
 
 use jpreprocess_window::{IterQuintMutTrait, Triple};
 
