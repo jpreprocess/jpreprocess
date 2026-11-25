@@ -632,7 +632,7 @@ dependencies = [
 
 [[package]]
 name = "example-lru"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
@@ -644,14 +644,14 @@ dependencies = [
 
 [[package]]
 name = "example-simple"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jpreprocess",
 ]
 
 [[package]]
 name = "example-vibrato"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jpreprocess",
  "jpreprocess-core",
@@ -660,7 +660,7 @@ dependencies = [
 
 [[package]]
 name = "example-wasm"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jpreprocess",
  "js-sys",
@@ -1213,7 +1213,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "clap",
  "jlabel",
@@ -1230,7 +1230,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-core"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "aho-corasick",
  "lindera-dictionary",
@@ -1245,7 +1245,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-dictionary"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "anyhow",
  "byteorder",
@@ -1267,7 +1267,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-jpcommon"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jlabel",
  "jpreprocess-core",
@@ -1276,7 +1276,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-naist-jdic"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "flate2",
  "jpreprocess-dictionary",
@@ -1291,7 +1291,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-njd"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "aho-corasick",
  "jpreprocess-core",
@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "jpreprocess-window"
-version = "0.16.0"
+version = "0.17.0"
 
 [[package]]
 name = "js-sys"
@@ -2476,7 +2476,7 @@ dependencies = [
 
 [[package]]
 name = "tests"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "jlabel",
  "jpreprocess",
