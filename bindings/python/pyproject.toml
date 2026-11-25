@@ -23,10 +23,22 @@ readme = "README.md"
 
 [project.optional-dependencies]
 progress = [ "tqdm" ]
+
+[dependency-groups]
 dev = [ "pytest>=8.0.1" ]
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.uv]
+# Rebuild the extension module when the Rust sources change.
+cache-keys = [
+    { file = "pyproject.toml" },
+    { file = "Cargo.toml" },
+    { file = "src/**/*.rs" },
+    { file = "../../Cargo.lock" },
+    { file = "../../crates/**/*.rs" },
+]
 
 [tool.pytest.ini_options]
 addopts = [
