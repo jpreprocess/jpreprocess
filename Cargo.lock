@@ -1339,9 +1339,9 @@ checksum = "65cd87c9a6d60536580b316ad985726104730a5151c99845f2490428ef91240a"
 
 [[package]]
 name = "lindera-dictionary"
-version = "7.0.0"
+version = "7.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3dc93d2998799041e449b6b2789807d15409d9a600edc33b97c2bd29c92788c9"
+checksum = "a79ad8ed8499b88da3847361b64ce6fbca1c8c09a41b82c9b58a650f9ab97d98"
 dependencies = [
  "anyhow",
  "byteorder",

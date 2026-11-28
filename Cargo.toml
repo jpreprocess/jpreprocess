@@ -31,7 +31,7 @@ jpreprocess-njd = { path = "crates/jpreprocess-njd", version = "0.17.0" }
 jpreprocess-window = { path = "crates/jpreprocess-window", version = "0.17.0" }
 
 lindera-segmenter = "~7.0.0"
-lindera-dictionary = "~7.0.0"
+lindera-dictionary = "~7.1.0"
 daachorse = "5.1.0"
 
 vibrato = "0.5.2"
